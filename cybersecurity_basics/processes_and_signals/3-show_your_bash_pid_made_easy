@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+#Search for processes by name and return the PID.
+pgrep -l bash
