@@ -3,22 +3,26 @@
 
 ## 1. Process Identification
 
-The process named `kworker` running under PID 8834 is not a legitimate Linux kernel process. Real kworker processes are kernel threads: they run as `root` and appear in the process list wrapped in brackets (`[kworker]`). This one runs as `www-data`, from an executable sitting at `/var/www/html/.cache/kworker` — a web application directory that has no business hosting an executable at all. The name was chosen deliberately to blend into a normal process list during a quick review.
-
-The command line confirms what it actually is: `stratum+tcp://pool.monero.org:4443` is the connection string a cryptocurrency miner uses to talk to a mining pool. Stratum is the standard protocol miners use to receive work and submit results; Monero is the coin being mined, chosen because its algorithm runs efficiently on ordinary CPUs instead of requiring specialized hardware. The `config.json` file found next to the binary confirms it further — it lists three separate pool endpoints as fallbacks and disables the "donate" feature, a configuration typical of cryptomining tools tuned to keep every stolen CPU cycle for the attacker.
-
-In short: this is a cryptojacking payload, silently mining Monero on MedDefense's own billing server while disguised as a harmless system process.
+`kworker` (PID 8834) is not a real Linux kernel process — real kworker threads run as `root` and appear as `[kworker]`. This one runs as `www-data` from `/var/www/html/.cache/kworker`, named to blend into the process list. `stratum+tcp://pool.monero.org:4443` is the protocol used to talk to a crypto mining pool; `config.json` confirms it, with three Monero pool fallbacks. **This is a cryptojacking payload**, silently mining Monero on the billing server.
 
 ## 2. Real Compromise Classification
 
-CPU saturation is the symptom IT noticed — but it's the last event in the chain, not the first. Two other pillars were already broken before performance ever became a visible problem.
+**The real security problem is not Availability — two other pillars were broken first**, and CPU saturation is only the last, visible event in the chain.
 
-### Primary Pillar #1 — Confidentiality
+**Confidentiality:** the miner runs from inside the web app's own directory as `www-data`, meaning someone gained unauthorized access to the server through the application itself.
 
-Before any file could be planted and executed, someone had to gain unauthorized access to the server in the first place. The miner's binary and config sit inside the web application's own directory and run under the same user as Apache (`www-data`), which strongly points to the web application itself as the entry point, not a stolen admin credential. Regardless of the exact method, an outside party reached a system they had no authorization to access — that alone is a confidentiality violation, independent of whatever they did once inside.
+**Integrity:** the attacker then uploaded and ran a binary that was never part of MedDefense's software, disguised to look legitimate — an unauthorized change to the system.
 
-### Primary Pillar #2 — Integrity
+## 3. Why the Sysadmin's Solution Fails
 
-Once inside, the attacker uploaded and executed a binary that was never part of MedDefense's software stack, and gave it a name and file permissions designed to look legitimate. That is an unauthorized modification of the server's software state — the machine is no longer running only what it's supposed to be running.
+**A hardware upgrade does not fix the security problem.** The miner is configured (`threads: 4`, fixed `cpu-priority`) to use whatever CPU it is given, so a bigger VM just hands the attacker more mining capacity. It also does nothing about how the attacker got in — the same vulnerability carries over to the new VM.
 
-Only after bot
+## 4. Connection to the January Incident
+
+**The miner and the January ransomware point to the same underlying weakness.** Two unrelated compromises on the same server after a full rebuild means the rebuild reset the symptom, not the cause. Marcus's notes flag Apache 2.4.29 (known RCE vulnerabilities) as the likely shared entry point. Open question: was Apache patched during the rebuild, or was the same vulnerable version reinstalled?
+
+## Recommendation
+
+1. Confirm the Apache version on `billing-srv-01` against known 2.4.29 RCE advisories.
+2. Reject the hardware upgrade — it raises cost without fixing the vulnerability.
+3. Audit other servers still running Apache 2.4.29.
