@@ -1,3 +1,4 @@
+
 # Incident Classification — MedDefense Health Systems
 
 ## Methodology
@@ -6,14 +7,14 @@ Each incident from Marcus Webb's incident log was evaluated against the CIA Tria
 
 ## Incident Classification Table
 
-| ID | Date | Primary Pillar | Secondary Pillar |
-|----|--------|-----------------|-------------------|
-| A  | Jan 15 | Availability    | Integrity         |
-| B  | Feb 2  | Confidentiality | None identified   |
-| C  | Mar 18 | Integrity       | None identified   |
-| D  | Apr 5  | Integrity       | None identified   |
-| E  | May 22 | Availability    | None identified   |
-| F  | Jun 10 | Confidentiality | None identified   |
+| ID | Date   | Primary Pillar  | Secondary Pillar |
+| -- | ------ | --------------- | ---------------- |
+| A  | Jan 15 | Availability    | Integrity        |
+| B  | Feb 2  | Confidentiality | None identified  |
+| C  | Mar 18 | Integrity       | None identified  |
+| D  | Apr 5  | Integrity       | None identified  |
+| E  | May 22 | Availability    | None identified  |
+| F  | Jun 10 | Confidentiality | Availability     |
 
 ## Justification by Incident
 
@@ -39,4 +40,4 @@ Secondary — None identified: no data alteration or unauthorized access is repo
 
 **F — Unmanaged personal laptop on the internal network for 3 weeks (Jun 10)**
 Primary — Confidentiality: the laptop bypassed network segmentation and could reach the same segment as the HR file share.
-Secondary — None identified: the torrent client is a policy/hygiene risk, but the log shows no evidence MedDefense data was altered or exfiltrated.
+Secondary — Availability: a torrent client generates sustained, heavy upload/download traffic; running undetected on the internal network for 3 weeks could degrade network performance for the clinical and administrative systems sharing that same network.
