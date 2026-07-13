@@ -37,4 +37,4 @@
 - **Vulnerability:** A fire exit linking the public waiting area to the restricted administrative wing is propped open with a wooden wedge, bypassing whatever access control normally guards it.
 - **Threat:** Anyone from the waiting area no badge, no check-in, no escort walks straight into the administrative wing, including the corridor to IT and executive offices.
 - **Impact:** Unrestricted physical entry to IT and leadership areas breaks **Confidentiality**, and could enable further tampering (a planted device, stolen documents) breaking **Integrity**.
-- **Severity:** High takes zero skill or effort to exploit (the door is already open), and it grants direct access to IT and leadership without any credential at all.
+- **Severity:** Hightakes zero skill or effort to exploit (the door is already open), and it grants direct access to IT and leadership without any credential at all.
