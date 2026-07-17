@@ -6,7 +6,7 @@
 - **Classification:** Negligent. This is a systemic operational practice, not an individual act of malice the risk exists because the organization tolerates a shared account, not because any one technician intends harm.
 - **Behavioral Indicators:** Multiple simultaneous or overlapping login sessions under the same account from different workstations; sessions left open between patients with no logout; access logs showing continuous activity across shift changes with no corresponding individual identity.
 - **Existing Control (from 1x00):** None found. The issue was formally reported to Sarah Park and remains unresolved no compensating technical or administrative control covers it.
-- **Gap Exploited (from 1x00):** GAP-010 Shared PACS login removes individual accountability for imaging access.
+- **Gap Exploited (from 1x00):** GAP-010 Shared PACS login removes individual accountability for imaging access. 
 - **Recommended Mitigation:** Technical issue individual login credentials per technician on the PACS workstation, paired with an automatic session timeout so idle sessions can't persist between patients.
 
 ## Scenario 2 The Ghost Account
