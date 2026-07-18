@@ -1,0 +1,44 @@
+
+# 9. Vector-to-Asset Matrix
+
+**Analyst:** Threat Intelligence Analyst
+**Date:** Current
+
+## Columns (1x00 Task 8 Top 5 + Medical IoT + Active Directory)
+
+1. `ehr-db-01` (A-002) — #1 Critical Asset
+2. `ad-dc-01` (A-005) — #2 Critical Asset
+3. `NAS-01` (A-010) — #3 Critical Asset
+4. FortiGate 100F (A-020) — #4 Critical Asset
+5. BD Alaris Pump Fleet (A-016) — #5 Critical Asset
+6. Medical IoT (category — Philips monitors, badge readers, nurse call)
+7. Active Directory (domain-wide — `ad-dc-01` + `ad-dc-02`, authentication for the entire org)
+
+## Matrix
+
+| Vector                       | 1. ehr-db-01                                                                    | 2. ad-dc-01                                                                                      | 3. NAS-01                                                                                 | 4. FortiGate                                                                         | 5. BD Alaris                                                              | 6. Medical IoT                                                                           | 7. Active Directory                                                                               |
+| ---------------------------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| Phishing / Spear Phishing    | WS foothold → cred harvest → flat net → PG 5432 → patient data              | WS foothold → Mimikatz hash dump → pass-the-hash → Domain Admin                               | Domain Admin gained → NAS mgmt UI (5000/5001) → backups deleted                         | WS foothold → harvested admin creds reused → FortiGate reconfigured                | WS foothold → flat net → pump web UI (80/443) reached                   | WS foothold → flat net → IoT web UIs reachable, no VLAN                                | WS foothold → domain admin hash captured → domain-wide auth compromised                         |
+| VPN Exploit                  | VPN bypass → internal net → PG 5432 reachable                                 | VPN bypass → internal net, no MFA → DC reachable for credential attacks                        | VPN bypass → internal net → NAS mgmt UI reachable                                       | FortiGate itself is the exploited device → direct perimeter foothold                | *(no direct path)*                                                      | VPN bypass → internal net → IoT reachable, flat net                                    | VPN bypass → internal net → AD auth traffic exposed on flat net                                 |
+| Default / Shared Credentials | *(no direct path)*                                                            | *(no direct path)*                                                                             | *(no direct path)*                                                                      | *(no direct path)*                                                                 | Default vendor creds unverified (GAP-019) → pump mgmt UI accessed        | Default/vendor creds unverified fleet-wide → device mgmt access                         | *(no direct path)*                                                                              |
+| Vulnerable Software Exploit  | Apache RCE (billing-srv-01) → lateral move → PG 5432 queried                  | Apache RCE → lateral move → DC reached, creds harvested                                        | Apache RCE → lateral move → NAS mgmt UI reachable                                       | Unpatched FortiGate firmware CVE (Marcus's note, T0) → perimeter compromised        | BD Alaris fw 12.1.2 known CVE, isolation never done → dosing manipulated | Known device firmware CVEs fleet-wide, unmitigated → integrity/availability compromised | *(no direct path)*                                                                              |
+| Supply Chain Compromise      | MedTech maintenance access to ehr-srv-01 compromised → direct DB reach         | *(no direct path)*                                                                             | Sophos console compromised → malicious update pushed → reaches hosts mapped to NAS-01   | *(no direct path)*                                                                 | *(no direct path)*                                                      | Siemens access to MRI WS compromised → flat net places attacker near IoT fleet          | Sophos console compromised → update pushed to domain-joined hosts → AD creds harvested org-wide |
+| Insider (Malicious)          | Legit EHR export abused (billing-clerk pattern, T3) → records copied, no alert | Plaintext AD admin creds (emailed script, T3) → used to authenticate directly                   | *(no direct path)*                                                                      | *(no direct path)*                                                                 | *(no direct path)*                                                      | *(no direct path)*                                                                     | Shared/plaintext creds abused (PACS pattern or AD script) → domain-wide reach                    |
+| Insider (Negligent)          | EHR CSV export, no volume limit → copied to personal USB                       | AD admin creds stored in plaintext script, emailed (T3) → exposed to anyone with mailbox access | *(no direct path)*                                                                      | *(no direct path)*                                                                 | *(no direct path)*                                                      | *(no direct path)*                                                                     | Plaintext AD admin creds mishandled → domain authority exposed                                   |
+| Physical Access              | *(no direct path)*                                                            | *(no direct path)*                                                                             | Tailgate into IT corridor (T4) → same rack as backup-srv-01 → NAS-01 physically reached | Network closet unlocked, creds on wall (GAP-006) → FortiGate/switch config accessed | *(no direct path)*                                                      | Tailgate past badge control (T4) → physical proximity to bedside IoT devices            | Tailgate into server room → console access to ad-dc-01/02 if unlocked                            |
+
+*(35 cells filled — well above the 20-cell minimum. Cells without a plausible direct or indirect path are left marked as no path rather than forced.)*
+
+## 3 Most Connected Assets
+
+1. **`ehr-db-01`** — Reachable by 6 of the 8 vectors (all but Default Credentials and Physical Access), because it sits at the end of the flat network's single biggest exposure (PostgreSQL 5432 open org-wide), making almost any foothold a direct line to it.
+2. **Medical IoT** — Also reachable by 6 vectors; as a category it inherits every weakness of the flat network *plus* its own device-specific gaps (default credentials, unmitigated firmware CVEs), giving attackers more independent ways in than any single server.
+3. **Active Directory** — Reachable by 6 vectors; because it is the authentication backbone for the entire organization, nearly every credential-based vector (phishing, insider misuse, supply chain) converges on it as the highest-leverage target once any credential is compromised.
+
+## 3 Most Versatile Vectors
+
+1. **Phishing / Spear Phishing** — Reaches all 7 columns; it requires no pre-existing network position and its endpoint (a compromised workstation) sits at the start of nearly every other lateral-movement path in this matrix.
+2. **VPN Exploit** — Reaches 6 of 7 columns; because the FortiGate is MedDefense's only perimeter device, compromising it (or the VPN it terminates) opens the same flat internal network that every other vector ultimately depends on.
+3. **Vulnerable Software Exploit** — Reaches 6 of 7 columns; `billing-srv-01`'s unpatched Apache is a proven, already-exploited entry point, and legacy firmware across the FortiGate, medical IoT and MRI workstation each represent independent versions of the same pattern.
+
+---
