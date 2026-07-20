@@ -1,0 +1,3 @@
+apache 2.4.29
+postgresql 14
+openssh 8.9
