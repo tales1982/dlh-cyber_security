@@ -1,13 +1,13 @@
-# 17. The CVSS Contextualizer — MedDefense Vulnerability Scan
+# 17. The CVSS Contextualizer - MedDefense Vulnerability Scan
 
 **Analyst:** Threat Intelligence Analyst
 **Date:** Current
 
-**Scope note:** The 8 findings analyzed here are the same 8 carried through the rest of this project's synthesis tasks: 031, 003, 001/002 (analyzed as one chain), 004, 015, 016, 007, and 029 — the top of the Actionable Critical list from Task 16, selected for maximum diversity of host, asset type and threat pattern.
+**Scope note:** The 8 findings analyzed here are the same 8 carried through the rest of this project's synthesis tasks: 031, 003, 001/002 (analyzed as one chain), 004, 015, 016, 007, and 029 - the top of the Actionable Critical list from Task 16, selected for maximum diversity of host, asset type and threat pattern.
 
-**Data-integrity note before recalculating:** While preparing this task, I re-verified Finding 031's CVSS vector directly against NVD rather than trusting the scan report's transcription. The scan report lists CVE-2020-1938 as `CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N` scored 9.8 — but that exact vector mathematically computes to 9.1, not 9.8 (Impact 5.18 + Exploitability 3.89 = 9.06 → 9.1). NVD's actual published vector is `.../C:H/I:H/A:H` (full triad), which correctly computes to 9.8. This is a transcription error in the scan report itself, not a scoring dispute — I used the correct, NVD-verified vector (`A:H`) as the basis for all recalculation below.
+**Data-integrity note before recalculating:** While preparing this task, I re-verified Finding 031's CVSS vector directly against NVD rather than trusting the scan report's transcription. The scan report lists CVE-2020-1938 as `CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N` scored 9.8 - but that exact vector mathematically computes to 9.1, not 9.8 (Impact 5.18 + Exploitability 3.89 = 9.06 → 9.1). NVD's actual published vector is `.../C:H/I:H/A:H` (full triad), which correctly computes to 9.8. This is a transcription error in the scan report itself, not a scoring dispute - I used the correct, NVD-verified vector (`A:H`) as the basis for all recalculation below.
 
-## Finding 031 — Ghostcat (CVE-2020-1938), `ehr-srv-01`
+## Finding 031 - Ghostcat (CVE-2020-1938), `ehr-srv-01`
 
 ```
 CVSS Base Score: 9.8 (AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H, NVD-verified)
@@ -67,7 +67,7 @@ Final Justification: Every one of the four factors points the same
   priority call in the entire report.
 ```
 
-## Finding 003 — PostgreSQL Unrestricted Network Access, `ehr-db-01`
+## Finding 003 - PostgreSQL Unrestricted Network Access, `ehr-db-01`
 
 ```
 CVSS Base Score: N/A (no CVE). For this exercise, I constructed an
@@ -125,7 +125,7 @@ Final Justification: This finding requires no exploit development, sits on
   this finding is anything less than Critical.
 ```
 
-## Finding 001/002 — Apache RCE-to-Root Chain, `billing-srv-01`
+## Finding 001/002 - Apache RCE-to-Root Chain, `billing-srv-01`
 
 ```
 CVSS Base Score: 9.8 (Finding 001, CVE-2021-44790) chaining into 7.8
@@ -192,7 +192,7 @@ Final Justification: This is the one finding in the set where asset
   that matter.
 ```
 
-## Finding 004 — Windows XP EOL Bundle, `WS-RAD-01`
+## Finding 004 - Windows XP EOL Bundle, `WS-RAD-01`
 
 ```
 CVSS Base Score: 10.0 (worst of the three bundled CVEs, MS08-067)
@@ -245,7 +245,7 @@ Final Justification: Every factor reinforces maximum priority with literally
   score-driven, since the score has nothing left to say.
 ```
 
-## Finding 015 — NAS-01 Exposed Management Interface
+## Finding 015 - NAS-01 Exposed Management Interface
 
 ```
 CVSS Base Score: N/A (no CVE); constructed estimate `AV:N/AC:L/PR:N/UI:N/
@@ -303,7 +303,7 @@ Final Justification: Named explicitly, by two separate 1x01 deliverables
   as close to unconditionally Critical as an uncredentialed finding gets.
 ```
 
-## Finding 016 — Medical Device HTTP Interfaces, Philips Fleet
+## Finding 016 - Medical Device HTTP Interfaces, Philips Fleet
 
 ```
 CVSS Base Score: N/A (no CVE for this specific finding); constructed
@@ -359,7 +359,7 @@ Final Justification: A patient-safety asset category with zero compensating
   real engagement.
 ```
 
-## Finding 007 — LDAP Signing / SMBv1, `ad-dc-01`
+## Finding 007 - LDAP Signing / SMBv1, `ad-dc-01`
 
 ```
 CVSS Base Score: N/A (no CVE); constructed estimate `AV:N/AC:H/PR:N/UI:N/
@@ -424,7 +424,7 @@ Final Justification: This is the clearest example in the set of an
   exact outcome Kill Chain #1 already fears are both factored in.
 ```
 
-## Finding 029 — Grafana Path Traversal (CVE-2021-43798), Westside Shadow IT
+## Finding 029 - Grafana Path Traversal (CVE-2021-43798), Westside Shadow IT
 
 ```
 CVSS Base Score: 7.5 (AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N, NVD-verified)
@@ -495,10 +495,10 @@ Final Justification: This is the single most counter-intuitive result in
 | 004 (Windows XP) | 10.0 | 10.0 | Critical | Same (already at ceiling) |
 | 015 (NAS-01) | ~9.4 (estimated) | 9.8 | Critical | Higher |
 | 016 (Philips fleet) | ~9.8 (estimated) | 9.8 | Critical | Same (already at cap) |
-| 007 (LDAP/SMBv1) | ~7.4 (estimated) | **8.1** | Critical | **Higher — meaningful shift** |
-| 029 (Grafana shadow IT) | 7.5 | **9.3** | Critical | **Higher — most significant shift** |
+| 007 (LDAP/SMBv1) | ~7.4 (estimated) | **8.1** | Critical | **Higher - meaningful shift** |
+| 029 (Grafana shadow IT) | 7.5 | **9.3** | Critical | **Higher - most significant shift** |
 
-**Findings where the adjusted priority differs most significantly from base CVSS:** **Finding 029** is the standout case — a base score of 7.5 on a scanner-labeled "Informational" finding recalculates to 9.3 once the shadow-IT confidentiality exposure is weighted, a 1.8-point swing that would be invisible to any triage process relying on the scan's own severity label. **Finding 007** shows the same pattern at smaller scale (7.4 → 8.1): a misconfiguration with no CVE and no CVSS score at all only becomes visibly urgent once the domain controller's criticality is factored in explicitly. Every other finding in this set was already scored at or near CVSS's mathematical ceiling at the base level, meaning the environmental exercise mostly *confirmed* rather than *changed* their priority — the real value of this task is precisely in catching the two findings where that wasn't true.
+**Findings where the adjusted priority differs most significantly from base CVSS:** **Finding 029** is the standout case - a base score of 7.5 on a scanner-labeled "Informational" finding recalculates to 9.3 once the shadow-IT confidentiality exposure is weighted, a 1.8-point swing that would be invisible to any triage process relying on the scan's own severity label. **Finding 007** shows the same pattern at smaller scale (7.4 → 8.1): a misconfiguration with no CVE and no CVSS score at all only becomes visibly urgent once the domain controller's criticality is factored in explicitly. Every other finding in this set was already scored at or near CVSS's mathematical ceiling at the base level, meaning the environmental exercise mostly *confirmed* rather than *changed* their priority - the real value of this task is precisely in catching the two findings where that wasn't true.
 
 ## Repo
 

@@ -1,9 +1,9 @@
-# 14. The Network Posture — MedDefense Vulnerability Scan
+# 14. The Network Posture - MedDefense Vulnerability Scan
 
 **Analyst:** Threat Intelligence Analyst
 **Date:** Current
 
-## Analysis 1 — CVE-2021-44790 (`billing-srv-01`)
+## Analysis 1 - CVE-2021-44790 (`billing-srv-01`)
 
 ```
 CVE: CVE-2021-44790
@@ -50,7 +50,7 @@ Risk Amplification Factor: The vulnerability's exploitability (CVSS 9.8) does
   from a contained incident into the exact opening move of Kill Chain #4.
 ```
 
-## Analysis 2 — CVE-2020-1938 "Ghostcat" (`ehr-srv-01`)
+## Analysis 2 - CVE-2020-1938 "Ghostcat" (`ehr-srv-01`)
 
 ```
 CVE: CVE-2020-1938
@@ -94,7 +94,7 @@ Risk Amplification Factor: Extreme. In the current flat network, literally
   inside the clinical application tier specifically."
 ```
 
-## Analysis 3 — CVE-2017-0144 "EternalBlue" (`WS-RAD-01`, MRI Workstation)
+## Analysis 3 - CVE-2017-0144 "EternalBlue" (`WS-RAD-01`, MRI Workstation)
 
 ```
 CVE: CVE-2017-0144
@@ -142,7 +142,7 @@ Risk Amplification Factor: Extreme, and uniquely urgent because this
 
 ## Network Posture Summary
 
-Across all three analyses, the exploitability of each individual CVE (9.8, 9.8, 8.1) never changes between the flat and segmented scenarios — what changes, by one to two orders of magnitude each time, is how many of MedDefense's roughly 350+ devices across four sites can reach the vulnerability and how much of the environment becomes reachable afterward. This is the aggregate effect across the entire 31-finding report: the flat network does not create any single vulnerability, but it is a **force multiplier applied uniformly to every one of them**, converting isolated departmental risks (a billing server bug, a print server bug, an MRI workstation bug) into organization-wide ones by default. This is why network segmentation is arguably more impactful than patching any single CVE in this report: patching CVE-2021-44790 closes exactly one vulnerability, while segmenting the network would simultaneously shrink the blast radius of **all 31 findings at once** — including the ones not yet discovered, the misconfigurations that will never receive a CVE, and the next zero-day that appears on any host, at no marginal additional engineering cost per finding. A patch fixes what you already found; segmentation reduces the consequence of everything you haven't found yet.
+Across all three analyses, the exploitability of each individual CVE (9.8, 9.8, 8.1) never changes between the flat and segmented scenarios - what changes, by one to two orders of magnitude each time, is how many of MedDefense's roughly 350+ devices across four sites can reach the vulnerability and how much of the environment becomes reachable afterward. This is the aggregate effect across the entire 31-finding report: the flat network does not create any single vulnerability, but it is a **force multiplier applied uniformly to every one of them**, converting isolated departmental risks (a billing server bug, a print server bug, an MRI workstation bug) into organization-wide ones by default. This is why network segmentation is arguably more impactful than patching any single CVE in this report: patching CVE-2021-44790 closes exactly one vulnerability, while segmenting the network would simultaneously shrink the blast radius of **all 31 findings at once** - including the ones not yet discovered, the misconfigurations that will never receive a CVE, and the next zero-day that appears on any host, at no marginal additional engineering cost per finding. A patch fixes what you already found; segmentation reduces the consequence of everything you haven't found yet.
 
 ## Repo
 

@@ -1,4 +1,4 @@
-# 16. The Noise Filter — MedDefense Vulnerability Scan
+# 16. The Noise Filter - MedDefense Vulnerability Scan
 
 **Analyst:** Threat Intelligence Analyst
 **Date:** Current
@@ -34,9 +34,9 @@ Finding 025 | Low (scanner) | ad-dc-01 | Category: I | Reason: Reconnaissance-en
 Finding 026 | Low (scanner) | billing-srv-01 | Category: AS | Reason: 47 unpatched kernel CVEs, resolved by the same ESM enrollment that fixes Finding 011.
 Finding 027 | Informational (scanner) | 15 workstations | Category: AS | Reason: Endpoint protection silently inactive on 15 hosts with no one having noticed; a concrete, low-cost fix (restore agent reporting) exists.
 Finding 028 | Informational (scanner) | 10.10.2.99 (unknown) | Category: AS | Reason: Undocumented Linux host with open SSH/Jupyter/Cockpit on the server subnet needs identification and disposition, not just a note.
-Finding 029 | Informational (scanner) | 10.10.10.200 (Westside, unknown) | Category: AC | Reason: A real, trivial, unauthenticated CVE (CVE-2021-43798, CVSS 7.5) sits on a completely unmonitored shadow-IT device — nobody would notice exploitation.
+Finding 029 | Informational (scanner) | 10.10.10.200 (Westside, unknown) | Category: AC | Reason: A real, trivial, unauthenticated CVE (CVE-2021-43798, CVSS 7.5) sits on a completely unmonitored shadow-IT device - nobody would notice exploitation.
 Finding 030 | Informational (scanner) | ehr-srv-01 | Category: FP | Reason: Report itself states this is operational, not a security vulnerability; confirmed in Task 11.
-Finding 031 | High (scanner) | ehr-srv-01 | Category: AC | Reason: Confirmed-active, CISA-KEV-listed CVSS 9.8 on the application server for the organization's single highest-value asset — the single most urgent finding in the report despite its "High" label.
+Finding 031 | High (scanner) | ehr-srv-01 | Category: AC | Reason: Confirmed-active, CISA-KEV-listed CVSS 9.8 on the application server for the organization's single highest-value asset - the single most urgent finding in the report despite its "High" label.
 ```
 
 ## Triage Summary
@@ -51,35 +51,35 @@ Finding 031 | High (scanner) | ehr-srv-01 | Category: AC | Reason: Confirmed-act
 
 ## Actionable Findings List (Sorted by Priority)
 
-### Actionable Critical — Immediate Remediation (24-48h)
+### Actionable Critical - Immediate Remediation (24-48h)
 
-1. **Finding 031** — Ghostcat (CVE-2020-1938), `ehr-srv-01` — confirmed active, KEV-listed, crown-jewel asset.
-2. **Finding 003** — PostgreSQL unrestricted access, `ehr-db-01` — no exploit needed, named in an existing kill chain.
-3. **Finding 001** — Apache mod_lua RCE (CVE-2021-44790), `billing-srv-01` — internet-facing, proven exploitation history.
-4. **Finding 002** — Apache privilege escalation (CVE-2019-0211), `billing-srv-01` — completes the root chain with Finding 001.
-5. **Finding 004** — Windows XP EOL bundle, `WS-RAD-01` — three wormable RCEs on an unpatchable patient-safety device.
-6. **Finding 015** — NAS-01 exposure — the sole backup copy, decisive step of Kill Chain #1.
-7. **Finding 016** — Medical device HTTP interfaces, Philips fleet — documented real-world memory read/write capability.
-8. **Finding 007** — LDAP signing/SMBv1, `ad-dc-01` — domain-wide compromise path on the #2 Top-5 Critical Asset.
-9. **Finding 029** — Grafana path traversal (CVE-2021-43798), Westside shadow IT — trivial exploit, zero monitoring.
-10. **Finding 011** — Ubuntu 18.04 EOL, `billing-srv-01` — root enabler of Findings 001/002/026; top migration priority (Task 12).
+1. **Finding 031** - Ghostcat (CVE-2020-1938), `ehr-srv-01` - confirmed active, KEV-listed, crown-jewel asset.
+2. **Finding 003** - PostgreSQL unrestricted access, `ehr-db-01` - no exploit needed, named in an existing kill chain.
+3. **Finding 001** - Apache mod_lua RCE (CVE-2021-44790), `billing-srv-01` - internet-facing, proven exploitation history.
+4. **Finding 002** - Apache privilege escalation (CVE-2019-0211), `billing-srv-01` - completes the root chain with Finding 001.
+5. **Finding 004** - Windows XP EOL bundle, `WS-RAD-01` - three wormable RCEs on an unpatchable patient-safety device.
+6. **Finding 015** - NAS-01 exposure - the sole backup copy, decisive step of Kill Chain #1.
+7. **Finding 016** - Medical device HTTP interfaces, Philips fleet - documented real-world memory read/write capability.
+8. **Finding 007** - LDAP signing/SMBv1, `ad-dc-01` - domain-wide compromise path on the #2 Top-5 Critical Asset.
+9. **Finding 029** - Grafana path traversal (CVE-2021-43798), Westside shadow IT - trivial exploit, zero monitoring.
+10. **Finding 011** - Ubuntu 18.04 EOL, `billing-srv-01` - root enabler of Findings 001/002/026; top migration priority (Task 12).
 
-### Actionable Standard — Scheduled Remediation (7-30 days)
+### Actionable Standard - Scheduled Remediation (7-30 days)
 
-1. **Finding 026** — Outdated kernel, `billing-srv-01` (resolved alongside Finding 011).
-2. **Finding 006** — MySQL unrestricted binding, `billing-srv-01`.
-3. **Finding 009** — SSH password authentication, `billing-srv-01`.
-4. **Finding 018** — Weak Kerberos encryption, `ad-dc-01`/`ad-dc-02`.
-5. **Finding 008** — Windows Server 2012 R2 EOL / PrintNightmare, `print-srv-01`.
-6. **Finding 010** — BD Alaris default credentials / missing isolation (CVE status pending vendor validation).
-7. **Finding 019** — RDP enabled, 5 hosts.
-8. **Finding 024** — Cleartext DICOM, `pacs-srv-01`.
-9. **Finding 028** — Unidentified device, `10.10.2.99`.
-10. **Finding 013** — SSL certificate expiring in 23 days, `web-srv-01`.
-11. **Finding 014** — Consumer-grade router, Westside.
-12. **Finding 027** — Inactive Sophos agents, 15 workstations.
-13. **Finding 023** — Unrestricted USB storage, ~280 workstations.
-14. **Finding 005** — TLS 1.0 enabled, `web-srv-01`.
+1. **Finding 026** - Outdated kernel, `billing-srv-01` (resolved alongside Finding 011).
+2. **Finding 006** - MySQL unrestricted binding, `billing-srv-01`.
+3. **Finding 009** - SSH password authentication, `billing-srv-01`.
+4. **Finding 018** - Weak Kerberos encryption, `ad-dc-01`/`ad-dc-02`.
+5. **Finding 008** - Windows Server 2012 R2 EOL / PrintNightmare, `print-srv-01`.
+6. **Finding 010** - BD Alaris default credentials / missing isolation (CVE status pending vendor validation).
+7. **Finding 019** - RDP enabled, 5 hosts.
+8. **Finding 024** - Cleartext DICOM, `pacs-srv-01`.
+9. **Finding 028** - Unidentified device, `10.10.2.99`.
+10. **Finding 013** - SSL certificate expiring in 23 days, `web-srv-01`.
+11. **Finding 014** - Consumer-grade router, Westside.
+12. **Finding 027** - Inactive Sophos agents, 15 workstations.
+13. **Finding 023** - Unrestricted USB storage, ~280 workstations.
+14. **Finding 005** - TLS 1.0 enabled, `web-srv-01`.
 
 ## Repo
 
