@@ -79,7 +79,7 @@ Cost Estimate: $1-10K (Ubuntu Pro/ESM subscription plus staging/testing
 ```
 Response Type: Compensating Control
 
-Control Description: Implement Control 1 from the 1x00 Task 6 strategy —
+Control Description: Implement Control 1 from the 1x00 Task 6 strategy -
   move WS-RAD-01 onto its own isolated network segment with a firewall
   rule permitting communication only with pacs-srv-01. This was already
   designed and approved conceptually in 1x00; it has simply never been
@@ -183,7 +183,7 @@ Residual Risk: Blocking access could disrupt an undocumented but
 
 Timeline: Immediate (network block), 30 days (investigation and permanent
   disposition)
-Owner: Security (immediate containment) transitioning to IT (investigation,
+Owner: Security (immediate containment) - transitioning to IT (investigation,
   decommission or formal onboarding)
 Cost Estimate: $0-1K
 ```

@@ -1,9 +1,9 @@
-# 11. The False Positives MedDefense Vulnerability Scan
+# 11. The False Positives - MedDefense Vulnerability Scan
 
 **Analyst:** Threat Intelligence Analyst
 **Date:** Current
 
-## Finding 020 OpenSSH PKCS#11 RCE (`backup-srv-01`)
+## Finding 020 - OpenSSH PKCS#11 RCE (`backup-srv-01`)
 
 - **Finding ID:** 020
 - **Reported Vulnerability:** CVE-2023-38408, CVSS 9.8 - a critical remote code execution flaw in OpenSSH's `ssh-agent` PKCS#11 provider loading.
