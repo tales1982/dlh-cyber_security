@@ -21,6 +21,8 @@
 
 **Total spend: $103,400. Budget remaining: $16,600.**
 
+Budget summary: total budget 120000, total spend 103400, budget remaining 16600.
+
 **Deferred to next fiscal year:**
 
 - **Control 7 (24/7 outsourced SOC, $120,000):** Positive net value in isolation ($60,000), but funding it alone would consume the entire annual budget, leaving zero funding for five other justified controls that together deliver more total risk reduction for less money. Revisit once Control 3 (SIEM) has been operating long enough to show what detection gaps remain unaddressed by internal review alone.
