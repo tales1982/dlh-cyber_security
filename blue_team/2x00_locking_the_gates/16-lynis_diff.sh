@@ -24,7 +24,7 @@
 #        BEFORE_FINDINGS / AFTER_FINDINGS env vars are equivalent overrides
 #        (used by the Task 14 orchestrator to point at its own run's files).
 
-set -uo pipefail
+set -euo pipefail
 
 BEFORE_FINDINGS="${BEFORE_FINDINGS:-${1:-}}"
 AFTER_FINDINGS="${AFTER_FINDINGS:-${2:-}}"
@@ -52,7 +52,7 @@ else
         report="/var/log/lynis-report.dat"
         [ -r "$report" ] || report="$HOME/lynis-report.dat"
         if [ -r "$report" ]; then
-            "$LYNIS_PARSER" "$report" > lynis_post_findings.json 2>/dev/null
+            "$LYNIS_PARSER" "$report" > lynis_post_findings.json 2>/dev/null || true
             AFTER_FINDINGS="lynis_post_findings.json"
         fi
     fi

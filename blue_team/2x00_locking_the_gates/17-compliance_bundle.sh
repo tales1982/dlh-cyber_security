@@ -15,7 +15,7 @@
 #
 # Usage: ./17-compliance_bundle.sh
 
-set -uo pipefail
+set -euo pipefail
 
 OUT_JSON="compliance_report.json"
 

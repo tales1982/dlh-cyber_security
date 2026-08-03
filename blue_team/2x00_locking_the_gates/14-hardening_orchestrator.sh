@@ -33,7 +33,7 @@
 # Usage: sudo ./14-hardening_orchestrator.sh
 #        DRY_RUN=1 ./14-hardening_orchestrator.sh   (control-flow test only)
 
-set -uo pipefail
+set -euo pipefail
 
 DRY_RUN="${DRY_RUN:-0}"
 BASE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -113,7 +113,7 @@ capture_lynis() {
     lynis audit system --quick --no-colors >/dev/null 2>&1 || true
     local report="$LYNIS_REPORT"
     [ -r "$report" ] || report="$HOME/lynis-report.dat"
-    "$GATES_DIR/2-the_lynis_audit_parser/2-lynis_parse.sh" "$report" 2>/dev/null
+    "$GATES_DIR/2-the_lynis_audit_parser/2-lynis_parse.sh" "$report" 2>/dev/null || true
 }
 
 echo "[*] Capturing pre-hardening Lynis baseline..."
@@ -149,8 +149,11 @@ for i in "${!STEPS_SCRIPT[@]}"; do
             # re-running here would just re-scan, so we reuse that result.
             exit_code=0
         else
-            "$script" >>"orchestrator_step_${num}.log" 2>&1
-            exit_code=$?
+            if "$script" >>"orchestrator_step_${num}.log" 2>&1; then
+                exit_code=0
+            else
+                exit_code=$?
+            fi
         fi
         if [ "$exit_code" -eq 0 ]; then
             status="completed"
@@ -201,7 +204,7 @@ if [ "$PIPELINE_FAILED" -eq 0 ]; then
           AFTER_FINDINGS="$GATES_DIR/14-the_hardening_orchestrator/lynis_post_findings.json" \
           ./16-lynis_diff.sh >/dev/null 2>&1 ) || true
         [ -f "$GATES_DIR/16-the_lynis_improvement_diff/hardening_improvement.json" ] && \
-            cp "$GATES_DIR/16-the_lynis_improvement_diff/hardening_improvement.json" "$IMPROVEMENT_JSON"
+            cp "$GATES_DIR/16-the_lynis_improvement_diff/hardening_improvement.json" "$IMPROVEMENT_JSON" || true
     fi
     [ -f "$IMPROVEMENT_JSON" ] || jq -n --argjson before "$BEFORE_SCORE" --argjson after "$AFTER_SCORE" \
         '{before_score: $before, after_score: $after, delta: ($after-$before)}' > "$IMPROVEMENT_JSON"

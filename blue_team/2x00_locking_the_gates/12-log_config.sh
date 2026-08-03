@@ -28,7 +28,7 @@
 #
 # Usage: sudo ./12-log_config.sh
 
-set -uo pipefail
+set -euo pipefail
 
 RSYSLOG_RULE_FILE="${RSYSLOG_RULE_FILE:-/etc/rsyslog.d/10-meddefense.conf}"
 LOGROTATE_AUTH_FILE="${LOGROTATE_AUTH_FILE:-/etc/logrotate.d/meddefense-auth}"
@@ -155,9 +155,9 @@ echo "[*] Securing log file permissions..."
 if [ "$LIVE_MODE" -eq 1 ]; then
     for f in "$AUTH_LOG" "$SYSLOG_LOG"; do
         [ -f "$f" ] || touch "$f"
-        chmod 640 "$f" 2>/dev/null
-        chown root:adm "$f" 2>/dev/null
-        perms="$(stat -c '%a %U:%G' "$f" 2>/dev/null)"
+        chmod 640 "$f" 2>/dev/null || true
+        chown root:adm "$f" 2>/dev/null || true
+        perms="$(stat -c '%a %U:%G' "$f" 2>/dev/null)" || true
         echo "    $f: $perms          [OK]"
     done
 else

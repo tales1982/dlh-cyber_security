@@ -20,7 +20,7 @@
 #
 # Usage: sudo ./15-validation.sh
 
-set -uo pipefail
+set -euo pipefail
 
 OUT_JSON="validation_results.json"
 IS_ROOT=0
@@ -50,15 +50,15 @@ record() {
 sysctl_val() { cat "/proc/sys/${1//.//}" 2>/dev/null || echo "unreadable"; }
 
 # --- SSH (Task 4 / MD-CIS-001, MD-CIS-002) -----------------------------------
-val=$(grep -iE '^\s*PermitRootLogin\s+' /etc/ssh/sshd_config 2>/dev/null | tail -1 | awk '{print tolower($2)}')
+val=$(grep -iE '^\s*PermitRootLogin\s+' /etc/ssh/sshd_config 2>/dev/null | tail -1 | awk '{print tolower($2)}') || true
 [ -z "$val" ] && val="not_set"
 record "MD-CIS-002" "PermitRootLogin" "no" "$val" "$([ "$val" = "no" ] && echo 1 || echo 0)"
 
-val=$(grep -iE '^\s*PasswordAuthentication\s+' /etc/ssh/sshd_config 2>/dev/null | tail -1 | awk '{print tolower($2)}')
+val=$(grep -iE '^\s*PasswordAuthentication\s+' /etc/ssh/sshd_config 2>/dev/null | tail -1 | awk '{print tolower($2)}') || true
 [ -z "$val" ] && val="not_set"
 record "MD-CIS-001" "PasswordAuthentication" "no" "$val" "$([ "$val" = "no" ] && echo 1 || echo 0)"
 
-val=$(grep -iE '^\s*MaxAuthTries\s+' /etc/ssh/sshd_config 2>/dev/null | tail -1 | awk '{print $2}')
+val=$(grep -iE '^\s*MaxAuthTries\s+' /etc/ssh/sshd_config 2>/dev/null | tail -1 | awk '{print $2}') || true
 [ -z "$val" ] && val="not_set"
 record "MD-CIS-001" "MaxAuthTries" "3" "$val" "$([ "$val" = "3" ] && echo 1 || echo 0)"
 
@@ -85,7 +85,7 @@ done
 record "MD-CIS-004" "unexpected_suid_binaries" "0" "$unexpected" "$([ "$unexpected" -eq 0 ] && echo 1 || echo 0)"
 
 # --- Mount options / world-writable (Task 6 / MD-CIS-007) --------------------
-tmp_opts=$(findmnt -no OPTIONS /tmp 2>/dev/null)
+tmp_opts=$(findmnt -no OPTIONS /tmp 2>/dev/null) || true
 if [[ "$tmp_opts" == *noexec* && "$tmp_opts" == *nosuid* && "$tmp_opts" == *nodev* ]]; then
     tmp_ok=1
 else
@@ -94,11 +94,11 @@ fi
 record "MD-CIS-007" "/tmp mount options" "noexec,nosuid,nodev" "${tmp_opts:-none}" "$tmp_ok"
 
 # --- PAM (Task 8 / MD-CIS-005, MD-CIS-009) -----------------------------------
-val=$(grep -E '^\s*minlen\s*=' /etc/security/pwquality.conf 2>/dev/null | tail -1 | awk -F= '{gsub(/ /,"",$2); print $2}')
+val=$(grep -E '^\s*minlen\s*=' /etc/security/pwquality.conf 2>/dev/null | tail -1 | awk -F= '{gsub(/ /,"",$2); print $2}') || true
 [ -z "$val" ] && val="not_set"
 record "MD-CIS-005" "pwquality.minlen" "14" "$val" "$([ "$val" = "14" ] && echo 1 || echo 0)"
 
-val=$(grep -E '^\s*deny\s*=' /etc/security/faillock.conf 2>/dev/null | tail -1 | awk -F= '{gsub(/ /,"",$2); print $2}')
+val=$(grep -E '^\s*deny\s*=' /etc/security/faillock.conf 2>/dev/null | tail -1 | awk -F= '{gsub(/ /,"",$2); print $2}') || true
 [ -z "$val" ] && val="not_set"
 record "MD-CIS-009" "faillock.deny" "5" "$val" "$([ "$val" = "5" ] && echo 1 || echo 0)"
 
@@ -120,7 +120,7 @@ val=$(systemctl is-active auditd 2>/dev/null || echo unknown)
 record "MD-CIS-011" "auditd.service" "active" "$val" "$([ "$val" = "active" ] && echo 1 || echo 0)"
 
 if [ -r /etc/audit/rules.d/meddefense.rules ]; then
-    rule_count=$(grep -cE '^-w ' /etc/audit/rules.d/meddefense.rules 2>/dev/null)
+    rule_count=$(grep -cE '^-w ' /etc/audit/rules.d/meddefense.rules 2>/dev/null) || true
 else
     rule_count=0
 fi
@@ -160,9 +160,9 @@ record "MD-CIS-015" "meddefense_rsyslog_policy" "configured" "$val" "$([ "$val" 
 
 # --- Firewall (Task 13 / MD-CIS-012) -----------------------------------------
 if [ "$IS_ROOT" -eq 1 ] && command -v ufw >/dev/null 2>&1; then
-    ufw_out="$(ufw status verbose 2>/dev/null)"
-    ufw_state=$(grep -m1 '^Status:' <<<"$ufw_out" | awk '{print $2}')
-    default_in=$(grep -m1 '^Default:' <<<"$ufw_out" | grep -oE 'deny \(incoming\)' | awk '{print $1}')
+    ufw_out="$(ufw status verbose 2>/dev/null)" || true
+    ufw_state=$(grep -m1 '^Status:' <<<"$ufw_out" | awk '{print $2}') || true
+    default_in=$(grep -m1 '^Default:' <<<"$ufw_out" | grep -oE 'deny \(incoming\)' | awk '{print $1}') || true
     [ -z "$ufw_state" ] && ufw_state="unknown"
     [ -z "$default_in" ] && default_in="unknown"
 else

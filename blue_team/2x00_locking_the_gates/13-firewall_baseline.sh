@@ -34,7 +34,7 @@
 #
 # Usage: sudo ./13-firewall_baseline.sh
 
-set -uo pipefail
+set -euo pipefail
 
 MGMT_NETWORK="${MGMT_NETWORK:-10.10.1.0/24}"
 APP_NETWORK="${APP_NETWORK:-10.10.2.0/24}"
@@ -53,8 +53,8 @@ echo "[*] Configuring UFW..."
 # Default-deny inbound, default-allow outbound: the server only speaks when
 # spoken to on an approved channel, but is free to reach out (package
 # updates, NTP, monitoring egress).
-ufw default deny incoming  >/dev/null 2>&1
-ufw default allow outgoing >/dev/null 2>&1
+ufw default deny incoming  >/dev/null 2>&1 || true
+ufw default allow outgoing >/dev/null 2>&1 || true
 echo "    Default incoming: deny"
 echo "    Default outgoing: allow"
 
@@ -65,7 +65,7 @@ echo "[*] Adding allow rules..."
 add_rule() {
     local label="${@: -1}"
     local args=("${@:1:$#-1}")
-    ufw "${args[@]}" >/dev/null 2>&1
+    ufw "${args[@]}" >/dev/null 2>&1 || true
     printf '    %-26s [ADDED] %s\n' "${args[*]:1}" "$label"
 }
 
@@ -85,14 +85,14 @@ add_rule allow from "$APP_NETWORK" to any port 3306 proto tcp \
     "MySQL - app network only"
 
 echo "[*] Enabling logging..."
-ufw logging low >/dev/null 2>&1
+ufw logging low >/dev/null 2>&1 || true
 echo "    Logging: on (low)"
 
 echo "[*] Activating firewall..."
 if ufw status 2>/dev/null | grep -q "Status: active"; then
     echo "    UFW: active (already enabled, idempotent no-op)"
 else
-    ufw --force enable >/dev/null 2>&1
+    ufw --force enable >/dev/null 2>&1 || true
     echo "    UFW: active"
 fi
 echo "    Rules: 4 allow, default deny"
