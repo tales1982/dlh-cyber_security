@@ -147,7 +147,7 @@ if [ "$LIVE_MODE" -eq 1 ]; then
     logger -p syslog.info "$TEST_MARKER" 2>/dev/null || true
     sleep 1
     for f in "$AUTH_LOG" "$SYSLOG_LOG"; do
-        if [ -f "$f" ] && grep -q "$TEST_MARKER" "$f" 2>/dev/null; then
+        if [ -f "$f" ] && tail -n 100 "$f" 2>/dev/null | grep -q "$TEST_MARKER"; then
             echo "    $f: receiving events (logger test marker captured) [OK]"
         elif [ -f "$f" ] && [ -s "$f" ] && find "$f" -mmin -1440 2>/dev/null | grep -q .; then
             echo "    $f: exists with recent activity but test marker not found [WARN]"

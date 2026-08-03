@@ -71,6 +71,7 @@ add_rule() {
 
 # Finding 009 / Crimson Tide Phase 3: SSH must be reachable ONLY from the
 # management network, not the whole internet or the flat application VLAN.
+# Applies: 22/tcp restricted to $MGMT_NETWORK
 add_rule allow from "$MGMT_NETWORK" to any port 22 proto tcp \
     "SSH - management only"
 
@@ -80,7 +81,7 @@ add_rule allow 443/tcp "HTTPS"
 
 # Finding 006: MySQL was bound to 0.0.0.0 and network-reachable from
 # anywhere. It must only be reachable from the application tier that
-# actually queries it.
+# actually queries it. Applies: 3306/tcp restricted to $APP_NETWORK
 add_rule allow from "$APP_NETWORK" to any port 3306 proto tcp \
     "MySQL - app network only"
 
