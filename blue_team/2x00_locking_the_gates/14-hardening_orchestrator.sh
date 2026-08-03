@@ -82,7 +82,7 @@ STEPS_READONLY=(1 1 0 0 0 0 0 0 0 0 0 0 1)
 
 TOTAL_STEPS="${#STEPS_NUM[@]}"
 
-# --- Pre-checks ---------------------------------------------------------------
+# --- Pre-checks: verify every required script exists and is executable -------
 PRECHECK_FAIL=0
 for i in "${!STEPS_SCRIPT[@]}"; do
     full="$GATES_DIR/${STEPS_SCRIPT[$i]}"
