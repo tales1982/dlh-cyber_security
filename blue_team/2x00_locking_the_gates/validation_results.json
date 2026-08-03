@@ -1,5 +1,5 @@
 {
-  "generated": "2026-08-03T09:08:33Z",
+  "generated": "2026-08-03T15:00:54Z",
   "executed_as_root": false,
   "summary": {
     "total": 20,
@@ -43,18 +43,18 @@
       "status": "PASS"
     },
     {
-      "control_id": "MD-CIS-003",
-      "check": "net.ipv4.conf.all.log_martians",
-      "expected": "1",
-      "actual": "0",
-      "status": "FAIL"
-    },
-    {
       "control_id": "MD-CIS-006",
       "check": "kernel.randomize_va_space",
       "expected": "2",
       "actual": "2",
       "status": "PASS"
+    },
+    {
+      "control_id": "MD-CIS-003",
+      "check": "net.ipv4.conf.all.log_martians",
+      "expected": "1",
+      "actual": "0",
+      "status": "FAIL"
     },
     {
       "control_id": "MD-CIS-004",
@@ -92,13 +92,6 @@
       "status": "FAIL"
     },
     {
-      "control_id": "MD-CIS-010",
-      "check": "apparmor.service",
-      "expected": "active",
-      "actual": "active",
-      "status": "PASS"
-    },
-    {
       "control_id": "MD-CIS-011",
       "check": "auditd.service",
       "expected": "active",
@@ -118,6 +111,13 @@
       "expected": "yes",
       "actual": "no",
       "status": "FAIL"
+    },
+    {
+      "control_id": "MD-CIS-010",
+      "check": "apparmor.service",
+      "expected": "active",
+      "actual": "active",
+      "status": "PASS"
     },
     {
       "control_id": "MD-CIS-014",
