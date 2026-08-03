@@ -20,9 +20,9 @@
 # as not_assessed rather than fabricated.
 #
 # Idempotent / safe to re-run: every artifact this script creates (the test
-# file, any temp cron listing) is cleaned up at the end of every run,
-# success or failure. No test accounts are created. No destructive command
-# is ever run.
+# file, the throwaway test account) is cleaned up at the end of every run,
+# success or failure, via userdel/rm in cleanup(). No destructive command
+# is ever run against the host's real accounts or data.
 #
 # Maps to CIS control MD-CIS-014 (audit telemetry coverage validated) from
 # cis_profile.json.
@@ -33,6 +33,7 @@ set -euo pipefail
 
 OUT_JSON="audit_validation.json"
 TEST_FILE="/tmp/meddefense_audit_test_$$"
+TEST_USER="meddefense_audit_test_$$"
 IS_ROOT=0
 [ "$(id -u)" -eq 0 ] && IS_ROOT=1
 HAVE_SUDO_CACHED=0
@@ -42,6 +43,10 @@ fi
 
 cleanup() {
     rm -f "$TEST_FILE" 2>/dev/null
+    if [ "$IS_ROOT" -eq 1 ] && id "$TEST_USER" >/dev/null 2>&1; then
+        userdel "$TEST_USER" >/dev/null 2>&1 || true
+    fi
+    return 0
 }
 trap cleanup EXIT
 
@@ -100,9 +105,18 @@ else
 fi
 run_test "sudo execution" "priv_esc" "$CMD1"
 
-# --- Test 2: attempted access to /etc/shadow ----------------------------------
-cat /etc/shadow >/dev/null 2>&1 || true
-run_test "shadow access" "identity" "cat /etc/shadow"
+# --- Test 2: identity file write via a throwaway test account -----------------
+# useradd writes to /etc/passwd, /etc/shadow and /etc/group - the "identity"
+# audit key (Task 10) watches these files with -p wa (write/attribute-change
+# only). A plain read like `cat /etc/shadow` would never fire that rule; the
+# account is removed again via userdel in cleanup() so nothing persists.
+if [ "$IS_ROOT" -eq 1 ]; then
+    useradd -M -N -s /usr/sbin/nologin "$TEST_USER" >/dev/null 2>&1 || true
+    CMD2="useradd -M -N -s /usr/sbin/nologin $TEST_USER (removed via userdel in cleanup)"
+else
+    CMD2="useradd $TEST_USER (skipped - requires root)"
+fi
+run_test "identity file write (test account)" "identity" "$CMD2"
 
 # --- Test 3: execution of a suspicious download tool --------------------------
 if command -v curl >/dev/null 2>&1; then
