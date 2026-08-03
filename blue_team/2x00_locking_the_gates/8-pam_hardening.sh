@@ -140,7 +140,7 @@ else
 fi
 
 # --- 5. Validation ------------------------------------------------------------
-MINLEN_CHECK=$(grep -E '^minlen' "$PWQUALITY_CONF" 2>/dev/null | tail -1 | awk -F= '{print $2}' | tr -d ' ')
-DENY_CHECK=$(grep -E '^deny' "$FAILLOCK_CONF" 2>/dev/null | tail -1 | awk -F= '{print $2}' | tr -d ' ')
+MINLEN_CHECK=$(grep -E '^minlen' "$PWQUALITY_CONF" 2>/dev/null | tail -1 | awk -F= '{print $2}' | tr -d ' ') || true
+DENY_CHECK=$(grep -E '^deny' "$FAILLOCK_CONF" 2>/dev/null | tail -1 | awk -F= '{print $2}' | tr -d ' ') || true
 
 echo "Password minimum length: ${MINLEN_CHECK:-unset} | Lockout: ${DENY_CHECK:-unset} attempts / 15 min | History: 12"

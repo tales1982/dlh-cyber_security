@@ -29,7 +29,7 @@
 #
 # Usage: sudo ./11-audit_coverage_test.sh
 
-set -uo pipefail
+set -euo pipefail
 
 OUT_JSON="audit_validation.json"
 TEST_FILE="/tmp/meddefense_audit_test_$$"
@@ -66,8 +66,8 @@ run_test() {
 
     if [ "$IS_ROOT" -eq 1 ]; then
         sleep 1
-        match_count=$(ausearch -ts recent -k "$key" 2>/dev/null | grep -c '^type=')
-        excerpt=$(ausearch -ts recent -k "$key" 2>/dev/null | grep '^type=' | tail -1)
+        match_count=$(ausearch -ts recent -k "$key" 2>/dev/null | grep -c '^type=') || true
+        excerpt=$(ausearch -ts recent -k "$key" 2>/dev/null | grep '^type=' | tail -1) || true
         if [ "${match_count:-0}" -gt 0 ]; then
             status="captured"
             printf '[%d/%d] %-38s [CAPTURED]\n' "$TEST_NUM" "$TOTAL_TESTS" "$label"
@@ -93,7 +93,7 @@ run_test() {
 
 # --- Test 1: privileged command execution through sudo -----------------------
 if [ "$IS_ROOT" -eq 1 ] || [ "$HAVE_SUDO_CACHED" -eq 1 ]; then
-    sudo -n true >/dev/null 2>&1
+    sudo -n true >/dev/null 2>&1 || true
     CMD1="sudo -n true"
 else
     CMD1="sudo -n true (skipped - no root/cached sudo credentials available in this environment)"
@@ -101,15 +101,15 @@ fi
 run_test "sudo execution" "priv_esc" "$CMD1"
 
 # --- Test 2: attempted access to /etc/shadow ----------------------------------
-cat /etc/shadow >/dev/null 2>&1
+cat /etc/shadow >/dev/null 2>&1 || true
 run_test "shadow access" "identity" "cat /etc/shadow"
 
 # --- Test 3: execution of a suspicious download tool --------------------------
 if command -v curl >/dev/null 2>&1; then
-    curl --version >/dev/null 2>&1
+    curl --version >/dev/null 2>&1 || true
     CMD3="curl --version"
 elif command -v wget >/dev/null 2>&1; then
-    wget --version >/dev/null 2>&1
+    wget --version >/dev/null 2>&1 || true
     CMD3="wget --version"
 else
     CMD3="(neither curl nor wget present)"
@@ -117,7 +117,7 @@ fi
 run_test "suspicious download tool" "suspicious_download" "$CMD3"
 
 # --- Test 4: sshd config read/metadata check ----------------------------------
-stat /etc/ssh/sshd_config >/dev/null 2>&1
+stat /etc/ssh/sshd_config >/dev/null 2>&1 || true
 run_test "sshd config read" "sshd_config" "stat /etc/ssh/sshd_config"
 
 # --- Test 5: controlled write to a monitored test path ------------------------
@@ -125,7 +125,7 @@ echo "meddefense audit coverage test $(date -u +%Y-%m-%dT%H:%M:%SZ)" > "$TEST_FI
 run_test "monitored test file write" "startup_scripts" "echo test > $TEST_FILE"
 
 # --- Test 6: cron configuration inspection ------------------------------------
-crontab -l >/dev/null 2>&1
+crontab -l >/dev/null 2>&1 || true
 run_test "cron configuration check" "cron_config" "crontab -l"
 
 echo "[*] Cleaning test artifacts..."

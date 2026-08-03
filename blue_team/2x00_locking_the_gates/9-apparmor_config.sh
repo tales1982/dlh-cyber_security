@@ -29,7 +29,7 @@
 #
 # Usage: sudo ./9-apparmor_config.sh
 
-set -uo pipefail
+set -euo pipefail
 
 CUSTOM_PROFILE_PATH="${CUSTOM_PROFILE_PATH:-/etc/apparmor.d/opt.meddefense.billing-app}"
 LIVE_MODE=1
@@ -86,7 +86,7 @@ for bin in /usr/sbin/apache2 /usr/sbin/mysqld /usr/sbin/sshd; do
     elif printf '%s\n' "${AA_COMPLAIN[@]}" | grep -q "$bin"; then
         if [ "$bin" != "/usr/sbin/sshd" ]; then
             if [ "$LIVE_MODE" -eq 1 ]; then
-                aa-enforce "$bin" >/dev/null 2>&1
+                aa-enforce "$bin" >/dev/null 2>&1 || true
                 printf '    %-24s complain -> enforce  [ENFORCED]\n' "$bin"
             else
                 printf '    %-24s complain -> enforce  [WOULD ENFORCE - scratch mode]\n' "$bin"
@@ -138,7 +138,7 @@ if [ -f "$CUSTOM_PROFILE_PATH" ] && diff -q <(echo "$NEW_PROFILE_CONTENT") "$CUS
 else
     echo "$NEW_PROFILE_CONTENT" > "$CUSTOM_PROFILE_PATH"
     if [ "$LIVE_MODE" -eq 1 ] && [ "$(id -u)" -eq 0 ]; then
-        apparmor_parser -r "$CUSTOM_PROFILE_PATH" >/dev/null 2>&1 && aa-enforce "$CUSTOM_PROFILE_PATH" >/dev/null 2>&1
+        apparmor_parser -r "$CUSTOM_PROFILE_PATH" >/dev/null 2>&1 && aa-enforce "$CUSTOM_PROFILE_PATH" >/dev/null 2>&1 || true
         echo "[*] Custom profile: $CUSTOM_PROFILE_PATH   [CREATED] [ENFORCED]"
     else
         echo "[*] Custom profile: $CUSTOM_PROFILE_PATH   [CREATED] [NOT LOADED - scratch mode/no root]"

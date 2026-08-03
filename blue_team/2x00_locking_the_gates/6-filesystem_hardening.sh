@@ -143,7 +143,7 @@ check_and_apply_mount() {
         return
     fi
     local current
-    current="$(findmnt -no OPTIONS "$mnt" 2>/dev/null)"
+    current="$(findmnt -no OPTIONS "$mnt" 2>/dev/null)" || true
     local missing=""
     IFS=',' read -ra want <<<"$desired"
     for opt in "${want[@]}"; do

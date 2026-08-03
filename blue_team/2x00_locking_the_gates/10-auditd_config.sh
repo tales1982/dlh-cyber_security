@@ -28,7 +28,7 @@
 #
 # Usage: sudo ./10-auditd_config.sh
 
-set -uo pipefail
+set -euo pipefail
 
 RULES_FILE="${RULES_FILE:-/etc/audit/rules.d/meddefense.rules}"
 LIVE_MODE=1
@@ -44,9 +44,9 @@ echo "[*] Enabling auditd service..."
 if [ "$LIVE_MODE" -eq 1 ]; then
     if ! command -v auditd >/dev/null 2>&1; then
         export DEBIAN_FRONTEND=noninteractive
-        apt-get install -y auditd audispd-plugins >/dev/null 2>&1
+        apt-get install -y auditd audispd-plugins >/dev/null 2>&1 || true
     fi
-    systemctl enable --now auditd >/dev/null 2>&1
+    systemctl enable --now auditd >/dev/null 2>&1 || true
     state="$(systemctl is-active auditd 2>/dev/null || echo unknown)"
     echo "    auditd.service: ${state} (running)"
 else
@@ -120,20 +120,20 @@ RULE_COUNT=$(grep -cE '^-w ' <<<"$RULES_CONTENT")
 # --- 3. Load and verify --------------------------------------------------------
 if [ "$LIVE_MODE" -eq 1 ]; then
     if command -v augenrules >/dev/null 2>&1; then
-        augenrules --load >/dev/null 2>&1
+        augenrules --load >/dev/null 2>&1 || true
         echo "[*] Loading rules... augenrules --load: OK"
     else
-        auditctl -R "$RULES_FILE" >/dev/null 2>&1
+        auditctl -R "$RULES_FILE" >/dev/null 2>&1 || true
         echo "[*] Loading rules... auditctl -R: OK"
     fi
-    ACTIVE_RULES=$(auditctl -l 2>/dev/null | grep -cE 'identity|pam_config|sshd_config|priv_esc|sudoers|suspicious_download|suspicious_netcat|meddefense_db|meddefense_web|startup_scripts')
+    ACTIVE_RULES=$(auditctl -l 2>/dev/null | grep -cE 'identity|pam_config|sshd_config|priv_esc|sudoers|suspicious_download|suspicious_netcat|meddefense_db|meddefense_web|startup_scripts') || true
     echo "[*] Verifying... auditctl -l: ${ACTIVE_RULES:-0} rules loaded"
 
     # --- 4. Controlled functional test -----------------------------------------
     echo "[*] Test: reading /etc/shadow..."
-    cat /etc/shadow >/dev/null 2>&1
+    cat /etc/shadow >/dev/null 2>&1 || true
     sleep 1
-    HITS=$(ausearch -ts recent -k identity 2>/dev/null | grep -c '^type=')
+    HITS=$(ausearch -ts recent -k identity 2>/dev/null | grep -c '^type=') || true
     if [ "${HITS:-0}" -gt 0 ]; then
         echo "    ausearch -ts recent -k identity: ${HITS} event(s) found [PASS]"
     else

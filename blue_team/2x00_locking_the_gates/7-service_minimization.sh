@@ -72,7 +72,7 @@ for svc in "${ENABLED_UNITS[@]}"; do
             state="$(systemctl is-active "$unit" 2>/dev/null || echo unknown)"
             printf '  %-25s [%s]\n' "$unit" "${state^^}"
         else
-            systemctl is-active --quiet "$unit" 2>/dev/null || systemctl start "$unit" 2>/dev/null
+            systemctl is-active --quiet "$unit" 2>/dev/null || systemctl start "$unit" 2>/dev/null || true
             state="$(systemctl is-active "$unit" 2>/dev/null || echo unknown)"
             printf '  %-25s [%s]\n' "$unit" "${state^^}"
         fi
@@ -88,9 +88,9 @@ for svc in "${ENABLED_UNITS[@]}"; do
     else
         is_active="$(systemctl is-active "$unit" 2>/dev/null || echo inactive)"
         if [ "$is_active" = "active" ]; then
-            systemctl stop "$unit" 2>/dev/null
+            systemctl stop "$unit" 2>/dev/null || true
         fi
-        systemctl disable "$unit" 2>/dev/null
+        systemctl disable "$unit" 2>/dev/null || true
         printf '  %-25s [STOPPED] [DISABLED]\n' "$unit"
     fi
     DISABLED_COUNT=$((DISABLED_COUNT+1))
