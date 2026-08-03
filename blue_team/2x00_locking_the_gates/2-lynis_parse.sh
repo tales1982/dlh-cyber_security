@@ -15,7 +15,7 @@
 #
 # Usage: ./2-lynis_parse.sh /var/log/lynis-report.dat
 
-set -uo pipefail
+set -euo pipefail
 
 REPORT_FILE="${1:-}"
 
@@ -29,7 +29,7 @@ if [ ! -r "$REPORT_FILE" ]; then
     exit 1
 fi
 
-HARDENING_INDEX=$(grep -m1 '^hardening_index=' "$REPORT_FILE" | cut -d= -f2)
+HARDENING_INDEX=$(grep -m1 '^hardening_index=' "$REPORT_FILE" | cut -d= -f2) || true
 HARDENING_INDEX="${HARDENING_INDEX:-0}"
 
 # Parse one Lynis array type (warning[], suggestion[], manual_check[]) into
@@ -47,7 +47,7 @@ parse_findings() {
         [ -z "$test_id" ] && continue
         jq -n --arg sev "$severity" --arg tid "$test_id" --arg msg "$message" \
             '{severity: $sev, test_id: $tid, message: $msg}'
-    done
+    done || true
 }
 
 {
