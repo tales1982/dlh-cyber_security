@@ -1,0 +1,388 @@
+{
+  "generated": "2026-08-03T08:26:37Z",
+  "queued_count": 12,
+  "queue": [
+    {
+      "control_id": "MD-CIS-004",
+      "title": "SUID/SGID Binary Whitelist Enforced",
+      "severity": "critical",
+      "status": "non_compliant",
+      "matching_lynis_findings": [
+        {
+          "severity": "suggestion",
+          "test_id": "FILE-7524",
+          "message": "Consider restricting file permissions"
+        },
+        {
+          "severity": "suggestion",
+          "test_id": "HOME-9304",
+          "message": "Double check the permissions of home directories as some might be not strict enough."
+        }
+      ],
+      "affected_assets": [
+        "billing-srv-01",
+        "web-srv-01",
+        "log-srv-01"
+      ],
+      "remediation_script": "6-filesystem_hardening.sh",
+      "priority_score": 93,
+      "operational_risk": "High risk of exploitation or lateral movement if left unresolved; matches a Crimson Tide breach pattern.",
+      "expected_validation_check": "find / -xdev -perm -4000/-2000 compared to whitelist; MD-CIS-004 check in 15-validation.sh"
+    },
+    {
+      "control_id": "MD-CIS-005",
+      "title": "PAM Password Quality Policy Enforced",
+      "severity": "critical",
+      "status": "partially_compliant",
+      "matching_lynis_findings": [
+        {
+          "severity": "suggestion",
+          "test_id": "DEB-0280",
+          "message": "Install libpam-tmpdir to set $TMP and $TMPDIR for PAM sessions"
+        },
+        {
+          "severity": "suggestion",
+          "test_id": "BOOT-5122",
+          "message": "Set a password on GRUB boot loader to prevent altering boot configuration (e.g. boot in single user mode without password)"
+        },
+        {
+          "severity": "suggestion",
+          "test_id": "AUTH-9228",
+          "message": "Run pwck manually and correct any errors in the password file"
+        },
+        {
+          "severity": "suggestion",
+          "test_id": "AUTH-9230",
+          "message": "Configure password hashing rounds in /etc/login.defs"
+        },
+        {
+          "severity": "suggestion",
+          "test_id": "AUTH-9286",
+          "message": "Configure minimum password age in /etc/login.defs"
+        },
+        {
+          "severity": "suggestion",
+          "test_id": "AUTH-9286",
+          "message": "Configure maximum password age in /etc/login.defs"
+        }
+      ],
+      "affected_assets": [
+        "billing-srv-01",
+        "web-srv-01",
+        "log-srv-01"
+      ],
+      "remediation_script": "8-pam_hardening.sh",
+      "priority_score": 90,
+      "operational_risk": "High risk of exploitation or lateral movement if left unresolved; matches a Crimson Tide breach pattern.",
+      "expected_validation_check": "grep minlen/dcredit/ucredit/reject_username /etc/security/pwquality.conf; MD-CIS-005 check in 15-validation.sh"
+    },
+    {
+      "control_id": "MD-CIS-001",
+      "title": "SSH Password Authentication Disabled",
+      "severity": "critical",
+      "status": "non_compliant",
+      "matching_lynis_findings": [],
+      "affected_assets": [
+        "billing-srv-01",
+        "web-srv-01",
+        "log-srv-01"
+      ],
+      "remediation_script": "4-ssh_hardening.sh",
+      "priority_score": 85,
+      "operational_risk": "High risk of exploitation or lateral movement if left unresolved; matches a Crimson Tide breach pattern.",
+      "expected_validation_check": "sshd -T | grep passwordauthentication -> no; MD-CIS-001 check in 15-validation.sh"
+    },
+    {
+      "control_id": "MD-CIS-007",
+      "title": "World-Writable Files Remediated and Hardened Mount Options",
+      "severity": "high",
+      "status": "non_compliant",
+      "matching_lynis_findings": [
+        {
+          "severity": "suggestion",
+          "test_id": "DEB-0280",
+          "message": "Install libpam-tmpdir to set $TMP and $TMPDIR for PAM sessions"
+        },
+        {
+          "severity": "suggestion",
+          "test_id": "FILE-6310",
+          "message": "To decrease the impact of a full /tmp file system, place /tmp on a separate partition"
+        },
+        {
+          "severity": "suggestion",
+          "test_id": "FILE-7524",
+          "message": "Consider restricting file permissions"
+        },
+        {
+          "severity": "suggestion",
+          "test_id": "HOME-9304",
+          "message": "Double check the permissions of home directories as some might be not strict enough."
+        }
+      ],
+      "affected_assets": [
+        "billing-srv-01",
+        "web-srv-01",
+        "log-srv-01"
+      ],
+      "remediation_script": "6-filesystem_hardening.sh",
+      "priority_score": 85,
+      "operational_risk": "Meaningfully widens the attack surface or delays detection if left unresolved.",
+      "expected_validation_check": "find / -xdev -perm -0002 -type f; findmnt -no OPTIONS for /tmp,/var/tmp,/dev/shm; MD-CIS-007 check in 15-validation.sh"
+    },
+    {
+      "control_id": "MD-CIS-009",
+      "title": "Account Lockout on Repeated Failed Authentication",
+      "severity": "high",
+      "status": "non_compliant",
+      "matching_lynis_findings": [
+        {
+          "severity": "suggestion",
+          "test_id": "DEB-0280",
+          "message": "Install libpam-tmpdir to set $TMP and $TMPDIR for PAM sessions"
+        },
+        {
+          "severity": "suggestion",
+          "test_id": "BOOT-5122",
+          "message": "Set a password on GRUB boot loader to prevent altering boot configuration (e.g. boot in single user mode without password)"
+        },
+        {
+          "severity": "suggestion",
+          "test_id": "AUTH-9228",
+          "message": "Run pwck manually and correct any errors in the password file"
+        },
+        {
+          "severity": "suggestion",
+          "test_id": "AUTH-9230",
+          "message": "Configure password hashing rounds in /etc/login.defs"
+        },
+        {
+          "severity": "suggestion",
+          "test_id": "AUTH-9286",
+          "message": "Configure minimum password age in /etc/login.defs"
+        },
+        {
+          "severity": "suggestion",
+          "test_id": "AUTH-9286",
+          "message": "Configure maximum password age in /etc/login.defs"
+        }
+      ],
+      "affected_assets": [
+        "billing-srv-01",
+        "web-srv-01",
+        "log-srv-01"
+      ],
+      "remediation_script": "8-pam_hardening.sh",
+      "priority_score": 85,
+      "operational_risk": "Meaningfully widens the attack surface or delays detection if left unresolved.",
+      "expected_validation_check": "grep deny/unlock_time/fail_interval /etc/security/faillock.conf; MD-CIS-009 check in 15-validation.sh"
+    },
+    {
+      "control_id": "MD-CIS-008",
+      "title": "Unnecessary Services Disabled (Attack Surface Reduction)",
+      "severity": "high",
+      "status": "non_compliant",
+      "matching_lynis_findings": [
+        {
+          "severity": "suggestion",
+          "test_id": "DEB-0831",
+          "message": "Install needrestart, alternatively to debian-goodies, so that you can run needrestart after upgrades to determine which daemons are using old versions of libraries and need restarting."
+        },
+        {
+          "severity": "suggestion",
+          "test_id": "BOOT-5264",
+          "message": "Consider hardening system services"
+        },
+        {
+          "severity": "suggestion",
+          "test_id": "ACCT-9622",
+          "message": "Enable process accounting"
+        }
+      ],
+      "affected_assets": [
+        "billing-srv-01",
+        "web-srv-01",
+        "log-srv-01"
+      ],
+      "remediation_script": "7-service_minimization.sh",
+      "priority_score": 82,
+      "operational_risk": "Meaningfully widens the attack surface or delays detection if left unresolved.",
+      "expected_validation_check": "systemctl list-unit-files --state=enabled compared to MedDefense whitelist; MD-CIS-008 check in 15-validation.sh"
+    },
+    {
+      "control_id": "MD-CIS-003",
+      "title": "Kernel Network Stack Hardened Against Pivoting",
+      "severity": "critical",
+      "status": "partially_compliant",
+      "matching_lynis_findings": [
+        {
+          "severity": "suggestion",
+          "test_id": "KRNL-6000",
+          "message": "One or more sysctl values differ from the scan profile and could be tweaked"
+        }
+      ],
+      "affected_assets": [
+        "billing-srv-01",
+        "web-srv-01",
+        "log-srv-01"
+      ],
+      "remediation_script": "5-sysctl_hardening.sh",
+      "priority_score": 79,
+      "operational_risk": "High risk of exploitation or lateral movement if left unresolved; matches a Crimson Tide breach pattern.",
+      "expected_validation_check": "sysctl net.ipv4.ip_forward, accept_redirects, tcp_syncookies read back from /proc/sys; MD-CIS-003 check in 15-validation.sh"
+    },
+    {
+      "control_id": "MD-CIS-011",
+      "title": "Audit Trail for Identity Files and Configuration Integrity",
+      "severity": "high",
+      "status": "non_compliant",
+      "matching_lynis_findings": [
+        {
+          "severity": "suggestion",
+          "test_id": "PKGS-7398",
+          "message": "Install a package audit tool to determine vulnerable packages"
+        },
+        {
+          "severity": "suggestion",
+          "test_id": "ACCT-9632",
+          "message": "Determine the location of auditd configuration file"
+        }
+      ],
+      "affected_assets": [
+        "billing-srv-01",
+        "web-srv-01",
+        "log-srv-01"
+      ],
+      "remediation_script": "10-auditd_config.sh",
+      "priority_score": 78,
+      "operational_risk": "Meaningfully widens the attack surface or delays detection if left unresolved.",
+      "expected_validation_check": "auditctl -l shows -w rules for /etc/passwd, /etc/shadow, /etc/group, sshd_config, pam.d; MD-CIS-011 check in 15-validation.sh"
+    },
+    {
+      "control_id": "MD-CIS-006",
+      "title": "Kernel Memory and Pointer Exposure Protections",
+      "severity": "high",
+      "status": "partially_compliant",
+      "matching_lynis_findings": [
+        {
+          "severity": "suggestion",
+          "test_id": "BOOT-5264",
+          "message": "Consider hardening system services"
+        },
+        {
+          "severity": "suggestion",
+          "test_id": "PKGS-7410",
+          "message": "Remove any unneeded kernel packages"
+        },
+        {
+          "severity": "suggestion",
+          "test_id": "KRNL-6000",
+          "message": "One or more sysctl values differ from the scan profile and could be tweaked"
+        },
+        {
+          "severity": "suggestion",
+          "test_id": "HRDN-7222",
+          "message": "Harden compilers like restricting access to root user only"
+        }
+      ],
+      "affected_assets": [
+        "billing-srv-01",
+        "web-srv-01",
+        "log-srv-01"
+      ],
+      "remediation_script": "5-sysctl_hardening.sh",
+      "priority_score": 75,
+      "operational_risk": "Meaningfully widens the attack surface or delays detection if left unresolved.",
+      "expected_validation_check": "sysctl kernel.randomize_va_space=2, kernel.kptr_restrict=2, kernel.dmesg_restrict=1, fs.suid_dumpable=0; MD-CIS-006 check in 15-validation.sh"
+    },
+    {
+      "control_id": "MD-CIS-012",
+      "title": "Host Firewall Default-Deny Inbound Policy",
+      "severity": "high",
+      "status": "partially_compliant",
+      "matching_lynis_findings": [],
+      "affected_assets": [
+        "billing-srv-01",
+        "web-srv-01",
+        "log-srv-01"
+      ],
+      "remediation_script": "13-firewall_baseline.sh",
+      "priority_score": 60,
+      "operational_risk": "Meaningfully widens the attack surface or delays detection if left unresolved.",
+      "expected_validation_check": "ufw status verbose shows default deny (incoming) / allow (outgoing) with an explicit allow list; MD-CIS-012 check in 15-validation.sh"
+    },
+    {
+      "control_id": "MD-CIS-013",
+      "title": "Audit Trail for Privilege Escalation and Suspicious Tooling",
+      "severity": "medium",
+      "status": "non_compliant",
+      "matching_lynis_findings": [
+        {
+          "severity": "suggestion",
+          "test_id": "PKGS-7398",
+          "message": "Install a package audit tool to determine vulnerable packages"
+        },
+        {
+          "severity": "suggestion",
+          "test_id": "ACCT-9632",
+          "message": "Determine the location of auditd configuration file"
+        }
+      ],
+      "affected_assets": [
+        "billing-srv-01",
+        "web-srv-01",
+        "log-srv-01"
+      ],
+      "remediation_script": "10-auditd_config.sh",
+      "priority_score": 58,
+      "operational_risk": "Reduces defense-in-depth or detection fidelity; lower immediate exploitation risk.",
+      "expected_validation_check": "auditctl -l shows -x execve watches on sudo, su, wget, curl, nc keyed priv_esc/suspicious_download/suspicious_netcat; MD-CIS-013 check in 15-validation.sh"
+    },
+    {
+      "control_id": "MD-CIS-015",
+      "title": "Structured Log Routing and Retention",
+      "severity": "medium",
+      "status": "partially_compliant",
+      "matching_lynis_findings": [
+        {
+          "severity": "suggestion",
+          "test_id": "AUTH-9230",
+          "message": "Configure password hashing rounds in /etc/login.defs"
+        },
+        {
+          "severity": "suggestion",
+          "test_id": "AUTH-9286",
+          "message": "Configure minimum password age in /etc/login.defs"
+        },
+        {
+          "severity": "suggestion",
+          "test_id": "AUTH-9286",
+          "message": "Configure maximum password age in /etc/login.defs"
+        },
+        {
+          "severity": "suggestion",
+          "test_id": "AUTH-9328",
+          "message": "Default umask in /etc/login.defs could be more strict like 027"
+        },
+        {
+          "severity": "suggestion",
+          "test_id": "LOGG-2154",
+          "message": "Enable logging to an external logging host for archiving purposes and additional protection"
+        },
+        {
+          "severity": "suggestion",
+          "test_id": "LOGG-2190",
+          "message": "Check what deleted files are still in use and why."
+        }
+      ],
+      "affected_assets": [
+        "billing-srv-01",
+        "web-srv-01",
+        "log-srv-01"
+      ],
+      "remediation_script": "12-log_config.sh",
+      "priority_score": 55,
+      "operational_risk": "Reduces defense-in-depth or detection fidelity; lower immediate exploitation risk.",
+      "expected_validation_check": "rsyslog rules route auth/authpriv to auth.log; logrotate policy retains auth.log 90d / syslog 60d; MD-CIS-015 check in 15-validation.sh"
+    }
+  ]
+}
