@@ -27,6 +27,7 @@
 set -euo pipefail
 
 SSHD_CONFIG="${1:-/etc/ssh/sshd_config}"
+# Backup target, e.g. /etc/ssh/sshd_config.bak
 BACKUP="${SSHD_CONFIG}.bak"
 # ISSUE_NET_OVERRIDE exists only so this script's logic can be exercised
 # against a scratch path during isolated testing without touching the real
