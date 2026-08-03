@@ -14,7 +14,7 @@
 #
 # Usage: sudo ./0-baseline_snapshot.sh [output.json]
 
-set -uo pipefail
+set -euo pipefail
 
 OUT_JSON="${1:-baseline_snapshot.json}"
 TS="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
@@ -100,7 +100,7 @@ SSH_KEYS=(PermitRootLogin PasswordAuthentication PermitEmptyPasswords X11Forward
 SSH_JSON="{}"
 if [ -r "$SSHD_CONFIG" ]; then
     for key in "${SSH_KEYS[@]}"; do
-        val="$(grep -iE "^\s*${key}\s+" "$SSHD_CONFIG" 2>/dev/null | tail -1 | awk '{ $1=""; sub(/^ /,""); print }')"
+        val="$(grep -iE "^\s*${key}\s+" "$SSHD_CONFIG" 2>/dev/null | tail -1 | awk '{ $1=""; sub(/^ /,""); print }')" || true
         [ -z "$val" ] && val="not_set"
         SSH_JSON="$(jq --arg k "$key" --arg v "$val" '. + {($k): $v}' <<<"$SSH_JSON")"
     done
