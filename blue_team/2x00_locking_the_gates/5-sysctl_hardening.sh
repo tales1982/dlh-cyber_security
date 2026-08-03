@@ -25,7 +25,7 @@
 #        exercised safely against a scratch copy - see this project's
 #        validation notes for what was and was not run against the real file)
 
-set -uo pipefail
+set -euo pipefail
 
 SYSCTL_CONF="${1:-/etc/sysctl.conf}"
 BACKUP="${SYSCTL_CONF}.bak"
@@ -120,7 +120,7 @@ for i in "${!PARAM_KEYS[@]}"; do
         path="/proc/sys/${key//.//}"
         actual="$(cat "$path" 2>/dev/null || echo "unreadable")"
     else
-        actual="$(grep -E "^${key//./\\.}[[:space:]]*=" "$SYSCTL_CONF" | tail -1 | awk -F= '{gsub(/ /,"",$2); print $2}')"
+        actual="$(grep -E "^${key//./\\.}[[:space:]]*=" "$SYSCTL_CONF" | tail -1 | awk -F= '{gsub(/ /,"",$2); print $2}')" || true
     fi
     if [ "$actual" = "$expected" ]; then
         result="PASS"; PASS_COUNT=$((PASS_COUNT+1))
