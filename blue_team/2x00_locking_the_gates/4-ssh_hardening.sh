@@ -171,7 +171,7 @@ if [ "$VALID" -eq 1 ]; then
     fi
     echo "Settings applied: $SETTINGS_APPLIED"
 else
-    echo "[*] Validation failed - restoring backup"
+    echo "[*] Validation failed - restore backup"
     cp -p "$BACKUP" "$SSHD_CONFIG"
     exit 1
 fi
