@@ -135,11 +135,22 @@ echo "    $SYSLOG_LOG: rotate 60, compress after 7d    [SET]"
 # meeting the compress-after-7-days retention requirement.
 
 # --- 3. Verify log activity ------------------------------------------------------
+# Passive mtime checks can pass/fail on unrelated system noise and don't
+# actually prove the routing rules above work. Instead, emit a controlled,
+# uniquely-marked test event with `logger` on each routed facility and
+# confirm the marker lands in the expected file - the same
+# generate-and-verify approach Task 11 uses for auditd.
 echo "[*] Verifying log activity..."
 if [ "$LIVE_MODE" -eq 1 ]; then
+    TEST_MARKER="meddefense-log-verify-$$"
+    logger -p auth.info "$TEST_MARKER" 2>/dev/null || true
+    logger -p syslog.info "$TEST_MARKER" 2>/dev/null || true
+    sleep 1
     for f in "$AUTH_LOG" "$SYSLOG_LOG"; do
-        if [ -f "$f" ] && [ -s "$f" ] && find "$f" -mmin -1440 2>/dev/null | grep -q .; then
-            echo "    $f: receiving events       [OK]"
+        if [ -f "$f" ] && grep -q "$TEST_MARKER" "$f" 2>/dev/null; then
+            echo "    $f: receiving events (logger test marker captured) [OK]"
+        elif [ -f "$f" ] && [ -s "$f" ] && find "$f" -mmin -1440 2>/dev/null | grep -q .; then
+            echo "    $f: exists with recent activity but test marker not found [WARN]"
         elif [ -f "$f" ]; then
             echo "    $f: exists but no events in last 24h [WARN]"
         else
@@ -147,7 +158,7 @@ if [ "$LIVE_MODE" -eq 1 ]; then
         fi
     done
 else
-    echo "    (scratch mode: not inspecting real log files)"
+    echo "    (scratch mode: not inspecting real log files, logger test skipped)"
 fi
 
 # --- 4. Secure log file permissions ----------------------------------------------
