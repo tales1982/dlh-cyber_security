@@ -24,7 +24,7 @@
 #        exercised safely against a scratch copy without touching the real
 #        file - see the validation notes in this project's final report)
 
-set -uo pipefail
+set -euo pipefail
 
 SSHD_CONFIG="${1:-/etc/ssh/sshd_config}"
 BACKUP="${SSHD_CONFIG}.bak"
@@ -158,8 +158,8 @@ fi
 if [ "$VALID" -eq 1 ]; then
     echo "[*] Restarting SSH service..."
     if [ "$(id -u)" -eq 0 ] && command -v systemctl >/dev/null 2>&1 && [ "$SSHD_CONFIG" = "/etc/ssh/sshd_config" ]; then
-        systemctl restart ssh.service 2>/dev/null || systemctl restart sshd.service 2>/dev/null
-        state="$(systemctl is-active ssh.service 2>/dev/null || systemctl is-active sshd.service 2>/dev/null)"
+        systemctl restart ssh.service 2>/dev/null || systemctl restart sshd.service 2>/dev/null || true
+        state="$(systemctl is-active ssh.service 2>/dev/null || systemctl is-active sshd.service 2>/dev/null || true)"
         echo "    ssh.service: ${state:-unknown}"
     else
         echo "    (skipped actual service restart - not running as root against the live config)"

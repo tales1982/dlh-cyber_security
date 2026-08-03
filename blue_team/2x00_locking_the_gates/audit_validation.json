@@ -1,0 +1,66 @@
+{
+  "generated": "2026-08-03T08:57:24Z",
+  "executed_as_root": false,
+  "tests": [
+    {
+      "test_name": "sudo execution",
+      "expected_audit_key": "priv_esc",
+      "command_executed": "sudo -n true (skipped - no root/cached sudo credentials available in this environment)",
+      "timestamp": "2026-08-03T08:57:24Z",
+      "capture_status": "not_assessed",
+      "matching_event_count": 0,
+      "excerpt": ""
+    },
+    {
+      "test_name": "shadow access",
+      "expected_audit_key": "identity",
+      "command_executed": "cat /etc/shadow",
+      "timestamp": "2026-08-03T08:57:24Z",
+      "capture_status": "not_assessed",
+      "matching_event_count": 0,
+      "excerpt": ""
+    },
+    {
+      "test_name": "suspicious download tool",
+      "expected_audit_key": "suspicious_download",
+      "command_executed": "curl --version",
+      "timestamp": "2026-08-03T08:57:24Z",
+      "capture_status": "not_assessed",
+      "matching_event_count": 0,
+      "excerpt": ""
+    },
+    {
+      "test_name": "sshd config read",
+      "expected_audit_key": "sshd_config",
+      "command_executed": "stat /etc/ssh/sshd_config",
+      "timestamp": "2026-08-03T08:57:24Z",
+      "capture_status": "not_assessed",
+      "matching_event_count": 0,
+      "excerpt": ""
+    },
+    {
+      "test_name": "monitored test file write",
+      "expected_audit_key": "startup_scripts",
+      "command_executed": "echo test > /tmp/meddefense_audit_test_438917",
+      "timestamp": "2026-08-03T08:57:24Z",
+      "capture_status": "not_assessed",
+      "matching_event_count": 0,
+      "excerpt": ""
+    },
+    {
+      "test_name": "cron configuration check",
+      "expected_audit_key": "cron_config",
+      "command_executed": "crontab -l",
+      "timestamp": "2026-08-03T08:57:24Z",
+      "capture_status": "not_assessed",
+      "matching_event_count": 0,
+      "excerpt": ""
+    }
+  ],
+  "summary": {
+    "tests_executed": 6,
+    "captured": 0,
+    "missed": 0,
+    "not_assessed": 6
+  }
+}

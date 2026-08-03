@@ -1,0 +1,151 @@
+{
+  "generated": "2026-08-03T09:08:33Z",
+  "executed_as_root": false,
+  "summary": {
+    "total": 20,
+    "passed": 5,
+    "failed": 15
+  },
+  "results": [
+    {
+      "control_id": "MD-CIS-002",
+      "check": "PermitRootLogin",
+      "expected": "no",
+      "actual": "no",
+      "status": "PASS"
+    },
+    {
+      "control_id": "MD-CIS-001",
+      "check": "PasswordAuthentication",
+      "expected": "no",
+      "actual": "not_set",
+      "status": "FAIL"
+    },
+    {
+      "control_id": "MD-CIS-001",
+      "check": "MaxAuthTries",
+      "expected": "3",
+      "actual": "not_set",
+      "status": "FAIL"
+    },
+    {
+      "control_id": "MD-CIS-003",
+      "check": "net.ipv4.ip_forward",
+      "expected": "0",
+      "actual": "1",
+      "status": "FAIL"
+    },
+    {
+      "control_id": "MD-CIS-003",
+      "check": "net.ipv4.tcp_syncookies",
+      "expected": "1",
+      "actual": "1",
+      "status": "PASS"
+    },
+    {
+      "control_id": "MD-CIS-003",
+      "check": "net.ipv4.conf.all.log_martians",
+      "expected": "1",
+      "actual": "0",
+      "status": "FAIL"
+    },
+    {
+      "control_id": "MD-CIS-006",
+      "check": "kernel.randomize_va_space",
+      "expected": "2",
+      "actual": "2",
+      "status": "PASS"
+    },
+    {
+      "control_id": "MD-CIS-004",
+      "check": "unexpected_suid_binaries",
+      "expected": "0",
+      "actual": "23",
+      "status": "FAIL"
+    },
+    {
+      "control_id": "MD-CIS-007",
+      "check": "/tmp mount options",
+      "expected": "noexec,nosuid,nodev",
+      "actual": "none",
+      "status": "FAIL"
+    },
+    {
+      "control_id": "MD-CIS-005",
+      "check": "pwquality.minlen",
+      "expected": "14",
+      "actual": "not_set",
+      "status": "FAIL"
+    },
+    {
+      "control_id": "MD-CIS-009",
+      "check": "faillock.deny",
+      "expected": "5",
+      "actual": "not_set",
+      "status": "FAIL"
+    },
+    {
+      "control_id": "MD-CIS-008",
+      "check": "unwhitelisted_enabled_services",
+      "expected": "0",
+      "actual": "91",
+      "status": "FAIL"
+    },
+    {
+      "control_id": "MD-CIS-010",
+      "check": "apparmor.service",
+      "expected": "active",
+      "actual": "active",
+      "status": "PASS"
+    },
+    {
+      "control_id": "MD-CIS-011",
+      "check": "auditd.service",
+      "expected": "active",
+      "actual": "active",
+      "status": "PASS"
+    },
+    {
+      "control_id": "MD-CIS-011",
+      "check": "meddefense_audit_rules_present",
+      "expected": ">0",
+      "actual": "0",
+      "status": "FAIL"
+    },
+    {
+      "control_id": "MD-CIS-013",
+      "check": "priv_esc_audit_rules_present",
+      "expected": "yes",
+      "actual": "no",
+      "status": "FAIL"
+    },
+    {
+      "control_id": "MD-CIS-014",
+      "check": "audit_telemetry_coverage",
+      "expected": "all captured",
+      "actual": "0/6 captured",
+      "status": "FAIL"
+    },
+    {
+      "control_id": "MD-CIS-015",
+      "check": "meddefense_rsyslog_policy",
+      "expected": "configured",
+      "actual": "not_configured",
+      "status": "FAIL"
+    },
+    {
+      "control_id": "MD-CIS-012",
+      "check": "UFW status",
+      "expected": "active",
+      "actual": "requires_root",
+      "status": "FAIL"
+    },
+    {
+      "control_id": "MD-CIS-012",
+      "check": "Default incoming",
+      "expected": "deny",
+      "actual": "requires_root",
+      "status": "FAIL"
+    }
+  ]
+}
