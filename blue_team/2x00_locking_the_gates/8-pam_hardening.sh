@@ -26,7 +26,7 @@
 #
 # Usage: sudo ./8-pam_hardening.sh
 
-set -uo pipefail
+set -euo pipefail
 
 PWQUALITY_CONF="${PWQUALITY_CONF:-/etc/security/pwquality.conf}"
 FAILLOCK_CONF="${FAILLOCK_CONF:-/etc/security/faillock.conf}"
