@@ -69,11 +69,11 @@ record "MD-CIS-003" "net.ipv4.ip_forward" "0" "$val" "$([ "$val" = "0" ] && echo
 val=$(sysctl_val net.ipv4.tcp_syncookies)
 record "MD-CIS-003" "net.ipv4.tcp_syncookies" "1" "$val" "$([ "$val" = "1" ] && echo 1 || echo 0)"
 
-val=$(sysctl_val net.ipv4.conf.all.log_martians)
-record "MD-CIS-003" "net.ipv4.conf.all.log_martians" "1" "$val" "$([ "$val" = "1" ] && echo 1 || echo 0)"
-
 val=$(sysctl_val kernel.randomize_va_space)
 record "MD-CIS-006" "kernel.randomize_va_space" "2" "$val" "$([ "$val" = "2" ] && echo 1 || echo 0)"
+
+val=$(sysctl_val net.ipv4.conf.all.log_martians)
+record "MD-CIS-003" "net.ipv4.conf.all.log_martians" "1" "$val" "$([ "$val" = "1" ] && echo 1 || echo 0)"
 
 # --- Filesystem (Task 6 / MD-CIS-004) -----------------------------------------
 whitelist_regex='^(/usr)?/bin/(su|mount|umount|ping|fusermount3?|passwd)$|^/usr/bin/(sudo|passwd|su|chsh|chfn|chage|expiry|gpasswd|newgrp|mount|umount|ping|fusermount3?|pkexec|crontab)$|^/usr/lib/(openssh/ssh-keysign|dbus-1\.0/dbus-daemon-launch-helper|policykit-1/polkit-agent-helper-1|xorg/Xorg\.wrap)$|^/usr/sbin/(pppd|mount\.nfs)$'
@@ -111,10 +111,6 @@ for u in "${enabled_units[@]}"; do
 done
 record "MD-CIS-008" "unwhitelisted_enabled_services" "0" "$extra" "$([ "$extra" -eq 0 ] && echo 1 || echo 0)"
 
-# --- AppArmor (Task 9 / MD-CIS-010) ------------------------------------------
-val=$(systemctl is-active apparmor 2>/dev/null || echo unknown)
-record "MD-CIS-010" "apparmor.service" "active" "$val" "$([ "$val" = "active" ] && echo 1 || echo 0)"
-
 # --- Audit engine (Task 10 / MD-CIS-011) -------------------------------------
 val=$(systemctl is-active auditd 2>/dev/null || echo unknown)
 record "MD-CIS-011" "auditd.service" "active" "$val" "$([ "$val" = "active" ] && echo 1 || echo 0)"
@@ -133,6 +129,10 @@ else
     priv_esc_present=0
 fi
 record "MD-CIS-013" "priv_esc_audit_rules_present" "yes" "$([ "$priv_esc_present" -eq 1 ] && echo yes || echo no)" "$priv_esc_present"
+
+# --- AppArmor (Task 9 / MD-CIS-010) ------------------------------------------
+val=$(systemctl is-active apparmor 2>/dev/null || echo unknown)
+record "MD-CIS-010" "apparmor.service" "active" "$val" "$([ "$val" = "active" ] && echo 1 || echo 0)"
 
 # --- Audit telemetry coverage (Task 11 / MD-CIS-014) -------------------------
 audit_validation_file=""
