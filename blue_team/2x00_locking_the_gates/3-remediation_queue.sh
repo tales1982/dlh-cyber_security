@@ -19,7 +19,7 @@
 #
 # Usage: ./3-remediation_queue.sh [cis_profile.json] [lynis_findings.json]
 
-set -uo pipefail
+set -euo pipefail
 
 CIS_PROFILE="${1:-}"
 LYNIS_FINDINGS="${2:-}"
@@ -77,7 +77,7 @@ have_root() { [ "$(id -u)" -eq 0 ]; }
 
 check_MD_CIS_001() {
     local val
-    val="$(grep -iE '^\s*PasswordAuthentication\s+' /etc/ssh/sshd_config 2>/dev/null | tail -1 | awk '{print tolower($2)}')"
+    val="$(grep -iE '^\s*PasswordAuthentication\s+' /etc/ssh/sshd_config 2>/dev/null | tail -1 | awk '{print tolower($2)}')" || true
     if [ "$val" = "no" ]; then STATUS="compliant"; EVIDENCE="sshd_config PasswordAuthentication=no"
     elif [ -z "$val" ]; then STATUS="non_compliant"; EVIDENCE="PasswordAuthentication not explicitly set (defaults to yes upstream)"
     else STATUS="non_compliant"; EVIDENCE="sshd_config PasswordAuthentication=$val"; fi
@@ -85,7 +85,7 @@ check_MD_CIS_001() {
 
 check_MD_CIS_002() {
     local val
-    val="$(grep -iE '^\s*PermitRootLogin\s+' /etc/ssh/sshd_config 2>/dev/null | tail -1 | awk '{print tolower($2)}')"
+    val="$(grep -iE '^\s*PermitRootLogin\s+' /etc/ssh/sshd_config 2>/dev/null | tail -1 | awk '{print tolower($2)}')" || true
     if [ "$val" = "no" ]; then STATUS="compliant"; EVIDENCE="sshd_config PermitRootLogin=no"
     elif [ -z "$val" ]; then STATUS="non_compliant"; EVIDENCE="PermitRootLogin not explicitly set (defaults to prohibit-password/yes upstream)"
     else STATUS="non_compliant"; EVIDENCE="sshd_config PermitRootLogin=$val"; fi
@@ -93,9 +93,9 @@ check_MD_CIS_002() {
 
 check_MD_CIS_003() {
     local fwd redir syn ok=0 total=3
-    fwd="$(cat /proc/sys/net/ipv4/ip_forward 2>/dev/null)"
-    redir="$(cat /proc/sys/net/ipv4/conf/all/accept_redirects 2>/dev/null)"
-    syn="$(cat /proc/sys/net/ipv4/tcp_syncookies 2>/dev/null)"
+    fwd="$(cat /proc/sys/net/ipv4/ip_forward 2>/dev/null)" || true
+    redir="$(cat /proc/sys/net/ipv4/conf/all/accept_redirects 2>/dev/null)" || true
+    syn="$(cat /proc/sys/net/ipv4/tcp_syncookies 2>/dev/null)" || true
     [ "$fwd" = "0" ] && ok=$((ok+1))
     [ "$redir" = "0" ] && ok=$((ok+1))
     [ "$syn" = "1" ] && ok=$((ok+1))
@@ -133,10 +133,10 @@ check_MD_CIS_005() {
 
 check_MD_CIS_006() {
     local rva kptr dmesg dump ok=0
-    rva="$(cat /proc/sys/kernel/randomize_va_space 2>/dev/null)"
-    kptr="$(cat /proc/sys/kernel/kptr_restrict 2>/dev/null)"
-    dmesg="$(cat /proc/sys/kernel/dmesg_restrict 2>/dev/null)"
-    dump="$(cat /proc/sys/fs/suid_dumpable 2>/dev/null)"
+    rva="$(cat /proc/sys/kernel/randomize_va_space 2>/dev/null)" || true
+    kptr="$(cat /proc/sys/kernel/kptr_restrict 2>/dev/null)" || true
+    dmesg="$(cat /proc/sys/kernel/dmesg_restrict 2>/dev/null)" || true
+    dump="$(cat /proc/sys/fs/suid_dumpable 2>/dev/null)" || true
     [ "$rva" = "2" ] && ok=$((ok+1))
     [ "$kptr" = "2" ] && ok=$((ok+1))
     [ "$dmesg" = "1" ] && ok=$((ok+1))
@@ -149,8 +149,8 @@ check_MD_CIS_006() {
 
 check_MD_CIS_007() {
     local opts ww
-    opts="$(findmnt -no OPTIONS /tmp 2>/dev/null)"
-    ww="$(find / -xdev -type f -perm -0002 -not -path '/proc/*' -not -path '/sys/*' -not -path '/dev/*' 2>/dev/null | wc -l)"
+    opts="$(findmnt -no OPTIONS /tmp 2>/dev/null)" || true
+    ww="$(find / -xdev -type f -perm -0002 -not -path '/proc/*' -not -path '/sys/*' -not -path '/dev/*' 2>/dev/null | wc -l)" || true
     local has_noexec=0 has_nosuid=0 has_nodev=0
     [[ "$opts" == *noexec* ]] && has_noexec=1
     [[ "$opts" == *nosuid* ]] && has_nosuid=1

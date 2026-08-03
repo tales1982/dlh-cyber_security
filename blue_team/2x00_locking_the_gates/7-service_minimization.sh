@@ -27,7 +27,7 @@
 # Usage: sudo ./7-service_minimization.sh
 #        DRY_RUN=1 ./7-service_minimization.sh   (report-only, no changes)
 
-set -uo pipefail
+set -euo pipefail
 
 DRY_RUN="${DRY_RUN:-0}"
 

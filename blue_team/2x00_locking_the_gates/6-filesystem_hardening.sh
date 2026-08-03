@@ -27,7 +27,7 @@
 #
 # Usage: sudo ./6-filesystem_hardening.sh [SCAN_ROOT]
 
-set -uo pipefail
+set -euo pipefail
 
 SCAN_ROOT="${1:-/}"
 LIVE_MODE=1
