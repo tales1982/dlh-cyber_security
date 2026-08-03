@@ -74,33 +74,36 @@ set_directive() {
 echo "[*] Applying SSH hardening settings..."
 
 # Finding 009 / Crimson Tide Phase 3 (SSH lateral movement): remove direct
-# root shell access over the network entirely.
+# root shell access over the network entirely. Applies: PermitRootLogin no
 set_directive "PermitRootLogin" "no" \
     "MedDefense: no direct root SSH login (Finding 009, Crimson Tide Phase 3)"
 
 # Finding 009 / Crimson Tide Phase 3: this is THE fix - password auth is the
-# credential-stuffing / brute-force attack surface.
+# credential-stuffing / brute-force attack surface. Applies: PasswordAuthentication no
 set_directive "PasswordAuthentication" "no" \
     "MedDefense: key-only auth, closes brute-force path (Finding 009)"
 
 # Belt-and-suspenders for PasswordAuthentication - explicitly deny blank
 # passwords even if some PAM stack misconfiguration would otherwise allow it.
+# Applies: PermitEmptyPasswords no
 set_directive "PermitEmptyPasswords" "no" \
     "MedDefense: defense in depth alongside PasswordAuthentication no"
 
 # X11 forwarding is unused on headless production servers and is a known
 # tunneling / pivot vector once a session is established (Crimson Tide Phase 3).
+# Applies: X11Forwarding no
 set_directive "X11Forwarding" "no" \
     "MedDefense: no GUI forwarding need on billing/web/log servers, reduces pivot surface"
 
 # Caps brute-force attempts per connection - closes the gap Finding 009
-# explicitly called out ("no account lockout policy").
+# explicitly called out ("no account lockout policy"). Applies: MaxAuthTries 3
 set_directive "MaxAuthTries" "3" \
     "MedDefense: limits brute-force attempts per connection (Finding 009)"
 
 # Idle session timeout: 300s * 2 = 10 minutes before an unattended,
 # authenticated session is dropped - reduces the window a hijacked or
 # abandoned session is usable by an attacker who gained host access.
+# Applies: ClientAliveInterval 300 and ClientAliveCountMax 2
 set_directive "ClientAliveInterval" "300" \
     "MedDefense: idle timeout part 1/2 (10 min total, Crimson Tide Phase 3 session hijack mitigation)"
 set_directive "ClientAliveCountMax" "2" \
@@ -113,12 +116,13 @@ set_directive "AllowUsers" "medadmin sysadmin" \
 
 # Protocol 1 is deprecated/removed from modern OpenSSH, but the directive is
 # still explicitly pinned so no downgrade is possible if an old config or
-# package ever reintroduces it.
+# package ever reintroduces it. Applies: Protocol 2
 set_directive "Protocol" "2" \
     "MedDefense: pin SSHv2 only, SSHv1 is cryptographically broken"
 
 # Shortens the window an unauthenticated connection can hold a slot open -
 # reduces exposure to slow-auth / connection-exhaustion abuse.
+# Applies: LoginGraceTime 60
 set_directive "LoginGraceTime" "60" \
     "MedDefense: reduces unauthenticated connection hold time"
 
