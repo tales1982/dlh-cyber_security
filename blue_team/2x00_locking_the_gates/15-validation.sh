@@ -362,4 +362,8 @@ jq -n \
         checks: $checks
     }' > "$OUT_JSON"
 
-[ "$FAIL_COUNT" -eq 0 ]
+if [ "$FAIL_COUNT" -eq 0 ]; then
+    exit 0
+else
+    exit 1
+fi
