@@ -4,7 +4,7 @@ OUT_JSON="validation_results.json"
 IS_ROOT=0
 [ "$(id -u)" -eq 0 ] && IS_ROOT=1
 
-RESULTS_JSONL=""
+RESL=""
 PASS_COUNT=0
 FAIL_COUNT=0
 
@@ -21,7 +21,7 @@ record() {
         --arg actual "$actual" --argjson ok "$([ "$ok" -eq 1 ] && echo true || echo false)" \
         '{control_id: $cid, check: $label, expected: $expected, actual: $actual,
           status: (if $ok then "PASS" else "FAIL" end)}')
-    RESULTS_JSONL="${RESULTS_JSONL}${obj}"$'\n'
+    RESL="${RESL}${obj}"$'\n'
 }
 
 sysctl_val() { cat "/proc/sys/${1//.//}" 2>/dev/null || echo "unreadable"; }
@@ -117,8 +117,8 @@ fi
 record "MD-CIS-012" "UFW status" "active" "$ufw_state" "$([ "$ufw_state" = "active" ] && echo 1 || echo 0)"
 record "MD-CIS-012" "Default incoming" "deny" "$default_in" "$([ "$default_in" = "deny" ] && echo 1 || echo 0)"
 
-RESULTS_JSON=$(jq -s '.' <<<"$RESULTS_JSONL")
-jq -n --argjson results "$RESULTS_JSON" \
+RES=$(jq -s '.' <<<"$RESL")
+jq -n --argjson results "$RES" \
   --arg generated "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
   --argjson pass "$PASS_COUNT" --argjson fail "$FAIL_COUNT" \
   --argjson is_root "$([ "$IS_ROOT" -eq 1 ] && echo true || echo false)" \
