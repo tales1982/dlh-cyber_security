@@ -92,6 +92,9 @@ foreach ($acct in $ServiceAccounts) {
         $timeLabel = $acct.LastLogonDate.ToString("hh:mm tt")
         Write-Output "  Last logon: $timeLabel                    $(if ($offHoursLogon) { '[!!!]' } else { '[OK]' })"
     }
+    if ($acct.ServicePrincipalName -and $acct.ServicePrincipalName.Count -gt 0) {
+        Write-Output "  SPN: $($acct.ServicePrincipalName -join ', ')    [!] Kerberoastable"
+    }
 
     $AuditResults.Add([PSCustomObject]@{
         SamAccountName        = $acct.SamAccountName
@@ -101,6 +104,7 @@ foreach ($acct in $ServiceAccounts) {
         UseDESKeyOnly         = [bool]$acct.UseDESKeyOnly
         PrivilegedMembership  = [bool]$privilegedMembership
         OffHoursLogon         = $offHoursLogon
+        SPN                   = @($acct.ServicePrincipalName)
     })
 }
 
