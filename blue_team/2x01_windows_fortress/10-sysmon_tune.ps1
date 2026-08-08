@@ -78,10 +78,14 @@ Write-Output "    Rule 5: Scheduled task persistence      [ADDED]"
 $Config.Save($ConfigPath)
 
 # --- Reload the running Sysmon configuration ------------------------------------------
-$SysmonService = Get-CimInstance -ClassName Win32_Service -Filter "Name = 'Sysmon64'" -ErrorAction SilentlyContinue
-$SysmonExePath = if ($SysmonService) { ($SysmonService.PathName -split '"')[1] } else { $null }
-if (-not $SysmonExePath -or -not (Test-Path -Path $SysmonExePath)) {
-    throw "Sysmon64 service/binary not found - run 9-sysmon_deploy.ps1 first."
+# Prefer the path the service was actually installed with; fall back to the
+# default Sysinternals install location (C:\Windows\Sysmon64.exe) that
+# 9-sysmon_deploy.ps1 leaves behind if the service lookup comes back empty.
+$SysmonService       = Get-CimInstance -ClassName Win32_Service -Filter "Name = 'Sysmon64'" -ErrorAction SilentlyContinue
+$DefaultSysmonExePath = "C:\Windows\Sysmon64.exe"
+$SysmonExePath = if ($SysmonService) { ($SysmonService.PathName -split '"')[1] } else { $DefaultSysmonExePath }
+if (-not (Test-Path -Path $SysmonExePath)) {
+    throw "Sysmon64.exe not found (checked service path and $DefaultSysmonExePath) - run 9-sysmon_deploy.ps1 first."
 }
 & $SysmonExePath -c $ConfigPath | Out-Null
 Write-Output "[*] Updating Sysmon config... OK"
