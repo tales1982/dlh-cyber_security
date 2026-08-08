@@ -48,6 +48,10 @@ Set-GPRegistryValue -Name $GpoName -Key $TsKey -ValueName "UserAuthentication" -
 Write-Output "[*] Enabling NLA... UserAuthentication = 1       [SET]"
 
 # --- Restrict RDP access to G_IT_Admins only -----------------------------------------
+# 0-domain_baseline.ps1 found "Domain Users" in Remote Desktop Users, meaning
+# every domain account - not just admins - could open an RDP session. The
+# loop below removes whatever is currently there (Domain Users included),
+# not just that one hardcoded name, so it stays correct if membership drifts.
 Write-Output "[*] Restricting to $AuthorizedGroup..."
 $RdpUsersGroup = Get-ADGroup -Identity "Remote Desktop Users"
 $CurrentMembers = Get-ADGroupMember -Identity $RdpUsersGroup
