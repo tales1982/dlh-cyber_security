@@ -84,7 +84,7 @@ Add-EventReference -EventId 4688 -EventName "A new process has been created" `
     -SecurityMeaning "Core execution telemetry: which binary ran, its parent process, and - once command-line auditing is enabled - the full argument list." `
     -NormalFrequency "Extremely high - every process, every host" -TriagePriority "Critical - foundational EDR-equivalent telemetry" `
     -CrimsonTidePhase "Phase 3 - Execution" `
-    -ExampleSuspiciousPattern "powershell.exe -enc <base64>, certutil.exe -urlcache, or rundll32.exe with unusual arguments" `
+    -ExampleSuspiciousPattern "powershell.exe -enc <base64-encoded command>, certutil.exe -urlcache, or rundll32.exe with unusual arguments" `
     -ValidationMethod "Get-WinEvent -FilterHashtable @{LogName='Security'; Id=4688}"
 
 Add-EventReference -EventId 4720 -EventName "A user account was created" `
@@ -133,7 +133,7 @@ Add-EventReference -EventId 4104 -EventName "Script Block Logging" `
     -SecurityMeaning "Captures the full, de-obfuscated script block text as it is executed - including payloads reconstructed after Base64/compression decoding - making it the single highest-value PowerShell telemetry source." `
     -NormalFrequency "High on any host where PowerShell is used" -TriagePriority "Critical" `
     -CrimsonTidePhase "Phase 3 - Execution" `
-    -ExampleSuspiciousPattern "A script block containing -EncodedCommand, IEX (New-Object Net.WebClient).DownloadString(...), or AMSI-bypass strings" `
+    -ExampleSuspiciousPattern "A script block containing -EncodedCommand with a base64-encoded payload, IEX (New-Object Net.WebClient).DownloadString(...), or AMSI-bypass strings" `
     -ValidationMethod "Get-WinEvent -LogName 'Microsoft-Windows-PowerShell/Operational' -FilterXPath '*[System[(EventID=4104)]]'"
 
 # --- Sysmon log (Microsoft-Windows-Sysmon/Operational) -----------------------------
