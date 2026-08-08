@@ -119,30 +119,41 @@ $LockoutConfigured = -not (
 $FineGrainedPolicies = @(Get-ADFineGrainedPasswordPolicy -Filter *)
 
 # --- Kerberos supported encryption types ---------------------------------------
-# "Network security: Configure encryption types allowed for Kerberos" is a
-# machine-level GPO setting written to this registry value on every DC.
-# When it is Not Configured, Windows does not restrict any type - i.e. legacy
-# DES and RC4 remain usable alongside AES, which is the finding itself.
-$KerberosRegPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Lsa\Kerberos\Parameters"
-$SupportedEncryptionTypes = @()
-$KerbRegValue = $null
-try {
-    $KerbRegValue = (Get-ItemProperty -Path $KerberosRegPath -Name "SupportedEncryptionTypes" -ErrorAction Stop).SupportedEncryptionTypes
-} catch {
-    $KerbRegValue = $null
+# msDS-SupportedEncryptionTypes is the AD attribute written on the krbtgt
+# account and on every computer object when the "Network security: Configure
+# encryption types allowed for Kerberos" GPO setting is applied. Reading it
+# from AD (rather than the local registry) works domain-wide, needs no local
+# admin session on any specific DC, and reflects what actually governs TGT
+# and service-ticket encryption for the domain. When the attribute is not
+# defined (0/$null), Windows does not restrict any type - legacy DES and RC4
+# remain usable alongside AES, which is itself the finding.
+function ConvertFrom-KerberosEncryptionMask {
+    param([Nullable[int]]$Value)
+    if ($null -eq $Value -or $Value -eq 0) {
+        return @("DES", "RC4", "AES128", "AES256")
+    }
+    $types = @()
+    if ($Value -band 0x1)  { $types += "DES" }
+    if ($Value -band 0x2)  { $types += "DES" }
+    if ($Value -band 0x4)  { $types += "RC4" }
+    if ($Value -band 0x8)  { $types += "AES128" }
+    if ($Value -band 0x10) { $types += "AES256" }
+    return ($types | Select-Object -Unique)
 }
 
-if ($null -eq $KerbRegValue) {
-    # Not configured via GPO/registry -> nothing is restricted.
-    $SupportedEncryptionTypes = @("DES", "RC4", "AES128", "AES256")
-} else {
-    if ($KerbRegValue -band 0x1)  { $SupportedEncryptionTypes += "DES" }
-    if ($KerbRegValue -band 0x2)  { $SupportedEncryptionTypes += "DES" }
-    if ($KerbRegValue -band 0x4)  { $SupportedEncryptionTypes += "RC4" }
-    if ($KerbRegValue -band 0x8)  { $SupportedEncryptionTypes += "AES128" }
-    if ($KerbRegValue -band 0x10) { $SupportedEncryptionTypes += "AES256" }
-    $SupportedEncryptionTypes = $SupportedEncryptionTypes | Select-Object -Unique
+$Krbtgt = Get-ADUser -Identity "krbtgt" -Properties msDS-SupportedEncryptionTypes
+$KerberosEncryptionTypes = ConvertFrom-KerberosEncryptionMask -Value $Krbtgt.'msDS-SupportedEncryptionTypes'
+
+foreach ($dc in $DomainControllers) {
+    $dcName = ($dc -split '\.')[0]
+    try {
+        $dcComputer = Get-ADComputer -Identity $dcName -Properties msDS-SupportedEncryptionTypes -ErrorAction Stop
+        $KerberosEncryptionTypes += ConvertFrom-KerberosEncryptionMask -Value $dcComputer.'msDS-SupportedEncryptionTypes'
+    } catch {
+        # DC computer object not resolvable by short name - krbtgt value still stands.
+    }
 }
+$SupportedEncryptionTypes = $KerberosEncryptionTypes | Select-Object -Unique
 
 # --- SMBv1 on the domain controller --------------------------------------------
 $SMBv1Enabled = $false
