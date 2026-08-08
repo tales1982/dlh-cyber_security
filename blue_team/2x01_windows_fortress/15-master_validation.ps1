@@ -18,7 +18,8 @@
 param(
     [string]$SysmonConfigPath   = (Join-Path $PSScriptRoot "sysmonconfig.xml"),
     [int]$PasswordAgeWarningDays = 90,
-    [string]$AuthorizedRdpGroup = "G_IT_Admins"
+    [string]$AuthorizedRdpGroup = "G_IT_Admins",
+    [string]$ReportPath        = (Join-Path $PSScriptRoot "master_validation_report.json")
 )
 
 Set-StrictMode -Version Latest
@@ -27,6 +28,7 @@ $ErrorActionPreference = "Stop"
 Import-Module ActiveDirectory
 
 $script:CriticalFailures = 0
+$script:AllChecks = [System.Collections.Generic.List[object]]::new()
 
 function Write-Check {
     param(
@@ -35,13 +37,21 @@ function Write-Check {
         [bool]$Critical = $true
     )
     if ($Passed) {
+        $status = "PASS"
         Write-Output "[PASS] $Description"
     } elseif (-not $Critical) {
+        $status = "WARN"
         Write-Output "[WARN] $Description"
     } else {
+        $status = "FAIL"
         Write-Output "[FAIL] $Description"
         $script:CriticalFailures++
     }
+    $script:AllChecks.Add([PSCustomObject]@{
+        description = $Description
+        status      = $status
+        critical    = $Critical
+    })
 }
 
 function ConvertFrom-KerberosEncryptionMask {
@@ -159,6 +169,19 @@ foreach ($acct in $ServiceAccounts) {
 
 Write-Output ""
 Write-Output "Critical failures: $CriticalFailures"
+
+# Saved so 16-hardened_state_export.ps1 can fold this run's results into its
+# validation_summary section instead of reporting "not_found".
+$Report = [PSCustomObject]@{
+    Timestamp        = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")
+    TotalChecks      = $script:AllChecks.Count
+    PassCount        = ($script:AllChecks | Where-Object { $_.status -eq "PASS" }).Count
+    WarnCount        = ($script:AllChecks | Where-Object { $_.status -eq "WARN" }).Count
+    FailCount        = ($script:AllChecks | Where-Object { $_.status -eq "FAIL" }).Count
+    CriticalFailures = $CriticalFailures
+    Checks           = $script:AllChecks
+}
+$Report | ConvertTo-Json -Depth 4 | Set-Content -Path $ReportPath -Encoding UTF8
 
 if ($CriticalFailures -gt 0) {
     exit 1
