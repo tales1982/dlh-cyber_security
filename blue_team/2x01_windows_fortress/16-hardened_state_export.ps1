@@ -226,6 +226,8 @@ $RdpPosture = [PSCustomObject]@{
 Write-Output "[*] Exporting remote access posture... OK"
 
 # --- authentication_protocols ------------------------------------------------------------------
+# LmCompatibilityLevel=5 ("Send NTLMv2 response only, refuse LM and NTLM") is
+# the 7-auth_hardening.ps1 control that refuses NTLMv1 authentication.
 $Krbtgt = Get-ADUser -Identity "krbtgt" -Properties msDS-SupportedEncryptionTypes
 $KerberosTypes = ConvertFrom-KerberosEncryptionMask -Value $Krbtgt.'msDS-SupportedEncryptionTypes'
 $LmCompatibilityLevel = (Get-ItemProperty -Path "HKLM:\System\CurrentControlSet\Control\Lsa" -Name "LmCompatibilityLevel" -ErrorAction SilentlyContinue).LmCompatibilityLevel
