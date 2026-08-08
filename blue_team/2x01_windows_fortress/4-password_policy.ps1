@@ -170,8 +170,16 @@ Write-Output "[*] Forcing Group Policy update... COMPLETE"
 
 # --- Verify the effective policy -----------------------------------------------------
 $EffectivePolicy = Get-ADDefaultDomainPasswordPolicy -Identity $DomainDNS
-Write-Output "[*] VERIFY effective domain password and lockout policy... [SET]"
+Write-Output "[*] VERIFY effective domain password and lockout policy..."
 Write-Output "    Effective Minimum Length: $($EffectivePolicy.MinPasswordLength)"
 Write-Output "    Effective Complexity Enabled: $($EffectivePolicy.ComplexityEnabled)"
 Write-Output "    Effective History Count: $($EffectivePolicy.PasswordHistoryCount)"
 Write-Output "    Effective Lockout Threshold: $($EffectivePolicy.LockoutThreshold)"
+
+$PolicyMatchesTarget = (
+    $EffectivePolicy.MinPasswordLength -eq $MinPasswordLength -and
+    $EffectivePolicy.ComplexityEnabled -eq $true -and
+    $EffectivePolicy.PasswordHistoryCount -eq $PasswordHistoryCount -and
+    $EffectivePolicy.LockoutThreshold -eq $LockoutThreshold
+)
+Write-Output "[*] Effective policy status: $(if ($PolicyMatchesTarget) { 'VERIFIED' } else { 'MISMATCH - review GPO precedence and rerun gpupdate' })"
