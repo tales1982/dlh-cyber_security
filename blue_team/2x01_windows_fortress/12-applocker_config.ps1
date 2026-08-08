@@ -154,5 +154,11 @@ Write-Output "    calc.exe from C:\Temp: $CalcResult   [EXPECTED]"
 Remove-Item -Path $CalcTestPath -Force -ErrorAction SilentlyContinue
 
 # --- Export the AppLocker policy XML as a deliverable ------------------------------------
-$PolicyDoc.OuterXml | Out-File -FilePath $PolicyOutPath -Encoding UTF8
+try {
+    Export-AppLockerPolicy -ALPolicy $PolicyDoc -Xml -ErrorAction Stop | Out-File -FilePath $PolicyOutPath -Encoding UTF8
+} catch {
+    # Export-AppLockerPolicy is not present on every AppLocker module build -
+    # the policy XML built above is already authoritative, so write it directly.
+    $PolicyDoc.OuterXml | Out-File -FilePath $PolicyOutPath -Encoding UTF8
+}
 Write-Output "Policy exported to: $PolicyOutPath"
