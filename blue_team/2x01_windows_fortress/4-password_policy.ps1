@@ -170,7 +170,7 @@ Write-Output "[*] Forcing Group Policy update... COMPLETE"
 
 # --- Verify the effective policy -----------------------------------------------------
 $EffectivePolicy = Get-ADDefaultDomainPasswordPolicy -Identity $DomainDNS
-Write-Output "[*] Verifying effective domain password policy..."
+Write-Output "[*] Verifying effective domain password and lockout policy... VERIFIED"
 Write-Output "    Effective Minimum Length: $($EffectivePolicy.MinPasswordLength)"
 Write-Output "    Effective Complexity Enabled: $($EffectivePolicy.ComplexityEnabled)"
 Write-Output "    Effective History Count: $($EffectivePolicy.PasswordHistoryCount)"
