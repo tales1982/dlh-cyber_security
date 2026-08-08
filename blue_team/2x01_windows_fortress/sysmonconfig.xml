@@ -130,5 +130,36 @@
       </FileDelete>
     </RuleGroup>
 
+    <!-- Added by 10-sysmon_tune.ps1: MedDefense-specific threat detections -->
+    <RuleGroup name="MedDefense Custom Detections" groupRelation="or">
+      <ProcessCreate onmatch="include">
+        <Rule name="Rule1-RcloneExfiltration" groupRelation="or">
+          <Image condition="end with">rclone.exe</Image>
+        </Rule>
+        <Rule name="Rule3-EncodedPowerShell" groupRelation="and">
+          <Image condition="end with">powershell.exe</Image>
+          <CommandLine condition="contains">-enc</CommandLine>
+        </Rule>
+        <Rule name="Rule4-ShadowCopyDeletion" groupRelation="and">
+          <Image condition="end with">vssadmin.exe</Image>
+          <CommandLine condition="contains">delete shadows</CommandLine>
+        </Rule>
+        <Rule name="Rule5-ScheduledTaskPersistence" groupRelation="and">
+          <Image condition="end with">schtasks.exe</Image>
+          <CommandLine condition="contains">/create</CommandLine>
+        </Rule>
+      </ProcessCreate>
+      <RegistryEvent onmatch="include">
+        <Rule name="Rule2-PsExecServiceInstall" groupRelation="or">
+          <TargetObject condition="contains">PSEXESVC</TargetObject>
+        </Rule>
+      </RegistryEvent>
+      <FileCreate onmatch="include">
+        <Rule name="Rule2-PsExecFileDrop" groupRelation="or">
+          <TargetFilename condition="contains">PSEXESVC</TargetFilename>
+        </Rule>
+      </FileCreate>
+    </RuleGroup>
+
   </EventFiltering>
 </Sysmon>

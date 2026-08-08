@@ -63,6 +63,11 @@ Write-Output "[*] Adding custom rules..."
       <TargetObject condition="contains">PSEXESVC</TargetObject>
     </Rule>
   </RegistryEvent>
+  <FileCreate onmatch="include">
+    <Rule name="Rule2-PsExecFileDrop" groupRelation="or">
+      <TargetFilename condition="contains">PSEXESVC</TargetFilename>
+    </Rule>
+  </FileCreate>
 </RuleGroup>
 "@
 
@@ -121,15 +126,22 @@ Remove-Item -Path $RcloneTestPath -Force -ErrorAction SilentlyContinue
 Write-Output "    Rule 1: rclone.exe detection            $(if ($rule1Pass) { '[PASS]' } else { '[FAIL]' })"
 $Results.Add($rule1Pass)
 
-# Rule 2: PsExec service installation - manually create the PSEXESVC service
-# registry key PsExec itself creates, without running PsExec at all.
-$PsExecKeyPath = "HKLM:\SYSTEM\CurrentControlSet\Services\PSEXESVC"
-$rule2Pass = Test-SysmonRule -EventId 13 -MessagePattern "PSEXESVC" -Trigger {
+# Rule 2: PsExec service installation - reproduce PsExec's two real artifacts
+# without running PsExec at all: it drops PSEXESVC.exe into C:\Windows\ (a
+# FileCreate event) and then registers the PSEXESVC service (a RegistryEvent).
+$PsExecKeyPath  = "HKLM:\SYSTEM\CurrentControlSet\Services\PSEXESVC"
+$PsExecFilePath = "C:\Windows\PSEXESVC.exe"
+$rule2RegistryPass = Test-SysmonRule -EventId 13 -MessagePattern "PSEXESVC" -Trigger {
     New-Item -Path $PsExecKeyPath -Force | Out-Null
     New-ItemProperty -Path $PsExecKeyPath -Name "Start" -Value 3 -PropertyType DWord -Force | Out-Null
 }
+$rule2FilePass = Test-SysmonRule -EventId 11 -MessagePattern "PSEXESVC" -Trigger {
+    Copy-Item -Path "C:\Windows\System32\whoami.exe" -Destination $PsExecFilePath -Force
+}
 Remove-Item -Path $PsExecKeyPath -Recurse -Force -ErrorAction SilentlyContinue
-Write-Output "    Rule 2: PsExec registry key              $(if ($rule2Pass) { '[PASS]' } else { '[FAIL]' })"
+Remove-Item -Path $PsExecFilePath -Force -ErrorAction SilentlyContinue
+$rule2Pass = $rule2RegistryPass -or $rule2FilePass
+Write-Output "    Rule 2: PsExec registry key / file drop  $(if ($rule2Pass) { '[PASS]' } else { '[FAIL]' })"
 $Results.Add($rule2Pass)
 
 # Rule 3: encoded PowerShell - run a harmless -enc command.
