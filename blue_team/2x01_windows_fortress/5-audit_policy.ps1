@@ -148,11 +148,10 @@ Set-GPRegistryValue -Name $GpoName -Key "HKLM\Software\Microsoft\Windows\Current
     -ValueName "ProcessCreationIncludeCmdLine_Enabled" -Type DWord -Value 1 | Out-Null
 Write-Output "[*] Enabling CommandLine logging in process creation events (Event ID 4688)...   [SET]"
 
-# --- Restrict Security log clearing to Domain Admins only ----------------------------
+# --- Restrict Security log Clear access to Domain Admins only ------------------------
 # SeSecurityPrivilege ("Manage auditing and security log") is what actually gates
-# clearing the Security log (and configuring audit policy); granting it solely to
-# Domain Admins removes every other default holder, so log clearing is restricted
-# to Domain Admins only.
+# who can Clear the Security log (and configure audit policy); granting it
+# solely to Domain Admins removes every other default holder.
 $DomainAdminsSid = (Get-ADGroup -Identity "Domain Admins").SID.Value
 $PrivilegeSecEditDir  = Join-Path $SysvolPath "MACHINE\Microsoft\Windows NT\SecEdit"
 $PrivilegeGptTmplPath = Join-Path $PrivilegeSecEditDir "GptTmpl.inf"
@@ -169,7 +168,7 @@ Revision=1
 "@
 Set-Content -Path $PrivilegeGptTmplPath -Value $PrivilegeGptTmplContent -Encoding Unicode
 Add-GpoMachineCse -SysvolPath $SysvolPath -GpoDistinguishedName $GpoDN -CseGuidPair $SecEditCse
-Write-Output "[*] Restricting Security log clearing...                  [SET]"
+Write-Output "[*] Restricting Security log Clear permission to Domain Admins...   [SET]"
 
 # --- Security log maximum size (1 GB) -------------------------------------------------
 # The GPO-backed registry value (EventLog\Security\MaxSize) is documented in
