@@ -99,6 +99,12 @@ $PolicyXml = @"
 </AppLockerPolicy>
 "@
 
+# Both collections above deliberately contain only Allow rules: once a
+# collection has any Allow rule, AppLocker implicitly denies everything else
+# in it by default. An explicit Deny rule for "*" is never added here on
+# purpose - AppLocker evaluates an explicit Deny as always winning over an
+# Allow for the same path, which would silently deny the C:\Windows\*,
+# Program Files and DicomViewer paths this policy is meant to allow.
 [xml]$PolicyDoc = $PolicyXml
 Write-Output "[*] Configuring Executable Rules..."
 Write-Output "    Allow: C:\Windows\*                    [SET]"

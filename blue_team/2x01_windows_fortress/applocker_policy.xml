@@ -8,6 +8,11 @@
     legitimate application (including DicomViewer.exe) is broken by it.
     RuleCollection Type="Exe" natively governs .exe and .com; Type="Script"
     natively governs .ps1, .bat, .cmd and .vbs.
+    Only Allow rules are listed below: once a collection holds any Allow
+    rule, AppLocker implicitly denies everything else in it. No explicit
+    Deny rule for "*" is added, since an explicit Deny always wins over an
+    Allow for the same path and would silently deny the paths meant to be
+    allowed.
 -->
 <AppLockerPolicy Version="1">
   <RuleCollection Type="Exe" EnforcementMode="AuditOnly">
