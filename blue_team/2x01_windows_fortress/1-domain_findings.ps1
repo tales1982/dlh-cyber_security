@@ -62,7 +62,7 @@ function Add-Finding {
 # --- Gather source data --------------------------------------------------------
 $AllUsers = Get-ADUser -Filter * -Properties Enabled, PasswordLastSet, PasswordNeverExpires, `
     MemberOf, DistinguishedName, TrustedForDelegation, ServicePrincipalName, LastLogonDate, `
-    UseDESKeyOnly, 'msDS-SupportedEncryptionTypes'
+    UseDESKeyOnly, LogonWorkstations, 'msDS-SupportedEncryptionTypes'
 
 $PwdPolicy = Get-ADDefaultDomainPasswordPolicy
 $AllGPOs   = Get-GPO -All
@@ -242,16 +242,21 @@ $RiskyServiceAccounts = $ServiceAccounts | Where-Object {
     $isPrivileged  = [bool]($svc.MemberOf | Where-Object { $_ -match '^CN=(Domain Admins|Enterprise Admins|G_IT_Admins),' })
     $stalePassword = $svc.PasswordLastSet -and ($svc.PasswordLastSet -lt (Get-Date).AddDays(-365))
     $neverLoggedOn = $svc.Enabled -and (-not $svc.LastLogonDate)
-    $desOnly -or $isPrivileged -or $stalePassword -or $neverLoggedOn
+    # A service account with no LogonWorkstations restriction is not blocked
+    # from interactive logon anywhere in the domain - service accounts should
+    # only ever authenticate as a service, never sit at a keyboard and log on
+    # interactively.
+    $interactiveLogonAllowed = [string]::IsNullOrEmpty($svc.LogonWorkstations)
+    $desOnly -or $isPrivileged -or $stalePassword -or $neverLoggedOn -or $interactiveLogonAllowed
 }
 if ($RiskyServiceAccounts.Count -gt 0) {
     $sev = if ($RiskyServiceAccounts | Where-Object { $_.MemberOf -match '^CN=(Domain Admins|Enterprise Admins)' }) { "Critical" } else { "High" }
     Add-Finding -Severity $sev -Category "Service Account Risk" -Asset "Service Accounts" `
         -Evidence (($RiskyServiceAccounts | Select-Object -ExpandProperty SamAccountName) -join ', ') `
-        -Risk "UseDESKeyOnly accounts, privileged group membership, passwords older than a year, or accounts that have never logged on are all signs of unmanaged, over-privileged, or forgotten service accounts - prime targets for Kerberoasting and privilege escalation." `
-        -RecommendedRemediation "Audit each flagged account individually: clear UseDESKeyOnly and require AES, remove privileged membership where not required, rotate stale passwords, migrate to gMSA, and disable unused accounts." `
+        -Risk "Interactive logon left unrestricted, UseDESKeyOnly accounts, privileged group membership, passwords older than a year, or accounts that have never logged on are all signs of unmanaged, over-privileged, or forgotten service accounts - prime targets for Kerberoasting and privilege escalation." `
+        -RecommendedRemediation "Audit each flagged account individually: restrict LogonWorkstations to deny interactive logon, clear UseDESKeyOnly and require AES, remove privileged membership where not required, rotate stale passwords, migrate to gMSA, and disable unused accounts." `
         -MappedTask "Service Account Hardening" `
-        -Message "$($RiskyServiceAccounts.Count) service accounts show elevated risk (UseDESKeyOnly, privileged membership, stale password, or never logged on)"
+        -Message "$($RiskyServiceAccounts.Count) service accounts show elevated risk (interactive logon allowed, UseDESKeyOnly, privileged membership, stale password, or never logged on)"
 }
 
 # --- 8. Weak GPO security posture -------------------------------------------------
