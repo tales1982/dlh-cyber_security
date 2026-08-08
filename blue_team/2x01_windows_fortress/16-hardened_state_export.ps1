@@ -119,6 +119,9 @@ $AuditPolicy = [PSCustomObject]@{
 Write-Output "[*] Exporting audit policy... $($RequiredSubcategoryStatus.Count) subcategories"
 
 # --- powershell_logging ---------------------------------------------------------------------
+# Captures the state of the three PowerShell controls 6-powershell_security.ps1
+# deploys: Script Block Logging (Event ID 4104), Module Logging (Event ID
+# 4103), and Transcription.
 $ScriptBlockLogging = (Get-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\Windows\PowerShell\ScriptBlockLogging" -Name "EnableScriptBlockLogging" -ErrorAction SilentlyContinue).EnableScriptBlockLogging
 $ModuleLogging      = (Get-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\Windows\PowerShell\ModuleLogging" -Name "EnableModuleLogging" -ErrorAction SilentlyContinue).EnableModuleLogging
 $Transcription      = (Get-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\Windows\PowerShell\Transcription" -Name "EnableTranscripting" -ErrorAction SilentlyContinue).EnableTranscripting
