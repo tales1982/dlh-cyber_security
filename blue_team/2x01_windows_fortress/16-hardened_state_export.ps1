@@ -172,11 +172,24 @@ $FirewallPosture = [PSCustomObject]@{
 Write-Output "[*] Exporting firewall rules... $($MedDefFirewallRules.Count) rules"
 
 # --- applocker_posture -----------------------------------------------------------------------
+# Get-AppLockerPolicy -Effective reads the policy actually in force on this
+# machine (post-GPO-refresh); the exported applocker_policy.xml file is used
+# as a fallback if the effective policy cannot be read (e.g. AppIDSvc not
+# running yet) so this section still reflects 12-applocker_config.ps1's intent.
 $ExecutableRuleCount = 0
 $ScriptRuleCount = 0
 $EnforcementModes = @{}
-if (Test-Path -Path $AppLockerPolicyPath) {
-    [xml]$AppLockerXml = Get-Content -Path $AppLockerPolicyPath -Raw
+try {
+    $EffectivePolicy = Get-AppLockerPolicy -Effective -Xml
+    [xml]$AppLockerXml = $EffectivePolicy
+} catch {
+    if (Test-Path -Path $AppLockerPolicyPath) {
+        [xml]$AppLockerXml = Get-Content -Path $AppLockerPolicyPath -Raw
+    } else {
+        $AppLockerXml = $null
+    }
+}
+if ($AppLockerXml) {
     $ExeCollection    = $AppLockerXml.AppLockerPolicy.RuleCollection | Where-Object { $_.Type -eq "Exe" }
     $ScriptCollection = $AppLockerXml.AppLockerPolicy.RuleCollection | Where-Object { $_.Type -eq "Script" }
     if ($ExeCollection)    { $ExecutableRuleCount = @($ExeCollection.FilePathRule).Count; $EnforcementModes["Exe"] = $ExeCollection.EnforcementMode }
