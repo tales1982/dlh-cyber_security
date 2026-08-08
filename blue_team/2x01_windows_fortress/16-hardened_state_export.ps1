@@ -231,6 +231,8 @@ Write-Output "[*] Exporting remote access posture... OK"
 $Krbtgt = Get-ADUser -Identity "krbtgt" -Properties msDS-SupportedEncryptionTypes
 $KerberosTypes = ConvertFrom-KerberosEncryptionMask -Value $Krbtgt.'msDS-SupportedEncryptionTypes'
 $LmCompatibilityLevel = (Get-ItemProperty -Path "HKLM:\System\CurrentControlSet\Control\Lsa" -Name "LmCompatibilityLevel" -ErrorAction SilentlyContinue).LmCompatibilityLevel
+# EnableSMB1Protocol / RequireSecuritySignature are the SMBv1 and SMB signing
+# controls 8-smb_hardening.ps1 deploys.
 $SmbConfig = Get-SmbServerConfiguration
 
 $AuthenticationProtocols = [PSCustomObject]@{
