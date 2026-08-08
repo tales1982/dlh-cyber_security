@@ -6,7 +6,7 @@
                   member) for the exact weaknesses 1-domain_findings.ps1
                   flagged - excessive privileges, ancient passwords,
                   unconstrained delegation - then remediates them. svc_ehr's
-                  suspicious off-hours logon is the reason this task exists:
+                  suspicious 03:17 AM logon is the reason this task exists:
                   service accounts should never be able to log on
                   interactively, should never be delegable (an attacker who
                   compromises a delegable service account can impersonate
