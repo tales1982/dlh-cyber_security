@@ -246,6 +246,9 @@ $AuthenticationProtocols = [PSCustomObject]@{
 Write-Output "[*] Exporting authentication protocol posture... OK"
 
 # --- service_account_posture ---------------------------------------------------------------------
+# Re-derives the delegation, password age, privileged membership and
+# interactive logon risk posture 14-service_accounts.ps1 audits/remediates,
+# for every current service account.
 $PrivilegedGroups = @("Domain Admins", "Enterprise Admins", "G_IT_Admins")
 $ServiceAccounts = Get-ADUser -Filter * -Properties PasswordLastSet, MemberOf, TrustedForDelegation, `
     LogonWorkstations, userAccountControl, DistinguishedName |
