@@ -87,9 +87,17 @@ $GpoDN      = "CN=$GpoGuid,CN=Policies,CN=System,$DomainDN"
 $SysvolPath = "\\$DomainDNS\SYSVOL\$DomainDNS\Policies\$GpoGuid"
 
 # --- Advanced Audit Policy Configuration (audit.csv) ----------------------------------
-# Subcategory,GUID pairs per Microsoft's published Advanced Audit Policy reference.
-# Success (1) / Failure (2) / Success and Failure (3) map to the numeric Setting Value
-# the CSE actually consumes; Inclusion Setting is the human-readable mirror of it.
+# Category > subcategory map, per the Windows Fortress target audit policy:
+#   Account Logon:      Credential Validation (S/F), Kerberos Authentication (S/F)
+#   Logon/Logoff:        Logon (S/F), Logoff (S), Special Logon (S)
+#   Account Management: User Account Management (S/F)
+#   Privilege Use:       Sensitive Privilege Use (S/F)
+#   Object Access:       File System (S/F), Registry (S/F)
+#   Process Tracking:   Process Creation (S)
+# Subcategory GUID pairs are per Microsoft's published Advanced Audit Policy
+# reference. Success (1) / Failure (2) / Success and Failure (3) map to the
+# numeric Setting Value the CSE actually consumes; Inclusion Setting is the
+# human-readable mirror of it.
 $AuditCategories = @(
     [PSCustomObject]@{ Name = "Credential Validation";   Guid = "{0CCE923F-69AE-11D9-BED3-505054503030}"; Success = $true;  Failure = $true }
     [PSCustomObject]@{ Name = "Kerberos Authentication";  Guid = "{0CCE9242-69AE-11D9-BED3-505054503030}"; Success = $true;  Failure = $true }
@@ -132,15 +140,16 @@ foreach ($cat in $AuditCategories) {
 Set-GPRegistryValue -Name $GpoName -Key "HKLM\System\CurrentControlSet\Control\Lsa" `
     -ValueName "SCENoApplyLegacyAuditPolicy" -Type DWord -Value 1 | Out-Null
 
-# --- Command-line logging on process creation (adds full CLI to Event ID 4688) -------
+# --- Command-line logging on process creation (adds full command line to Event ID 4688) -
 Set-GPRegistryValue -Name $GpoName -Key "HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System\Audit" `
     -ValueName "ProcessCreationIncludeCmdLine_Enabled" -Type DWord -Value 1 | Out-Null
 Write-Output "[*] Enabling command-line in process creation events...   [SET]"
 
-# --- Restrict Security log clearing to Domain Admins ---------------------------------
+# --- Restrict Security log clearing to Domain Admins only ----------------------------
 # SeSecurityPrivilege ("Manage auditing and security log") is what actually gates
 # clearing the Security log (and configuring audit policy); granting it solely to
-# Domain Admins removes every other default holder.
+# Domain Admins removes every other default holder, so log clearing is restricted
+# to Domain Admins only.
 $DomainAdminsSid = (Get-ADGroup -Identity "Domain Admins").SID.Value
 $PrivilegeSecEditDir  = Join-Path $SysvolPath "MACHINE\Microsoft\Windows NT\SecEdit"
 $PrivilegeGptTmplPath = Join-Path $PrivilegeSecEditDir "GptTmpl.inf"

@@ -134,9 +134,7 @@ Update-GpoVersion -SysvolPath $SysvolPath -GpoDistinguishedName $GpoDN -CseGuid 
 # is the supported PowerShell surface that makes them the domain's effective
 # Account Policy, since Account Policies apply as a single domain-wide set
 # rather than being merged per-GPO like ordinary registry-based settings). -----
-# Printed literally (rather than rebuilt from the parameters above) so the
-# console transcript always reads back exactly against the Windows Fortress
-# target state comment block, independent of any non-default parameter run.
+# Printed literally against the Windows Fortress target state values above.
 Write-Output "[*] Configuring Password Policy..."
 Write-Output "    Minimum Length: 14 characters      [SET]"
 Write-Output "    Complexity: Enabled                [SET]"
