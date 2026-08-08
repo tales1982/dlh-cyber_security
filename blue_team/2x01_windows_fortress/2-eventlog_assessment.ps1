@@ -16,9 +16,7 @@
 #>
 
 [CmdletBinding()]
-param(
-    [int]$LookbackHours = 24
-)
+param()
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
@@ -56,8 +54,8 @@ function Test-SubcategoryEnabled {
     return ($setting -ne "No Auditing") -and ($setting -ne "")
 }
 
-# --- Actual Security log generation in the lookback window ------------------------
-$Since = (Get-Date).AddHours(-$LookbackHours)
+# --- Actual Security log generation in the last 24 hours ---------------------------
+$Since = (Get-Date).AddHours(-24)
 $EventIdList = $EventMap.EventId
 $GeneratedRecently = @{}
 try {
