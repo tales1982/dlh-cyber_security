@@ -62,7 +62,7 @@ function Add-Finding {
 # --- Gather source data --------------------------------------------------------
 $AllUsers = Get-ADUser -Filter * -Properties Enabled, PasswordLastSet, PasswordNeverExpires, `
     MemberOf, DistinguishedName, TrustedForDelegation, ServicePrincipalName, LastLogonDate, `
-    'msDS-SupportedEncryptionTypes'
+    UseDESKeyOnly, 'msDS-SupportedEncryptionTypes'
 
 $PwdPolicy = Get-ADDefaultDomainPasswordPolicy
 $AllGPOs   = Get-GPO -All
@@ -235,8 +235,11 @@ if ($UnconstrainedDelegation.Count -gt 0) {
 
 $RiskyServiceAccounts = $ServiceAccounts | Where-Object {
     $svc = $_
-    $desOnly     = (ConvertFrom-KerberosEncryptionMask -Value $svc.'msDS-SupportedEncryptionTypes') -contains "DES"
-    $isPrivileged = [bool]($svc.MemberOf | Where-Object { $_ -match '^CN=(Domain Admins|Enterprise Admins|G_IT_Admins),' })
+    # UseDESKeyOnly mirrors the UserAccountControl "Use DES encryption types
+    # for this account" flag (ADS_UF_USE_DES_KEY_ONLY, 0x200000) - distinct
+    # from the domain-wide msDS-SupportedEncryptionTypes check in Finding 5.
+    $desOnly       = [bool]$svc.UseDESKeyOnly
+    $isPrivileged  = [bool]($svc.MemberOf | Where-Object { $_ -match '^CN=(Domain Admins|Enterprise Admins|G_IT_Admins),' })
     $stalePassword = $svc.PasswordLastSet -and ($svc.PasswordLastSet -lt (Get-Date).AddDays(-365))
     $neverLoggedOn = $svc.Enabled -and (-not $svc.LastLogonDate)
     $desOnly -or $isPrivileged -or $stalePassword -or $neverLoggedOn
@@ -245,10 +248,10 @@ if ($RiskyServiceAccounts.Count -gt 0) {
     $sev = if ($RiskyServiceAccounts | Where-Object { $_.MemberOf -match '^CN=(Domain Admins|Enterprise Admins)' }) { "Critical" } else { "High" }
     Add-Finding -Severity $sev -Category "Service Account Risk" -Asset "Service Accounts" `
         -Evidence (($RiskyServiceAccounts | Select-Object -ExpandProperty SamAccountName) -join ', ') `
-        -Risk "DES-only encryption, privileged group membership, passwords older than a year, or accounts that have never logged on are all signs of unmanaged, over-privileged, or forgotten service accounts - prime targets for Kerberoasting and privilege escalation." `
-        -RecommendedRemediation "Audit each flagged account individually: remove privileged membership where not required, rotate stale passwords, migrate to gMSA, and disable unused accounts." `
+        -Risk "UseDESKeyOnly accounts, privileged group membership, passwords older than a year, or accounts that have never logged on are all signs of unmanaged, over-privileged, or forgotten service accounts - prime targets for Kerberoasting and privilege escalation." `
+        -RecommendedRemediation "Audit each flagged account individually: clear UseDESKeyOnly and require AES, remove privileged membership where not required, rotate stale passwords, migrate to gMSA, and disable unused accounts." `
         -MappedTask "Service Account Hardening" `
-        -Message "$($RiskyServiceAccounts.Count) service accounts show elevated risk (DES-only, privileged membership, stale password, or never logged on)"
+        -Message "$($RiskyServiceAccounts.Count) service accounts show elevated risk (UseDESKeyOnly, privileged membership, stale password, or never logged on)"
 }
 
 # --- 8. Weak GPO security posture -------------------------------------------------
