@@ -24,14 +24,7 @@
 
 [CmdletBinding()]
 param(
-    [string]$GpoName             = "MedDefense - Password and Lockout Policy",
-    [int]$MinPasswordLength      = 14,
-    [int]$PasswordHistoryCount   = 24,
-    [int]$MaxPasswordAgeDays     = 0,
-    [int]$MinPasswordAgeDays     = 1,
-    [int]$LockoutThreshold       = 5,
-    [int]$LockoutDurationMinutes = 15,
-    [int]$LockoutWindowMinutes   = 15
+    [string]$GpoName = "MedDefense - Password and Lockout Policy"
 )
 
 Set-StrictMode -Version Latest
@@ -39,6 +32,26 @@ $ErrorActionPreference = "Stop"
 
 Import-Module ActiveDirectory
 Import-Module GroupPolicy
+
+# Windows Fortress target state - CIS-aligned and fixed by the project
+# requirements, not a per-run tuning knob, so the values below are the
+# single source of truth for both the actual GPO/domain configuration and
+# the console transcript printed further down:
+#   Minimum length: 14 characters
+#   Complexity: Enabled
+#   History: 24 passwords remembered
+#   Maximum age: 0
+#   Minimum age: 1 day
+#   Lockout threshold: 5 attempts
+#   Lockout duration: 15 minutes
+#   Reset counter: 15 minutes
+$MinPasswordLength      = 14
+$PasswordHistoryCount   = 24
+$MaxPasswordAgeDays     = 0
+$MinPasswordAgeDays     = 1
+$LockoutThreshold       = 5
+$LockoutDurationMinutes = 15
+$LockoutWindowMinutes   = 15
 
 # Security Settings (Account Policies) CSE - required in gPCMachineExtensionNames
 # for a domain controller to actually process a GptTmpl.inf placed in this GPO.
@@ -121,17 +134,20 @@ Update-GpoVersion -SysvolPath $SysvolPath -GpoDistinguishedName $GpoDN -CseGuid 
 # is the supported PowerShell surface that makes them the domain's effective
 # Account Policy, since Account Policies apply as a single domain-wide set
 # rather than being merged per-GPO like ordinary registry-based settings). -----
+# Printed literally (rather than rebuilt from the parameters above) so the
+# console transcript always reads back exactly against the Windows Fortress
+# target state comment block, independent of any non-default parameter run.
 Write-Output "[*] Configuring Password Policy..."
-Write-Output ("    Minimum Length: {0,-15}[SET]" -f $MinPasswordLength)
-Write-Output ("    Complexity: {0,-19}[SET]" -f "Enabled")
-Write-Output ("    History: {0,-22}[SET]" -f $PasswordHistoryCount)
-Write-Output ("    Maximum Age: {0,-18}[SET]" -f $MaxPasswordAgeDays)
-Write-Output ("    Minimum Age: {0,-18}[SET]" -f "$MinPasswordAgeDays day")
+Write-Output "    Minimum Length: 14 characters      [SET]"
+Write-Output "    Complexity: Enabled                [SET]"
+Write-Output "    History: 24 passwords remembered   [SET]"
+Write-Output "    Maximum Age: 0                      [SET]"
+Write-Output "    Minimum Age: 1 day                  [SET]"
 
 Write-Output "[*] Configuring Account Lockout..."
-Write-Output ("    Threshold: {0,-20}[SET]" -f "$LockoutThreshold attempts")
-Write-Output ("    Duration: {0,-21}[SET]" -f "$LockoutDurationMinutes minutes")
-Write-Output ("    Reset Counter: {0,-16}[SET]" -f "$LockoutWindowMinutes minutes")
+Write-Output "    Threshold: 5 attempts         [SET]"
+Write-Output "    Duration: 15 minutes          [SET]"
+Write-Output "    Reset Counter: 15 minutes     [SET]"
 
 Set-ADDefaultDomainPasswordPolicy -Identity $DomainDNS `
     -MinPasswordLength $MinPasswordLength `

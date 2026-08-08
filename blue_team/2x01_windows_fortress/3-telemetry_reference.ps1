@@ -60,7 +60,7 @@ Add-EventReference -EventId 4625 -EventName "An account failed to log on" `
     -SecurityMeaning "Direct indicator of brute-force or password-spray activity; Status/Sub Status codes reveal bad password vs. locked vs. disabled." `
     -NormalFrequency "Low under normal conditions; spikes indicate an attack" -TriagePriority "High when volume exceeds baseline" `
     -CrimsonTidePhase "Phase 2 - Initial Access (credential brute-force)" `
-    -ExampleSuspiciousPattern "More than 5 failures in 1 minute against one account, or 1 failure each across many accounts from one source (spray)" `
+    -ExampleSuspiciousPattern "A burst of more than 5 failed logon attempts in 1 minute against one account, or 1 failed logon each across many accounts from one source (spray)" `
     -ValidationMethod "Get-WinEvent -FilterHashtable @{LogName='Security'; Id=4625}"
 
 Add-EventReference -EventId 4648 -EventName "A logon was attempted using explicit credentials" `
