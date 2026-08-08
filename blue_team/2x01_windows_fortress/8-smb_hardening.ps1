@@ -30,21 +30,25 @@ Import-Module ActiveDirectory
 Import-Module GroupPolicy
 
 function Get-SmbStateSummary {
-    $cfg = Get-SmbServerConfiguration
+    $serverCfg = Get-SmbServerConfiguration
+    $clientCfg = Get-SmbClientConfiguration
     [PSCustomObject]@{
-        Smb1Enabled      = [bool]$cfg.EnableSMB1Protocol
-        SigningRequired  = [bool]$cfg.RequireSecuritySignature
-        EncryptionEnabled = [bool]$cfg.EncryptData
+        Smb1Enabled            = [bool]$serverCfg.EnableSMB1Protocol
+        Smb1ClientEnabled      = [bool]$clientCfg.EnableSMB1Protocol
+        SigningRequired        = [bool]$serverCfg.RequireSecuritySignature
+        ClientSigningRequired  = [bool]$clientCfg.RequireSecuritySignature
+        EncryptionEnabled      = [bool]$serverCfg.EncryptData
     }
 }
 
 $Domain    = Get-ADDomain
 $DomainDN  = $Domain.DistinguishedName
 
-# --- Current SMB configuration -----------------------------------------------------------
+# --- Current SMB server and client configuration -----------------------------------------
 $Before = Get-SmbStateSummary
 Write-Output "[*] Current SMB Configuration..."
-Write-Output "    SMBv1: $(if ($Before.Smb1Enabled) { 'Enabled' } else { 'Disabled' })                         $(if ($Before.Smb1Enabled) { '[!]' } else { '[OK]' })"
+Write-Output "    SMBv1 (server): $(if ($Before.Smb1Enabled) { 'Enabled' } else { 'Disabled' })                 $(if ($Before.Smb1Enabled) { '[!]' } else { '[OK]' })"
+Write-Output "    SMBv1 (client): $(if ($Before.Smb1ClientEnabled) { 'Enabled' } else { 'Disabled' })                 $(if ($Before.Smb1ClientEnabled) { '[!]' } else { '[OK]' })"
 Write-Output "    Signing Required: $($Before.SigningRequired)                $(if (-not $Before.SigningRequired) { '[!]' } else { '[OK]' })"
 Write-Output "    Encryption: $($Before.EncryptionEnabled)                      $(if (-not $Before.EncryptionEnabled) { '[!]' } else { '[OK]' })"
 
@@ -108,7 +112,8 @@ $After = Get-SmbStateSummary
 $LlmnrValue = (Get-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\Windows NT\DNSClient" -Name "EnableMulticast" -ErrorAction SilentlyContinue).EnableMulticast
 
 Write-Output "[*] Verification..."
-Write-Output "    SMBv1: $(if ($After.Smb1Enabled) { 'Enabled' } else { 'Disabled' })                        $(if (-not $After.Smb1Enabled) { '[VERIFIED]' } else { '[MISMATCH]' })"
+Write-Output "    SMBv1 (server): $(if ($After.Smb1Enabled) { 'Enabled' } else { 'Disabled' })                $(if (-not $After.Smb1Enabled) { '[VERIFIED]' } else { '[MISMATCH]' })"
+Write-Output "    SMBv1 (client): $(if ($After.Smb1ClientEnabled) { 'Enabled' } else { 'Disabled' })                $(if (-not $After.Smb1ClientEnabled) { '[VERIFIED]' } else { '[MISMATCH]' })"
 Write-Output "    Signing: $(if ($After.SigningRequired) { 'Required' } else { 'Not Required' })                        $(if ($After.SigningRequired) { '[VERIFIED]' } else { '[MISMATCH]' })"
 Write-Output "    Encryption: $(if ($After.EncryptionEnabled) { 'Enabled' } else { 'Disabled' })                      $(if ($After.EncryptionEnabled) { '[VERIFIED]' } else { '[MISMATCH]' })"
 Write-Output "    LLMNR: $(if ($LlmnrValue -eq 0) { 'Disabled' } else { 'Enabled' })                        $(if ($LlmnrValue -eq 0) { '[VERIFIED]' } else { '[MISMATCH]' })"
