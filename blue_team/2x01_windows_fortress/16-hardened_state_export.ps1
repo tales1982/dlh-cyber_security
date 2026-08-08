@@ -272,6 +272,9 @@ $ServiceAccountPosture = foreach ($acct in $ServiceAccounts) {
 Write-Output "[*] Exporting service account posture... $($ServiceAccountPosture.Count) accounts"
 
 # --- validation_summary -------------------------------------------------------------------------
+# Folds in Task 15's (15-master_validation.ps1) saved compliance report if it
+# has been run; otherwise records a clear not_found status rather than
+# silently omitting the section.
 if (Test-Path -Path $ValidationReportPath) {
     $ValidationSummary = Get-Content -Path $ValidationReportPath -Raw | ConvertFrom-Json
     Write-Output "[*] Loading validation summary... OK"
