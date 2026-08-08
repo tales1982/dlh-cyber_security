@@ -82,7 +82,9 @@ Set-GPRegistryValue -Name $GpoName -Key $TsKey -ValueName "MinEncryptionLevel" -
 Set-GPRegistryValue -Name $GpoName -Key $TsKey -ValueName "SecurityLayer" -Type DWord -Value 2 | Out-Null
 Write-Output "[*] Encryption: High/SSL                         [SET]"
 
-# --- Disable clipboard and drive redirection (exfiltration risk) ---------------------
+# --- Disable Clipboard Redirection and Drive Redirection (exfiltration risk) ---------
+# GPO setting names: "Do not allow Clipboard redirection" (fDisableClip) and
+# "Do not allow drive redirection" (fDisableCdm).
 Set-GPRegistryValue -Name $GpoName -Key $TsKey -ValueName "fDisableClip" -Type DWord -Value 1 | Out-Null
 Write-Output "[*] Clipboard: Disabled                          [SET]"
 
