@@ -136,6 +136,9 @@ Write-Check -Description "$AuthorizedRdpGroup only" -Passed $RdpAccessOk
 Write-Output ""
 
 # --- Service Accounts ------------------------------------------------------------------------
+# Re-checks the delegation and password-age posture 14-service_accounts.ps1
+# remediates, across every one of MedDefense's service accounts (svc_*
+# accounts plus anything in the Service Accounts OU).
 Write-Output "--- Service Accounts ---"
 $ServiceAccounts = Get-ADUser -Filter * -Properties Enabled, PasswordLastSet, DistinguishedName, userAccountControl |
     Where-Object { ($_.SamAccountName -like "*svc*") -or ($_.DistinguishedName -like "*OU=Service Accounts*") }
