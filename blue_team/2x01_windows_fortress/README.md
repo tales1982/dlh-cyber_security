@@ -29,6 +29,11 @@ that Module 3 later exports and analyzes.
 | Script | Task | Purpose |
 |---|---|---|
 | [0-domain_baseline.ps1](0-domain_baseline.ps1) | 0 | Read-only security baseline of the domain: accounts, groups, service accounts, GPOs, password/lockout policy, Kerberos encryption types and privileged group membership, with a severity-ranked findings summary. |
+| [1-domain_findings.ps1](1-domain_findings.ps1) | 1 | Turns the baseline into an actionable risk inventory - each finding carries id, severity, category, asset, evidence, risk, recommended remediation and the task that fixes it. |
+| [2-eventlog_assessment.ps1](2-eventlog_assessment.ps1) | 2 | Checks which critical Event IDs (4624-4732, 4672, 1102) the domain is actually capable of generating today, against `auditpol` and the live Security log. |
+| [3-telemetry_reference.ps1](3-telemetry_reference.ps1) | 3 | Machine-readable reference mapping every Security, PowerShell and Sysmon event this project uses to log source, audit/sensor dependency, detection meaning, Crimson Tide phase and validation method. |
+| [4-password_policy.ps1](4-password_policy.ps1) | 4 | Deploys the CIS-aligned password and account lockout policy (14-char minimum, complexity, 24-password history, 5-attempt lockout) via GPO. Makes changes. |
+| [5-audit_policy.ps1](5-audit_policy.ps1) | 5 | Deploys the Advanced Audit Policy Configuration via GPO: credential validation, Kerberos, logon/logoff, account management, privilege use, object access, process creation with command-line capture, restricted log clearing, 1 GB Security log. Makes changes. |
 
 ## Requirements
 
@@ -43,9 +48,16 @@ that Module 3 later exports and analyzes.
 ## Usage
 
 ```powershell
-.\0-domain_baseline.ps1 [-OutputPath <path>]
+.\0-domain_baseline.ps1        [-OutputPath <path>]
+.\1-domain_findings.ps1        [-OutputPath <path>]
+.\2-eventlog_assessment.ps1    [-LookbackHours <hours>]
+.\3-telemetry_reference.ps1    [-OutputPath <path>]
+.\4-password_policy.ps1        # creates/links a GPO and sets the domain password/lockout policy
+.\5-audit_policy.ps1           # creates/links a GPO and sets the Advanced Audit Policy
 ```
 
-Run directly on `DC01` as `analyst` (Domain Admin). Produces a console
-summary and a JSON report (default `domain_baseline_report.json`) capturing
-the full domain state.
+Run directly on `DC01` as `analyst` (Domain Admin). Tasks 0-3 are read-only
+and produce a console summary plus a JSON report. Tasks 4 and 5 make real
+changes: each creates a GPO, writes its settings, links it to the domain
+root and forces a Group Policy update - review the parameters before
+running against a domain that isn't the lab.
