@@ -140,10 +140,13 @@ foreach ($cat in $AuditCategories) {
 Set-GPRegistryValue -Name $GpoName -Key "HKLM\System\CurrentControlSet\Control\Lsa" `
     -ValueName "SCENoApplyLegacyAuditPolicy" -Type DWord -Value 1 | Out-Null
 
-# --- Command-line logging on process creation (adds full command line to Event ID 4688) -
+# --- CommandLine logging on process creation (adds full command line to Event ID 4688) -
+# GPO setting: Administrative Templates > System > Audit Process Creation >
+# "Include CommandLine in process creation events", backed by the
+# ProcessCreationIncludeCmdLine_Enabled registry value below.
 Set-GPRegistryValue -Name $GpoName -Key "HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System\Audit" `
     -ValueName "ProcessCreationIncludeCmdLine_Enabled" -Type DWord -Value 1 | Out-Null
-Write-Output "[*] Enabling command-line in process creation events...   [SET]"
+Write-Output "[*] Enabling CommandLine logging in process creation events (Event ID 4688)...   [SET]"
 
 # --- Restrict Security log clearing to Domain Admins only ----------------------------
 # SeSecurityPrivilege ("Manage auditing and security log") is what actually gates
