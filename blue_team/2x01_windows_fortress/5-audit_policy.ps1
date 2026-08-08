@@ -172,8 +172,14 @@ Add-GpoMachineCse -SysvolPath $SysvolPath -GpoDistinguishedName $GpoDN -CseGuidP
 Write-Output "[*] Restricting Security log clearing...                  [SET]"
 
 # --- Security log maximum size (1 GB) -------------------------------------------------
+# The GPO-backed registry value (EventLog\Security\MaxSize) is documented in
+# KB, so it takes $SecurityLogMaxSizeKB (1048576 KB = 1 GB) for domain-wide,
+# persistent enforcement. wevtutil's /ms switch takes the same size in bytes
+# (1073741824 = 1 GB) and applies it immediately to this DC's live log, so
+# the size is already correct locally without waiting on the next refresh.
 Set-GPRegistryValue -Name $GpoName -Key "HKLM\Software\Policies\Microsoft\Windows\EventLog\Security" `
     -ValueName "MaxSize" -Type DWord -Value $SecurityLogMaxSizeKB | Out-Null
+wevtutil sl Security /ms:1073741824
 Write-Output "[*] Setting Security log max size to 1 GB...              [SET]"
 
 # --- Link the GPO to the domain root and force an update -----------------------------
