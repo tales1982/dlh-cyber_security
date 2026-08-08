@@ -1,0 +1,48 @@
+<!--
+    MedDefense Health Systems - Windows Fortress (2x01), Task 12 deliverable.
+    AppLocker policy applied by 12-applocker_config.ps1 to the
+    "MedDefense - AppLocker Policy" GPO. Deployed in Audit Only mode: this
+    is the control that would have stopped Crimson Tide Phase 6 (a
+    ransomware executable pushed via GPO) if it had been in Enforce mode -
+    switch EnforcementMode to "Enabled" once the audit period confirms no
+    legitimate application (including DicomViewer.exe) is broken by it.
+-->
+<AppLockerPolicy Version="1">
+  <RuleCollection Type="Exe" EnforcementMode="AuditOnly">
+    <FilePathRule Id="8f14e45f-ceea-467e-9575-2c07f88de801" Name="Allow: C:\Windows\*" Description="System binaries" UserOrGroupSid="S-1-1-0" Action="Allow">
+      <Conditions>
+        <FilePathCondition Path="%WINDIR%\*" />
+      </Conditions>
+    </FilePathRule>
+    <FilePathRule Id="c9f0f895-fb98-4f66-b592-04df04d7ac2a" Name="Allow: C:\Program Files\*" Description="64-bit Program Files" UserOrGroupSid="S-1-1-0" Action="Allow">
+      <Conditions>
+        <FilePathCondition Path="%PROGRAMFILES%\*" />
+      </Conditions>
+    </FilePathRule>
+    <FilePathRule Id="45c48cce-2e2d-4fbd-a45f-cd6b0d51fe7d" Name="Allow: C:\Program Files (x86)\*" Description="32-bit Program Files" UserOrGroupSid="S-1-1-0" Action="Allow">
+      <Conditions>
+        <FilePathCondition Path="%PROGRAMFILES(X86)%\*" />
+      </Conditions>
+    </FilePathRule>
+    <FilePathRule Id="d3d9446a-9136-4a35-9a47-8adb3a621d0e" Name="Allow: DicomViewer.exe (MedImage Corp)" Description="Clinical imaging application, signed by MedImage Corp" UserOrGroupSid="S-1-1-0" Action="Allow">
+      <Conditions>
+        <FilePathCondition Path="C:\Program Files\MedImage Corp\DicomViewer\DicomViewer.exe" />
+      </Conditions>
+    </FilePathRule>
+  </RuleCollection>
+  <RuleCollection Type="Script" EnforcementMode="AuditOnly">
+    <FilePathRule Id="6512bd43-d9ca-4fc2-9a91-cbf9f8b23ff9" Name="Allow: C:\Windows\* scripts" Description="System scripts" UserOrGroupSid="S-1-1-0" Action="Allow">
+      <Conditions>
+        <FilePathCondition Path="%WINDIR%\*" />
+      </Conditions>
+    </FilePathRule>
+    <FilePathRule Id="c20ad4d7-6fe9-4bc8-91b3-4a24680a614f" Name="Allow: C:\MedDefense_Lab\Scripts\*" Description="MedDefense admin scripts" UserOrGroupSid="S-1-1-0" Action="Allow">
+      <Conditions>
+        <FilePathCondition Path="C:\MedDefense_Lab\Scripts\*" />
+      </Conditions>
+    </FilePathRule>
+  </RuleCollection>
+  <RuleCollection Type="Msi" EnforcementMode="NotConfigured" />
+  <RuleCollection Type="Dll" EnforcementMode="NotConfigured" />
+  <RuleCollection Type="Appx" EnforcementMode="NotConfigured" />
+</AppLockerPolicy>

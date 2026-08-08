@@ -39,6 +39,11 @@ that Module 3 later exports and analyzes.
 | [8-smb_hardening.ps1](8-smb_hardening.ps1) | 8 | Disables SMBv1 (client + server), enforces required SMB signing and encryption, disables NetBIOS over TCP/IP and LLMNR. Makes changes. |
 | [9-sysmon_deploy.ps1](9-sysmon_deploy.ps1) | 9 | Downloads and installs Sysmon with [sysmonconfig.xml](sysmonconfig.xml), verifies the service/driver/telemetry, and proves FileCreate detection (Event ID 11). Makes changes. |
 | [10-sysmon_tune.ps1](10-sysmon_tune.ps1) | 10 | Adds 5 MedDefense-specific Sysmon detection rules (Rclone, PsExec service install, encoded PowerShell, shadow copy deletion, scheduled task persistence) to `sysmonconfig.xml`, reloads Sysmon, and trigger-and-verifies each rule with a safe, non-destructive test. Makes changes. |
+| [11-firewall_hardening.ps1](11-firewall_hardening.ps1) | 11 | Enables default-deny inbound on all 3 firewall profiles, opens 6 narrow MedDef-* allow rules (RDP/WinRM from the management subnet, SMB from the server subnet, DNS/LDAP/Kerberos), enables dropped-packet logging, and disables conflicting legacy allow rules. Makes changes. |
+| [12-applocker_config.ps1](12-applocker_config.ps1) | 12 | Deploys an AppLocker Audit Only policy via GPO ([applocker_policy.xml](applocker_policy.xml)): allows Windows/Program Files paths and the clinically-required DicomViewer.exe, denies everything else by AppLocker's own default-deny behavior. Makes changes. |
+| [13-rdp_hardening.ps1](13-rdp_hardening.ps1) | 13 | Requires NLA, restricts RDP to G_IT_Admins only, bounds idle/max session time, forces High/SSL encryption, and disables clipboard/drive redirection and Remote Assistance. Makes changes. |
+| [14-service_accounts.ps1](14-service_accounts.ps1) | 14 | Audits every service account's delegation, password age, privileged membership and off-hours logons, then sets "Account is sensitive and cannot be delegated", denies interactive logon, and removes unwarranted privileged group membership. Makes changes. |
+| [15-master_validation.ps1](15-master_validation.ps1) | 15 | Weekly compliance dashboard - re-checks every setting from Tasks 4-14 and reports PASS/WARN/FAIL per item. Exits 0 if all critical checks pass, 1 otherwise. Read-only. |
 
 ## Requirements
 
@@ -64,13 +69,20 @@ that Module 3 later exports and analyzes.
 .\8-smb_hardening.ps1          # creates/links a GPO and hardens SMB/NetBIOS/LLMNR
 .\9-sysmon_deploy.ps1          # downloads and installs Sysmon with sysmonconfig.xml
 .\10-sysmon_tune.ps1           # adds custom detection rules to sysmonconfig.xml
+.\11-firewall_hardening.ps1    # default-deny inbound + 6 MedDef-* allow rules
+.\12-applocker_config.ps1      # creates/links a GPO with an AppLocker Audit Only policy
+.\13-rdp_hardening.ps1         # creates/links a GPO and hardens RDP
+.\14-service_accounts.ps1      # audits and hardens every service account
+.\15-master_validation.ps1     # read-only weekly compliance check, exit 0/1
 ```
 
-Run directly on `DC01` as `analyst` (Domain Admin). Tasks 0-3 are read-only
-and produce a console summary plus a JSON report. Tasks 4-10 make real
-changes - GPOs, local security policy, service accounts, or the Sysmon
-service/driver - review the parameters before running against a domain
-that isn't the lab. 9 and 10 additionally require outbound internet access
-to Sysinternals/GitHub (9 falls back to the local `sysmonconfig.xml` if
-that fails); 10's triggers are intentionally non-destructive (e.g.
-`vssadmin delete shadows /?`, never a real deletion).
+Run directly on `DC01` as `analyst` (Domain Admin). Tasks 0-3 and 15 are
+read-only and produce a console summary (0/1/3/15 also a JSON/dashboard
+report). Tasks 4-14 make real changes - GPOs, local security policy,
+service accounts, the Sysmon service/driver, the firewall or AppLocker -
+review the parameters before running against a domain that isn't the lab.
+9 and 10 additionally require outbound internet access to Sysinternals/
+GitHub (9 falls back to the local `sysmonconfig.xml` if that fails); 10's
+triggers are intentionally non-destructive (e.g. `vssadmin delete shadows
+/?`, never a real deletion). 15 exits with code 1 if any critical check
+fails, so it can be wired into a scheduled task.
