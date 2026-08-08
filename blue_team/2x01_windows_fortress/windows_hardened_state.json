@@ -18,18 +18,19 @@
   "audit_policy": {
     "raw_auditpol_output": "Machine Name,Policy Target,Subcategory,Subcategory GUID,Inclusion Setting,Exclusion Setting,Setting Value\n,System,Credential Validation,{0CCE923F-69AE-11D9-BED3-505054503030},Success and Failure,,3\n,System,Process Creation,{0CCE922B-69AE-11D9-BED3-505054503030},Success,,1",
     "required_subcategory_status": [
-      { "subcategory": "Credential Validation", "setting": "Success and Failure", "enabled": true },
-      { "subcategory": "Kerberos Authentication", "setting": "Success and Failure", "enabled": true },
-      { "subcategory": "Logon", "setting": "Success and Failure", "enabled": true },
-      { "subcategory": "Logoff", "setting": "Success", "enabled": true },
-      { "subcategory": "Special Logon", "setting": "Success", "enabled": true },
-      { "subcategory": "User Account Management", "setting": "Success and Failure", "enabled": true },
-      { "subcategory": "Sensitive Privilege Use", "setting": "Success and Failure", "enabled": true },
-      { "subcategory": "File System", "setting": "Success and Failure", "enabled": true },
-      { "subcategory": "Registry", "setting": "Success and Failure", "enabled": true },
-      { "subcategory": "Process Creation", "setting": "Success", "enabled": true },
-      { "subcategory": "System Integrity", "setting": "Success and Failure", "enabled": true }
-    ]
+      { "subcategory": "Credential Validation", "setting": "Success and Failure", "enabled": true, "event_ids": [4776] },
+      { "subcategory": "Kerberos Authentication", "setting": "Success and Failure", "enabled": true, "event_ids": [4768, 4771] },
+      { "subcategory": "Logon", "setting": "Success and Failure", "enabled": true, "event_ids": [4624, 4625, 4648] },
+      { "subcategory": "Logoff", "setting": "Success", "enabled": true, "event_ids": [4634] },
+      { "subcategory": "Special Logon", "setting": "Success", "enabled": true, "event_ids": [4672] },
+      { "subcategory": "User Account Management", "setting": "Success and Failure", "enabled": true, "event_ids": [4720, 4726] },
+      { "subcategory": "Sensitive Privilege Use", "setting": "Success and Failure", "enabled": true, "event_ids": [4673, 4674] },
+      { "subcategory": "File System", "setting": "Success and Failure", "enabled": true, "event_ids": [4663] },
+      { "subcategory": "Registry", "setting": "Success and Failure", "enabled": true, "event_ids": [4657] },
+      { "subcategory": "Process Creation", "setting": "Success", "enabled": true, "event_ids": [4688] },
+      { "subcategory": "System Integrity", "setting": "Success and Failure", "enabled": true, "event_ids": [1102] }
+    ],
+    "required_event_telemetry": [4776, 4768, 4771, 4624, 4625, 4648, 4634, 4672, 4720, 4726, 4673, 4674, 4663, 4657, 4688, 1102]
   },
   "powershell_logging": {
     "script_block_logging": true,

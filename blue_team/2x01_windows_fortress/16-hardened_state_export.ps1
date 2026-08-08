@@ -80,22 +80,41 @@ $GpoInventory = foreach ($gpo in $MedDefenseGpos) {
 Write-Output "[*] Exporting GPO settings... $($GpoInventory.Count) GPOs"
 
 # --- audit_policy --------------------------------------------------------------------------
+# Each required subcategory is mapped back to the Windows Event ID(s) it is
+# actually responsible for generating - the same critical Event ID set
+# 2-eventlog_assessment.ps1 and 3-telemetry_reference.ps1 track (4624, 4625,
+# 4648, 4672, 4688, 4720, 4726, 4732, 1102) - so this export doubles as proof
+# that the required Windows event telemetry, not just the audit setting
+# itself, is actually reachable.
 $RawAuditPolOutput = auditpol /get /category:* /r
 $AuditCsv = $RawAuditPolOutput | ConvertFrom-Csv
-$RequiredSubcategories = @("Credential Validation", "Kerberos Authentication", "Logon", "Logoff",
-    "Special Logon", "User Account Management", "Sensitive Privilege Use", "File System",
-    "Registry", "Process Creation", "System Integrity")
-$RequiredSubcategoryStatus = foreach ($sub in $RequiredSubcategories) {
-    $setting = ($AuditCsv | Where-Object { $_.Subcategory -eq $sub }).'Inclusion Setting'
+$RequiredSubcategories = @(
+    [PSCustomObject]@{ Subcategory = "Credential Validation";   EventIds = @(4776) }
+    [PSCustomObject]@{ Subcategory = "Kerberos Authentication"; EventIds = @(4768, 4771) }
+    [PSCustomObject]@{ Subcategory = "Logon";                   EventIds = @(4624, 4625, 4648) }
+    [PSCustomObject]@{ Subcategory = "Logoff";                  EventIds = @(4634) }
+    [PSCustomObject]@{ Subcategory = "Special Logon";           EventIds = @(4672) }
+    [PSCustomObject]@{ Subcategory = "User Account Management"; EventIds = @(4720, 4726) }
+    [PSCustomObject]@{ Subcategory = "Sensitive Privilege Use"; EventIds = @(4673, 4674) }
+    [PSCustomObject]@{ Subcategory = "File System";             EventIds = @(4663) }
+    [PSCustomObject]@{ Subcategory = "Registry";                EventIds = @(4657) }
+    [PSCustomObject]@{ Subcategory = "Process Creation";        EventIds = @(4688) }
+    [PSCustomObject]@{ Subcategory = "System Integrity";        EventIds = @(1102) }
+)
+$RequiredSubcategoryStatus = foreach ($req in $RequiredSubcategories) {
+    $setting = ($AuditCsv | Where-Object { $_.Subcategory -eq $req.Subcategory }).'Inclusion Setting'
     [PSCustomObject]@{
-        subcategory = $sub
+        subcategory = $req.Subcategory
         setting     = $setting
         enabled     = [bool]($setting -and $setting -ne "No Auditing")
+        event_ids   = $req.EventIds
     }
 }
+$RequiredEventTelemetry = $RequiredSubcategoryStatus | ForEach-Object { $_.event_ids } | Select-Object -Unique
 $AuditPolicy = [PSCustomObject]@{
     raw_auditpol_output          = $RawAuditPolOutput
     required_subcategory_status  = $RequiredSubcategoryStatus
+    required_event_telemetry     = $RequiredEventTelemetry
 }
 Write-Output "[*] Exporting audit policy... $($RequiredSubcategoryStatus.Count) subcategories"
 
