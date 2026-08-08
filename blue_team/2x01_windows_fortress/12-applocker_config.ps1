@@ -57,6 +57,9 @@ Write-Output "[*] Starting AppIDSvc... $AppIdStatus           $(if ($AppIdStatus
 # --- Build the AppLocker policy XML directly (no supported New-GPO-native cmdlet exists ---
 # for AppLocker; Set-AppLockerPolicy -Ldap is the documented way to write an
 # AppLockerPolicy object straight into a GPO's AppLocker store).
+# RuleCollection Type="Exe" natively governs .exe and .com; Type="Script"
+# natively governs .ps1, .bat, .cmd and .vbs - AppLocker enforces these
+# extension sets per collection without needing per-extension conditions.
 $PolicyXml = @"
 <AppLockerPolicy Version="1">
   <RuleCollection Type="Exe" EnforcementMode="AuditOnly">

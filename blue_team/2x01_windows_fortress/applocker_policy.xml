@@ -6,6 +6,8 @@
     ransomware executable pushed via GPO) if it had been in Enforce mode -
     switch EnforcementMode to "Enabled" once the audit period confirms no
     legitimate application (including DicomViewer.exe) is broken by it.
+    RuleCollection Type="Exe" natively governs .exe and .com; Type="Script"
+    natively governs .ps1, .bat, .cmd and .vbs.
 -->
 <AppLockerPolicy Version="1">
   <RuleCollection Type="Exe" EnforcementMode="AuditOnly">
