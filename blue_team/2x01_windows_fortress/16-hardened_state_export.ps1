@@ -205,6 +205,8 @@ $TotalAppLockerRules = $ExecutableRuleCount + $ScriptRuleCount
 Write-Output "[*] Exporting AppLocker policy... $TotalAppLockerRules rules"
 
 # --- rdp_posture ------------------------------------------------------------------------------
+# UserAuthentication=1 is the registry backing for NLA (Network Level
+# Authentication), the control 13-rdp_hardening.ps1 enables.
 $NlaSetting     = (Get-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\Windows NT\Terminal Services" -Name "UserAuthentication" -ErrorAction SilentlyContinue).UserAuthentication
 $ClipboardOff   = (Get-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\Windows NT\Terminal Services" -Name "fDisableClip" -ErrorAction SilentlyContinue).fDisableClip
 $DriveRedirOff  = (Get-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\Windows NT\Terminal Services" -Name "fDisableCdm" -ErrorAction SilentlyContinue).fDisableCdm
