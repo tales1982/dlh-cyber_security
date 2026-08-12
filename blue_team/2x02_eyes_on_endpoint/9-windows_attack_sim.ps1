@@ -55,7 +55,7 @@ function Add-ActionLog {
 
 Write-Output "[*] Running Windows attacker simulation..."
 
-# --- 1/6: Create a new local user account ------------------------------------------------------
+# --- 1/6: Create a new local user account - expected in Security Event ID 4720 (A user account was created) --
 Write-Output "    [1/6] Creating local user '$UserName'..."
 $Password = ConvertTo-SecureString -String ([System.Guid]::NewGuid().ToString() + "!Aa1") -AsPlainText -Force
 New-LocalUser -Name $UserName -Password $Password -FullName "Support Update Service" `
@@ -66,7 +66,7 @@ Add-ActionLog -Number 1 -Description "Creating local user '$UserName'" -Timestam
     -ExpectedDetectionSources @([PSCustomObject]@{ source = "Security"; event_id = 4720 }) `
     -MitreTechnique "T1136.001"
 
-# --- 2/6: Add the user to the local Administrators group -----------------------------------------
+# --- 2/6: Add the user to the local Administrators group - expected in Security Event ID 4732 (A member was added to a security-enabled local group) --
 Write-Output "    [2/6] Adding to Administrators group..."
 Add-LocalGroupMember -Group "Administrators" -Member $UserName
 $Ts2 = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")
@@ -75,7 +75,7 @@ Add-ActionLog -Number 2 -Description "Adding '$UserName' to Administrators group
     -ExpectedDetectionSources @([PSCustomObject]@{ source = "Security"; event_id = 4732 }) `
     -MitreTechnique "T1098"
 
-# --- 3/6: Run an encoded PowerShell command (harmless payload) -----------------------------------
+# --- 3/6: Run an encoded PowerShell command (harmless payload) - expected in PS ScriptBlock Event ID 4104 (Script block logging) and Sysmon Event ID 1 (Process creation) --
 Write-Output "    [3/6] Running encoded PowerShell..."
 $PayloadCommand = 'Write-Host "C2 beacon"'
 $EncodedPayload = [Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes($PayloadCommand))
@@ -88,7 +88,7 @@ Add-ActionLog -Number 3 -Description "Encoded PowerShell: -enc $EncodedPayload (
         [PSCustomObject]@{ source = "Sysmon"; event_id = 1 }
     ) -MitreTechnique "T1059.001"
 
-# --- 4/6: Create a scheduled task for persistence -------------------------------------------------
+# --- 4/6: Create a scheduled task for persistence - expected in Sysmon Event ID 1 (Process creation) --
 Write-Output "    [4/6] Creating scheduled task..."
 schtasks /create /tn $ScheduledTaskName /tr "cmd.exe /c exit" /sc daily /st 03:00 /f | Out-Null
 $Ts4 = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")
@@ -106,7 +106,7 @@ Add-ActionLog -Number 5 -Description "Outbound TCP connection to $NetworkTarget`
     -ExpectedDetectionSources @([PSCustomObject]@{ source = "Sysmon"; event_id = 3 }) `
     -MitreTechnique "T1071"
 
-# --- 6/6: Drop a file in a startup directory -------------------------------------------------------
+# --- 6/6: Drop a file in a startup directory - expected in Sysmon Event ID 11 (FileCreate) ------------
 Write-Output "    [6/6] Dropping file in Startup..."
 New-Item -Path $StartupDir -ItemType Directory -Force | Out-Null
 "' MedDefense attacker-simulation artifact (Task 9) - harmless, removed at end of run" |
