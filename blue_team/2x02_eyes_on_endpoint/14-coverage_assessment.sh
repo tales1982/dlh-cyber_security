@@ -61,7 +61,7 @@ BY_EVENT_CATEGORY=$(jq -s '
   (.[0].events + .[1].events) | group_by(.event_category) | map({key: .[0].event_category, count: length})
 ' "$WINDOWS_EVENTS" "$LINUX_EVENTS")
 
-# --- Detection matrix summary: combine Task 10 (Windows) + Task 12 (Linux) -------------------------
+# --- Detection matrix summary: captured, missed, and multi-source detections, combining Task 10 (Windows) + Task 12 (Linux) -------------------------
 WIN_ACTIONS_TOTAL=$(jq '.actions_total' "$WINDOWS_MATRIX")
 WIN_ACTIONS_CAPTURED=$(jq '.actions_captured' "$WINDOWS_MATRIX")
 WIN_MULTI_SOURCE=$(jq '.multi_source_actions' "$WINDOWS_MATRIX")
