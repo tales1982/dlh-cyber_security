@@ -22,6 +22,8 @@
 
 set -euo pipefail
 
+# Reads the handoff package Task 13 built: telemetry_handoff/windows_events.json,
+# telemetry_handoff/linux_events.json and telemetry_handoff/attack_ground_truth.json.
 HANDOFF_DIR="${HANDOFF_DIR:-telemetry_handoff}"
 WINDOWS_EVENTS="$HANDOFF_DIR/windows_events.json"
 LINUX_EVENTS="$HANDOFF_DIR/linux_events.json"
