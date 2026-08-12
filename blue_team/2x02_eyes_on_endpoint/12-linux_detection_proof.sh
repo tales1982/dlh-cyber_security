@@ -78,7 +78,7 @@ check_auditd() {
 # key_fields_for <audit_key>: the raw audit record fields relevant to
 # confirming a genuine match for this key, mirroring 7-linux_export.sh's
 # own field1/field2 extraction - path+operation (name/nametype) for the
-# -w watch rules (identity, sudoers_d, cron_config, etc.), comm+exe for
+# -w watch rules (identity, sudoers_d, cron_config, cron_persist, etc.), comm+exe for
 # the execve syscall rule (process_exec), saddr for the socket/connect
 # syscall rule (network_connect).
 key_fields_for() {
