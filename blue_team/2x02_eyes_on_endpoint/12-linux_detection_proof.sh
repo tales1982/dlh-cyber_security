@@ -43,7 +43,11 @@ to_epoch() {
     if [[ "$raw" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2} ]]; then
         date -d "${raw:0:19}${raw:19:6}" +%s 2>/dev/null || date -d "${raw:0:19}" +%s 2>/dev/null || echo 0
     else
-        date -d "$CURRENT_YEAR ${raw:0:15}" +%s 2>/dev/null || echo 0
+        # Year must trail the rest of the string ("Mon DD HH:MM:SS YYYY") -
+        # GNU date's parser rejects it prepended ("YYYY Mon DD HH:MM:SS"),
+        # which made every classic syslog-format timestamp here silently
+        # fail to parse and fall back to epoch 0.
+        date -d "${raw:0:15} $CURRENT_YEAR" +%s 2>/dev/null || echo 0
     fi
 }
 
@@ -52,8 +56,13 @@ to_epoch() {
 check_auditd() {
     local key="$1" start="$2" end="$3"
     local sd st ed et hits
-    sd="$(date -d "@$start" +%m/%d/%Y)"; st="$(date -d "@$start" +%H:%M:%S)"
-    ed="$(date -d "@$end" +%m/%d/%Y)"; et="$(date -d "@$end" +%H:%M:%S)"
+    # ausearch -ts/-te on this system's auditd build rejects a 4-digit
+    # year ("Error parsing start date (08/12/2026)") and only accepts
+    # 2-digit MM/DD/YY, matching what `date +%x` produces here - a build/
+    # locale-specific parsing quirk, not documented behavior to rely on
+    # generally, but this is what actually works on this target.
+    sd="$(date -d "@$start" +%m/%d/%y)"; st="$(date -d "@$start" +%H:%M:%S)"
+    ed="$(date -d "@$end" +%m/%d/%y)"; et="$(date -d "@$end" +%H:%M:%S)"
     # --input-logs forces a direct read of the on-disk audit log - on some
     # auditd/ausearch builds the default query path silently returns no
     # matches even though the event is present in the log. Matching is

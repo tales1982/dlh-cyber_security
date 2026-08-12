@@ -70,7 +70,7 @@ echo "$USERNAME ALL=(ALL) NOPASSWD:ALL" > "$SUDOERS_FILE" 2>/dev/null || true
 chmod 440 "$SUDOERS_FILE" 2>/dev/null || true
 TS2="$(now_iso)"
 echo "          $TS2"
-add_action 2 "Modifying sudoers via $SUDOERS_FILE" "$TS2" "auditd" "sudoers" "T1548.003"
+add_action 2 "Modifying sudoers via $SUDOERS_FILE" "$TS2" "auditd" "sudoers_d" "T1548.003"
 
 # --- 3/6: Execute a binary from /tmp --------------------------------------------------------------
 echo "    [3/6] Executing from /tmp..."
@@ -97,9 +97,22 @@ echo "    [5/6] Cron persistence..."
 echo "* * * * * root /tmp/beacon.sh" > "$CRON_FILE" 2>/dev/null || true
 TS5="$(now_iso)"
 echo "          $TS5"
-add_action 5 "Cron persistence via $CRON_FILE" "$TS5" "auditd" "cron_persist" "T1053.003"
+# /etc/cron.d/ is watched under 2x00 Task 10's "cron_config" key, not
+# 2x02 Task 5's "cron_persist" (which only covers /var/spool/cron/ - the
+# kernel audit subsystem only tags a matching event with one key when two
+# separate -w rules cover the identical path, so this write is only ever
+# going to surface under whichever rule claimed /etc/cron.d/ first).
+add_action 5 "Cron persistence via $CRON_FILE" "$TS5" "auditd" "cron_config" "T1053.003"
 
 # --- 6/6: Access sensitive files (/etc/shadow) -------------------------------------------------------
+# 12-linux_detection_proof.sh searches +/-30s around each action, and
+# Action 1 (useradd) also carries the "identity" key - if Action 6 ran
+# right after it like the other actions do, its window would overlap
+# Action 1's genuine event and falsely report a "capture" that's really
+# just picking up the unrelated useradd write next door. The 65s pause
+# (>60s = 2x the search window) guarantees the two windows never touch,
+# so this action's result reflects only its own read, not its neighbor's.
+sleep 65
 echo "    [6/6] Accessing /etc/shadow..."
 cat /etc/shadow > /dev/null 2>&1 || true
 TS6="$(now_iso)"
@@ -119,6 +132,11 @@ jq -n --argjson actions "$ACTIONS_JSON" --arg generated "$(now_iso)" \
     > "$GROUND_TRUTH_PATH"
 
 echo "[*] Cleaning up artifacts..."
+# Same reasoning as the pre-Action-6 delay above: cleanup's own userdel
+# also carries the "identity" key. Running it right away would land
+# inside Action 6's own +30s forward-looking search window, making the
+# cleanup event itself look like a (false) detection of the shadow read.
+sleep 35
 CLEANUP_STATUS_FILE="$(mktemp)"
 { cleanup && echo "ok" > "$CLEANUP_STATUS_FILE"; } || echo "warn" > "$CLEANUP_STATUS_FILE"
 trap - EXIT
