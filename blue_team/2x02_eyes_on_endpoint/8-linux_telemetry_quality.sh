@@ -82,7 +82,9 @@ jq -n --slurpfile export "$IN_JSON" \
   # --- Field Completeness -------------------------------------------------------------------------
   # Measures: timestamp/hostname/source_type/event_category on every event,
   # command line completeness for execve, source IP/user for SSH events,
-  # and path completeness for auditd file events.
+  # and path + operation (the nametype - CREATE/DELETE/NORMAL/PARENT -
+  # 7-linux_export.sh captures alongside the path) completeness for
+  # auditd file events.
   def pct($n; $d): if $d > 0 then ((($n / $d) * 10000) | round) / 100 else 100.0 end;
   ([$events[] | select(.timestamp != null and .timestamp != "")] | length) as $ts_ok |
   ([$events[] | select(.hostname != null and .hostname != "")] | length) as $host_ok |
@@ -94,6 +96,7 @@ jq -n --slurpfile export "$IN_JSON" \
   ([$ssh_events[] | select((.source_ip // "") != "" and (.user // "") != "")] | length) as $ssh_ok |
   ([$events[] | select(.source_type == "audit.log" and .event_category == "file_access")]) as $file_events |
   ([$file_events[] | select((.field1 // "") != "")] | length) as $file_path_ok |
+  ([$file_events[] | select((.field2 // "") != "")] | length) as $file_operation_ok |
 
   pct($ts_ok; $total) as $timestamp_pct |
   pct($host_ok; $total) as $hostname_pct |
@@ -102,6 +105,7 @@ jq -n --slurpfile export "$IN_JSON" \
   pct($execve_cmdline_ok; ($execve_events | length)) as $execve_cmdline_pct |
   pct($ssh_ok; ($ssh_events | length)) as $ssh_source_ip_pct |
   pct($file_path_ok; ($file_events | length)) as $file_path_pct |
+  pct($file_operation_ok; ($file_events | length)) as $file_operation_pct |
 
   # --- Quality Score: weighted 0-100 ----------------------------------------------------------------
   (if $total_hours > 0 then ($hours_with_events / $total_hours) * 100 else 0 end) as $time_coverage_score |
@@ -138,7 +142,8 @@ jq -n --slurpfile export "$IN_JSON" \
       event_category_pct: $event_category_pct,
       execve_command_line_pct: $execve_cmdline_pct,
       ssh_source_ip_user_pct: $ssh_source_ip_pct,
-      auditd_file_path_pct: $file_path_pct
+      auditd_file_path_pct: $file_path_pct,
+      auditd_file_operation_pct: $file_operation_pct
     },
     quality_score: $quality_score,
     assessment: $assessment
@@ -153,6 +158,7 @@ LARGEST_GAP=$(jq -r '.gap_detection.largest_gap_minutes' "$OUT_JSON")
 EXECVE_PCT=$(jq -r '.field_completeness.execve_command_line_pct' "$OUT_JSON")
 SSH_PCT=$(jq -r '.field_completeness.ssh_source_ip_user_pct' "$OUT_JSON")
 FILE_PCT=$(jq -r '.field_completeness.auditd_file_path_pct' "$OUT_JSON")
+FILE_OP_PCT=$(jq -r '.field_completeness.auditd_file_operation_pct' "$OUT_JSON")
 SCORE=$(jq -r '.quality_score' "$OUT_JSON")
 ASSESSMENT=$(jq -r '.assessment' "$OUT_JSON")
 
@@ -166,5 +172,6 @@ fi
 echo "execve command_line completeness: ${EXECVE_PCT}%"
 echo "SSH source_ip completeness: ${SSH_PCT}%"
 echo "auditd file path completeness: ${FILE_PCT}%"
+echo "auditd file operation completeness: ${FILE_OP_PCT}%"
 echo "Quality score: ${SCORE}% ($ASSESSMENT)"
 echo "Report saved to: $OUT_JSON"
