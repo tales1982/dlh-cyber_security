@@ -35,7 +35,7 @@ $Export = Get-Content -Path $InputPath -Raw | ConvertFrom-Json
 $Events = @($Export.events)
 $TotalEvents = $Events.Count
 
-# --- Event distribution: count and percentage per Event ID ------------------------------------
+# --- Event Distribution: count and percentage per Event ID ------------------------------------
 $EventDistribution = @($Events | Group-Object -Property event_id | Sort-Object -Property Count -Descending | ForEach-Object {
     [PSCustomObject]@{
         event_id   = $_.Name
@@ -44,7 +44,7 @@ $EventDistribution = @($Events | Group-Object -Property event_id | Sort-Object -
     }
 })
 
-# --- Channel distribution: Security, Sysmon, PowerShell (as populated by Task 3) -----------------
+# --- Channel Distribution: Security, Sysmon, PowerShell (as populated by Task 3) -----------------
 $ChannelDistribution = @($Events | Group-Object -Property channel | ForEach-Object {
     [PSCustomObject]@{
         channel    = $_.Name
@@ -53,7 +53,7 @@ $ChannelDistribution = @($Events | Group-Object -Property channel | ForEach-Obje
     }
 })
 
-# --- Time coverage: events per hour, hours with/without events -----------------------------------
+# --- Time Coverage: events per hour, hours with/without events -----------------------------------
 $Timestamps = @($Events | ForEach-Object { [datetime]$_.timestamp } | Sort-Object)
 $WindowStart = if ($Export.window_start) { [datetime]$Export.window_start } elseif ($Timestamps.Count -gt 0) { $Timestamps[0] } else { Get-Date }
 $WindowEnd   = if ($Export.window_end) { [datetime]$Export.window_end } elseif ($Timestamps.Count -gt 0) { $Timestamps[-1] } else { Get-Date }
@@ -69,7 +69,7 @@ for ($h = 0; $h -lt $TotalHours; $h++) {
 $HoursWithEvents    = @($EventsPerHour.Values | Where-Object { $_ -gt 0 }).Count
 $HoursWithoutEvents = $TotalHours - $HoursWithEvents
 
-# --- Gap detection: periods longer than the threshold with no events -----------------------------
+# --- Gap Detection: periods longer than the threshold with no events -----------------------------
 $Gaps = [System.Collections.Generic.List[object]]::new()
 $LargestGapMinutes = 0
 for ($i = 1; $i -lt $Timestamps.Count; $i++) {
@@ -85,7 +85,7 @@ for ($i = 1; $i -lt $Timestamps.Count; $i++) {
 }
 $LargestGapMinutes = [math]::Round($LargestGapMinutes, 1)
 
-# --- Field completeness -------------------------------------------------------------------------
+# --- Field Completeness -------------------------------------------------------------------------
 function Get-CompletenessPercent {
     param([object[]]$Candidates, [string]$FieldPath)
     if ($Candidates.Count -eq 0) { return 100.0 }
@@ -124,7 +124,7 @@ $FieldCompletenessByType = @($Events | Group-Object -Property event_id | ForEach
     }
 })
 
-# --- Quality score: weighted 0-100 ----------------------------------------------------------------
+# --- Quality Score: weighted 0-100 ----------------------------------------------------------------
 $TimeCoverageScore = if ($TotalHours -gt 0) { ($HoursWithEvents / $TotalHours) * 100 } else { 0 }
 $GapScore = [math]::Max(0, 100 - ($Gaps.Count * 10))
 $WeightedScore = ($TimeCoverageScore * 0.25) + ($GapScore * 0.15) +
