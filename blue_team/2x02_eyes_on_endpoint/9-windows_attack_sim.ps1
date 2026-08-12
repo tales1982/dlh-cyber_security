@@ -133,7 +133,7 @@ Write-Output "[*] Cleaning up artifacts..."
 $CleanupOk = $true
 
 try { Remove-Item -Path $StartupFilePath -Force -ErrorAction Stop } catch { $CleanupOk = $false }
-try { schtasks /delete /tn $ScheduledTaskName /f 2>$null | Out-Null } catch { $CleanupOk = $false }
+try { Unregister-ScheduledTask -TaskName $ScheduledTaskName -Confirm:$false -ErrorAction Stop } catch { $CleanupOk = $false }
 try { Remove-LocalUser -Name $UserName -ErrorAction Stop } catch { $CleanupOk = $false }
 
 if ($CleanupOk) {
