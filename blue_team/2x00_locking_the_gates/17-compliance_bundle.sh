@@ -30,7 +30,7 @@ CIS_PROFILE=$(find_input "cis_profile.json" "./cis_profile.json" "../1-the_cis_c
 GAP_ANALYSIS=$(find_input "gap_analysis.json" "./gap_analysis.json" "../3-the_evidence_based_remediation_queue/gap_analysis.json") || exit 1
 REMEDIATION_QUEUE=$(find_input "remediation_queue.json" "./remediation_queue.json" "../3-the_evidence_based_remediation_queue/remediation_queue.json") || exit 1
 AUDIT_VALIDATION=$(find_input "audit_validation.json" "./audit_validation.json" "../11-the_audit_telemetry_coverage_test/audit_validation.json") || exit 1
-VALIDATION_RESULTS=$(find_input "validation_results.json" "./validation_results.json" "../15-the_post_hardening_validator/validation_results.json") || exit 1
+VALIDATION_RESULTS=$(find_input "validation_report.json" "./validation_report.json" "../15-the_post_hardening_validator/validation_report.json") || exit 1
 HARDENING_IMPROVEMENT=$(find_input "hardening_improvement.json" "./hardening_improvement.json" "../16-the_lynis_improvement_diff/hardening_improvement.json" "../14-the_hardening_orchestrator/hardening_improvement.json") || exit 1
 
 EVIDENCE_FILES=("$CIS_PROFILE" "$GAP_ANALYSIS" "$REMEDIATION_QUEUE" "$AUDIT_VALIDATION" "$VALIDATION_RESULTS" "$HARDENING_IMPROVEMENT")
@@ -47,8 +47,8 @@ KERNEL_VAL="$(uname -r)"
 
 SELECTED_COUNT=$(jq '.controls | length' "$CIS_PROFILE")
 
-# --- Per-control rollup: join cis_profile x gap_analysis x validation_results --
-# A control is "verified" only if EVERY validation_results.json check tagged
+# --- Per-control rollup: join cis_profile x gap_analysis x validation_report --
+# A control is "verified" only if EVERY validation_report.json check tagged
 # with its control_id passed. It is "remediated" if it is verified now
 # AND gap_analysis originally found it non_compliant/partially_compliant
 # (i.e. this run's hardening actually fixed something) OR it was already
@@ -60,7 +60,7 @@ CONTROLS_JOINED=$(jq -n \
   '
   ($profile[0].controls) as $controls |
   ($gap[0].assessments // []) as $assessments |
-  ($val[0].results // []) as $results |
+  ($val[0].checks // []) as $results |
   [ $controls[] | .control_id as $cid |
     ( [ $assessments[] | select(.control_id == $cid) | .status ] | first ) as $gap_status |
     ( [ $results[] | select(.control_id == $cid) ] ) as $checks |
