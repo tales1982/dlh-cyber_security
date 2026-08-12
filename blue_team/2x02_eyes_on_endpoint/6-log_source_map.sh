@@ -63,12 +63,12 @@ get_rotation_days() {
     echo "$((interval_days * count)) days"
 }
 
-# estimate_events_per_hour <path>: uses the file's own first/last
-# timestamps when they parse as a recognizable date (syslog "Mon DD
-# HH:MM:SS" style, ISO 8601, or audit's embedded epoch), dividing total
-# line count by elapsed hours. Falls back to total_lines/24 (one day's
-# assumed span) when timestamps cannot be parsed - still a genuine
-# estimate, just a coarser one.
+# estimate_events_per_hour <path>: estimates events/hr using the file's
+# own first/last timestamps when they parse as a recognizable date
+# (syslog "Mon DD HH:MM:SS" style, ISO 8601, or audit's embedded epoch),
+# dividing total line count by elapsed hours. Falls back to
+# total_lines/24 (one day's assumed span) when timestamps cannot be
+# parsed - still a genuine estimate, just a coarser one.
 estimate_events_per_hour() {
     local path="$1" total first_epoch last_epoch elapsed_hours
     total=$(wc -l < "$path" 2>/dev/null) || true
