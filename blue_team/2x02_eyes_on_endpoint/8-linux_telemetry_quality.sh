@@ -51,9 +51,15 @@ jq -n --slurpfile export "$IN_JSON" \
   ([$events[].timestamp | select(. != null and . != "") | .[0:13] + ":00:00Z"] | sort) as $hour_buckets |
   ($hour_buckets | unique) as $distinct_hours |
   ([$events[].timestamp | select(. != null and . != "")] | sort) as $sorted_ts |
-  ( if ($sorted_ts | length) > 0 then
-      (($sorted_ts[-1] | strptime("%Y-%m-%dT%H:%M:%SZ") | mktime) -
-       ($sorted_ts[0]  | strptime("%Y-%m-%dT%H:%M:%SZ") | mktime)) / 3600 | ceil
+  # Hour-bucket count spanned by the range, inclusive of both ends - NOT
+  # the raw elapsed duration in hours. A range like 14:46-16:32 touches 3
+  # calendar-hour buckets (14, 15, 16) despite being under 2 hours of
+  # actual elapsed time; comparing hours_with_events (a bucket count)
+  # against an elapsed-duration total_hours let the "with" side exceed
+  # the "total" side whenever events cluster near an hour boundary.
+  ( if ($distinct_hours | length) > 0 then
+      (($distinct_hours[-1] | strptime("%Y-%m-%dT%H:%M:%SZ") | mktime) -
+       ($distinct_hours[0]  | strptime("%Y-%m-%dT%H:%M:%SZ") | mktime)) / 3600 | floor + 1
     else 0 end
   ) as $total_hours_raw |
   ([$total_hours_raw, 1] | max) as $total_hours |
