@@ -119,6 +119,10 @@ if [ -r "$AUDIT_LOG" ]; then
         } else if (index(line, "type=PATH") > 0) {
             category = "file_access"
             if (match(line, /name="[^"]*"/)) field1 = substr(line, RSTART, RLENGTH)
+            # nametype is the operation performed on the path this record
+            # names - CREATE/DELETE/NORMAL/PARENT/UNKNOWN - unquoted in the
+            # raw record, unlike name=.
+            if (match(line, /nametype=[A-Z]+/)) field2 = substr(line, RSTART, RLENGTH)
         } else if (index(line, "type=SOCKADDR") > 0) {
             category = "network"
             if (match(line, /saddr=[0-9A-Fa-f]+/)) field1 = substr(line, RSTART, RLENGTH)
