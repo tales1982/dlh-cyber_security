@@ -1,6 +1,6 @@
 <#
     Script name : 1-sysmon_coverage_matrix.ps1
-    Purpose     : MedDefense Health Systems - Eyes on the Endpoint (2x02), Task 1.
+    purpose     : MedDefense Health Systems - Eyes on the Endpoint (2x02), Task 1.
                   A Sysmon Event ID being "enabled" in sysmonconfig.xml does
                   not mean an attacker action using it will actually be
                   logged - an onmatch="include" rule scoped to 3 process
@@ -13,7 +13,7 @@
                   only a narrow slice of it (partial), or miss it entirely
                   because the required Event ID has no rule group at all
                   (blind). Read-only: parses XML, writes only the report.
-    Author      : Tales
+    author      : Tales
     Date        : 2026-08-12
 #>
 

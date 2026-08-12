@@ -1,6 +1,6 @@
 <#
     Script name : 0-sysmon_validation.ps1
-    Purpose     : MedDefense Health Systems - Eyes on the Endpoint (2x02), Task 0.
+    purpose     : MedDefense Health Systems - Eyes on the Endpoint (2x02), Task 0.
                   Deployment does not equal coverage. This script proves that
                   Sysmon (deployed in 2x01 Task 9, tuned in Task 10) actually
                   fires on the five event types every later task in this
@@ -12,7 +12,7 @@
                   Read-only against the system: the only writes are the
                   throwaway test file and registry value, both removed by
                   the cleanup step at the end of every run.
-    Author      : Tales
+    author      : Tales
     Date        : 2026-08-12
 #>
 

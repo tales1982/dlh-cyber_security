@@ -1,6 +1,6 @@
 <#
     Script name : 2-powershell_logging_validation.ps1
-    Purpose     : MedDefense Health Systems - Eyes on the Endpoint (2x02), Task 2.
+    purpose     : MedDefense Health Systems - Eyes on the Endpoint (2x02), Task 2.
                   6-powershell_security.ps1 (2x01) enabled Script Block
                   Logging, Module Logging and Transcription via GPO -
                   "enabled" is not "complete". This script proves each
@@ -11,7 +11,7 @@
                   written for the session. Read-only against the system;
                   the only side effects are the throwaway commands run to
                   generate the telemetry being checked.
-    Author      : Tales
+    author      : Tales
     Date        : 2026-08-12
 #>
 

@@ -1,6 +1,6 @@
 <#
     Script name : 4-windows_telemetry_quality.ps1
-    Purpose     : MedDefense Health Systems - Eyes on the Endpoint (2x02), Task 4.
+    purpose     : MedDefense Health Systems - Eyes on the Endpoint (2x02), Task 4.
                   A telemetry export can exist and still be useless: empty
                   command-line fields, missing source IPs on every logon
                   event, or a 3-hour silent gap where nothing was
@@ -12,7 +12,7 @@
                   triage, and a single weighted 0-100 score with a
                   good/acceptable/poor verdict.
                   Read-only: reads the export, writes only the report.
-    Author      : Tales
+    author      : Tales
     Date        : 2026-08-12
 #>
 

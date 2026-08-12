@@ -1,6 +1,6 @@
 <#
     Script name : 3-windows_telemetry_export.ps1
-    Purpose     : MedDefense Health Systems - Eyes on the Endpoint (2x02), Task 3.
+    purpose     : MedDefense Health Systems - Eyes on the Endpoint (2x02), Task 3.
                   Raw EVTX data is not analyst-ready: three logs (Security,
                   Sysmon Operational, PowerShell Operational) use three
                   different schemas and timestamp conventions. This script
@@ -14,7 +14,7 @@
                   becomes the Windows half of the telemetry handoff
                   package Module 3 consumes.
                   Read-only: queries event logs, writes only the export.
-    Author      : Tales
+    author      : Tales
     Date        : 2026-08-12
 #>
 
