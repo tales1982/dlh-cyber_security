@@ -110,7 +110,7 @@ $LogonEvents   = @($Events | Where-Object { $_.event_id -eq 4624 -or $_.event_id
 $PsEvents      = @($Events | Where-Object { $_.event_id -eq 4104 })
 
 $CommandLineCompleteness = Get-CompletenessPercent -Candidates $ProcessEvents -FieldPath "enriched.command_line"
-$SourceIpCompleteness    = Get-CompletenessPercent -Candidates $LogonEvents   -FieldPath "enriched.source_ip"
+$SourceIPCompleteness    = Get-CompletenessPercent -Candidates $LogonEvents   -FieldPath "enriched.source_ip"
 $ScriptBlockCompleteness = Get-CompletenessPercent -Candidates $PsEvents      -FieldPath "enriched.script_block_text"
 
 $FieldCompletenessByType = @($Events | Group-Object -Property event_id | ForEach-Object {
@@ -128,7 +128,7 @@ $FieldCompletenessByType = @($Events | Group-Object -Property event_id | ForEach
 $TimeCoverageScore = if ($TotalHours -gt 0) { ($HoursWithEvents / $TotalHours) * 100 } else { 0 }
 $GapScore = [math]::Max(0, 100 - ($Gaps.Count * 10))
 $WeightedScore = ($TimeCoverageScore * 0.25) + ($GapScore * 0.15) +
-                 ($CommandLineCompleteness * 0.20) + ($SourceIpCompleteness * 0.20) +
+                 ($CommandLineCompleteness * 0.20) + ($SourceIPCompleteness * 0.20) +
                  ($ScriptBlockCompleteness * 0.20)
 $QualityScore = [math]::Round($WeightedScore, 1)
 $Assessment = if ($QualityScore -ge 90) { "good" } elseif ($QualityScore -ge 70) { "acceptable" } else { "poor" }
@@ -137,7 +137,7 @@ Write-Output "Total events: $TotalEvents"
 Write-Output "Hours with events: $HoursWithEvents/$TotalHours"
 Write-Output "Largest gap: $LargestGapMinutes minutes"
 Write-Output "Command-line completeness: $CommandLineCompleteness%"
-Write-Output "Source IP completeness: $SourceIpCompleteness%"
+Write-Output "Source IP completeness: $SourceIPCompleteness%"
 Write-Output "Script block completeness: $ScriptBlockCompleteness%"
 Write-Output "Quality score: $QualityScore% ($Assessment)"
 
@@ -161,7 +161,7 @@ $Report = [PSCustomObject]@{
     }
     field_completeness           = [PSCustomObject]@{
         command_line_pct   = $CommandLineCompleteness
-        source_ip_pct       = $SourceIpCompleteness
+        source_ip_pct       = $SourceIPCompleteness
         script_block_pct    = $ScriptBlockCompleteness
         by_event_type        = $FieldCompletenessByType
     }
