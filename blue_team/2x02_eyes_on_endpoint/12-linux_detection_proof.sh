@@ -75,6 +75,21 @@ check_auditd() {
     echo "${hits:-0}"
 }
 
+# key_fields_for <audit_key>: the raw audit record fields relevant to
+# confirming a genuine match for this key, mirroring 7-linux_export.sh's
+# own field1/field2 extraction - path+operation (name/nametype) for the
+# -w watch rules (identity, sudoers_d, cron_config, etc.), comm+exe for
+# the execve syscall rule (process_exec), saddr for the socket/connect
+# syscall rule (network_connect).
+key_fields_for() {
+    case "$1" in
+        process_exec) echo '["comm","exe"]' ;;
+        network_connect) echo '["saddr"]' ;;
+        useradd) echo '["username"]' ;;
+        *) echo '["name","nametype"]' ;;
+    esac
+}
+
 # check_auth_log <grep_pattern> <start_epoch> <end_epoch>: greps auth.log
 # for the pattern, then keeps only matches whose own timestamp falls
 # inside the window (auth.log entries are rare enough per pattern that a
@@ -127,9 +142,10 @@ for num in $ACTION_NUMBERS; do
         status="[MISSED]"; detail="Missed"
     fi
     printf '%-26s %-14s %-16s %-9s %s\n' "$row_label" "auditd" "$expected_key" "$detail" "$status"
+    key_fields="$(key_fields_for "$expected_key")"
     MATRIX_JSONL="${MATRIX_JSONL}$(jq -n --argjson n "$num" --arg action "$desc" --arg source "auditd" \
-        --arg key "$expected_key" --arg detail "$detail" --arg status "$status" \
-        '{action_number: $n, action: $action, source: $source, audit_key: $key, detail_level: $detail, status: $status}')"$'\n'
+        --arg key "$expected_key" --argjson key_fields "$key_fields" --arg detail "$detail" --arg status "$status" \
+        '{action_number: $n, action: $action, source: $source, audit_key: $key, key_fields: $key_fields, detail_level: $detail, status: $status}')"$'\n'
     row_label=""
 
     # --- auth.log secondary check: only meaningful for the user-creation action ---
@@ -142,9 +158,10 @@ for num in $ACTION_NUMBERS; do
             status2="[MISSED]"; detail2="Missed"
         fi
         printf '%-26s %-14s %-16s %-9s %s\n' "$row_label" "auth.log" "useradd" "$detail2" "$status2"
+        key_fields2="$(key_fields_for "useradd")"
         MATRIX_JSONL="${MATRIX_JSONL}$(jq -n --argjson n "$num" --arg action "$desc" --arg source "auth.log" \
-            --arg key "useradd" --arg detail "$detail2" --arg status "$status2" \
-            '{action_number: $n, action: $action, source: $source, audit_key: $key, detail_level: $detail, status: $status}')"$'\n'
+            --arg key "useradd" --argjson key_fields "$key_fields2" --arg detail "$detail2" --arg status "$status2" \
+            '{action_number: $n, action: $action, source: $source, audit_key: $key, key_fields: $key_fields, detail_level: $detail, status: $status}')"$'\n'
     fi
 
     if [ "$sources_captured" -gt 0 ]; then ACTIONS_CAPTURED=$((ACTIONS_CAPTURED + 1)); fi
