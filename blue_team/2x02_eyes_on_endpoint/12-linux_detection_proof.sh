@@ -54,7 +54,15 @@ check_auditd() {
     local sd st ed et hits
     sd="$(date -d "@$start" +%m/%d/%Y)"; st="$(date -d "@$start" +%H:%M:%S)"
     ed="$(date -d "@$end" +%m/%d/%Y)"; et="$(date -d "@$end" +%H:%M:%S)"
-    hits=$(ausearch -k "$key" -ts "$sd" "$st" -te "$ed" "$et" 2>/dev/null | grep -c '^type=') || true
+    # --input-logs forces a direct read of the on-disk audit log - on some
+    # auditd/ausearch builds the default query path silently returns no
+    # matches even though the event is present in the log. Matching is
+    # restricted to type=SYSCALL records carrying this exact key:
+    # ausearch -k groups by shared event ID, so a broader match could pull
+    # in unrelated records sharing an event ID with a CONFIG_CHANGE
+    # (op=add_rule) record, falsely counting as a "capture" if this
+    # action's 30-second window happens to overlap a rule (re)load.
+    hits=$(ausearch --input-logs -k "$key" -ts "$sd" "$st" -te "$ed" "$et" 2>/dev/null | grep -c "^type=SYSCALL.*key=\"$key\"") || true
     echo "${hits:-0}"
 }
 
