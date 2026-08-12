@@ -80,24 +80,44 @@ add_rule_if_missing "process_exec" "execve syscall tracking" \
 add_rule_if_missing "network_connect" "socket/connect syscall tracking" \
     "-a always,exit -F arch=b64 -S socket -S connect -k network_connect"
 
-# SSH keys monitoring. auditd -w rules do not expand globs at load time;
-# this path is written exactly as specified, but on a multi-user host it
-# only reliably matches a literal /home/*/.ssh/ directory if one exists -
-# watch per-account paths individually for real environments with several
-# home directories.
-add_rule_if_missing "ssh_keys" "SSH key file monitoring" \
-    "-w /home/*/.ssh/ -p rwa -k ssh_keys"
+# SSH keys monitoring. auditd -w rules do not expand globs at load time -
+# a literal "/home/*/.ssh/" is treated as one nonexistent path and rejected
+# outright ("No such file or directory"), which silently aborts the rest
+# of this file's load and takes every rule after it down with it. Bash's
+# own glob expansion (which DOES resolve at this point) is used instead to
+# emit one real, existing path per account, plus root's.
+shopt -s nullglob
+SSH_KEY_DIRS=(/root/.ssh /home/*/.ssh)
+shopt -u nullglob
+SSH_KEY_RULES=()
+for d in "${SSH_KEY_DIRS[@]}"; do
+    [ -d "$d" ] && SSH_KEY_RULES+=("-w $d/ -p rwa -k ssh_keys")
+done
+if [ "${#SSH_KEY_RULES[@]}" -gt 0 ]; then
+    add_rule_if_missing "ssh_keys" "SSH key file monitoring" "${SSH_KEY_RULES[@]}"
+else
+    printf '    %-38s [SKIPPED - no .ssh directories exist yet]\n' "SSH key file monitoring"
+fi
 
-# Cron persistence: both cron.d and the per-user spool are watched under
-# the same key, since either one is a valid attacker persistence path.
+# Cron persistence: /etc/cron.d/ is intentionally NOT watched again here -
+# 2x00 Task 10 already watches it under the "cron_config" key, and when
+# two separate -w rules cover the identical path, the kernel audit
+# subsystem only ever tags a matching event with one of the two keys (the
+# first-registered rule), so a second watch on the same exact path is
+# dead weight that can never actually fire. The per-user spool directory
+# is genuinely new coverage Task 10 doesn't provide.
 add_rule_if_missing "cron_persist" "Cron directory monitoring" \
-    "-w /etc/cron.d/ -p wa -k cron_persist" \
     "-w /var/spool/cron/ -p wa -k cron_persist"
 
 # sudoers.d monitoring: catches privilege-escalation persistence via a
 # dropped sudoers.d file, distinct from the /etc/sudoers watch in Task 10.
-add_rule_if_missing "sudoers" "sudoers.d monitoring" \
-    "-w /etc/sudoers.d/ -p wa -k sudoers"
+# Uses its own "sudoers_d" key rather than reusing Task 10's "sudoers" -
+# besides the same first-match-wins collision as cron.d above, a shared
+# key name also made this rule's own idempotency check (grep -k sudoers$)
+# see Task 10's pre-existing rule and wrongly conclude this one was
+# already present, so it silently never got added in the first place.
+add_rule_if_missing "sudoers_d" "sudoers.d monitoring" \
+    "-w /etc/sudoers.d/ -p wa -k sudoers_d"
 
 RULES_ADDED=5
 
@@ -161,14 +181,14 @@ touch "$SSH_TEST_FILE" 2>/dev/null || true
 validate_rule "ssh_keys: touch ~/.ssh/test -> ausearch -k ssh_keys" "ssh_keys"
 rm -f "$SSH_TEST_FILE" 2>/dev/null || true
 
-CRON_TEST_FILE="/etc/cron.d/test"
+CRON_TEST_FILE="/var/spool/cron/test"
 touch "$CRON_TEST_FILE" 2>/dev/null || true
-validate_rule "cron: touch /etc/cron.d/test -> ausearch -k cron_persist" "cron_persist"
+validate_rule "cron: touch /var/spool/cron/test -> ausearch -k cron_persist" "cron_persist"
 rm -f "$CRON_TEST_FILE" 2>/dev/null || true
 
 SUDOERS_TEST_FILE="/etc/sudoers.d/test"
 touch "$SUDOERS_TEST_FILE" 2>/dev/null || true
-validate_rule "sudoers: touch /etc/sudoers.d/test -> ausearch -k sudoers" "sudoers"
+validate_rule "sudoers: touch /etc/sudoers.d/test -> ausearch -k sudoers_d" "sudoers_d"
 rm -f "$SUDOERS_TEST_FILE" 2>/dev/null || true
 
 echo "Rules added: $RULES_ADDED | Validation: $VALIDATION_PASS/$VALIDATION_TOTAL PASS"
