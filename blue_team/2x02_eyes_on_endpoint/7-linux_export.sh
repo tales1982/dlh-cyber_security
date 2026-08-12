@@ -95,6 +95,11 @@ echo "    $AUTH_TOTAL events"
 echo "    SSH logins: $SSH_COUNT | sudo: $SUDO_COUNT | su: $SU_COUNT | PAM: $PAM_COUNT"
 
 # --- audit.log: execve (process execution), file access (PATH records), network (SOCKADDR) -------
+# Parsed directly from the raw file rather than via ausearch: ausearch is
+# a per-query subprocess, and this file alone can run to tens of
+# thousands of lines - the same per-line-subprocess cost this script's
+# own header comment measured in minutes is exactly what shelling out to
+# ausearch per record (or even once per event type) would reintroduce.
 echo "[*] Parsing audit.log..."
 
 if [ -r "$AUDIT_LOG" ]; then
