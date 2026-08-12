@@ -102,6 +102,7 @@ printf '%-18s %-28s %-9s %-10s %-10s %s\n' "------" "----" "------" "--------" "
 
 FOUND=0
 MISSING=0
+INACTIVE=0
 RESULTS_JSONL=""
 
 inventory_source() {
@@ -114,19 +115,28 @@ inventory_source() {
         return
     fi
     FOUND=$((FOUND + 1))
-    local rotation size events_per_hour size_human
+    local rotation size events_per_hour size_human status_note=""
     rotation=$(get_rotation_days "$path")
     events_per_hour=$(estimate_events_per_hour "$path")
     size=$(stat -c%s "$path" 2>/dev/null) || true
     size="${size:-0}"
     size_human=$(numfmt --to=iec --suffix=B "$size" 2>/dev/null) || size_human="${size}B"
-    printf '%-18s %-28s %-9s %-10s %-10s %s\n' "$name" "$path" "$format" "$rotation" "$events_per_hour" "$relevance"
+    # A source that exists but has produced zero lines is present in name
+    # only - flagged distinctly from a genuinely missing file, since the
+    # remediation is different (check why the daemon/service feeding it
+    # is silent, not why the file itself is absent).
+    if [ "$events_per_hour" = "0" ]; then
+        INACTIVE=$((INACTIVE + 1))
+        status_note=" [INACTIVE - not generating events]"
+    fi
+    printf '%-18s %-28s %-9s %-10s %-10s %s%s\n' "$name" "$path" "$format" "$rotation" "$events_per_hour" "$relevance" "$status_note"
     RESULTS_JSONL="${RESULTS_JSONL}$(jq -n --arg name "$name" --arg path "$path" --arg format "$format" \
         --arg rotation "$rotation" --arg size_bytes "$size" --arg size_human "$size_human" \
         --arg events_per_hour "$events_per_hour" --arg relevance "$relevance" \
+        --argjson active "$([ "$events_per_hour" != "0" ] && echo true || echo false)" \
         '{source: $name, path: $path, format: $format, present: true, rotation_policy: $rotation,
           size_bytes: ($size_bytes | tonumber), size_human: $size_human,
-          estimated_events_per_hour: $events_per_hour, relevance: $relevance}')"$'\n'
+          estimated_events_per_hour: $events_per_hour, relevance: $relevance, active: $active}')"$'\n'
 }
 
 while IFS='|' read -r name path format relevance; do
@@ -142,25 +152,32 @@ while IFS='|' read -r name path format relevance; do
     events_per_hour=$(estimate_events_per_hour "$path")
     size=$(stat -c%s "$path" 2>/dev/null) || true
     size="${size:-0}"
-    printf '%-18s %-28s %-9s %-10s %-10s %s\n' "$name" "$path" "$format" "$rotation" "$events_per_hour" "$relevance"
+    status_note=""
+    if [ "$events_per_hour" = "0" ]; then
+        INACTIVE=$((INACTIVE + 1))
+        status_note=" [INACTIVE - not generating events]"
+    fi
+    printf '%-18s %-28s %-9s %-10s %-10s %s%s\n' "$name" "$path" "$format" "$rotation" "$events_per_hour" "$relevance" "$status_note"
     EXTRA_JSONL="${EXTRA_JSONL}$(jq -n --arg name "$name" --arg path "$path" --arg format "$format" \
         --arg rotation "$rotation" --arg events_per_hour "$events_per_hour" --arg relevance "$relevance" \
+        --argjson active "$([ "$events_per_hour" != "0" ] && echo true || echo false)" \
         '{source: $name, path: $path, format: $format, rotation_policy: $rotation,
-          estimated_events_per_hour: $events_per_hour, relevance: $relevance}')"$'\n'
+          estimated_events_per_hour: $events_per_hour, relevance: $relevance, active: $active}')"$'\n'
     FOUND=$((FOUND + 1))
 done <<<"$EXTRA_SOURCES"
 
-echo "Sources found: $FOUND | Missing: $MISSING"
+echo "Sources found: $FOUND | Missing: $MISSING | Inactive (not generating events): $INACTIVE"
 
 SOURCES_JSON=$(jq -s '.' <<<"$RESULTS_JSONL")
 EXTRA_SOURCES_JSON=$(jq -s '.' <<<"${EXTRA_JSONL:-}")
 jq -n --argjson sources "$SOURCES_JSON" --argjson extra_sources "$EXTRA_SOURCES_JSON" \
   --arg generated "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
-  --argjson found "$FOUND" --argjson missing "$MISSING" \
+  --argjson found "$FOUND" --argjson missing "$MISSING" --argjson inactive "$INACTIVE" \
   '{
     generated: $generated,
     sources_found: $found,
     sources_missing: $missing,
+    sources_inactive: $inactive,
     required_sources: $sources,
     additional_sources_discovered: $extra_sources
   }' > log_source_map.json
