@@ -29,6 +29,23 @@ $script:TestsRun  = 0
 $script:Captured  = 0
 $script:Missed    = 0
 
+function Get-EventDataValue {
+    # Event ID 4104 (Script Block Logging) carries the actual decoded
+    # content in the ScriptBlockText field - checking that field is
+    # populated is what proves full content was captured, not just that
+    # some 4104 event with a matching substring in its free-text Message
+    # happened to fire.
+    param(
+        [System.Diagnostics.Eventing.Reader.EventLogRecord]$EventRecord,
+        [string]$Name
+    )
+    if (-not $EventRecord) { return $null }
+    [xml]$eventXml = $EventRecord.ToXml()
+    $node = $eventXml.Event.EventData.Data | Where-Object { $_.Name -eq $Name } | Select-Object -First 1
+    if ($node) { return $node.'#text' }
+    return $null
+}
+
 function Write-TestResult {
     # Reports both the [PASS]/[FAIL] line this task's Expected Output shows,
     # and - per the task instructions ("report CAPTURED / MISSED and the
@@ -65,8 +82,10 @@ Start-Sleep -Seconds $WaitSeconds
 $Event1 = Get-WinEvent -LogName $PowerShellLogName -MaxEvents 100 -ErrorAction SilentlyContinue |
     Where-Object { $_.Id -eq 4104 -and $_.Message -like "*Get-Process*" } |
     Select-Object -First 1
-Write-TestResult -Index 1 -Label "Simple command (Get-Process)" -Found ([bool]$Event1) `
-    -SuccessDetail "EID 4104: `"Get-Process`" captured" -FailureDetail "EID 4104: `"Get-Process`" NOT captured"
+$ScriptBlockText1 = Get-EventDataValue -EventRecord $Event1 -Name "ScriptBlockText"
+$Found1 = [bool]($Event1 -and $ScriptBlockText1 -and $ScriptBlockText1 -like "*Get-Process*")
+Write-TestResult -Index 1 -Label "Simple command (Get-Process)" -Found $Found1 `
+    -SuccessDetail "EID 4104 ScriptBlockText: `"Get-Process`" captured" -FailureDetail "EID 4104 ScriptBlockText: `"Get-Process`" NOT captured"
 
 # --- 2/5: Encoded command, decoded content in Event ID 4104 -----------------------------------
 $TestCommand         = 'Write-Host "Test"'
@@ -76,8 +95,10 @@ Start-Sleep -Seconds $WaitSeconds
 $Event2 = Get-WinEvent -LogName $PowerShellLogName -MaxEvents 100 -ErrorAction SilentlyContinue |
     Where-Object { $_.Id -eq 4104 -and $_.Message -like "*$TestCommand*" } |
     Select-Object -First 1
-Write-TestResult -Index 2 -Label "Encoded command" -ExtraLine "Input: -enc $EncodedTestCommand" -Found ([bool]$Event2) `
-    -SuccessDetail "EID 4104: `"$TestCommand`" (decoded) captured" -FailureDetail "EID 4104: `"$TestCommand`" (decoded) NOT captured"
+$ScriptBlockText2 = Get-EventDataValue -EventRecord $Event2 -Name "ScriptBlockText"
+$Found2 = [bool]($Event2 -and $ScriptBlockText2 -and $ScriptBlockText2 -like "*$TestCommand*")
+Write-TestResult -Index 2 -Label "Encoded command" -ExtraLine "Input: -enc $EncodedTestCommand" -Found $Found2 `
+    -SuccessDetail "EID 4104 ScriptBlockText: `"$TestCommand`" (decoded) captured" -FailureDetail "EID 4104 ScriptBlockText: `"$TestCommand`" (decoded) NOT captured"
 
 # --- 3/5: Module import, Event ID 4103 ---------------------------------------------------------
 $ModuleName = "ActiveDirectory"
@@ -111,17 +132,20 @@ Invoke-Expression $MultiLineBlock | Out-Null
 Start-Sleep -Seconds $WaitSeconds
 $Candidates4 = @(Get-WinEvent -LogName $PowerShellLogName -MaxEvents 100 -ErrorAction SilentlyContinue |
     Where-Object { $_.Id -eq 4104 -and $_.Message -like "*Check passed*" })
-$Event4Full    = $Candidates4 | Where-Object { $_.Message -like "*End of block*" } | Select-Object -First 1
+$Event4Full = $Candidates4 | Where-Object {
+    $sbt = Get-EventDataValue -EventRecord $_ -Name "ScriptBlockText"
+    $sbt -and $sbt -like "*End of block*"
+} | Select-Object -First 1
 $Event4Partial = $Candidates4 | Select-Object -First 1
 if ($Event4Full) {
     Write-TestResult -Index 4 -Label "Multi-line script block" -Found $true -DetailLevel "full content" `
-        -SuccessDetail "EID 4104: Full block captured ($ExpectedLineCount lines)" -FailureDetail ""
+        -SuccessDetail "EID 4104 ScriptBlockText: Full block captured ($ExpectedLineCount lines)" -FailureDetail ""
 } elseif ($Event4Partial) {
     Write-TestResult -Index 4 -Label "Multi-line script block" -Found $true -DetailLevel "partial" `
-        -SuccessDetail "EID 4104: Block captured but truncated before the final lines" -FailureDetail ""
+        -SuccessDetail "EID 4104 ScriptBlockText: Block captured but truncated before the final lines" -FailureDetail ""
 } else {
     Write-TestResult -Index 4 -Label "Multi-line script block" -Found $false `
-        -SuccessDetail "" -FailureDetail "EID 4104: Full block NOT captured"
+        -SuccessDetail "" -FailureDetail "EID 4104 ScriptBlockText: Full block NOT captured"
 }
 
 # --- 5/5: Transcription file created in C:\PSTranscripts\ ---------------------------------------
