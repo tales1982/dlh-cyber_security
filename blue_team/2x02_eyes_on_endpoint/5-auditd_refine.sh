@@ -129,7 +129,15 @@ validate_rule() {
         return
     fi
     sleep 1
-    hits=$(ausearch -ts recent -k "$key" 2>/dev/null | grep -c '^type=') || true
+    # --input-logs forces a direct read of the on-disk audit log - on some
+    # auditd/ausearch builds the default query path silently returns no
+    # matches even though the event is present in the log. Matching is
+    # restricted to type=SYSCALL records carrying this exact key:
+    # ausearch -k groups by shared event ID, so a broader match would also
+    # pull in unrelated records that merely share an event ID with a
+    # CONFIG_CHANGE (op=add_rule) record logged when the rule was loaded
+    # above, letting the test "pass" even if the trigger never fired it.
+    hits=$(ausearch --input-logs -ts recent -k "$key" 2>/dev/null | grep -c "^type=SYSCALL.*key=\"$key\"") || true
     if [ "${hits:-0}" -gt 0 ]; then
         VALIDATION_PASS=$((VALIDATION_PASS + 1))
         printf '    %-58s [CAPTURED]\n' "$label"

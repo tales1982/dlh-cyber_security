@@ -99,6 +99,11 @@ RULES_CONTENT=$(cat <<'RULES'
 ## Startup script integrity - a common persistence mechanism after initial
 ## access.
 -w /etc/init.d/ -p wa -k startup_scripts
+
+## Cron persistence - a scheduled job dropped in /etc/cron.d/ is at least as
+## common a post-compromise persistence mechanism as an init script, and
+## Task 11's coverage test exercises this exact key.
+-w /etc/cron.d/ -p wa -k cron_config
 RULES
 )
 
@@ -126,14 +131,33 @@ if [ "$LIVE_MODE" -eq 1 ]; then
         auditctl -R "$RULES_FILE" >/dev/null 2>&1 || true
         echo "[*] Loading rules... auditctl -R: OK"
     fi
-    ACTIVE_RULES=$(auditctl -l 2>/dev/null | grep -cE 'identity|pam_config|sshd_config|priv_esc|sudoers|suspicious_download|suspicious_netcat|meddefense_db|meddefense_web|startup_scripts') || true
+    ACTIVE_RULES=$(auditctl -l 2>/dev/null | grep -cE 'identity|pam_config|sshd_config|priv_esc|sudoers|suspicious_download|suspicious_netcat|meddefense_db|meddefense_web|startup_scripts|cron_config') || true
     echo "[*] Verifying... auditctl -l: ${ACTIVE_RULES:-0} rules loaded"
 
     # --- 4. Controlled functional test -----------------------------------------
-    echo "[*] Test: reading /etc/shadow..."
-    cat /etc/shadow >/dev/null 2>&1 || true
+    # The identity rules above watch with -p wa (write/attribute-change
+    # only), so a plain read like `cat /etc/shadow` never fires them. A
+    # throwaway account's useradd/userdel writes to /etc/passwd, /etc/shadow
+    # and /etc/group instead, which the rule actually catches - and leaves
+    # nothing behind once userdel removes it.
+    echo "[*] Test: identity file write (throwaway test account)..."
+    TEST_USER="meddefense_auditd_test_$$"
+    useradd -M -N -s /usr/sbin/nologin "$TEST_USER" >/dev/null 2>&1 || true
+    userdel "$TEST_USER" >/dev/null 2>&1 || true
     sleep 1
-    HITS=$(ausearch -ts recent -k identity 2>/dev/null | grep -c '^type=') || true
+    # --input-logs forces ausearch to read directly from the on-disk audit
+    # log rather than whatever query path it defaults to - on some
+    # auditd/ausearch builds the default path silently returns no matches
+    # even though the events are present in the log, which would make this
+    # self-test fail regardless of whether the rules actually work.
+    #
+    # Matching is restricted to type=SYSCALL records carrying this exact
+    # key: ausearch -k groups by shared event ID, so a broader match would
+    # also pull in unrelated PATH/SYSCALL records that merely happen to
+    # share an event ID with a CONFIG_CHANGE (op=add_rule) record logged
+    # when augenrules --load ran above - letting the test "pass" even if
+    # the actual useradd/userdel below never fired the watch.
+    HITS=$(ausearch --input-logs -ts recent -k identity 2>/dev/null | grep -c '^type=SYSCALL.*key="identity"') || true
     if [ "${HITS:-0}" -gt 0 ]; then
         echo "    ausearch -ts recent -k identity: ${HITS} event(s) found [PASS]"
     else

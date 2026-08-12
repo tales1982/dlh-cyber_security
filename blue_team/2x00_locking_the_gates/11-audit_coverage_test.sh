@@ -34,6 +34,8 @@ set -euo pipefail
 OUT_JSON="audit_validation.json"
 TEST_FILE="/tmp/meddefense_audit_test_$$"
 TEST_USER="meddefense_audit_test_$$"
+INITD_TEST_FILE="/etc/init.d/.meddefense_audit_test_$$"
+CROND_TEST_FILE="/etc/cron.d/.meddefense_audit_test_$$"
 IS_ROOT=0
 [ "$(id -u)" -eq 0 ] && IS_ROOT=1
 HAVE_SUDO_CACHED=0
@@ -42,7 +44,7 @@ if command -v sudo >/dev/null 2>&1 && sudo -n true 2>/dev/null; then
 fi
 
 cleanup() {
-    rm -f "$TEST_FILE" 2>/dev/null
+    rm -f "$TEST_FILE" "$INITD_TEST_FILE" "$CROND_TEST_FILE" 2>/dev/null
     if [ "$IS_ROOT" -eq 1 ] && id "$TEST_USER" >/dev/null 2>&1; then
         userdel "$TEST_USER" >/dev/null 2>&1 || true
     fi
@@ -71,8 +73,19 @@ run_test() {
 
     if [ "$IS_ROOT" -eq 1 ]; then
         sleep 1
-        match_count=$(ausearch -ts recent -k "$key" 2>/dev/null | grep -c '^type=') || true
-        excerpt=$(ausearch -ts recent -k "$key" 2>/dev/null | grep '^type=' | tail -1) || true
+        # --input-logs forces a direct read of the on-disk audit log - on
+        # some auditd/ausearch builds the default query path silently
+        # returns no matches even though the event is present in the log.
+        #
+        # Matching is restricted to type=SYSCALL records carrying this
+        # exact key: ausearch -k groups by shared event ID, so a broader
+        # match (even just excluding CONFIG_CHANGE lines) would still pull
+        # in unrelated PATH/SYSCALL records that merely happen to share an
+        # event ID with a CONFIG_CHANGE (op=add_rule) record logged when
+        # Task 10 originally loaded the rule - turning this coverage test
+        # into a rubber stamp regardless of whether today's trigger fired.
+        match_count=$(ausearch --input-logs -ts recent -k "$key" 2>/dev/null | grep -c "^type=SYSCALL.*key=\"$key\"") || true
+        excerpt=$(ausearch --input-logs -ts recent -k "$key" 2>/dev/null | grep "^type=SYSCALL.*key=\"$key\"" | tail -1) || true
         if [ "${match_count:-0}" -gt 0 ]; then
             status="captured"
             printf '[%d/%d] %-38s [CAPTURED]\n' "$TEST_NUM" "$TOTAL_TESTS" "$label"
@@ -130,17 +143,42 @@ else
 fi
 run_test "suspicious download tool" "suspicious_download" "$CMD3"
 
-# --- Test 4: sshd config read/metadata check ----------------------------------
-stat /etc/ssh/sshd_config >/dev/null 2>&1 || true
-run_test "sshd config read" "sshd_config" "stat /etc/ssh/sshd_config"
+# --- Test 4: sshd config attribute change ---------------------------------------
+# The "sshd_config" key watches with -p wa (write/attribute-change), so a
+# plain read like `stat` would never fire it. `touch` updates only the
+# file's mtime attribute - it never modifies sshd_config's actual content,
+# so this is safe against a live, in-use auth config.
+if [ "$IS_ROOT" -eq 1 ]; then
+    touch /etc/ssh/sshd_config >/dev/null 2>&1 || true
+    CMD4="touch /etc/ssh/sshd_config (mtime only, no content change)"
+else
+    CMD4="touch /etc/ssh/sshd_config (skipped - requires root)"
+fi
+run_test "sshd config attribute change" "sshd_config" "$CMD4"
 
-# --- Test 5: controlled write to a monitored test path ------------------------
-echo "meddefense audit coverage test $(date -u +%Y-%m-%dT%H:%M:%SZ)" > "$TEST_FILE"
-run_test "monitored test file write" "startup_scripts" "echo test > $TEST_FILE"
+# --- Test 5: startup script directory write ------------------------------------
+# The "startup_scripts" key (Task 10) watches /etc/init.d/ itself, not /tmp -
+# a write anywhere else would never fire it. The test file is dot-prefixed
+# and non-executable, and removed again via cleanup().
+if [ "$IS_ROOT" -eq 1 ]; then
+    echo "# meddefense audit coverage test $(date -u +%Y-%m-%dT%H:%M:%SZ)" > "$INITD_TEST_FILE" 2>/dev/null || true
+    CMD5="echo '# test' > $INITD_TEST_FILE (removed via cleanup)"
+else
+    CMD5="write to /etc/init.d/ (skipped - requires root)"
+fi
+run_test "startup script directory write" "startup_scripts" "$CMD5"
 
-# --- Test 6: cron configuration inspection ------------------------------------
-crontab -l >/dev/null 2>&1 || true
-run_test "cron configuration check" "cron_config" "crontab -l"
+# --- Test 6: cron persistence file write ----------------------------------------
+# The "cron_config" key (Task 10) watches /etc/cron.d/ with -p wa - a read
+# like `crontab -l` (which also queries a different path entirely, the
+# per-user spool under /var/spool/cron/) would never fire it either way.
+if [ "$IS_ROOT" -eq 1 ]; then
+    echo "# meddefense audit coverage test $(date -u +%Y-%m-%dT%H:%M:%SZ)" > "$CROND_TEST_FILE" 2>/dev/null || true
+    CMD6="echo '# test' > $CROND_TEST_FILE (removed via cleanup)"
+else
+    CMD6="write to /etc/cron.d/ (skipped - requires root)"
+fi
+run_test "cron persistence file write" "cron_config" "$CMD6"
 
 echo "[*] Cleaning test artifacts..."
 cleanup
