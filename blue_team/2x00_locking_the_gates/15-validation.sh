@@ -29,7 +29,7 @@ record() {
     obj=$(
         jq -n \
             --arg cid "$cid" \
-            --arg label "$label" \
+            --arg chk "$label" \
             --arg expected "$expected" \
             --arg actual "$actual" \
             --argjson ok "$(
@@ -37,7 +37,7 @@ record() {
             )" \
             '{
                 control_id: $cid,
-                check: $label,
+                check: $chk,
                 expected: $expected,
                 actual: $actual,
                 status: (if $ok then "PASS" else "FAIL" end)
@@ -167,7 +167,7 @@ check_cfg \
     faillock.deny \
     5
 
-required_services='ssh|sshd|apache2|mysql|ufw|auditd|apparmor|cron|rsyslog|systemd-timesyncd'
+required_services='ssh|sshd|apache2|mysql|ufw|auditd|apparmor|cron|rsyslog|systemd-timesyncd|systemd-networkd|systemd-resolved'
 
 mapfile -t enabled_units < <(
     systemctl list-unit-files \
