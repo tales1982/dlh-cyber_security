@@ -43,7 +43,9 @@ trap cleanup EXIT
 
 ACTIONS_JSONL=""
 
-# add_action <number> <description> <timestamp> <expected_source> <expected_key> <mitre_technique>
+# add_action <number> <description> <timestamp> <expected_source> <expected_key> <mitre_technique>:
+# records the action number, exact timestamp, expected detection source/
+# audit key, and MITRE ATT&CK technique for one ground-truth entry.
 add_action() {
     local obj
     obj=$(jq -n --argjson num "$1" --arg desc "$2" --arg ts "$3" --arg source "$4" --arg key "$5" --arg mitre "$6" \
