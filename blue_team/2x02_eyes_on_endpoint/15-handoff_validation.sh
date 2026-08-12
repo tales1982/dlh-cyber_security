@@ -16,7 +16,7 @@
 #
 # Usage: ./15-handoff_validation.sh
 
-set -uo pipefail
+set -euo pipefail
 
 HANDOFF_DIR="${HANDOFF_DIR:-telemetry_handoff}"
 WINDOWS_EVENTS="$HANDOFF_DIR/windows_events.json"
@@ -73,7 +73,7 @@ WINDOWS_COUNT=0; LINUX_COUNT=0; GT_COUNT=0
 for pair in "windows_events.json:$WINDOWS_EVENTS:events" "linux_events.json:$LINUX_EVENTS:events" "attack_ground_truth.json:$GROUND_TRUTH:actions"; do
     name="${pair%%:*}"; rest="${pair#*:}"; path="${rest%%:*}"; arraykey="${rest#*:}"
     if [ -f "$path" ] && jq empty "$path" >/dev/null 2>&1; then
-        count=$(jq --arg k "$arraykey" '.[$k] | length' "$path" 2>/dev/null)
+        count=$(jq --arg k "$arraykey" '.[$k] | length' "$path" 2>/dev/null) || count=0
         count="${count:-0}"
         record "json_valid_$name" 1 "$name: valid JSON, $count objects"
         case "$name" in
@@ -92,7 +92,7 @@ REQUIRED_FIELDS='["timestamp","hostname","source_type","event_category"]'
 MISSING_TOTAL=0
 for path in "$WINDOWS_EVENTS" "$LINUX_EVENTS"; do
     if [ -f "$path" ]; then
-        m=$(jq --argjson req "$REQUIRED_FIELDS" '[.events[] | . as $e | ($req - ($e | keys)) | select(length > 0)] | length' "$path" 2>/dev/null)
+        m=$(jq --argjson req "$REQUIRED_FIELDS" '[.events[]? | . as $e | ($req - ($e | keys)) | select(length > 0)] | length' "$path" 2>/dev/null) || m=0
         MISSING_TOTAL=$((MISSING_TOTAL + ${m:-0}))
     fi
 done
@@ -118,7 +118,7 @@ ISO_RE='^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$'
 
 ALL_TIMESTAMPS=""
 for path in "$WINDOWS_EVENTS" "$LINUX_EVENTS"; do
-    [ -f "$path" ] && ALL_TIMESTAMPS="${ALL_TIMESTAMPS}$(jq -r '.events[].timestamp' "$path" 2>/dev/null)"$'\n'
+    [ -f "$path" ] && ALL_TIMESTAMPS="${ALL_TIMESTAMPS}$(jq -r '.events[]?.timestamp' "$path" 2>/dev/null)"$'\n' || true
 done
 ALL_TIMESTAMPS=$(echo "$ALL_TIMESTAMPS" | sed '/^$/d')
 
@@ -143,18 +143,23 @@ else
     record "no_future_timestamps" 0 "$FUTURE_COUNT event(s) with a future timestamp"
 fi
 
-RANGE_START=$(echo "$ALL_TIMESTAMPS" | sort | head -1)
-RANGE_END=$(echo "$ALL_TIMESTAMPS" | sort | tail -1)
+# || true on each: under pipefail, `sort | head -1` on a large stream
+# has `head` close its read end after one line while `sort` still has
+# more buffered to write, so `sort` gets SIGPIPE (exit 141) - real
+# output already made it through the pipe by then, but without this
+# guard `set -e` would treat that 141 as a hard failure and abort here.
+RANGE_START=$(echo "$ALL_TIMESTAMPS" | sort | head -1) || true
+RANGE_END=$(echo "$ALL_TIMESTAMPS" | sort | tail -1) || true
 RANGE_START="${RANGE_START:-1970-01-01T00:00:00Z}"
 RANGE_END="${RANGE_END:-1970-01-01T00:00:00Z}"
 record "timestamp_range" 1 "Range: $RANGE_START to $RANGE_END"
 
 # --- Cross-Platform Alignment ----------------------------------------------------------------------
 echo "=== Cross-Platform Alignment ==="
-WIN_TIMESTAMPS=$(jq -r '.events[]?.timestamp' "$WINDOWS_EVENTS" 2>/dev/null | sort)
-LIN_TIMESTAMPS=$(jq -r '.events[]?.timestamp' "$LINUX_EVENTS" 2>/dev/null | sort)
-WIN_MIN=$(echo "$WIN_TIMESTAMPS" | head -1); WIN_MAX=$(echo "$WIN_TIMESTAMPS" | tail -1)
-LIN_MIN=$(echo "$LIN_TIMESTAMPS" | head -1); LIN_MAX=$(echo "$LIN_TIMESTAMPS" | tail -1)
+WIN_TIMESTAMPS=$( { jq -r '.events[]?.timestamp' "$WINDOWS_EVENTS" 2>/dev/null || true; } | sort)
+LIN_TIMESTAMPS=$( { jq -r '.events[]?.timestamp' "$LINUX_EVENTS" 2>/dev/null || true; } | sort)
+WIN_MIN=$(echo "$WIN_TIMESTAMPS" | head -1) || true; WIN_MAX=$(echo "$WIN_TIMESTAMPS" | tail -1) || true
+LIN_MIN=$(echo "$LIN_TIMESTAMPS" | head -1) || true; LIN_MAX=$(echo "$LIN_TIMESTAMPS" | tail -1) || true
 
 if [ -n "$WIN_MIN" ] && [ -n "$LIN_MIN" ]; then
     win_min_e=$(date -u -d "$WIN_MIN" +%s 2>/dev/null) || win_min_e=0
@@ -182,7 +187,7 @@ GT_TOTAL="$GT_COUNT"
 MATRIX_ENTRIES=0
 for path in "$WINDOWS_MATRIX" "$LINUX_MATRIX"; do
     if [ -f "$path" ]; then
-        c=$(jq '[.detection_matrix[].action] | unique | length' "$path" 2>/dev/null)
+        c=$(jq '[.detection_matrix[]?.action] | unique | length' "$path" 2>/dev/null) || c=0
         MATRIX_ENTRIES=$((MATRIX_ENTRIES + ${c:-0}))
     fi
 done
