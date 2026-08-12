@@ -50,6 +50,8 @@ declare -A REQUIRED_SERVICES=(
     [cron]="Scheduled maintenance/backup jobs - access restricted to authorized admins only (Task 6)"
     [rsyslog]="Central syslog/auth.log collection (Task 12) - required for the log-srv-01 telemetry pipeline"
     [systemd-timesyncd]="Accurate system clock - required for valid audit log timestamps and Kerberos/TLS operation"
+    [systemd-networkd]="Network interface configuration on netplan/networkd-managed hosts (the Ubuntu Server default) - disabling it drops the host's own network configuration, which is a self-inflicted outage, not a hardening win"
+    [systemd-resolved]="DNS resolution - required for the host to resolve names at all, including its own management/monitoring traffic"
 )
 REQUIRED_COUNT="${#REQUIRED_SERVICES[@]}"
 
