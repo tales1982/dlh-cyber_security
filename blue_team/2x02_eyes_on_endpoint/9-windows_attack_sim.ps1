@@ -97,7 +97,7 @@ Add-ActionLog -Number 4 -Description "Creating scheduled task '$ScheduledTaskNam
     -ExpectedDetectionSources @([PSCustomObject]@{ source = "Sysmon"; event_id = 1 }) `
     -MitreTechnique "T1053.005"
 
-# --- 5/6: Initiate an outbound network connection --------------------------------------------------
+# --- 5/6: Initiate an outbound network connection - expected in Sysmon Event ID 3 (Network connection) --
 Write-Output "    [5/6] Outbound network connection..."
 Test-NetConnection -ComputerName $NetworkTarget -Port $NetworkPort -WarningAction SilentlyContinue | Out-Null
 $Ts5 = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")
