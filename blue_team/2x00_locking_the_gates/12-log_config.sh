@@ -142,12 +142,41 @@ echo "    $SYSLOG_LOG: rotate 60, compress after 7d    [SET]"
 # generate-and-verify approach Task 11 uses for auditd.
 echo "[*] Verifying log activity..."
 if [ "$LIVE_MODE" -eq 1 ]; then
-    TEST_MARKER="meddefense-log-verify-$$"
-    logger -p auth.info "$TEST_MARKER" 2>/dev/null || true
-    logger -p syslog.info "$TEST_MARKER" 2>/dev/null || true
-    sleep 1
-    for f in "$AUTH_LOG" "$SYSLOG_LOG"; do
-        if [ -f "$f" ] && tail -n 100 "$f" 2>/dev/null | grep -q "$TEST_MARKER"; then
+    # Each facility gets its own uniquely-suffixed marker rather than one
+    # shared marker text. journald/rsyslog's duplicate-message suppression
+    # keys on message content regardless of facility, so two back-to-back
+    # logger calls carrying byte-identical text can have the second one
+    # silently dropped or delayed as a perceived repeat of the first -
+    # which reliably made this syslog check fail even though routing was
+    # actually fine.
+    AUTH_MARKER="meddefense-log-verify-auth-$$"
+    SYSLOG_MARKER="meddefense-log-verify-syslog-$$"
+    logger -p auth.info "$AUTH_MARKER" 2>/dev/null || true
+    logger -p syslog.info "$SYSLOG_MARKER" 2>/dev/null || true
+    # A plain tail -n 100 was too small here: the systemctl restart rsyslog
+    # call above triggers a burst of journal-replay messages into syslog
+    # (much higher volume than auth.log ever sees), which can push a
+    # just-written marker past the last 100 lines before this check runs.
+    # A full-file grep for one unique, just-generated marker is cheap at
+    # this log size and immune to that race.
+    #
+    # A single fixed sleep isn't enough either: right after a restart,
+    # rsyslog finishes initializing its high-priority auth/authpriv output
+    # queue faster than the general syslog.* one, so the syslog marker can
+    # legitimately land several seconds later than the auth.log one. Poll
+    # for up to 15 seconds instead of guessing a fixed delay.
+    for pair in "$AUTH_LOG:$AUTH_MARKER" "$SYSLOG_LOG:$SYSLOG_MARKER"; do
+        f="${pair%%:*}"
+        marker="${pair#*:}"
+        FOUND=0
+        for _ in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15; do
+            if [ -f "$f" ] && grep -q "$marker" "$f" 2>/dev/null; then
+                FOUND=1
+                break
+            fi
+            sleep 1
+        done
+        if [ "$FOUND" -eq 1 ]; then
             echo "    $f: receiving events (logger test marker captured) [OK]"
         elif [ -f "$f" ] && [ -s "$f" ] && find "$f" -mmin -1440 2>/dev/null | grep -q .; then
             echo "    $f: exists with recent activity but test marker not found [WARN]"
@@ -167,7 +196,13 @@ if [ "$LIVE_MODE" -eq 1 ]; then
     for f in "$AUTH_LOG" "$SYSLOG_LOG"; do
         [ -f "$f" ] || touch "$f"
         chmod 640 "$f" 2>/dev/null || true
-        chown root:adm "$f" 2>/dev/null || true
+        # rsyslogd runs as the unprivileged "syslog" user, not root - it
+        # must stay the file OWNER (mode 640 grants write only to the
+        # owner) or the daemon silently loses write access to its own
+        # output files the moment this "hardening" step runs. adm keeps
+        # read-only access for admins, matching the stock Debian/Ubuntu
+        # convention this file already used before this script touched it.
+        chown syslog:adm "$f" 2>/dev/null || true
         perms="$(stat -c '%a %U:%G' "$f" 2>/dev/null)" || true
         echo "    $f: $perms          [OK]"
     done
