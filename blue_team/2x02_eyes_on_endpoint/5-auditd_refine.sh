@@ -35,8 +35,16 @@ fi
 mkdir -p "$(dirname "$RULES_FILE")" 2>/dev/null || true
 touch "$RULES_FILE"
 
+# Prefers the live kernel ruleset (auditctl -l) over the rules file when
+# possible, so the reported count reflects what auditd actually has loaded
+# right now, not just what is written to disk (the two can drift if the
+# file was edited without a reload).
 count_rules() {
-    grep -cE '^-[wa] ' "$RULES_FILE" 2>/dev/null || true
+    if [ "$LIVE_MODE" -eq 1 ] && command -v auditctl >/dev/null 2>&1; then
+        auditctl -l 2>/dev/null | grep -cE '^-[wa] ' || true
+    else
+        grep -cE '^-[wa] ' "$RULES_FILE" 2>/dev/null || true
+    fi
 }
 
 CURRENT_COUNT=$(count_rules)
@@ -62,23 +70,32 @@ add_rule_if_missing() {
 
 echo "[*] Adding detection-focused rules..."
 
+# Process execution tracking: execve is the Linux equivalent of Sysmon
+# Event ID 1 - every program that actually runs goes through it.
 add_rule_if_missing "process_exec" "execve syscall tracking" \
     "-a always,exit -F arch=b64 -S execve -k process_exec"
 
+# Network tracking: socket/connect syscalls catch outbound connections at
+# the kernel level, independent of which userspace tool initiated them.
 add_rule_if_missing "network_connect" "socket/connect syscall tracking" \
     "-a always,exit -F arch=b64 -S socket -S connect -k network_connect"
 
-# auditd -w rules do not expand globs at load time; this path is written
-# exactly as specified, but on a multi-user host it only reliably matches a
-# literal /home/*/.ssh/ directory if one exists - watch per-account paths
-# individually for real environments with several home directories.
+# SSH keys monitoring. auditd -w rules do not expand globs at load time;
+# this path is written exactly as specified, but on a multi-user host it
+# only reliably matches a literal /home/*/.ssh/ directory if one exists -
+# watch per-account paths individually for real environments with several
+# home directories.
 add_rule_if_missing "ssh_keys" "SSH key file monitoring" \
     "-w /home/*/.ssh/ -p rwa -k ssh_keys"
 
+# Cron persistence: both cron.d and the per-user spool are watched under
+# the same key, since either one is a valid attacker persistence path.
 add_rule_if_missing "cron_persist" "Cron directory monitoring" \
     "-w /etc/cron.d/ -p wa -k cron_persist" \
     "-w /var/spool/cron/ -p wa -k cron_persist"
 
+# sudoers.d monitoring: catches privilege-escalation persistence via a
+# dropped sudoers.d file, distinct from the /etc/sudoers watch in Task 10.
 add_rule_if_missing "sudoers" "sudoers.d monitoring" \
     "-w /etc/sudoers.d/ -p wa -k sudoers"
 
@@ -102,6 +119,8 @@ echo "[*] Total rules: ${TOTAL_COUNT:-0}"
 VALIDATION_PASS=0
 VALIDATION_TOTAL=5
 
+# validate_rule <label> <audit key>: runs a safe trigger for the caller,
+# then checks ausearch for that audit key to confirm the rule fired.
 validate_rule() {
     local label="$1" key="$2"
     local hits
