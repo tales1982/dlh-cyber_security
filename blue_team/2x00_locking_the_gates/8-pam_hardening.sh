@@ -108,14 +108,47 @@ set_kv "$FAILLOCK_CONF" "fail_interval" "900"; echo "    fail_interval = 900    
 # script-driven, re-runnable hardening baseline we manage the lines directly
 # and guard every insertion with a grep check so re-running never duplicates
 # them.
+#
+# Unlike every other file this project's hardening scripts touch (sshd_config,
+# sysctl.conf, rsyslog/logrotate configs), common-auth and common-password
+# were never backed up here before editing - a bad sed insertion into the
+# PAM auth stack can lock out every account, including root, with no
+# recorded-good copy to restore from and no equivalent of `sshd -t` to
+# validate the result before it takes effect. Both are now backed up first,
+# on the very first run only, so the original (working) stack is always
+# recoverable.
 if [ -f "$PAM_COMMON_AUTH" ]; then
+    PAM_COMMON_AUTH_BACKUP="${PAM_COMMON_AUTH}.bak"
+    if [ ! -f "$PAM_COMMON_AUTH_BACKUP" ]; then
+        cp -p "$PAM_COMMON_AUTH" "$PAM_COMMON_AUTH_BACKUP"
+    fi
     if ! grep -q 'pam_faillock.so preauth' "$PAM_COMMON_AUTH"; then
         sed -i '1i auth        required                        pam_faillock.so preauth silent audit deny=5 unlock_time=900' "$PAM_COMMON_AUTH"
     fi
     if ! grep -q 'pam_faillock.so authfail' "$PAM_COMMON_AUTH"; then
         # Insert authfail immediately after the primary pam_unix.so auth line.
         if grep -q 'pam_unix.so' "$PAM_COMMON_AUTH"; then
-            sed -i '/pam_unix\.so/a auth        [default=die]                   pam_faillock.so authfail deny=5 unlock_time=900' "$PAM_COMMON_AUTH"
+            # On SSSD-enabled stacks (and some other distro layouts) the
+            # pam_unix.so line's own control field uses success=N to jump
+            # forward past the modules that follow it on a successful local
+            # match (e.g. skipping pam_sss.so and pam_deny.so to land
+            # cleanly on pam_permit.so). Inserting a new line right after
+            # pam_unix.so shifts every line below it down by one - if N is
+            # left unchanged, a *correct* password now jumps one entry short
+            # and lands on pam_deny.so instead of pam_permit.so, denying
+            # every login including root's, with no lockout counter or log
+            # entry to explain why. N must grow by one in the same step the
+            # new line is inserted.
+            awk '
+                /pam_unix\.so/ && match($0, /success=[0-9]+/) {
+                    n = substr($0, RSTART + 8, RLENGTH - 8) + 1
+                    sub(/success=[0-9]+/, "success=" n)
+                }
+                { print }
+                /pam_unix\.so/ {
+                    print "auth        [default=die]                   pam_faillock.so authfail deny=5 unlock_time=900"
+                }
+            ' "$PAM_COMMON_AUTH" > "${PAM_COMMON_AUTH}.tmp" && mv "${PAM_COMMON_AUTH}.tmp" "$PAM_COMMON_AUTH"
         else
             echo 'auth        [default=die]                   pam_faillock.so authfail deny=5 unlock_time=900' >> "$PAM_COMMON_AUTH"
         fi
@@ -127,6 +160,10 @@ fi
 # --- 4. Password history (remember 12) ---------------------------------------
 echo "[*] Configuring password history..."
 if [ -f "$PAM_COMMON_PASSWORD" ]; then
+    PAM_COMMON_PASSWORD_BACKUP="${PAM_COMMON_PASSWORD}.bak"
+    if [ ! -f "$PAM_COMMON_PASSWORD_BACKUP" ]; then
+        cp -p "$PAM_COMMON_PASSWORD" "$PAM_COMMON_PASSWORD_BACKUP"
+    fi
     if grep -qE 'pam_unix\.so.*remember=' "$PAM_COMMON_PASSWORD"; then
         sed -i -E 's/(pam_unix\.so[^\n]*remember=)[0-9]+/\112/' "$PAM_COMMON_PASSWORD"
     elif grep -q 'pam_unix.so' "$PAM_COMMON_PASSWORD"; then
@@ -144,3 +181,6 @@ MINLEN_CHECK=$(grep -E '^minlen' "$PWQUALITY_CONF" 2>/dev/null | tail -1 | awk -
 DENY_CHECK=$(grep -E '^deny' "$FAILLOCK_CONF" 2>/dev/null | tail -1 | awk -F= '{print $2}' | tr -d ' ') || true
 
 echo "Password minimum length: ${MINLEN_CHECK:-unset} | Lockout: ${DENY_CHECK:-unset} attempts / 15 min | History: 12"
+if [ -f "${PAM_COMMON_AUTH:-}.bak" ] || [ -f "${PAM_COMMON_PASSWORD:-}.bak" ]; then
+    echo "PAM stack backups: ${PAM_COMMON_AUTH}.bak, ${PAM_COMMON_PASSWORD}.bak (restore with: cp -p <backup> <original>)"
+fi
