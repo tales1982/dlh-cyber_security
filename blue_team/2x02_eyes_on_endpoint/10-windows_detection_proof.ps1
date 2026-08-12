@@ -82,13 +82,14 @@ foreach ($action in $Actions) {
             Where-Object { $_.Id -eq $eventId -and $_.TimeCreated -ge $windowStart -and $_.TimeCreated -le $windowEnd } |
             Select-Object -First 1
 
+        $keyFields = $KeyFieldsByEventId[$eventId]
+
         if ($found) {
-            $requiredFields = $KeyFieldsByEventId[$eventId]
             $populatedCount = 0
-            foreach ($f in $requiredFields) {
+            foreach ($f in $keyFields) {
                 if (Get-EventDataValue -EventRecord $found -Name $f) { $populatedCount++ }
             }
-            $detail = if ($populatedCount -eq $requiredFields.Count) { "Full" } else { "Partial" }
+            $detail = if ($populatedCount -eq $keyFields.Count) { "Full" } else { "Partial" }
             $status = "[CAPTURED]"
             $anySourceCaptured = $true
             $sourcesCaptured++
@@ -102,6 +103,7 @@ foreach ($action in $Actions) {
             action        = $action.description
             source        = $expected.source
             event_id      = $eventId
+            key_fields    = $keyFields
             detail_level  = $detail
             status        = $status
         })
