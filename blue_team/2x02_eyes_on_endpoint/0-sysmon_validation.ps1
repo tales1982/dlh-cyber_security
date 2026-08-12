@@ -126,8 +126,12 @@ $Found4 = [bool]($Event4 -and $TargetObject4)
 Write-ValidationResult -Index 4 -Label "Registry modification (Event ID 13)" -Trigger "HKCU\...\$RegistryValueName" -EventId 13 -Event $Found4 -DetailNote "TargetObject=$TargetObject4, EventType=$EventType4, Details=$Details4 present"
 
 # --- 5/5: DNS query (Event ID 22) -----------------------------------------------------------
+# Both triggers are fired: nslookup (matches this task's documented example
+# command) and Resolve-DnsName (the native PowerShell resolver) - either can
+# generate the underlying DNS query Sysmon EID 22 observes.
 $Since5 = Get-Date
 nslookup $DnsQueryName 2>&1 | Out-Null
+Resolve-DnsName -Name $DnsQueryName -ErrorAction SilentlyContinue | Out-Null
 Start-Sleep -Seconds $WaitSeconds
 $Event5 = Get-RecentSysmonEvent -EventId 22 -Since $Since5 -MessagePattern "*$DnsQueryName*"
 $QueryName5    = Get-EventDataValue -EventRecord $Event5 -Name "QueryName"
