@@ -84,6 +84,11 @@ function Write-ValidationResult {
 
 Write-Output "[*] Running Sysmon telemetry validation..."
 
+# Each action below records its own timestamp via Get-Date immediately
+# before the trigger runs, then uses that timestamp to scope the Get-WinEvent
+# search window - so a match is only counted if Sysmon logged it after this
+# specific action, not a stale event from an earlier run.
+
 # --- 1/5: Process creation (Event ID 1) -----------------------------------------------------
 $Since1 = Get-Date
 cmd.exe /c whoami | Out-Null
