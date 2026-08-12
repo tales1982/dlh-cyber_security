@@ -111,6 +111,7 @@ $PsEvents      = @($Events | Where-Object { $_.event_id -eq 4104 })
 
 $CommandLineCompleteness = Get-CompletenessPercent -Candidates $ProcessEvents -FieldPath "enriched.command_line"
 $SourceIPCompleteness    = Get-CompletenessPercent -Candidates $LogonEvents   -FieldPath "enriched.source_ip"
+# ScriptBlockText is the field 3-windows_telemetry_export.ps1 enriches EID 4104 events with.
 $ScriptBlockCompleteness = Get-CompletenessPercent -Candidates $PsEvents      -FieldPath "enriched.script_block_text"
 
 $FieldCompletenessByType = @($Events | Group-Object -Property event_id | ForEach-Object {
