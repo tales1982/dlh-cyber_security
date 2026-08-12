@@ -147,6 +147,7 @@ Write-ValidationResult -Index 5 -Label "DNS query (Event ID 22)" -Trigger "nsloo
 # --- Cleanup ----------------------------------------------------------------------------------
 Write-Output "[*] Cleanup: removing test artifacts..."
 Remove-Item -Path $TestFilePath -Force -ErrorAction SilentlyContinue
+Remove-ItemProperty -Path $RegistryKeyPath -Name $RegistryValueName -Force -ErrorAction SilentlyContinue
 Remove-Item -Path $RegistryKeyPath -Recurse -Force -ErrorAction SilentlyContinue
 
 Write-Output "Actions tested: $script:ActionsTested | Captured: $script:Captured | Missed: $script:Missed"

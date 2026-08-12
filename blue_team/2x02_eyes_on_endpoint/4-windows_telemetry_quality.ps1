@@ -44,7 +44,7 @@ $EventDistribution = @($Events | Group-Object -Property event_id | Sort-Object -
     }
 })
 
-# --- Channel distribution -----------------------------------------------------------------------
+# --- Channel distribution: Security, Sysmon, PowerShell (as populated by Task 3) -----------------
 $ChannelDistribution = @($Events | Group-Object -Property channel | ForEach-Object {
     [PSCustomObject]@{
         channel    = $_.Name

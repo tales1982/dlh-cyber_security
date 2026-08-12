@@ -30,12 +30,17 @@ $script:Captured  = 0
 $script:Missed    = 0
 
 function Write-TestResult {
+    # Reports both the [PASS]/[FAIL] line this task's Expected Output shows,
+    # and - per the task instructions ("report CAPTURED / MISSED and the
+    # detail level: full content vs partial") - an explicit status/detail
+    # line underneath it.
     param(
         [int]$Index,
         [string]$Label,
         [string]$SuccessDetail,
         [string]$FailureDetail,
         [bool]$Found,
+        [string]$DetailLevel = "full content",
         [string]$ExtraLine = ""
     )
     $script:TestsRun++
@@ -44,9 +49,11 @@ function Write-TestResult {
     if ($Found) {
         $script:Captured++
         Write-Output "          $SuccessDetail   [PASS]"
+        Write-Output "          Status: CAPTURED | Detail level: $DetailLevel"
     } else {
         $script:Missed++
         Write-Output "          $FailureDetail   [FAIL]"
+        Write-Output "          Status: MISSED | Detail level: none"
     }
 }
 
@@ -102,11 +109,20 @@ Write-Output "Done"
 $ExpectedLineCount = ($MultiLineBlock -split "`n").Count
 Invoke-Expression $MultiLineBlock | Out-Null
 Start-Sleep -Seconds $WaitSeconds
-$Event4 = Get-WinEvent -LogName $PowerShellLogName -MaxEvents 100 -ErrorAction SilentlyContinue |
-    Where-Object { $_.Id -eq 4104 -and $_.Message -like "*Check passed*" -and $_.Message -like "*End of block*" } |
-    Select-Object -First 1
-Write-TestResult -Index 4 -Label "Multi-line script block" -Found ([bool]$Event4) `
-    -SuccessDetail "EID 4104: Full block captured ($ExpectedLineCount lines)" -FailureDetail "EID 4104: Full block NOT captured"
+$Candidates4 = @(Get-WinEvent -LogName $PowerShellLogName -MaxEvents 100 -ErrorAction SilentlyContinue |
+    Where-Object { $_.Id -eq 4104 -and $_.Message -like "*Check passed*" })
+$Event4Full    = $Candidates4 | Where-Object { $_.Message -like "*End of block*" } | Select-Object -First 1
+$Event4Partial = $Candidates4 | Select-Object -First 1
+if ($Event4Full) {
+    Write-TestResult -Index 4 -Label "Multi-line script block" -Found $true -DetailLevel "full content" `
+        -SuccessDetail "EID 4104: Full block captured ($ExpectedLineCount lines)" -FailureDetail ""
+} elseif ($Event4Partial) {
+    Write-TestResult -Index 4 -Label "Multi-line script block" -Found $true -DetailLevel "partial" `
+        -SuccessDetail "EID 4104: Block captured but truncated before the final lines" -FailureDetail ""
+} else {
+    Write-TestResult -Index 4 -Label "Multi-line script block" -Found $false `
+        -SuccessDetail "" -FailureDetail "EID 4104: Full block NOT captured"
+}
 
 # --- 5/5: Transcription file created in C:\PSTranscripts\ ---------------------------------------
 $TranscriptFiles = @(Get-ChildItem -Path $TranscriptDir -Filter "*.txt" -Recurse -ErrorAction SilentlyContinue |
