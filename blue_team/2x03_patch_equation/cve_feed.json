@@ -1,0 +1,154 @@
+{
+  "cves": {
+    "CVE-2024-1086": {
+      "cvss": 7.8,
+      "description": "Linux kernel nf_tables use-after-free",
+      "affected_packages": ["linux-image-generic", "linux-modules-generic"]
+    },
+    "CVE-2023-6546": {
+      "cvss": 7.8,
+      "description": "Linux kernel nft_old_chain_release use-after-free",
+      "affected_packages": ["linux-image-generic"]
+    },
+    "CVE-2024-0565": {
+      "cvss": 7.5,
+      "description": "Linux kernel gpiolib-cdev integer overflow",
+      "affected_packages": ["linux-image-generic"]
+    },
+    "CVE-2024-0727": {
+      "cvss": 5.5,
+      "description": "OpenSSL SLF_do_all_ssl_objects use-after-free",
+      "affected_packages": ["libssl3", "openssl"]
+    },
+    "CVE-2023-5363": {
+      "cvss": 7.5,
+      "description": "OpenSSL cipher selection error",
+      "affected_packages": ["libssl3"]
+    },
+    "CVE-2024-6387": {
+      "cvss": 8.1,
+      "description": "OpenSSH sshd signal handler race condition (regreSSHion)",
+      "affected_packages": ["openssh-server", "openssh-client"]
+    },
+    "CVE-2024-38475": {
+      "cvss": 9.8,
+      "description": "Apache httpd core source code disclosure",
+      "affected_packages": ["apache2"]
+    },
+    "CVE-2024-38476": {
+      "cvss": 7.5,
+      "description": "Apache httpd mod_rewrite SSRF",
+      "affected_packages": ["apache2"]
+    },
+    "CVE-2024-38477": {
+      "cvss": 9.0,
+      "description": "Apache httpd mod_ntlmplus buffer overflow",
+      "affected_packages": ["apache2"]
+    },
+    "CVE-2023-4911": {
+      "cvss": 7.8,
+      "description": "glibc buffer overflow in ld.so (Looney Tunables)",
+      "affected_packages": ["libc6"]
+    },
+    "CVE-2024-2398": {
+      "cvss": 9.1,
+      "description": "libcurl HTTP/2 push headers memory leak",
+      "affected_packages": ["libcurl4", "curl"]
+    },
+    "CVE-2024-2399": {
+      "cvss": 6.5,
+      "description": "libcurl cookie injection via control characters",
+      "affected_packages": ["libcurl4"]
+    },
+    "CVE-2023-6597": {
+      "cvss": 7.5,
+      "description": "Python tempfile.mkstemp race condition",
+      "affected_packages": ["libpython3.10", "python3.10"]
+    },
+    "CVE-2023-50386": {
+      "cvss": 7.5,
+      "description": "BIND 9 DNSSEC KeyTrap algorithmic complexity",
+      "affected_packages": ["bind9", "libbind9"]
+    },
+    "CVE-2022-3216": {
+      "cvss": 7.5,
+      "description": "GnuPG pHash collision in libgcrypt",
+      "affected_packages": ["gnupg", "libgcrypt20"]
+    },
+    "CVE-2022-48303": {
+      "cvss": 7.5,
+      "description": "tar arbitrary file overwrite via symlinks",
+      "affected_packages": ["tar"]
+    },
+    "CVE-2024-21096": {
+      "cvss": 6.5,
+      "description": "MySQL Server Client libheap buffer overflow",
+      "affected_packages": ["mysql-client", "mysql-server"]
+    },
+    "CVE-2024-20952": {
+      "cvss": 8.1,
+      "description": "MySQL Server replication DoS",
+      "affected_packages": ["mysql-server"]
+    },
+    "CVE-2023-4807": {
+      "cvss": 7.5,
+      "description": "libexpat XML parser use-after-free",
+      "affected_packages": ["libexpat1"]
+    },
+    "CVE-2024-2511": {
+      "cvss": 7.5,
+      "description": "OpenSSL session cache race condition",
+      "affected_packages": ["libssl3", "openssl"]
+    },
+    "CVE-2023-29491": {
+      "cvss": 9.8,
+      "description": "Perl locale handling buffer overflow",
+      "affected_packages": ["perl"]
+    },
+    "CVE-2024-34159": {
+      "cvss": 7.5,
+      "description": "Go encoding/gob stack exhaustion DoS",
+      "affected_packages": ["golang-1.18"]
+    },
+    "CVE-2023-39615": {
+      "cvss": 7.5,
+      "description": "xz-utils memory corruption",
+      "affected_packages": ["xz-utils"]
+    },
+    "CVE-2024-3094": {
+      "cvss": 10.0,
+      "description": "xz-utils malicious code injection (backdoor)",
+      "affected_packages": ["xz-utils", "liblzma5"]
+    },
+    "CVE-2023-2650": {
+      "cvss": 7.5,
+      "description": "libxml2 xmlDictGrow integer overflow",
+      "affected_packages": ["libxml2"]
+    },
+    "CVE-2024-25062": {
+      "cvss": 9.1,
+      "description": "libxml2 use-after-free in xmlValidatePopElement",
+      "affected_packages": ["libxml2"]
+    },
+    "CVE-2023-4863": {
+      "cvss": 8.8,
+      "description": "libwebp heap buffer overflow",
+      "affected_packages": ["libwebp7"]
+    },
+    "CVE-2024-28182": {
+      "cvss": 7.5,
+      "description": "libxml2 xmlEncodeEntitiesInternal OOM",
+      "affected_packages": ["libxml2"]
+    },
+    "CVE-2023-4809": {
+      "cvss": 7.8,
+      "description": "OpenSSL X.509 verification Denial of Service",
+      "affected_packages": ["libssl3"]
+    },
+    "CVE-2024-5535": {
+      "cvss": 9.1,
+      "description": "libxml2 xmlnextchar out-of-bounds read",
+      "affected_packages": ["libxml2"]
+    }
+  }
+}
