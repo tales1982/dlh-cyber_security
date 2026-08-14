@@ -1,0 +1,27 @@
+{
+  "CVE-2024-1086": {
+    "active": true,
+    "description": "Linux kernel nf_tables use-after-free",
+    "date_added": "2024-02-15"
+  },
+  "CVE-2024-3094": {
+    "active": true,
+    "description": "xz-utils backdoor",
+    "date_added": "2024-03-29"
+  },
+  "CVE-2023-4911": {
+    "active": true,
+    "description": "glibc Looney Tunables",
+    "date_added": "2023-10-10"
+  },
+  "CVE-2024-6387": {
+    "active": true,
+    "description": "OpenSSH regreSSHion",
+    "date_added": "2024-07-01"
+  },
+  "CVE-2024-38475": {
+    "active": true,
+    "description": "Apache httpd source disclosure",
+    "date_added": "2024-07-01"
+  }
+}
