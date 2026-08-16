@@ -1,0 +1,12 @@
+{
+  "apache2.service": "critical",
+  "ssh.service": "critical",
+  "postgresql.service": "critical",
+  "postgresql@18-main.service": "critical",
+  "auditd.service": "high",
+  "ufw.service": "high",
+  "wazuh-agent.service": "high",
+  "cron.service": "medium",
+  "rsyslog.service": "medium",
+  "unattended-upgrades.service": "medium"
+}
