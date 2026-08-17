@@ -1,10 +1,10 @@
 {
-  "total_checks": 45,
-  "passed": 45,
+  "total_checks": 47,
+  "passed": 47,
   "failed": 0,
   "service_state_checks": {
-    "total": 35,
-    "passed": 35
+    "total": 37,
+    "passed": 37
   },
   "listening_socket_checks": {
     "total": 8,
@@ -71,6 +71,12 @@
     },
     {
       "check_type": "service_state",
+      "target": "packagekit.service",
+      "status": "pass",
+      "note": "was=active now=active"
+    },
+    {
+      "check_type": "service_state",
       "target": "plymouth-quit-wait.service",
       "status": "pass",
       "note": "was=active now=active"
@@ -84,6 +90,12 @@
     {
       "check_type": "service_state",
       "target": "plymouth-read-write.service",
+      "status": "pass",
+      "note": "was=active now=active"
+    },
+    {
+      "check_type": "service_state",
+      "target": "polkit.service",
       "status": "pass",
       "note": "was=active now=active"
     },
