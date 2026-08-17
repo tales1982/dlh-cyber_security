@@ -195,4 +195,9 @@ failed="$(jq '[.entries[] | select(.status=="failed")] | length' "$OUT_JSON")"
 echo "Succeeded: $succeeded  Failed: $failed"
 echo "Log saved to: $OUT_JSON"
 
-[ "$STAGE_STATUS" = "ok" ]
+# Exit 0 if every entry succeeded, exit 1 if any entry failed.
+if [ "$STAGE_STATUS" = "ok" ]; then
+    exit 0
+else
+    exit 1
+fi
