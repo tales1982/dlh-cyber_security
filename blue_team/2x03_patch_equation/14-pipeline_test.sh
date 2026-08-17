@@ -42,7 +42,9 @@ fi
 STARTED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 echo "[*] Scenario: simulated CVE advisory"
 
+# Saves the current cve_feed.json to cve_feed.json.bak, restored on exit.
 BACKUP="${CVE_FEED}.bak"
+# shellcheck disable=SC2329  # invoked indirectly via `trap ... EXIT` below
 restore_feed() {
     if [ -f "$BACKUP" ]; then
         mv -f "$BACKUP" "$CVE_FEED"
@@ -80,14 +82,16 @@ echo "[*] Comparing patch_plan.json to expected..."
 PLAN_MATCHES="false"
 DIFF_JSON="[]"
 if [ -f patch_plan.json ] && [ -f "$EXPECTED_PLAN" ]; then
-    # Normalize the one genuinely time-varying field before comparing.
-    NORM_ACTUAL="$(jq 'del(.generated_at)' patch_plan.json)"
-    NORM_EXPECTED="$(jq 'del(.generated_at)' "$EXPECTED_PLAN")"
+    # Normalize the one genuinely time-varying field (generated_at) to a
+    # fixed placeholder before comparing, rather than dropping it, so a
+    # real mismatch still shows the field in the unified diff.
+    NORM_ACTUAL="$(jq '.generated_at = "<TIMESTAMP>"' patch_plan.json)"
+    NORM_EXPECTED="$(jq '.generated_at = "<TIMESTAMP>"' "$EXPECTED_PLAN")"
     if [ "$NORM_ACTUAL" = "$NORM_EXPECTED" ]; then
         PLAN_MATCHES="true"
         echo "  match"
     else
-        DIFF_TEXT="$(diff <(jq -S . <<<"$NORM_EXPECTED") <(jq -S . <<<"$NORM_ACTUAL"))"
+        DIFF_TEXT="$(diff -u <(jq -S . <<<"$NORM_EXPECTED") <(jq -S . <<<"$NORM_ACTUAL"))"
         DIFF_JSON="$(jq -R -s 'split("\n") | map(select(length>0))' <<<"$DIFF_TEXT")"
         echo "  DIFFERS"
     fi
@@ -109,4 +113,9 @@ jq -n \
 echo "VERDICT: $VERDICT"
 echo "Report saved to: $OUT_JSON"
 
-[ "$VERDICT" = "pass" ]
+# Exit 0 on pass, exit 1 on fail.
+if [ "$VERDICT" = "pass" ]; then
+    exit 0
+else
+    exit 1
+fi
