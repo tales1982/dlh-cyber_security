@@ -50,6 +50,8 @@ done
 [ -f /var/log/apt/history.log ] && cat /var/log/apt/history.log >> "$RAW_FILE"
 
 # --- Split into transactions, one JSON line per Start-Date block -----------
+# /var/log/apt/history.log fields parsed below: Start-Date:, End-Date:,
+# Commandline:, Requested-By:, Install:, Upgrade:, Remove:, Purge:.
 TXN_FILE="$(mktemp)"
 awk -v RS="" -v FS_SEP="$FS_SEP" '
 {
@@ -75,8 +77,13 @@ awk -v RS="" -v FS_SEP="$FS_SEP" '
 
 # --- Extract package names from the Install/Upgrade/Remove/Purge blob ------
 extract_pkg_names() {
-    # "pkg1:amd64 (1.0, 1.1), pkg2:amd64 (2.0)" -> "pkg1\npkg2"
-    tr ',' '\n' | sed -E 's/^\s+//' | grep -oE '^[a-zA-Z0-9.+-]+'
+    # "pkg1:amd64 (1.0, 1.1), pkg2:amd64 (2.0, automatic)" -> "pkg1\npkg2"
+    # Splitting on every comma would also split the (old, new) version pair
+    # and the "automatic" marker inside each package's own parentheses,
+    # producing fake "package names" like "1.1)" or "automatic)". Instead,
+    # scan directly for a name(:arch)? token immediately followed by " (" -
+    # that shape only occurs once per real package entry.
+    grep -oE '[a-zA-Z0-9][a-zA-Z0-9+.:-]* \(' | sed -E 's/(:[a-zA-Z0-9_-]+)? \($//'
 }
 
 # --- Group transactions into events (gap <= 15 min = same event) -----------
