@@ -76,7 +76,7 @@ trap 'rm -f "$CVE_FACTS_FILE" "$RESULTS_FILE"' EXIT
 mapfile -t ALL_CVES < <(jq -r '.cve' "$CVE_FACTS_FILE" 2>/dev/null | sort -u)
 
 resolved=0; open=0; deferred_held=0; deferred_window=0
-resolved_ch=0; total_ch=0; overdue=0
+resolved_critical_high=0; total_critical_high=0; overdue=0
 
 for cve in "${ALL_CVES[@]}"; do
     [ -z "$cve" ] && continue
@@ -116,10 +116,11 @@ for cve in "${ALL_CVES[@]}"; do
     is_ch="false"
     [[ "$severity" == "critical" || "$severity" == "high" ]] && is_ch="true"
     if [ "$is_ch" = "true" ]; then
-        total_ch=$((total_ch + 1))
-        [ "$state" = "resolved" ] && resolved_ch=$((resolved_ch + 1))
+        total_critical_high=$((total_critical_high + 1))
+        [ "$state" = "resolved" ] && resolved_critical_high=$((resolved_critical_high + 1))
     fi
 
+    # Overdue: open, critical or high, and open for more than 7 days.
     days_open=0
     first_epoch="$(date -u -d "$first_seen" +%s 2>/dev/null || echo "$TODAY_EPOCH")"
     days_open=$(( (TODAY_EPOCH - first_epoch) / 86400 ))
@@ -146,8 +147,9 @@ for cve in "${ALL_CVES[@]}"; do
           overdue: $overdue}' >> "$RESULTS_FILE"
 done
 
+# score = resolved_critical_high / total_critical_high, as a percentage with two decimals.
 SCORE="100.00"
-[ "$total_ch" -gt 0 ] && SCORE="$(awk -v r="$resolved_ch" -v t="$total_ch" 'BEGIN{printf "%.2f", (r/t)*100}')"
+[ "$total_critical_high" -gt 0 ] && SCORE="$(awk -v r="$resolved_critical_high" -v t="$total_critical_high" 'BEGIN{printf "%.2f", (r/t)*100}')"
 
 jq -n \
     --arg generated_at "$GENERATED_AT" --arg hostname "$HOSTNAME_VAL" --arg kernel "$KERNEL_VAL" \
@@ -165,4 +167,9 @@ echo "resolved: $resolved  open: $open  deferred_held: $deferred_held  deferred_
 echo "score: $SCORE  target: $TARGET_SCORE  overdue: $overdue"
 echo "Report saved to: $OUT_JSON"
 
-awk -v s="$SCORE" -v t="$TARGET_SCORE" 'BEGIN{exit !(s+0 >= t+0)}'
+# Exit 0 if the compliance score meets or exceeds the target, exit 1 otherwise.
+if awk -v s="$SCORE" -v t="$TARGET_SCORE" 'BEGIN{exit !(s+0 >= t+0)}'; then
+    exit 0
+else
+    exit 1
+fi
