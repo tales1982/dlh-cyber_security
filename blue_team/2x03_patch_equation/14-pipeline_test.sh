@@ -69,6 +69,8 @@ if [ -f pipeline_run.json ]; then
     status="$(jq -r '.pipeline_status' pipeline_run.json 2>/dev/null)"
     all_stages_have_artifacts="true"
     if [[ "$status" == "ok" || "$status" == "deferred" ]]; then
+        # [ -s "$art" ] is true only for a non-empty file - every stage's
+        # recorded artifact must be a non-empty JSON file to count as ok.
         while IFS= read -r art; do
             [ -z "$art" ] && continue
             [ -s "$art" ] || all_stages_have_artifacts="false"
