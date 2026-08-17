@@ -42,19 +42,19 @@ if [ ! -r "$DEPMAP_JSON" ]; then
 fi
 
 # --- Weights (tune here, nowhere else) --------------------------------------
-# score = CVSS_WEIGHT * max_cvss
-#       + KEV_WEIGHT * in_cisa_kev
-#       + CRITICALITY_WEIGHT * max(criticality_rank of affected services)
-#       + EXPOSURE_WEIGHT * exposure_rank
+# score = cvss_weight * max_cvss
+#       + kev_weight * in_cisa_kev
+#       + criticality_weight * max(criticality_rank of affected services)
+#       + exposure_weight * exposure_rank
 #
 # criticality_rank: critical=3 high=2 medium=1 low=0 (none affected)=0
 # exposure_rank: min(distinct affected services, 5) / 5 - a package that
 # disturbs many services at once has a wider blast radius than one that
 # disturbs a single, isolated one, even at equal CVSS.
-CVSS_WEIGHT=0.6
-KEV_WEIGHT=2.0
-CRITICALITY_WEIGHT=0.8
-EXPOSURE_WEIGHT=1.0
+cvss_weight=0.6
+kev_weight=2.0
+criticality_weight=0.8
+exposure_weight=1.0
 
 TS="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
@@ -62,10 +62,10 @@ jq -n \
     --slurpfile vuln "$VULN_JSON" \
     --slurpfile deps "$DEPMAP_JSON" \
     --arg ts "$TS" \
-    --argjson cvss_w "$CVSS_WEIGHT" \
-    --argjson kev_w "$KEV_WEIGHT" \
-    --argjson crit_w "$CRITICALITY_WEIGHT" \
-    --argjson exp_w "$EXPOSURE_WEIGHT" \
+    --argjson cvss_w "$cvss_weight" \
+    --argjson kev_w "$kev_weight" \
+    --argjson crit_w "$criticality_weight" \
+    --argjson exp_w "$exposure_weight" \
     '
     def kernel_prefixes: ["linux-image", "linux-modules", "linux-generic", "systemd", "linux-headers"];
     def is_kernel_pkg($pkg):
