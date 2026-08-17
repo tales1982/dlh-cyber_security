@@ -86,7 +86,7 @@ extract_pkg_names() {
     grep -oE '[a-zA-Z0-9][a-zA-Z0-9+.:-]* \(' | sed -E 's/(:[a-zA-Z0-9_-]+)? \($//'
 }
 
-# --- Group transactions into events (gap <= 15 min = same event) -----------
+# --- Group transactions into change events (gap <= 15 min = same change event) ---
 EVENTS_FILE="$(mktemp)"
 prev_epoch=""
 event_start=""; event_end=""; event_user=""; event_pkgs_file=""
