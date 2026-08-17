@@ -1,0 +1,7 @@
+{
+  "apache2.service": { "type": "http", "target": "http://127.0.0.1/" },
+  "ssh.service": { "type": "tcp", "target": "127.0.0.1:22" },
+  "postgresql.service": { "type": "command", "target": "pg_isready -q" },
+  "postgresql@18-main.service": { "type": "command", "target": "pg_isready -q" },
+  "mysql.service": { "type": "command", "target": "mysqladmin ping --silent" }
+}

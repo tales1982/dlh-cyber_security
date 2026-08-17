@@ -1,0 +1,57 @@
+{
+  "generated_at": "2026-08-17T08:54:05Z",
+  "weights": {
+    "cvss": 0.6,
+    "kev": 2.0,
+    "criticality": 0.8,
+    "exposure": 1.0
+  },
+  "plan": [
+    {
+      "package": "snapd",
+      "score": 0,
+      "bucket": "scheduled",
+      "affected_services": [],
+      "requires_restart": false,
+      "requires_reboot": false,
+      "rollback_target_version": "2.73+ubuntu22.04.1",
+      "rank": 1
+    },
+    {
+      "package": "ubuntu-advantage-tools",
+      "score": 0,
+      "bucket": "scheduled",
+      "affected_services": [],
+      "requires_restart": false,
+      "requires_reboot": false,
+      "rollback_target_version": "33.2~22.04",
+      "rank": 2
+    },
+    {
+      "package": "ubuntu-pro-client",
+      "score": 0,
+      "bucket": "scheduled",
+      "affected_services": [],
+      "requires_restart": false,
+      "requires_reboot": false,
+      "rollback_target_version": "33.2~22.04",
+      "rank": 3
+    },
+    {
+      "package": "ubuntu-pro-client-l10n",
+      "score": 0,
+      "bucket": "scheduled",
+      "affected_services": [],
+      "requires_restart": false,
+      "requires_reboot": false,
+      "rollback_target_version": "33.2~22.04",
+      "rank": 4
+    }
+  ],
+  "summary": {
+    "emergency": 0,
+    "urgent": 0,
+    "scheduled": 4,
+    "reboot_required": false
+  }
+}

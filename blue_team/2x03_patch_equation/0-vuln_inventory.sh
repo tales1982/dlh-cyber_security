@@ -14,10 +14,10 @@
 set -euo pipefail
 
 # ---------------------------------------------------------------------------
-# FILES AND SETTINGS
+# ARQUIVOS E CONFIGURAÇÕES
 # ---------------------------------------------------------------------------
 
-# Directory where this script is located.
+# Diretório onde este script está localizado.
 SCRIPT_DIR="$(
     cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &&
     pwd
@@ -30,10 +30,10 @@ CISA_KEV="${SCRIPT_DIR}/cisa_kev.json"
 USN_FILE="/usr/share/ubuntu-advantage-tools/usns.json"
 CHANGELOG_TIMEOUT="60"
 
-# Temporary file that will store one JSON object per package.
+# Arquivo temporário que guardará um objeto JSON por pacote.
 TEMP_PACKAGES="$(mktemp)"
 
-# Remove the temporary file when the script finishes.
+# Remove o arquivo temporário quando o script terminar.
 cleanup() {
     rm -f "$TEMP_PACKAGES"
 }
@@ -41,7 +41,7 @@ cleanup() {
 trap cleanup EXIT
 
 # ---------------------------------------------------------------------------
-# CHECK DEPENDENCIES
+# VERIFICAR DEPENDÊNCIAS
 # ---------------------------------------------------------------------------
 
 for command in \
@@ -63,7 +63,7 @@ for command in \
     fi
 done
 
-# Validate the CVE feed when it is present.
+# Valida o feed CVE quando estiver presente.
 if [[ -f "$CVE_FEED" ]]; then
     if ! jq empty "$CVE_FEED" 2>/dev/null; then
         echo "Error: invalid JSON file: $CVE_FEED" >&2
@@ -73,7 +73,7 @@ else
     echo "Warning: cve_feed.json not found; CVSS values will be unknown." >&2
 fi
 
-# Validate the CISA KEV feed when it is present.
+# Valida o feed CISA KEV quando estiver presente.
 if [[ -f "$CISA_KEV" ]]; then
     if ! jq empty "$CISA_KEV" 2>/dev/null; then
         echo "Error: invalid JSON file: $CISA_KEV" >&2
@@ -84,13 +84,13 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# FUNCTION: DETERMINE THE SOURCE POCKET
+# FUNÇÃO: DESCOBRIR O SOURCE POCKET
 #
-# Arguments:
-#   $1 = package name
-#   $2 = candidate version
+# Argumentos:
+#   $1 = nome do pacote
+#   $2 = versão candidata
 #
-# Priority:
+# Prioridade:
 #   security > updates > backports
 # ---------------------------------------------------------------------------
 
@@ -100,15 +100,15 @@ get_source_pocket() {
 
     apt-cache policy "$package" |
     awk -v candidate="$candidate" '
-        # Start of the candidate version block.
+        # Início do bloco da versão candidata.
         $1 == candidate {
             found = 1
             next
         }
 
-        # Line containing the repository.
+        # Linha contendo o repositório.
         found && $2 ~ /^https?:\/\// {
-            # Example:
+            # Exemplo:
             # jammy-security/main
             split($3, pocket, "/")
 
@@ -123,9 +123,9 @@ get_source_pocket() {
             next
         }
 
-        # End of the candidate version block.
+        # Fim do bloco da versão candidata.
         #
-        # Do not use exit, to avoid SIGPIPE with pipefail.
+        # Não usamos exit para evitar SIGPIPE com pipefail.
         found && $1 == "***" {
             found = 0
             next
@@ -146,12 +146,12 @@ get_source_pocket() {
 }
 
 # ---------------------------------------------------------------------------
-# FUNCTION: EXTRACT CVEs FROM THE LOCAL USN MAPPING
+# FUNÇÃO: EXTRAIR CVEs DO USN LOCAL
 #
-# Argument:
-#   $1 = package name
+# Argumento:
+#   $1 = nome do pacote
 #
-# The USN file is optional. If it does not exist, the function returns nothing.
+# O arquivo USN é opcional. Se não existir, a função não retorna nada.
 # ---------------------------------------------------------------------------
 
 get_usn_cves() {
@@ -178,14 +178,14 @@ get_usn_cves() {
 }
 
 # ---------------------------------------------------------------------------
-# FUNCTION: EXTRACT CVEs FROM THE CHANGELOG
+# FUNÇÃO: EXTRAIR CVEs DO CHANGELOG
 #
-# Arguments:
-#   $1 = package name
-#   $2 = installed version
+# Argumentos:
+#   $1 = nome do pacote
+#   $2 = versão instalada
 #
-# Capture only entries for versions newer than the installed version.
-# If no CVEs are found, use the local USN mapping as a fallback.
+# Captura somente entradas de versões superiores à instalada.
+# Caso não encontre CVEs, utiliza o USN local como fallback.
 # ---------------------------------------------------------------------------
 
 get_package_cves() {
@@ -203,7 +203,7 @@ get_package_cves() {
     changelog=""
     cves=""
 
-    # Try to download the changelog with a time limit.
+    # Tenta baixar o changelog com limite de tempo.
     changelog="$(
         timeout "$CHANGELOG_TIMEOUT" \
             apt-get changelog "$package" \
@@ -215,12 +215,12 @@ get_package_cves() {
         cves="$(
             {
                 while IFS= read -r line; do
-                    # Detect a header:
-                    # package (version) distribution...
+                    # Detecta um cabeçalho:
+                    # pacote (versão) distribuição...
                     if [[ "$line" =~ $header_regex ]]; then
                         changelog_version="${BASH_REMATCH[1]}"
 
-                        # Capture only versions newer than the installed version.
+                        # Captura somente versões superiores à instalada.
                         if dpkg --compare-versions \
                             "$changelog_version" \
                             gt \
@@ -242,26 +242,26 @@ get_package_cves() {
         )"
     fi
 
-    # Primary method: changelog.
+    # Método principal: changelog.
     if [[ -n "$cves" ]]; then
         printf '%s\n' "$cves"
         return 0
     fi
 
-    # Fallback: local USN mapping.
+    # Fallback: mapeamento USN local.
     get_usn_cves "$package"
 }
 
 # ---------------------------------------------------------------------------
-# FUNCTION: LOOK UP THE CVSS SCORE
+# FUNÇÃO: CONSULTAR O CVSS
 #
-# Argument:
-#   $1 = CVE identifier
+# Argumento:
+#   $1 = identificador CVE
 #
-# Return zero when:
-# - the feed does not exist;
-# - the CVE is not in the feed;
-# - the value is not numeric.
+# Retorna zero quando:
+# - o feed não existe;
+# - o CVE não está no feed;
+# - o valor não é numérico.
 # ---------------------------------------------------------------------------
 
 get_cvss_for_cve() {
@@ -290,10 +290,10 @@ get_cvss_for_cve() {
 }
 
 # ---------------------------------------------------------------------------
-# FUNCTION: CALCULATE THE HIGHEST CVSS SCORE
+# FUNÇÃO: CALCULAR O MAIOR CVSS
 #
-# Argument:
-#   $1 = list of CVEs, one per line
+# Argumento:
+#   $1 = lista de CVEs, um por linha
 # ---------------------------------------------------------------------------
 
 get_max_cvss() {
@@ -325,7 +325,7 @@ get_max_cvss() {
 }
 
 # ---------------------------------------------------------------------------
-# FUNCTION: CLASSIFY SEVERITY
+# FUNÇÃO: CLASSIFICAR A SEVERIDADE
 #
 # CVSS:
 #   9.0–10.0 = critical
@@ -356,12 +356,12 @@ classify_severity() {
 }
 
 # ---------------------------------------------------------------------------
-# FUNCTION: CHECK ONE CVE AGAINST CISA KEV
+# FUNÇÃO: VERIFICAR UM CVE NO CISA KEV
 #
-# Argument:
-#   $1 = CVE identifier
+# Argumento:
+#   $1 = identificador CVE
 #
-# Return true or false.
+# Retorna true ou false.
 # ---------------------------------------------------------------------------
 
 check_cisa_kev_for_cve() {
@@ -390,12 +390,12 @@ check_cisa_kev_for_cve() {
 }
 
 # ---------------------------------------------------------------------------
-# FUNCTION: CHECK ALL CVEs AGAINST CISA KEV
+# FUNÇÃO: VERIFICAR TODOS OS CVEs NO CISA KEV
 #
-# Argument:
-#   $1 = list of CVEs, one per line
+# Argumento:
+#   $1 = lista de CVEs, um por linha
 #
-# If any CVE is in KEV, return true.
+# Se qualquer CVE estiver no KEV, retorna true.
 # ---------------------------------------------------------------------------
 
 check_any_cve_in_kev() {
@@ -420,10 +420,10 @@ check_any_cve_in_kev() {
 }
 
 # ---------------------------------------------------------------------------
-# ENUMERATE INSTALLED PACKAGES
+# ENUMERAR PACOTES INSTALADOS
 #
-# Format required by the exercise:
-# package version status
+# Formato obrigatório do exercício:
+# pacote versão status
 # ---------------------------------------------------------------------------
 
 INSTALLED_PACKAGES="$(
@@ -452,12 +452,12 @@ INSTALLED_COUNT="$(
 )"
 
 # ---------------------------------------------------------------------------
-# FUNCTION: GET THE INSTALLED VERSION FROM THE INVENTORY
+# FUNÇÃO: OBTER A VERSÃO INSTALADA DO INVENTÁRIO
 #
-# Argument:
-#   $1 = package name
+# Argumento:
+#   $1 = nome do pacote
 #
-# This cross-references apt list with the set produced by dpkg-query.
+# Isso cruza apt list com o conjunto produzido por dpkg-query.
 # ---------------------------------------------------------------------------
 
 get_installed_version() {
@@ -467,7 +467,7 @@ get_installed_version() {
         {
             package_name = $1
 
-            # Remove a possible architecture suffix:
+            # Remove um possível sufixo de arquitetura:
             # libssl3:amd64 -> libssl3
             sub(/:[^:]+$/, "", package_name)
 
@@ -480,11 +480,15 @@ get_installed_version() {
 }
 
 # ---------------------------------------------------------------------------
-# ENUMERATE UPGRADABLE PACKAGES
+# ENUMERAR PACOTES ATUALIZÁVEIS
 # ---------------------------------------------------------------------------
 
+# `apt list --upgradable` exits 100 (not 0) when there is simply nothing to
+# upgrade - the best possible state, not an error. Under `set -euo pipefail`
+# that nonzero status would otherwise kill the whole script via pipefail on
+# this very assignment, so it is explicitly tolerated with `|| true`.
 UPGRADABLE_PACKAGES="$(
-    apt list --upgradable 2>/dev/null |
+    { apt list --upgradable 2>/dev/null || true; } |
     sed '1d'
 )"
 
@@ -502,7 +506,7 @@ UPGRADABLE_COUNT="$(
 )"
 
 # ---------------------------------------------------------------------------
-# PROCESS UPGRADABLE PACKAGES
+# PROCESSAR PACOTES ATUALIZÁVEIS
 # ---------------------------------------------------------------------------
 
 while IFS= read -r line; do
@@ -510,44 +514,44 @@ while IFS= read -r line; do
         continue
     fi
 
-    # Example:
+    # Exemplo:
     # snapd/jammy-updates,jammy-security
     package_field="$(awk '{print $1}' <<< "$line")"
 
-    # Package name.
+    # Nome do pacote.
     package="${package_field%%/*}"
 
-    # Candidate version.
+    # Versão candidata.
     candidate_version="$(awk '{print $2}' <<< "$line")"
 
-    # Cross-reference the package with the list produced by dpkg-query.
+    # Cruza o pacote com a lista produzida por dpkg-query.
     installed_version="$(get_installed_version "$package")"
 
-    # If it is not installed, skip it.
+    # Se não estiver instalado, ignora.
     if [[ -z "$installed_version" ]]; then
         continue
     fi
 
-    # Confirm the source pocket.
+    # Confirma o source pocket.
     source_pocket="$(
         get_source_pocket \
             "$package" \
             "$candidate_version"
     )"
 
-    # Only updates coming from the security pocket.
+    # Somente atualizações provenientes do security pocket.
     if [[ "$source_pocket" != *-security ]]; then
         continue
     fi
 
-    # Extract the CVEs.
+    # Extrai os CVEs.
     cves="$(
         get_package_cves \
             "$package" \
             "$installed_version"
     )"
 
-    # Create the JSON array of CVEs.
+    # Cria o array JSON de CVEs.
     cves_json="$(
         printf '%s\n' "$cves" |
         jq -R -s '
@@ -557,14 +561,14 @@ while IFS= read -r line; do
         '
     )"
 
-    # Calculate the highest CVSS score and severity.
+    # Calcula o maior CVSS e a severidade.
     max_cvss="$(get_max_cvss "$cves")"
     severity="$(classify_severity "$max_cvss")"
 
-    # Check the CISA KEV catalog.
+    # Verifica o catálogo CISA KEV.
     in_cisa_kev="$(check_any_cve_in_kev "$cves")"
 
-    # Create one JSON object for the package.
+    # Cria um objeto JSON para o pacote.
     jq -n \
         --arg package "$package" \
         --arg installed "$installed_version" \
@@ -590,7 +594,7 @@ done < <(
 )
 
 # ---------------------------------------------------------------------------
-# CREATE THE FINAL JSON FILE
+# CRIAR O JSON FINAL
 # ---------------------------------------------------------------------------
 
 GENERATED_AT="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
@@ -615,7 +619,7 @@ VULNERABLE_COUNT="$(
 )"
 
 # ---------------------------------------------------------------------------
-# SUMMARY
+# RESUMO
 # ---------------------------------------------------------------------------
 
 echo "Installed packages: $INSTALLED_COUNT"

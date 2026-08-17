@@ -1,0 +1,10 @@
+{
+  "package": "tzdata",
+  "version_before": "2026c-0ubuntu0.22.04.1",
+  "version_target": "2022a-0ubuntu1",
+  "version_confirmed_available": true,
+  "downgrade_succeeded": true,
+  "hold_applied": true,
+  "affected_service_probes": [],
+  "success": true
+}

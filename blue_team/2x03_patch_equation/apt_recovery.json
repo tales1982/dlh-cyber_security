@@ -1,0 +1,57 @@
+{
+  "initial_diagnosis": {
+    "live_processes": 0,
+    "lock_files_present": [
+      "/var/lib/dpkg/lock-frontend",
+      "/var/lib/dpkg/lock",
+      "/var/cache/apt/archives/lock"
+    ],
+    "dpkg_audit_output": "The following packages have been unpacked but not yet configured.\nThey must be configured using dpkg --configure or the configure\nmenu option in dselect for them to work:\n gimp                 GNU Image Manipulation Program",
+    "broken_packages": [
+      "gimp"
+    ],
+    "free_space_kb": {
+      "root": 17863028,
+      "var": 17863028
+    }
+  },
+  "actions_taken": [
+    {
+      "step": "remove stale lock /var/lib/dpkg/lock-frontend",
+      "status": "OK",
+      "detail": ""
+    },
+    {
+      "step": "remove stale lock /var/lib/dpkg/lock",
+      "status": "OK",
+      "detail": ""
+    },
+    {
+      "step": "remove stale lock /var/cache/apt/archives/lock",
+      "status": "OK",
+      "detail": ""
+    },
+    {
+      "step": "dpkg --configure -a",
+      "status": "FAILED",
+      "detail": "ed.\n gimp depends on libwmflite-0.2-7 (>= 0.2.12); however:\n  Package libwmflite-0.2-7 is not installed.\n gimp depends on libxcursor1 (>> 1.1.2); however:\n  Package libxcursor1 is not installed.\n gimp depends on libxfixes3; however:\n  Package libxfixes3 is not installed.\n gimp depends on libxmu6 (>= 2:1.1.3); however:\n  Package libxmu6 is not installed.\n\ndpkg: error processing package gimp (--configure):\n dependency problems - leaving unconfigured\nErrors were encountered while processing:\n gimp"
+    },
+    {
+      "step": "apt-get --fix-broken install",
+      "status": "OK",
+      "detail": ""
+    },
+    {
+      "step": "dpkg --audit (re-run)",
+      "status": "clean",
+      "detail": ""
+    }
+  ],
+  "final_state": {
+    "dpkg_audit_output": "",
+    "broken_packages": [],
+    "services_restarted": []
+  },
+  "recovered": true,
+  "duration_seconds": 111
+}

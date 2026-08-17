@@ -1,0 +1,32 @@
+{
+  "applied": [
+    {
+      "package": "apache2",
+      "reason": "billing app requires apache2 2.4.52 mod_php compatibility",
+      "owner": "analyst",
+      "review_date": "2026-05-28",
+      "pin_version": "2.4.52-1ubuntu4.23",
+      "days_to_review": -81,
+      "hold_applied": true
+    },
+    {
+      "package": "curl",
+      "reason": "regression seen in curl 7.81.0-1ubuntu1.25 against billing API TLS handshake",
+      "owner": "analyst",
+      "review_date": "2026-09-30",
+      "pin_version": "7.81.0-1ubuntu1.25",
+      "days_to_review": 44,
+      "hold_applied": true
+    }
+  ],
+  "released": [],
+  "overdue_reviews": [
+    {
+      "package": "apache2",
+      "owner": "analyst",
+      "review_date": "2026-05-28",
+      "days_overdue": 81
+    }
+  ],
+  "total_held": 2
+}

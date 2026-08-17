@@ -1,0 +1,16 @@
+{
+  "generated_at": "2026-08-17T09:43:05Z",
+  "weights": {
+    "cvss": 0.6,
+    "kev": 2,
+    "criticality": 0.8,
+    "exposure": 1
+  },
+  "plan": [],
+  "summary": {
+    "emergency": 0,
+    "urgent": 0,
+    "scheduled": 0,
+    "reboot_required": false
+  }
+}

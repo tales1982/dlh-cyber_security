@@ -1,0 +1,80 @@
+{
+  "started_at": "2026-08-17T08:59:21Z",
+  "finished_at": "2026-08-17T08:59:33Z",
+  "hostname": "billing-srv-01",
+  "plan_source_hash": "1d98d1c53b6d67410676ee72c83f701941f5ffd5139da68dcbde529d3c73845b",
+  "entries": [
+    {
+      "package": "snapd",
+      "bucket": "scheduled",
+      "pre": {
+        "installed_version": "2.76+ubuntu22.04.1",
+        "services": []
+      },
+      "post": {
+        "installed_version": "2.76+ubuntu22.04.1",
+        "services": []
+      },
+      "status": "ok",
+      "exit_code": 0,
+      "duration_seconds": 4.2,
+      "stdout_tail": "Reading package lists...\nBuilding dependency tree...\nReading state information...\nsnapd is already the newest version (2.76+ubuntu22.04.1).\n0 upgraded, 0 newly installed, 0 to remove and 56 not upgraded.\n1 not fully installed or removed.\nAfter this operation, 0 B of additional disk space will be used.\nSetting up snapd (2.76+ubuntu22.04.1) ...\r\n\r\nConfiguration file '/etc/apparmor.d/usr.lib.snapd.snap-confine.real'\r\n ==> Modified (by you or by a script) since installation.\r\n ==> Package distributor has shipped an updated version.\r\n ==> Keeping old config file as default.\r\nsnapd.service is a disabled or a static unit not running, not starting it.\r\nsnapd.apparmor.service is a disabled or a static unit not running, not starting it.\r\nsnapd.autoimport.service is a disabled or a static unit not running, not starting it.\r\nsnapd.core-fixup.service is a disabled or a static unit not running, not starting it.\r\nsnapd.failure.service is a disabled or a static unit not running, not starting it.\r\nsnapd.gpio-chardev-setup.target is a disabled or a static unit not running, not starting it.\r\nsnapd.mounts.target is a disabled or a static unit not running, not starting it.\r\nsnapd.recovery-chooser-trigger.service is a disabled or a static unit not running, not starting it.\r\nsnapd.seeded.service is a disabled or a static unit not running, not starting it.\r\nsnapd.snap-repair.service is a disabled or a static unit not running, not starting it.\r\nsnapd.system-shutdown.service is a disabled or a static unit not running, not starting it.\r\n\nRunning kernel seems to be up-to-date.\n\nNo services need to be restarted.\n\nNo containers need to be restarted.\n\nNo user sessions are running outdated binaries.\n\nNo VM guests are running outdated hypervisor (qemu) binaries on this host.",
+      "stderr_tail": "perl: warning: Setting locale failed.\nperl: warning: Please check that your locale settings:\n\tLANGUAGE = (unset),\n\tLC_ALL = (unset),\n\tLC_TIME = \"fr_LU.UTF-8\",\n\tLC_MONETARY = \"fr_LU.UTF-8\",\n\tLC_ADDRESS = \"fr_LU.UTF-8\",\n\tLC_TELEPHONE = \"fr_LU.UTF-8\",\n\tLC_NAME = \"fr_LU.UTF-8\",\n\tLC_MEASUREMENT = \"fr_LU.UTF-8\",\n\tLC_IDENTIFICATION = \"fr_LU.UTF-8\",\n\tLC_NUMERIC = \"fr_LU.UTF-8\",\n\tLC_PAPER = \"fr_LU.UTF-8\",\n\tLANG = \"en_US.UTF-8\"\n    are supported and installed on your system.\nperl: warning: Falling back to a fallback locale (\"en_US.UTF-8\").\nlocale: Cannot set LC_ALL to default locale: No such file or directory\nperl: warning: Setting locale failed.\nperl: warning: Please check that your locale settings:\n\tLANGUAGE = (unset),\n\tLC_ALL = (unset),\n\tLC_TIME = \"fr_LU.UTF-8\",\n\tLC_MONETARY = \"fr_LU.UTF-8\",\n\tLC_ADDRESS = \"fr_LU.UTF-8\",\n\tLC_TELEPHONE = \"fr_LU.UTF-8\",\n\tLC_NAME = \"fr_LU.UTF-8\",\n\tLC_MEASUREMENT = \"fr_LU.UTF-8\",\n\tLC_IDENTIFICATION = \"fr_LU.UTF-8\",\n\tLC_NUMERIC = \"fr_LU.UTF-8\",\n\tLC_PAPER = \"fr_LU.UTF-8\",\n\tLANG = \"en_US.UTF-8\"\n    are supported and installed on your system.\nperl: warning: Falling back to a fallback locale (\"en_US.UTF-8\").",
+      "restarts": []
+    },
+    {
+      "package": "ubuntu-advantage-tools",
+      "bucket": "scheduled",
+      "pre": {
+        "installed_version": "33.2~22.04",
+        "services": []
+      },
+      "post": {
+        "installed_version": "37.2ubuntu~22.04.1",
+        "services": []
+      },
+      "status": "ok",
+      "exit_code": 0,
+      "duration_seconds": 6.8,
+      "stdout_tail": "0%\r(Reading database ... 55%\r(Reading database ... 60%\r(Reading database ... 65%\r(Reading database ... 70%\r(Reading database ... 75%\r(Reading database ... 80%\r(Reading database ... 85%\r(Reading database ... 90%\r(Reading database ... 95%\r(Reading database ... 100%\r(Reading database ... 119093 files and directories currently installed.)\r\nPreparing to unpack .../ubuntu-pro-client-l10n_37.2ubuntu~22.04.1_amd64.deb ...\r\nUnpacking ubuntu-pro-client-l10n (37.2ubuntu~22.04.1) over (33.2~22.04) ...\r\nPreparing to unpack .../ubuntu-pro-client_37.2ubuntu~22.04.1_amd64.deb ...\r\nUnpacking ubuntu-pro-client (37.2ubuntu~22.04.1) over (33.2~22.04) ...\r\nPreparing to unpack .../ubuntu-advantage-tools_37.2ubuntu~22.04.1_all.deb ...\r\nUnpacking ubuntu-advantage-tools (37.2ubuntu~22.04.1) over (33.2~22.04) ...\r\nSetting up ubuntu-pro-client (37.2ubuntu~22.04.1) ...\r\n\r\nConfiguration file '/etc/apparmor.d/ubuntu_pro_apt_news'\r\n ==> Modified (by you or by a script) since installation.\r\n ==> Package distributor has shipped an updated version.\r\n ==> Keeping old config file as default.\r\n\r\nConfiguration file '/etc/apparmor.d/ubuntu_pro_esm_cache'\r\n ==> Modified (by you or by a script) since installation.\r\n ==> Package distributor has shipped an updated version.\r\n ==> Keeping old config file as default.\r\nInstalling new version of config file /etc/apt/apt.conf.d/20apt-esm-hook.conf ...\r\nlocale: Cannot set LC_ALL to default locale: No such file or directory\r\nubuntu-advantage.service is a disabled or a static unit, not starting it.\r\nSetting up ubuntu-pro-client-l10n (37.2ubuntu~22.04.1) ...\r\nSetting up ubuntu-advantage-tools (37.2ubuntu~22.04.1) ...\r\nlocale: Cannot set LC_ALL to default locale: No such file or directory\r\nProcessing triggers for man-db (2.10.2-1) ...\r\n\nRunning kernel seems to be up-to-date.\n\nNo services need to be restarted.\n\nNo containers need to be restarted.\n\nNo user sessions are running outdated binaries.\n\nNo VM guests are running outdated hypervisor (qemu) binaries on this host.",
+      "stderr_tail": "perl: warning: Setting locale failed.\nperl: warning: Please check that your locale settings:\n\tLANGUAGE = (unset),\n\tLC_ALL = (unset),\n\tLC_TIME = \"fr_LU.UTF-8\",\n\tLC_MONETARY = \"fr_LU.UTF-8\",\n\tLC_ADDRESS = \"fr_LU.UTF-8\",\n\tLC_TELEPHONE = \"fr_LU.UTF-8\",\n\tLC_NAME = \"fr_LU.UTF-8\",\n\tLC_MEASUREMENT = \"fr_LU.UTF-8\",\n\tLC_IDENTIFICATION = \"fr_LU.UTF-8\",\n\tLC_NUMERIC = \"fr_LU.UTF-8\",\n\tLC_PAPER = \"fr_LU.UTF-8\",\n\tLANG = \"en_US.UTF-8\"\n    are supported and installed on your system.\nperl: warning: Falling back to a fallback locale (\"en_US.UTF-8\").\nlocale: Cannot set LC_ALL to default locale: No such file or directory\nperl: warning: Setting locale failed.\nperl: warning: Please check that your locale settings:\n\tLANGUAGE = (unset),\n\tLC_ALL = (unset),\n\tLC_TIME = \"fr_LU.UTF-8\",\n\tLC_MONETARY = \"fr_LU.UTF-8\",\n\tLC_ADDRESS = \"fr_LU.UTF-8\",\n\tLC_TELEPHONE = \"fr_LU.UTF-8\",\n\tLC_NAME = \"fr_LU.UTF-8\",\n\tLC_MEASUREMENT = \"fr_LU.UTF-8\",\n\tLC_IDENTIFICATION = \"fr_LU.UTF-8\",\n\tLC_NUMERIC = \"fr_LU.UTF-8\",\n\tLC_PAPER = \"fr_LU.UTF-8\",\n\tLANG = \"en_US.UTF-8\"\n    are supported and installed on your system.\nperl: warning: Falling back to a fallback locale (\"en_US.UTF-8\").",
+      "restarts": []
+    },
+    {
+      "package": "ubuntu-pro-client",
+      "bucket": "scheduled",
+      "pre": {
+        "installed_version": "37.2ubuntu~22.04.1",
+        "services": []
+      },
+      "post": {
+        "installed_version": "37.2ubuntu~22.04.1",
+        "services": []
+      },
+      "status": "ok",
+      "exit_code": 0,
+      "duration_seconds": 0.3,
+      "stdout_tail": "Reading package lists...\nBuilding dependency tree...\nReading state information...\nubuntu-pro-client is already the newest version (37.2ubuntu~22.04.1).\n0 upgraded, 0 newly installed, 0 to remove and 53 not upgraded.",
+      "stderr_tail": "",
+      "restarts": []
+    },
+    {
+      "package": "ubuntu-pro-client-l10n",
+      "bucket": "scheduled",
+      "pre": {
+        "installed_version": "37.2ubuntu~22.04.1",
+        "services": []
+      },
+      "post": {
+        "installed_version": "37.2ubuntu~22.04.1",
+        "services": []
+      },
+      "status": "ok",
+      "exit_code": 0,
+      "duration_seconds": 0.3,
+      "stdout_tail": "Reading package lists...\nBuilding dependency tree...\nReading state information...\nubuntu-pro-client-l10n is already the newest version (37.2ubuntu~22.04.1).\n0 upgraded, 0 newly installed, 0 to remove and 53 not upgraded.",
+      "stderr_tail": "",
+      "restarts": []
+    }
+  ]
+}

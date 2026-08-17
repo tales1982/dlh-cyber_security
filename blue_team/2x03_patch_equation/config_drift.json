@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "unchanged": 990,
+    "modified": 1,
+    "missing": 0,
+    "new": 0
+  },
+  "files": [
+    {
+      "path": "/etc/apt/apt.conf.d/20apt-esm-hook.conf",
+      "owning_package": "ubuntu-pro-client",
+      "classification": "modified",
+      "expected": true,
+      "diff": "(no prior content cached for this file - only its hash was recorded in T2; nothing to diff against yet. A baseline copy is not created for a file that is already showing drift.)"
+    }
+  ]
+}
