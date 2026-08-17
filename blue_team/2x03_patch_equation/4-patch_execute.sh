@@ -49,6 +49,8 @@ HOSTNAME_VAL="$(hostname)"
 PLAN_HASH="$(sha256sum "$PLAN_JSON" | awk '{print $1}')"
 
 # --- Small helpers -----------------------------------------------------------
+# Pre and post blocks both capture installed version and service states for
+# every service linked to the package being patched.
 installed_version_of() {
     dpkg-query -W -f='${Version}' "$1" 2>/dev/null || echo ""
 }
@@ -108,6 +110,7 @@ for i in "${!PLAN_LINES[@]}"; do
         "$pkg")
     [ "$PIPELINE_TEST" = "1" ] && apt_cmd+=(--dry-run)
 
+    # Capture stdout, stderr and exit status of every apt-get invocation.
     exit_code=0
     stdout_out="$(mktemp)"
     stderr_out="$(mktemp)"
@@ -119,7 +122,7 @@ for i in "${!PLAN_LINES[@]}"; do
             break
         else
             exit_code=$?
-            if grep -q "Could not get lock" "$stderr_out" && [ "$elapsed_wait" -lt 120 ]; then
+            if grep -q "E: Could not get lock" "$stderr_out" && [ "$elapsed_wait" -lt 120 ]; then
                 sleep "$retry_delay"
                 elapsed_wait=$((elapsed_wait + retry_delay))
                 retry_delay=$((retry_delay * 2))
