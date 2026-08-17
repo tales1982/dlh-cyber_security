@@ -11,6 +11,11 @@
 #
 # Usage: ./11-maintenance_window.sh [--check|--report|--wait <seconds>] [maintenance_windows.json]
 # Env:   MEDDEFENSE_EMERGENCY=1   accept the always-on emergency window as a green light
+#
+# --check exit codes: 0 inside a standard or extended window, 10 if only the
+# always-on emergency window applies and MEDDEFENSE_EMERGENCY=1 was not set,
+# 20 if outside every window. Window names ("standard", "extended", ...) are
+# whatever maintenance_windows.json declares - nothing here is hardcoded.
 
 set -uo pipefail
 
@@ -101,6 +106,9 @@ evaluate() {
         fi
     done
 
+    # exit 20: outside every window. exit 0: inside standard/extended, or
+    # emergency with override. exit 10: only the emergency window applies
+    # and MEDDEFENSE_EMERGENCY=1 was not set.
     decision="defer"
     exit_code=20
     if [ -n "$active" ]; then
