@@ -50,6 +50,9 @@ AUDIT_OUT="$(dpkg --audit 2>&1)"
 mapfile -t AUDIT_PKGS < <(dpkg --audit 2>/dev/null | grep -oE '^\s+[a-zA-Z0-9+.-]+' | awk '{print $1}')
 echo "    dpkg --audit: ${AUDIT_PKGS[*]:-clean}"
 
+# Any dpkg status flag other than ii (installed)/rc (removed, config kept)/
+# un (unknown) is a broken package: half-configured, half-installed,
+# unpacked or triggers-pending all show up here.
 mapfile -t BROKEN_PKGS < <(dpkg -l 2>/dev/null | awk '$1 !~ /^(ii|rc|un)$/ && NR>5 {print $2}')
 echo "    broken packages: ${#BROKEN_PKGS[@]}"
 
@@ -162,4 +165,9 @@ echo "RECOVERED: $([ "$recovered" = "true" ] && echo yes || echo no)"
 echo "Duration: ${DURATION}s"
 echo "Report saved to: $OUT_JSON"
 
-[ "$recovered" = "true" ]
+# Exit 0 on success, exit 1 on residual broken state.
+if [ "$recovered" = "true" ]; then
+    exit 0
+else
+    exit 1
+fi

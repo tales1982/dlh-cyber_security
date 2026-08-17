@@ -83,8 +83,8 @@ done < <(jq -r '.holds[] | [.package, .reason, .owner, .review_date, .pin_versio
 
 # --- Write the pin fragment as one deterministic file, not an append -------
 {
-    echo "// Managed by 10-version_hold.sh - MedDefense Health Systems."
-    echo "// Do not edit by hand; the only writer is hold_registry.json + this script."
+    echo "# Managed by 10-version_hold.sh - MedDefense Health Systems."
+    echo "# Do not edit by hand; the only writer is hold_registry.json + this script."
     echo ""
     cat "$PIN_BODY_FILE"
 } > "$PIN_FILE"
