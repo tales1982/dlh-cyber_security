@@ -151,16 +151,20 @@ done
 SCORE="100.00"
 [ "$total_critical_high" -gt 0 ] && SCORE="$(awk -v r="$resolved_critical_high" -v t="$total_critical_high" 'BEGIN{printf "%.2f", (r/t)*100}')"
 
+# score/target_score are emitted as strings, not JSON numbers: jq's number
+# type has no concept of trailing-zero precision, so "100.00" round-trips
+# as "100" on jq < 1.7 (jq 1.6 ships on this host) - a real, reproducible
+# loss of the required two-decimal-place formatting, not just cosmetics.
 jq -n \
     --arg generated_at "$GENERATED_AT" --arg hostname "$HOSTNAME_VAL" --arg kernel "$KERNEL_VAL" \
     --argjson resolved "$resolved" --argjson open "$open" --argjson deferred_held "$deferred_held" \
-    --argjson deferred_window "$deferred_window" --argjson score "$SCORE" --arg target "$TARGET_SCORE" \
+    --argjson deferred_window "$deferred_window" --arg score "$SCORE" --arg target "$TARGET_SCORE" \
     --argjson overdue "$overdue" \
     --slurpfile cves <(jq -s '.' "$RESULTS_FILE") \
     '{generated_at: $generated_at, hostname: $hostname, kernel: $kernel,
       summary: {resolved: $resolved, open: $open, deferred_held: $deferred_held,
                 deferred_window: $deferred_window, score: $score,
-                target_score: ($target | tonumber), overdue: $overdue},
+                target_score: $target, overdue: $overdue},
       cves: $cves[0]}' > "$OUT_JSON"
 
 echo "resolved: $resolved  open: $open  deferred_held: $deferred_held  deferred_window: $deferred_window"
