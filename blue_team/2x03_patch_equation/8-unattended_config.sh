@@ -22,16 +22,6 @@ OUT_JSON="${1:-unattended_config.json}"
 UU_CONF="/etc/apt/apt.conf.d/50unattended-upgrades"
 AUTO_CONF="/etc/apt/apt.conf.d/20auto-upgrades"
 
-if [ -r /etc/os-release ]; then
-    # shellcheck disable=SC1091
-    . /etc/os-release
-    DISTRO_ID="${ID^}"
-    DISTRO_CODENAME="${VERSION_CODENAME:-${UBUNTU_CODENAME:-unknown}}"
-else
-    DISTRO_ID="Ubuntu"
-    DISTRO_CODENAME="unknown"
-fi
-
 INSTALLED_BEFORE="not_installed"
 dpkg -s unattended-upgrades >/dev/null 2>&1 && INSTALLED_BEFORE="already_installed"
 
@@ -44,11 +34,14 @@ else
 fi
 
 # --- 50unattended-upgrades ---------------------------------------------
-cat > "$UU_CONF" <<EOF
+# ${distro_id} / ${distro_codename} are apt's own config pseudo-variables -
+# apt substitutes them at read time using its own distro detection, so this
+# stays correct across OS upgrades instead of baking in a resolved value.
+cat > "$UU_CONF" <<'EOF'
 // Managed by 8-unattended_config.sh - MedDefense Health Systems.
 // Do not edit by hand; re-run the script to change policy.
 Unattended-Upgrade::Allowed-Origins {
-    "${DISTRO_ID}:${DISTRO_CODENAME}-security";
+    "${distro_id}:${distro_codename}-security";
 };
 
 Unattended-Upgrade::Package-Blacklist {
