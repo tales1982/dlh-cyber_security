@@ -59,15 +59,20 @@ if [ "${#ACTIVE_UNITS[@]}" -gt 0 ]; then
 fi
 
 # --- Listening sockets -----------------------------------------------------
-LISTENING_JSON="$(ss -tulnH 2>/dev/null | awk '{print $1, $5}' | sort -u | jq -R -s '
+LISTENING_JSON="$(ss -tulnp 2>/dev/null | awk 'NR>1 {print $1, $5, ($7=="" ? "-" : $7)}' | sort -u | jq -R -s '
     split("\n") | map(select(length > 0) | split(" "))
-    | map({proto: .[0], local_address: .[1]})')"
+    | map({proto: .[0], local_address: .[1], process: (if .[2] == "-" then null else .[2] end)})')"
 
 # --- SHA-256 hashes of every conffile tracked by a package ------------------
-# dpkg records the conffile list per package in /var/lib/dpkg/info/*.conffiles
-# - reading those is orders of magnitude faster than iterating every package
-# with `dpkg -L` just to filter for /etc.
-mapfile -t CONFFILES < <(cat /var/lib/dpkg/info/*.conffiles 2>/dev/null | grep '^/etc/' | sort -u)
+# dpkg-query's ${Conffiles} substvar reads straight from /var/lib/dpkg/status,
+# the authoritative source. Some packages (e.g. brltty) ship conffiles without
+# a matching /var/lib/dpkg/info/<pkg>.conffiles cache file, so reading that
+# cache directly silently drops entries; asking dpkg for the list does not.
+mapfile -t CONFFILES < <(dpkg-query -W -f='${Conffiles}\n' '*' 2>/dev/null \
+    | grep -v 'obsolete$' \
+    | awk '{print $1}' \
+    | grep '^/etc/' \
+    | sort -u)
 
 CONFFILE_HASHES_JSON="{}"
 if [ "${#CONFFILES[@]}" -gt 0 ]; then
