@@ -1,0 +1,46 @@
+{
+  "generated_at": "2026-08-17T09:46:42Z",
+  "hostname": "tales-lima",
+  "kernel": "6.8.0-137-generic",
+  "summary": {
+    "resolved": 1,
+    "open": 1,
+    "deferred_held": 1,
+    "deferred_window": 0,
+    "score": 33.33,
+    "target_score": 95.00,
+    "overdue": 1
+  },
+  "cves": [
+    {
+      "id": "CVE-2024-2511",
+      "package": "libssl3",
+      "severity": "high",
+      "state": "resolved",
+      "first_seen": "2026-07-01T08:00:00Z",
+      "resolved_at": "2026-07-20T02:10:00+00:00",
+      "justification": null,
+      "overdue": false
+    },
+    {
+      "id": "CVE-2024-38475",
+      "package": "apache2",
+      "severity": "critical",
+      "state": "deferred_held",
+      "first_seen": "2026-08-17T09:00:00Z",
+      "resolved_at": null,
+      "justification": "billing app requires apache2 2.4.52 mod_php compatibility",
+      "overdue": false
+    },
+    {
+      "id": "CVE-2024-6387",
+      "package": "openssh-server",
+      "severity": "high",
+      "state": "open",
+      "first_seen": "2026-07-01T08:00:00Z",
+      "resolved_at": null,
+      "justification": null,
+      "overdue": true
+    }
+  ]
+}

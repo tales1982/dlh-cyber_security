@@ -1,0 +1,24 @@
+{
+  "installed": "already_installed",
+  "config_paths": [
+    "/etc/apt/apt.conf.d/50unattended-upgrades",
+    "/etc/apt/apt.conf.d/20auto-upgrades"
+  ],
+  "blacklist": [
+    "linux-image*",
+    "linux-headers*",
+    "mysql-server*",
+    "apache2*",
+    "libapache2-mod-php*"
+  ],
+  "timer_state": "active,active",
+  "dry_run_summary": {
+    "would_upgrade": 0,
+    "would_upgrade_packages": [],
+    "skipped_blacklisted": 0,
+    "skipped_blacklisted_packages": [],
+    "skipped_held": 0,
+    "skipped_held_packages": []
+  },
+  "dry_run_log_tail": "tu.com' isTrusted:True>])\nadjusting candidate version: modemmanager=1.20.0-1~ubuntu22.04.3\nChecking: netplan.io ([<Origin component:'main' archive:'jammy-updates' origin:'Ubuntu' label:'Ubuntu' site:'archive.ubuntu.com' isTrusted:True>])\nadjusting candidate version: netplan.io=0.106.1-7ubuntu0.22.04.4\nChecking: open-iscsi ([<Origin component:'main' archive:'jammy-updates' origin:'Ubuntu' label:'Ubuntu' site:'archive.ubuntu.com' isTrusted:True>])\nadjusting candidate version: open-iscsi=2.1.5-1ubuntu1\nChecking: pci.ids ([<Origin component:'main' archive:'jammy-updates' origin:'Ubuntu' label:'Ubuntu' site:'archive.ubuntu.com' isTrusted:True>])\nadjusting candidate version: pci.ids=0.0~2022.01.22-1\nChecking: powermgmt-base ([<Origin component:'main' archive:'jammy-updates' origin:'Ubuntu' label:'Ubuntu' site:'archive.ubuntu.com' isTrusted:True>])\nadjusting candidate version: powermgmt-base=1.36\nChecking: python3-attr ([<Origin component:'main' archive:'jammy-updates' origin:'Ubuntu' label:'Ubuntu' site:'archive.ubuntu.com' isTrusted:True>])\nadjusting candidate version: python3-attr=21.2.0-1\nChecking: python3-distupgrade ([<Origin component:'main' archive:'jammy-updates' origin:'Ubuntu' label:'Ubuntu' site:'archive.ubuntu.com' isTrusted:True>])\nadjusting candidate version: python3-distupgrade=1:22.04.20\nChecking: python3-update-manager ([<Origin component:'main' archive:'jammy-updates' origin:'Ubuntu' label:'Ubuntu' site:'archive.ubuntu.com' isTrusted:True>])\nadjusting candidate version: python3-update-manager=1:22.04.21\nChecking: sosreport ([<Origin component:'main' archive:'jammy-updates' origin:'Ubuntu' label:'Ubuntu' site:'archive.ubuntu.com' isTrusted:True>])\nadjusting candidate version: sosreport=4.5.6-0ubuntu1~22.04.2\nChecking: systemd-hwe-hwdb ([<Origin component:'main' archive:'jammy-updates' origin:'Ubuntu' label:'Ubuntu' site:'archive.ubuntu.com' isTrusted:True>])\nadjusting candidate version: systemd-hwe-hwdb=249.11.5\nChecking: ubuntu-drivers-common ([<Origin component:'main' archive:'jammy-updates' origin:'Ubuntu' label:'Ubuntu' site:'archive.ubuntu.com' isTrusted:True>])\nadjusting candidate version: ubuntu-drivers-common=1:0.9.6.2~0.22.04.8\nChecking: ubuntu-minimal ([<Origin component:'main' archive:'jammy-updates' origin:'Ubuntu' label:'Ubuntu' site:'archive.ubuntu.com' isTrusted:True>])\nadjusting candidate version: ubuntu-minimal=1.481.3\nChecking: ubuntu-release-upgrader-core ([<Origin component:'main' archive:'jammy-updates' origin:'Ubuntu' label:'Ubuntu' site:'archive.ubuntu.com' isTrusted:True>])\nadjusting candidate version: ubuntu-release-upgrader-core=1:22.04.20\nChecking: ubuntu-server ([<Origin component:'main' archive:'jammy-updates' origin:'Ubuntu' label:'Ubuntu' site:'archive.ubuntu.com' isTrusted:True>])\nadjusting candidate version: ubuntu-server=1.481.3\nChecking: ubuntu-server-minimal ([<Origin component:'main' archive:'jammy-updates' origin:'Ubuntu' label:'Ubuntu' site:'archive.ubuntu.com' isTrusted:True>])\nadjusting candidate version: ubuntu-server-minimal=1.481.3\nChecking: ubuntu-standard ([<Origin component:'main' archive:'jammy-updates' origin:'Ubuntu' label:'Ubuntu' site:'archive.ubuntu.com' isTrusted:True>])\nadjusting candidate version: ubuntu-standard=1.481.3\nChecking: update-manager-core ([<Origin component:'main' archive:'jammy-updates' origin:'Ubuntu' label:'Ubuntu' site:'archive.ubuntu.com' isTrusted:True>])\nadjusting candidate version: update-manager-core=1:22.04.21\nChecking: xfsprogs ([<Origin component:'main' archive:'jammy-updates' origin:'Ubuntu' label:'Ubuntu' site:'archive.ubuntu.com' isTrusted:True>])\nadjusting candidate version: xfsprogs=5.13.0-1ubuntu2\npkgs that look like they should be upgraded: \n\rFetched 0 B in 0s (0 B/s)                                                       \nfetch.run() result: 0\nPackages blacklist due to conffile prompts: []\nNo packages found that can be upgraded unattended and no pending auto-removals\nThe list of kept packages can't be calculated in dry-run mode."
+}

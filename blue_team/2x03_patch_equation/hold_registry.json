@@ -1,0 +1,18 @@
+{
+  "holds": [
+    {
+      "package": "apache2",
+      "reason": "billing app requires apache2 2.4.52 mod_php compatibility",
+      "owner": "analyst",
+      "review_date": "2026-05-28",
+      "pin_version": "2.4.52-1ubuntu4.23"
+    },
+    {
+      "package": "curl",
+      "reason": "regression seen in curl 7.81.0-1ubuntu1.25 against billing API TLS handshake",
+      "owner": "analyst",
+      "review_date": "2026-09-30",
+      "pin_version": "7.81.0-1ubuntu1.25"
+    }
+  ]
+}

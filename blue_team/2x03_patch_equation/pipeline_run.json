@@ -1,0 +1,64 @@
+{
+  "started_at": "2026-08-17T09:38:36Z",
+  "finished_at": "2026-08-17T09:39:31Z",
+  "hostname": "billing-srv-01",
+  "pipeline_status": "deferred",
+  "stages": [
+    {
+      "name": "vulnerability_inventory",
+      "status": "ok",
+      "exit_code": 0,
+      "duration_seconds": 0.1,
+      "stdout_tail": "Installed packages: 1019\nUpgradable packages: 0\nVulnerable packages recorded: 0\nReport saved to: /home/analyst/blue_team/2x03_patch_equation/vulnerability_inventory.json",
+      "stderr_tail": ""
+    },
+    {
+      "name": "service_dependency_map",
+      "status": "ok",
+      "exit_code": 0,
+      "duration_seconds": 44,
+      "stdout_tail": "Created service_dependency_map.json with 37 service entries.",
+      "stderr_tail": ""
+    },
+    {
+      "name": "pre_patch_snapshot",
+      "status": "ok",
+      "exit_code": 0,
+      "duration_seconds": 0.3,
+      "stdout_tail": "Snapshot: pre_patch_state.json\nSize: 160K\nKernel: 5.15.0-187-generic\nReboot required: false\nPackages: 1019  Services: 37  Conffiles: 1040",
+      "stderr_tail": ""
+    },
+    {
+      "name": "patch_plan",
+      "status": "ok",
+      "exit_code": 0,
+      "duration_seconds": 0.1,
+      "stdout_tail": "Emergency: 0   Urgent: 0   Scheduled: 0\nReboot required by plan: no\nReport saved to: patch_plan.json",
+      "stderr_tail": ""
+    },
+    {
+      "name": "maintenance_window",
+      "status": "failed",
+      "exit_code": 10,
+      "duration_seconds": 1.2,
+      "stdout_tail": "now:            2026-08-17 11:39 Europe/Paris (Mon)\nactive window:  (none)\nnext window:    standard  at 2026-08-22T02:00:00+02:00\nseconds until:  397239\ndecision:       emergency_available_override_required\nReport saved to: maintenance_window.json",
+      "stderr_tail": ""
+    },
+    {
+      "name": "change_log",
+      "status": "ok",
+      "exit_code": 0,
+      "duration_seconds": 9.1,
+      "stdout_tail": "Events found: 6 (inside window: 0, outside: 6)\nReport saved to: patch_change_log.json",
+      "stderr_tail": ""
+    }
+  ],
+  "artifacts": {
+    "vulnerability_inventory": "vulnerability_inventory.json",
+    "service_dependency_map": "service_dependency_map.json",
+    "pre_patch_snapshot": "pre_patch_state.json",
+    "patch_plan": "patch_plan.json",
+    "maintenance_window": "maintenance_window.json",
+    "change_log": "patch_change_log.json"
+  }
+}

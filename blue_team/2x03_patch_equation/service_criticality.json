@@ -10,3 +10,4 @@
   "rsyslog.service": "medium",
   "unattended-upgrades.service": "medium"
 }
+

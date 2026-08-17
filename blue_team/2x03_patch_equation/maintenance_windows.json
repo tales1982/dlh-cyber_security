@@ -1,0 +1,8 @@
+{
+  "timezone": "Europe/Paris",
+  "windows": [
+    { "name": "standard", "days": ["Sat"], "start": "02:00", "end": "06:00" },
+    { "name": "extended", "days": ["Sat"], "start": "00:00", "end": "08:00", "week_of_month": 1 },
+    { "name": "emergency", "always": true }
+  ]
+}
