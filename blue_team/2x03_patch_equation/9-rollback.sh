@@ -134,4 +134,9 @@ jq -n \
 echo "ROLLBACK: $([ "$SUCCESS" = "true" ] && echo success || echo failed)"
 echo "from $CURRENT_VERSION to $TARGET_VERSION"
 
-[ "$SUCCESS" = "true" ]
+# Exit 0 only if downgrade, hold, and all affected service probes succeeded; exit 1 otherwise.
+if [ "$SUCCESS" = "true" ]; then
+    exit 0
+else
+    exit 1
+fi
