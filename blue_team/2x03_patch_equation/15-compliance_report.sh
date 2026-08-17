@@ -75,29 +75,60 @@ trap 'rm -f "$CVE_FACTS_FILE" "$RESULTS_FILE"' EXIT
 
 mapfile -t ALL_CVES < <(jq -r '.cve' "$CVE_FACTS_FILE" 2>/dev/null | sort -u)
 
+# Pre-group facts and resolved-at lookups by CVE in one jq pass each, instead
+# of re-scanning the whole facts file / change log once per CVE inside the
+# loop below - with a large accumulated ./history/, that O(cve_count *
+# facts_count) rescan is slow enough to be a real risk, not just style.
+# Severity is ranked explicitly (critical > high > medium > low); a plain
+# alphabetical sort would rank "medium" above "critical".
+declare -A CVE_PACKAGE CVE_SEVERITY CVE_FIRST_SEEN
+while IFS=$'\t' read -r fcve fpackage fseverity ffirst_seen; do
+    [ -z "$fcve" ] && continue
+    CVE_PACKAGE["$fcve"]="$fpackage"
+    CVE_SEVERITY["$fcve"]="$fseverity"
+    CVE_FIRST_SEEN["$fcve"]="$ffirst_seen"
+done < <(jq -rs '
+    def sev_rank($s): {"critical":3,"high":2,"medium":1,"low":0}[$s] // -1;
+    group_by(.cve)[] |
+    {
+        cve: .[0].cve,
+        package: .[0].package,
+        severity: (map(.severity) | sort_by(-sev_rank(.)) | .[0]),
+        first_seen: (map(.seen_at) | sort | .[0])
+    } | [.cve, .package, .severity, .first_seen] | @tsv
+' "$CVE_FACTS_FILE")
+
+declare -A CVE_RESOLVED_AT
+if [ -f "$CHANGE_LOG_JSON" ]; then
+    while IFS=$'\t' read -r rcve rresolved_at; do
+        [ -z "$rcve" ] && continue
+        CVE_RESOLVED_AT["$rcve"]="$rresolved_at"
+    done < <(jq -r '
+        [.events[]? | . as $e | ($e.cves_resolved // [])[] | {cve: ., started: $e.started}]
+        | group_by(.cve)[]
+        | [.[0].cve, (map(.started) | sort | .[0])] | @tsv
+    ' "$CHANGE_LOG_JSON" 2>/dev/null)
+fi
+
 resolved=0; open=0; deferred_held=0; deferred_window=0
 resolved_critical_high=0; total_critical_high=0; overdue=0
 
 for cve in "${ALL_CVES[@]}"; do
     [ -z "$cve" ] && continue
 
-    facts="$(jq -sc --arg c "$cve" '[.[] | select(.cve==$c)]' "$CVE_FACTS_FILE")"
-    package="$(jq -r '.[0].package' <<<"$facts")"
-    severity="$(jq -r 'map(.severity) | sort | .[-1]' <<<"$facts")"
-    first_seen="$(jq -r 'map(.seen_at) | sort | .[0]' <<<"$facts")"
+    package="${CVE_PACKAGE[$cve]:-}"
+    severity="${CVE_SEVERITY[$cve]:-}"
+    first_seen="${CVE_FIRST_SEEN[$cve]:-}"
 
     is_current="$(jq --arg c "$cve" 'index($c) != null' <<<"$CURRENT_CVES_JSON")"
     is_held="$(jq --arg p "$package" 'index($p) != null' <<<"$HELD_PACKAGES_JSON")"
 
+    # resolved_at feeds --argjson below, so it must be valid JSON text: the
+    # bare word null, or a properly double-quoted string.
     resolved_at="null"
     if [ "$is_current" != "true" ]; then
         state="resolved"
-        if [ -f "$CHANGE_LOG_JSON" ]; then
-            resolved_at="$(jq --arg c "$cve" \
-                '[.events[]? | select((.cves_resolved // []) | index($c) != null) | .started] | sort | .[0] // null | if . == null then null else . end' \
-                "$CHANGE_LOG_JSON" | head -1)"
-            [ "$resolved_at" = "" ] && resolved_at="null"
-        fi
+        [ -n "${CVE_RESOLVED_AT[$cve]:-}" ] && resolved_at="\"${CVE_RESOLVED_AT[$cve]}\""
     elif [ "$is_held" = "true" ]; then
         state="deferred_held"
     elif [ "$PIPELINE_STATUS" = "deferred" ]; then
