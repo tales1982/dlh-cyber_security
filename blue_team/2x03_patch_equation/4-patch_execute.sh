@@ -114,6 +114,8 @@ for i in "${!PLAN_LINES[@]}"; do
     exit_code=0
     stdout_out="$(mktemp)"
     stderr_out="$(mktemp)"
+    # Exponential backoff on a busy dpkg lock: 5s, 10s, 20s, 40s, 80s, up to
+    # a 120s cumulative wait, then give up and fail the entry.
     retry_delay=5
     elapsed_wait=0
     while :; do
