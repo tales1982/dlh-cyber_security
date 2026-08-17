@@ -1,6 +1,6 @@
 {
-  "started_at": "2026-08-17T09:38:36Z",
-  "finished_at": "2026-08-17T09:39:31Z",
+  "started_at": "2026-08-17T10:49:07Z",
+  "finished_at": "2026-08-17T10:50:04Z",
   "hostname": "billing-srv-01",
   "pipeline_status": "deferred",
   "stages": [
@@ -8,16 +8,16 @@
       "name": "vulnerability_inventory",
       "status": "ok",
       "exit_code": 0,
-      "duration_seconds": 0.1,
-      "stdout_tail": "Installed packages: 1019\nUpgradable packages: 0\nVulnerable packages recorded: 0\nReport saved to: /home/analyst/blue_team/2x03_patch_equation/vulnerability_inventory.json",
+      "duration_seconds": 2.3,
+      "stdout_tail": "Installed packages: 1019\nUpgradable packages: 53\nVulnerable packages recorded: 0\nReport saved to: /home/analyst/blue_team/2x03_patch_equation/vulnerability_inventory.json",
       "stderr_tail": ""
     },
     {
       "name": "service_dependency_map",
       "status": "ok",
       "exit_code": 0,
-      "duration_seconds": 44,
-      "stdout_tail": "Created service_dependency_map.json with 37 service entries.",
+      "duration_seconds": 45.1,
+      "stdout_tail": "Created service_dependency_map.json with 40 service entries.",
       "stderr_tail": ""
     },
     {
@@ -25,7 +25,7 @@
       "status": "ok",
       "exit_code": 0,
       "duration_seconds": 0.3,
-      "stdout_tail": "Snapshot: pre_patch_state.json\nSize: 160K\nKernel: 5.15.0-187-generic\nReboot required: false\nPackages: 1019  Services: 37  Conffiles: 1040",
+      "stdout_tail": "Snapshot: pre_patch_state.json\nSize: 160K\nKernel: 5.15.0-187-generic\nReboot required: false\nPackages: 1019  Services: 40  Conffiles: 1040",
       "stderr_tail": ""
     },
     {
@@ -40,15 +40,15 @@
       "name": "maintenance_window",
       "status": "failed",
       "exit_code": 10,
-      "duration_seconds": 1.2,
-      "stdout_tail": "now:            2026-08-17 11:39 Europe/Paris (Mon)\nactive window:  (none)\nnext window:    standard  at 2026-08-22T02:00:00+02:00\nseconds until:  397239\ndecision:       emergency_available_override_required\nReport saved to: maintenance_window.json",
+      "duration_seconds": 1,
+      "stdout_tail": "now:            2026-08-17 12:49 Europe/Paris (Mon)\nactive window:  (none)\nnext window:    standard  at 2026-08-22T02:00:00+02:00\nseconds until:  393005\ndecision:       emergency_available_override_required\nReport saved to: maintenance_window.json",
       "stderr_tail": ""
     },
     {
       "name": "change_log",
       "status": "ok",
       "exit_code": 0,
-      "duration_seconds": 9.1,
+      "duration_seconds": 8.1,
       "stdout_tail": "Events found: 6 (inside window: 0, outside: 6)\nReport saved to: patch_change_log.json",
       "stderr_tail": ""
     }

@@ -152,4 +152,9 @@ echo "PIPELINE: $PIPELINE_STATUS"
 echo "Duration: ${DURATION_TOTAL}s"
 echo "Report saved to: $OUT_JSON"
 
-[ "$PIPELINE_STATUS" = "ok" ] || [ "$PIPELINE_STATUS" = "deferred" ]
+# Exit 0 on ok or deferred, exit 1 on any stage failure.
+if [ "$PIPELINE_STATUS" = "ok" ] || [ "$PIPELINE_STATUS" = "deferred" ]; then
+    exit 0
+else
+    exit 1
+fi
