@@ -82,11 +82,12 @@ echo "[*] Comparing patch_plan.json to expected..."
 PLAN_MATCHES="false"
 DIFF_JSON="[]"
 if [ -f patch_plan.json ] && [ -f "$EXPECTED_PLAN" ]; then
-    # Normalize the one genuinely time-varying field (generated_at) to a
-    # fixed placeholder before comparing, rather than dropping it, so a
-    # real mismatch still shows the field in the unified diff.
-    NORM_ACTUAL="$(jq '.generated_at = "<TIMESTAMP>"' patch_plan.json)"
-    NORM_EXPECTED="$(jq '.generated_at = "<TIMESTAMP>"' "$EXPECTED_PLAN")"
+    # Normalize the one genuinely time-varying field (generated_at, a
+    # timestamp) to a fixed placeholder before comparing, rather than
+    # dropping it, so a real mismatch still shows the field in the diff.
+    TIMESTAMP_PLACEHOLDER="NORMALIZED_TIMESTAMP"
+    NORM_ACTUAL="$(jq --arg ts "$TIMESTAMP_PLACEHOLDER" '.generated_at = $ts' patch_plan.json)"
+    NORM_EXPECTED="$(jq --arg ts "$TIMESTAMP_PLACEHOLDER" '.generated_at = $ts' "$EXPECTED_PLAN")"
     if [ "$NORM_ACTUAL" = "$NORM_EXPECTED" ]; then
         PLAN_MATCHES="true"
         echo "  match"
