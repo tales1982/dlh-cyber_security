@@ -58,7 +58,7 @@ while IFS=$'\t' read -r svc pre_state; do
 done < <(jq -r '.services // {} | to_entries[] | "\(.key)\t\(.value.active_state)"' "$PRE_JSON")
 
 # --- 2. Listening socket checks ----------------------------------------------
-mapfile -t CURRENT_LISTENING < <(ss -tulnH 2>/dev/null | awk '{print $1, $5}' | sort -u)
+mapfile -t CURRENT_LISTENING < <(ss -tulnp 2>/dev/null | awk 'NR>1 {print $1, $5}' | sort -u)
 sock_pass=0; sock_total=0
 while IFS=$'\t' read -r proto addr; do
     [ -z "$proto" ] && continue
@@ -133,4 +133,9 @@ else
 fi
 echo "Report saved to: $OUT_JSON"
 
-[ "$passed" -eq "$total" ]
+# Exit 0 if all checks passed, exit 1 if any regression or probe failure was detected.
+if [ "$passed" -eq "$total" ]; then
+    exit 0
+else
+    exit 1
+fi
