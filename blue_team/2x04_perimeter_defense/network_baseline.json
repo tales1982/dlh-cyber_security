@@ -1,0 +1,187 @@
+{
+  "timestamp": "2026-08-20T05:17:20Z",
+  "hostname": "billing-srv-01",
+  "interfaces": [
+    {
+      "name": "lo",
+      "mac": "00:00:00:00:00:00",
+      "link_state": "UNKNOWN",
+      "addresses": [
+        {
+          "family": "inet",
+          "address": "127.0.0.1",
+          "prefixlen": 8
+        }
+      ]
+    },
+    {
+      "name": "enp0s3",
+      "mac": "08:00:27:ab:b5:ad",
+      "link_state": "UP",
+      "addresses": [
+        {
+          "family": "inet",
+          "address": "10.0.2.15",
+          "prefixlen": 24
+        },
+        {
+          "family": "inet6",
+          "address": "fe80::a00:27ff:feab:b5ad",
+          "prefixlen": 64
+        }
+      ]
+    },
+    {
+      "name": "enp0s8",
+      "mac": "08:00:27:81:84:e2",
+      "link_state": "UP",
+      "addresses": [
+        {
+          "family": "inet",
+          "address": "10.10.1.10",
+          "prefixlen": 24
+        },
+        {
+          "family": "inet",
+          "address": "10.10.3.1",
+          "prefixlen": 24
+        },
+        {
+          "family": "inet6",
+          "address": "fe80::a00:27ff:fe81:84e2",
+          "prefixlen": 64
+        }
+      ]
+    }
+  ],
+  "routes": [
+    {
+      "dst": "default",
+      "gateway": "10.0.2.2",
+      "dev": "enp0s3",
+      "protocol": "dhcp",
+      "scope": null
+    },
+    {
+      "dst": "10.0.2.0/24",
+      "gateway": null,
+      "dev": "enp0s3",
+      "protocol": "kernel",
+      "scope": "link"
+    },
+    {
+      "dst": "10.0.2.2",
+      "gateway": null,
+      "dev": "enp0s3",
+      "protocol": "dhcp",
+      "scope": "link"
+    },
+    {
+      "dst": "10.0.2.3",
+      "gateway": null,
+      "dev": "enp0s3",
+      "protocol": "dhcp",
+      "scope": "link"
+    },
+    {
+      "dst": "10.10.1.0/24",
+      "gateway": null,
+      "dev": "enp0s8",
+      "protocol": "kernel",
+      "scope": "link"
+    },
+    {
+      "dst": "10.10.3.0/24",
+      "gateway": null,
+      "dev": "enp0s8",
+      "protocol": "kernel",
+      "scope": "link"
+    }
+  ],
+  "neighbors": [
+    {
+      "ip": "10.0.2.3",
+      "mac": "52:54:00:12:35:03",
+      "state": "STALE"
+    },
+    {
+      "ip": "10.0.2.2",
+      "mac": "52:54:00:12:35:02",
+      "state": "DELAY"
+    }
+  ],
+  "listening_sockets": [
+    {
+      "proto": "udp",
+      "bind_addr": "127.0.0.53%lo",
+      "port": 53,
+      "process": "systemd-resolve",
+      "pid": 550
+    },
+    {
+      "proto": "udp",
+      "bind_addr": "10.0.2.15%enp0s3",
+      "port": 68,
+      "process": "systemd-network",
+      "pid": 436
+    },
+    {
+      "proto": "tcp",
+      "bind_addr": "0.0.0.0",
+      "port": 3306,
+      "process": "mysqld",
+      "pid": 714
+    },
+    {
+      "proto": "tcp",
+      "bind_addr": "127.0.0.1",
+      "port": 33060,
+      "process": "mysqld",
+      "pid": 714
+    },
+    {
+      "proto": "tcp",
+      "bind_addr": "0.0.0.0",
+      "port": 22,
+      "process": "sshd",
+      "pid": 663
+    },
+    {
+      "proto": "tcp",
+      "bind_addr": "127.0.0.53%lo",
+      "port": 53,
+      "process": "systemd-resolve",
+      "pid": 550
+    },
+    {
+      "proto": "tcp",
+      "bind_addr": "[::]",
+      "port": 22,
+      "process": "sshd",
+      "pid": 663
+    },
+    {
+      "proto": "tcp",
+      "bind_addr": "*",
+      "port": 80,
+      "process": "apache2",
+      "pid": 694
+    }
+  ],
+  "established_connections": [
+    {
+      "local_addr": "10.0.2.15",
+      "local_port": 22,
+      "peer_addr": "10.0.2.2",
+      "peer_port": 54020,
+      "process": "sshd",
+      "pid": 1145
+    }
+  ],
+  "dns_resolvers": {
+    "resolv_conf_nameservers": [
+      "127.0.0.53"
+    ],
+    "resolvectl_status": "Global\n       Protocols: -LLMNR -mDNS -DNSOverTLS DNSSEC=no/unsupported\nresolv.conf mode: stub\n\nLink 2 (enp0s3)\n    Current Scopes: DNS\n         Protocols: +DefaultRoute +LLMNR -mDNS -DNSOverTLS DNSSEC=no/unsupported\nCurrent DNS Server: 10.0.2.3\n       DNS Servers: 10.0.2.3\n        DNS Domain: fritz.box\n\nLink 3 (enp0s8)\nCurrent Scopes: none\n     Protocols: -DefaultRoute +LLMNR -mDNS -DNSOverTLS DNSSEC=no/unsupported"
+  }
+}
