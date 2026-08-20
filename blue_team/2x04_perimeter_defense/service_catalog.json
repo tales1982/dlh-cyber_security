@@ -1,0 +1,79 @@
+{
+  "mysqld": "database",
+  "mariadbd": "database",
+  "postgres": "database",
+  "mongod": "database",
+  "redis-server": "database",
+  "memcached": "database",
+
+  "apache2": "web",
+  "nginx": "web",
+  "httpd": "web",
+  "lighttpd": "web",
+  "caddy": "web",
+  "gunicorn": "web",
+  "uwsgi": "web",
+  "node": "web",
+
+  "sshd": "ssh",
+
+  "named": "dns",
+  "bind9": "dns",
+  "dnsmasq": "dns",
+  "systemd-resolve": "dns",
+  "systemd-resolved": "dns",
+  "unbound": "dns",
+  "avahi-daemon": "dns",
+
+  "ntpd": "ntp",
+  "chronyd": "ntp",
+  "systemd-timesyncd": "ntp",
+
+  "rpcbind": "rpc",
+  "rpc.statd": "rpc",
+  "rpc.mountd": "rpc",
+  "rpc.idmapd": "rpc",
+
+  "smbd": "smb",
+  "nmbd": "smb",
+  "winbindd": "smb",
+
+  "cupsd": "print",
+  "cups-browsed": "print",
+
+  "rsyslogd": "telemetry",
+  "syslog-ng": "telemetry",
+  "collectd": "telemetry",
+  "node_exporter": "telemetry",
+  "prometheus-node-exporter": "telemetry",
+  "filebeat": "telemetry",
+  "metricbeat": "telemetry",
+  "telegraf": "telemetry",
+  "systemd-journal-remote": "telemetry",
+
+  "systemd-network": "dhcp",
+  "systemd-networkd": "dhcp",
+  "dhclient": "dhcp",
+
+  "postfix": "mail",
+  "master": "mail",
+  "exim4": "mail",
+  "sendmail": "mail",
+  "dovecot": "mail",
+
+  "in.telnetd": "telnet",
+  "telnetd": "telnet",
+
+  "vsftpd": "ftp",
+  "proftpd": "ftp",
+  "pure-ftpd": "ftp",
+  "ftpd": "ftp",
+
+  "snmpd": "snmpv2c",
+
+  "in.rlogind": "rlogin",
+  "rlogind": "rlogin",
+
+  "nfsd": "nfsv3",
+  "rpc.nfsd": "nfsv3"
+}

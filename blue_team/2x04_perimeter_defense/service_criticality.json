@@ -1,0 +1,79 @@
+{
+  "mysqld": "critical",
+  "mariadbd": "critical",
+  "postgres": "critical",
+  "mongod": "critical",
+  "redis-server": "high",
+  "memcached": "medium",
+
+  "apache2": "high",
+  "nginx": "high",
+  "httpd": "high",
+  "lighttpd": "high",
+  "caddy": "high",
+  "gunicorn": "high",
+  "uwsgi": "high",
+  "node": "high",
+
+  "sshd": "critical",
+
+  "named": "high",
+  "bind9": "high",
+  "dnsmasq": "medium",
+  "systemd-resolve": "medium",
+  "systemd-resolved": "medium",
+  "unbound": "high",
+  "avahi-daemon": "low",
+
+  "ntpd": "medium",
+  "chronyd": "medium",
+  "systemd-timesyncd": "low",
+
+  "rpcbind": "high",
+  "rpc.statd": "medium",
+  "rpc.mountd": "medium",
+  "rpc.idmapd": "medium",
+
+  "smbd": "high",
+  "nmbd": "medium",
+  "winbindd": "medium",
+
+  "cupsd": "low",
+  "cups-browsed": "low",
+
+  "rsyslogd": "low",
+  "syslog-ng": "low",
+  "collectd": "low",
+  "node_exporter": "low",
+  "prometheus-node-exporter": "low",
+  "filebeat": "low",
+  "metricbeat": "low",
+  "telegraf": "low",
+  "systemd-journal-remote": "low",
+
+  "systemd-network": "low",
+  "systemd-networkd": "low",
+  "dhclient": "low",
+
+  "postfix": "medium",
+  "master": "medium",
+  "exim4": "medium",
+  "sendmail": "medium",
+  "dovecot": "medium",
+
+  "in.telnetd": "critical",
+  "telnetd": "critical",
+
+  "vsftpd": "high",
+  "proftpd": "high",
+  "pure-ftpd": "high",
+  "ftpd": "high",
+
+  "snmpd": "medium",
+
+  "in.rlogind": "critical",
+  "rlogind": "critical",
+
+  "nfsd": "high",
+  "rpc.nfsd": "high"
+}

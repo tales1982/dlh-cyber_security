@@ -38,7 +38,7 @@ fi
 
 HOSTNAME_VAL="$(hostname)"
 GENERATED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-INSECURE_FUNCTIONS=(telnet ftp snmp rlogin nfs)
+INSECURE_FUNCTIONS=(telnet ftp snmpv1 snmpv2c rlogin nfsv2 nfsv3)
 
 is_insecure_function() {
     local fn="$1" f
