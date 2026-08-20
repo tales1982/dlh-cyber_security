@@ -20,6 +20,8 @@ TS="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 HOSTNAME_VAL="$(hostname)"
 
 # --- Interfaces --------------------------------------------------------
+# Enumerate active network interfaces with `ip -j addr show` and retain
+# name, MAC address, link state and all assigned addresses.
 INTERFACES_JSON="$(ip -j addr show 2>/dev/null | jq '
     map({
       name: .ifname,
@@ -31,6 +33,8 @@ INTERFACES_JSON="$(ip -j addr show 2>/dev/null | jq '
 [ -z "$INTERFACES_JSON" ] && INTERFACES_JSON="[]"
 
 # --- Routes --------------------------------------------------------------
+# Capture the routing table with `ip -j route show`, including the default
+# gateway.
 ROUTES_JSON="$(ip -j route show 2>/dev/null | jq '
     map({
       dst: (.dst // "default"),
@@ -43,12 +47,16 @@ ROUTES_JSON="$(ip -j route show 2>/dev/null | jq '
 [ -z "$ROUTES_JSON" ] && ROUTES_JSON="[]"
 
 # --- ARP / neighbor table -------------------------------------------------
+# Capture the ARP neighbors table with `ip -j neigh show` and retain IP,
+# MAC and state.
 NEIGHBORS_JSON="$(ip -j neigh show 2>/dev/null | jq '
     map({ip: .dst, mac: (.lladdr // null), state: ((.state // ["UNKNOWN"]) | join(","))})
 ' 2>/dev/null)"
 [ -z "$NEIGHBORS_JSON" ] && NEIGHBORS_JSON="[]"
 
 # --- Listening sockets (ss has no -j on this iproute2 build - text parse) --
+# Enumerate listening TCP and UDP sockets with `ss -tulnpH` and resolve
+# each socket to its owning process and PID.
 # Columns for `ss -tulnpH`: Netid State Recv-Q Send-Q Local:Port Peer:Port Process
 parse_listening() {
     ss -tulnpH 2>/dev/null | while read -r netid _state _recvq _sendq local peer proc_rest; do
@@ -72,6 +80,8 @@ LISTENING_JSON="$(parse_listening | jq -s '.')"
 [ -z "$LISTENING_JSON" ] && LISTENING_JSON="[]"
 
 # --- Established connections ------------------------------------------------
+# Enumerate established outbound connections with `ss -tnpH state established`
+# and resolve each connection to its owning process and PID.
 # `ss -tnpH state established` omits Netid/State (implied tcp/ESTAB by the filter).
 parse_established() {
     ss -tnpH state established 2>/dev/null | while read -r _recvq _sendq local peer proc_rest; do
@@ -93,6 +103,8 @@ ESTABLISHED_JSON="$(parse_established | jq -s '.')"
 [ -z "$ESTABLISHED_JSON" ] && ESTABLISHED_JSON="[]"
 
 # --- DNS resolvers -----------------------------------------------------
+# Capture the DNS resolver configuration from /etc/resolv.conf and from
+# `resolvectl status --no-pager` if systemd-resolved is active.
 mapfile -t RESOLV_NS < <(grep -E '^nameserver' /etc/resolv.conf 2>/dev/null | awk '{print $2}')
 RESOLVCONF_JSON="$(printf '%s\n' "${RESOLV_NS[@]:-}" | jq -R . | jq -s 'map(select(length>0))')"
 
