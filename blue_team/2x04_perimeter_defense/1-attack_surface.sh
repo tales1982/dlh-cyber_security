@@ -38,7 +38,7 @@ fi
 
 HOSTNAME_VAL="$(hostname)"
 GENERATED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-INSECURE_FUNCTIONS=(telnet ftp snmpv1 snmpv2c rlogin nfsv2 nfsv3)
+INSECURE_FUNCTIONS=(telnet ftp snmp rlogin nfs)
 
 is_insecure_function() {
     local fn="$1" f
@@ -52,6 +52,11 @@ owning_package() {
     local exec_path="$1" line pkg
     [ -z "$exec_path" ] && { echo "unknown"; return; }
     line="$(dpkg -S "$exec_path" 2>/dev/null | grep -v '^diversion by ' | head -1)"
+    # usrmerge systems (/lib -> /usr/lib) resolve /proc/<pid>/exe under /usr/lib,
+    # but dpkg's manifest may still list the pre-merge /lib path for the same file.
+    if [ -z "$line" ] && [[ "$exec_path" == /usr/* ]]; then
+        line="$(dpkg -S "${exec_path#/usr}" 2>/dev/null | grep -v '^diversion by ' | head -1)"
+    fi
     pkg="${line%%: *}"; pkg="${pkg%%,*}"; pkg="${pkg%%:*}"
     echo "${pkg:-unknown}"
 }
