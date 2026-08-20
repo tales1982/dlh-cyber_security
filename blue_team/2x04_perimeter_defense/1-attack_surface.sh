@@ -62,9 +62,16 @@ owning_package() {
 }
 
 unit_for_pid() {
-    local pid="$1"
+    local pid="$1" candidate
     [ -z "$pid" ] || [ "$pid" = "null" ] || [ ! -r "/proc/$pid/cgroup" ] && { echo "null"; return; }
-    grep -oE '[a-zA-Z0-9@._-]+\.service' "/proc/$pid/cgroup" 2>/dev/null | head -1
+    candidate="$(grep -oE '[a-zA-Z0-9@._-]+\.service' "/proc/$pid/cgroup" 2>/dev/null | head -1)"
+    [ -z "$candidate" ] && { echo "null"; return; }
+    # Confirm it is a real, loaded systemd unit via `systemctl show`.
+    if systemctl show "$candidate" --no-pager -p LoadState 2>/dev/null | grep -q '^LoadState=loaded$'; then
+        echo "$candidate"
+    else
+        echo "null"
+    fi
 }
 
 function_for() {
