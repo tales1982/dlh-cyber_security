@@ -27,8 +27,14 @@ resolve_input() {
     done
     echo "$name"
 }
+# Read network_baseline.json from T0 as its primary input.
 [ -f "$BASELINE_JSON" ] || BASELINE_JSON="$(resolve_input network_baseline.json)"
+# Tag each socket with a function label drawn from a provided
+# service_catalog.json (values include database, web, ssh, dns, ntp, rpc,
+# smb, print, telemetry, unknown).
 CATALOG_JSON="$(resolve_input service_catalog.json)"
+# Tag each socket with a criticality label from a provided
+# service_criticality.json (values: critical, high, medium, low).
 CRITICALITY_JSON="$(resolve_input service_criticality.json)"
 
 if [ ! -r "$BASELINE_JSON" ]; then
@@ -38,7 +44,12 @@ fi
 
 HOSTNAME_VAL="$(hostname)"
 GENERATED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-INSECURE_FUNCTIONS=(telnet ftp snmp rlogin nfs)
+# Flag every socket that matches at least one "should not be exposed" rule:
+# bound to 0.0.0.0 on a service tagged database or rpc, or on any socket
+# whose function is telnet, ftp, snmpv1, snmpv2c, rlogin, or nfs v2/v3.
+# service_catalog.json ships generic "snmp"/"nfs" function labels, so both
+# the generic and version-qualified forms are treated as insecure here.
+INSECURE_FUNCTIONS=(telnet ftp snmp snmpv1 snmpv2c rlogin nfs nfsv2 nfsv3)
 
 is_insecure_function() {
     local fn="$1" f
@@ -48,12 +59,15 @@ is_insecure_function() {
     return 1
 }
 
+# For each listening socket, resolve the owning binary, the owning package
+# via dpkg -S and the configured service unit via systemctl show when the
+# owner is a systemd service.
 owning_package() {
     local exec_path="$1" line pkg
     [ -z "$exec_path" ] && { echo "unknown"; return; }
     line="$(dpkg -S "$exec_path" 2>/dev/null | grep -v '^diversion by ' | head -1)"
-    # usrmerge systems (/lib -> /usr/lib) resolve /proc/<pid>/exe under /usr/lib,
-    # but dpkg's manifest may still list the pre-merge /lib path for the same file.
+    # usrmerge systems (/lib -> /usr/lib) resolve the process exe path under
+    # /usr/lib, but dpkg's manifest may still list the pre-merge /lib path.
     if [ -z "$line" ] && [[ "$exec_path" == /usr/* ]]; then
         line="$(dpkg -S "${exec_path#/usr}" 2>/dev/null | grep -v '^diversion by ' | head -1)"
     fi
@@ -150,6 +164,11 @@ done < <(jq -c '.listening_sockets[]' "$BASELINE_JSON")
 TOTAL="$(wc -l < "$RESULTS_FILE" | tr -d ' ')"
 FLAGGED_TOTAL="$(jq -s '[.[] | select((.exposure_flags | length) > 0)] | length' "$RESULTS_FILE")"
 
+# Emit attack_surface.json with generated_at, hostname, sockets (array with
+# proto, port, bind_addr, process, package, function, criticality,
+# exposure_flags) and a summary block counting flagged sockets by severity
+# (criticality: critical, high, medium) plus unknown-function sockets for
+# later triage.
 jq -s \
     --arg generated_at "$GENERATED_AT" --arg hostname "$HOSTNAME_VAL" \
     --argjson total "$TOTAL" --argjson flagged "$FLAGGED_TOTAL" \
