@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-08-20T05:17:20Z",
+  "timestamp": "2026-08-20T16:47:54Z",
   "hostname": "billing-srv-01",
   "interfaces": [
     {
@@ -107,7 +107,7 @@
     {
       "ip": "10.0.2.2",
       "mac": "52:54:00:12:35:02",
-      "state": "DELAY"
+      "state": "REACHABLE"
     }
   ],
   "listening_sockets": [
@@ -116,56 +116,56 @@
       "bind_addr": "127.0.0.53%lo",
       "port": 53,
       "process": "systemd-resolve",
-      "pid": 550
+      "pid": 553
     },
     {
       "proto": "udp",
       "bind_addr": "10.0.2.15%enp0s3",
       "port": 68,
       "process": "systemd-network",
-      "pid": 436
-    },
-    {
-      "proto": "tcp",
-      "bind_addr": "0.0.0.0",
-      "port": 3306,
-      "process": "mysqld",
-      "pid": 714
-    },
-    {
-      "proto": "tcp",
-      "bind_addr": "127.0.0.1",
-      "port": 33060,
-      "process": "mysqld",
-      "pid": 714
-    },
-    {
-      "proto": "tcp",
-      "bind_addr": "0.0.0.0",
-      "port": 22,
-      "process": "sshd",
-      "pid": 663
+      "pid": 448
     },
     {
       "proto": "tcp",
       "bind_addr": "127.0.0.53%lo",
       "port": 53,
       "process": "systemd-resolve",
-      "pid": 550
+      "pid": 553
     },
     {
       "proto": "tcp",
-      "bind_addr": "[::]",
+      "bind_addr": "0.0.0.0",
+      "port": 3306,
+      "process": "mysqld",
+      "pid": 707
+    },
+    {
+      "proto": "tcp",
+      "bind_addr": "0.0.0.0",
       "port": 22,
       "process": "sshd",
-      "pid": 663
+      "pid": 670
+    },
+    {
+      "proto": "tcp",
+      "bind_addr": "127.0.0.1",
+      "port": 33060,
+      "process": "mysqld",
+      "pid": 707
     },
     {
       "proto": "tcp",
       "bind_addr": "*",
       "port": 80,
       "process": "apache2",
-      "pid": 694
+      "pid": 703
+    },
+    {
+      "proto": "tcp",
+      "bind_addr": "[::]",
+      "port": 22,
+      "process": "sshd",
+      "pid": 670
     }
   ],
   "established_connections": [
@@ -173,9 +173,17 @@
       "local_addr": "10.0.2.15",
       "local_port": 22,
       "peer_addr": "10.0.2.2",
-      "peer_port": 54020,
+      "peer_port": 38476,
       "process": "sshd",
-      "pid": 1145
+      "pid": 2482
+    },
+    {
+      "local_addr": "10.0.2.15",
+      "local_port": 22,
+      "peer_addr": "10.0.2.2",
+      "peer_port": 50784,
+      "process": "sshd",
+      "pid": 860
     }
   ],
   "dns_resolvers": {
