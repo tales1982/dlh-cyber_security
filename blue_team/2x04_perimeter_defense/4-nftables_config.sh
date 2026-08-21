@@ -179,6 +179,8 @@ if [ "$RENDER_ONLY" = "true" ]; then
 fi
 
 # --- Rollback point -----------------------------------------------------
+# Save a rollback of the current ruleset before applying:
+#   nft list ruleset > /var/backups/nftables-rollback-<timestamp>.nft
 # `nft list ruleset` prints `add table`/`add chain`/`add rule` statements
 # only - it never includes a `flush ruleset` line. Restoring it with a bare
 # `nft -f rollback.nft` therefore layers the old rules on top of whatever is

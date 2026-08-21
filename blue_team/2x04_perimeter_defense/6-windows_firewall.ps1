@@ -43,6 +43,8 @@ foreach ($zone in $rules.zones) {
 }
 
 # --- Profile defaults --------------------------------------------------------
+# Enable dropped connection logging via:
+#   Set-NetFirewallProfile -LogBlocked True -LogFileName "%systemroot%\system32\LogFiles\Firewall\meddefense.log"
 Write-Host "[*] Setting profile defaults..."
 $logDir = "%systemroot%\system32\LogFiles\Firewall"
 $logFile = "$logDir\meddefense.log"
@@ -111,6 +113,7 @@ if (-not $hostZone) {
 
 Write-Host "[*] Creating rules from flow matrix..."
 $createdCount = 0
+$exportedRules = New-Object System.Collections.Generic.List[object]
 foreach ($flow in $rules.flows) {
     if ($flow.dst_zone -ne $hostZone) { continue }
 
@@ -144,6 +147,34 @@ foreach ($flow in $rules.flows) {
 
     $createdCount++
     Write-Host ("  {0,-28} Inbound Allow {1,-4} {2,-7} [CREATED]" -f $displayName, $flow.proto, $flow.dport)
+
+    $exportedRules.Add([PSCustomObject]@{
+        DisplayName   = $displayName
+        Direction     = "Inbound"
+        Action        = "Allow"
+        Protocol      = $protoUpper
+        LocalPort     = $flow.dport
+        RemoteAddress = $remoteAddress
+        Profile       = "Any"
+        Justification = $flow.justification
+    })
 }
 
 Write-Host "[*] Rules created: $createdCount"
+
+# --- Export the resulting ruleset as structured JSON ------------------------
+# Downstream automation diffs this against the nftables ruleset (T4) to
+# confirm both platforms enforce the same flow matrix - so the export has to
+# carry every field a diff would need, not just the display name.
+$exportPath = Join-Path $PSScriptRoot "windows_firewall_rules.json"
+[PSCustomObject]@{
+    generated_at = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")
+    host_zone    = $hostZone
+    rules        = $exportedRules
+    summary      = @{
+        rule_count    = $exportedRules.Count
+        removed_count = $removedCount
+    }
+} | ConvertTo-Json -Depth 6 | Set-Content -Path $exportPath -Encoding UTF8
+
+Write-Host "[*] Exported ruleset to: $exportPath"
