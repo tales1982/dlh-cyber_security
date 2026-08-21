@@ -204,6 +204,16 @@ if ! nft -f "$CONF_FILE"; then
 fi
 echo "[*] Applied $CONF_FILE"
 
-RULE_COUNT="$(nft -a list ruleset | grep -c '# handle')"
-echo "[*] Ruleset loaded: $RULE_COUNT rule handles present"
+# Verify the load with `nft list ruleset` and count the rules that match
+# the expected total: every rule/set line this script rendered into
+# CONF_FILE must show up as a loaded handle in the live "inet meddefense"
+# table, or the atomic apply silently dropped something.
+EXPECTED_COUNT="$(grep -cE '^        (iif |iifname |oif |ct state|icmp type|icmpv6 type|ip saddr|ip daddr|log prefix)' "$CONF_FILE")"
+RULE_COUNT="$(nft -a list table inet meddefense | grep -c '# handle')"
+echo "[*] Ruleset loaded: $RULE_COUNT rule handles present (expected $EXPECTED_COUNT from render)"
+if [ "$RULE_COUNT" -eq "$EXPECTED_COUNT" ]; then
+    echo "[*] Loaded rule count matches expected total."
+else
+    echo "[!] WARNING: loaded rule count ($RULE_COUNT) does not match the expected total ($EXPECTED_COUNT)." >&2
+fi
 echo "[*] Rollback path if needed: sudo nft -f $ROLLBACK_FILE   (already includes 'flush ruleset')"
