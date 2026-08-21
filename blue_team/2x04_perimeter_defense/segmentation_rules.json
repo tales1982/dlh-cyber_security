@@ -93,7 +93,7 @@
       "dst_zone": "INTERNAL",
       "proto": "tcp",
       "dport": 3306,
-      "justification": "DICOM imaging to PACS",
+      "justification": "DMZ application tier to internal patient database",
       "exception_for": null,
       "src_hosts": [
         "10.10.10.11"

@@ -57,11 +57,12 @@ def deny($src; $dst):
   flow("INTERNAL"; "INTERNAL"; "tcp"; 443; "clinical workstations to internal EHR/web app tier"; null; ["10.10.2.0/24"]),
   flow("INTERNAL"; "INTERNAL"; "tcp"; 3306; "clinical workstations to internal database tier"; null; ["10.10.2.0/24"]),
 
-  flow("DMZ"; "INTERNAL"; "tcp"; 3306; "DICOM imaging to PACS"; null; ["10.10.10.11"]),
+  flow("DMZ"; "INTERNAL"; "tcp"; 3306; "DMZ application tier to internal patient database"; null; ["10.10.10.11"]),
 
   flow("MEDDEV"; "INTERNAL"; "tcp"; 4242; "DICOM imaging to PACS"; null; null),
   flow("MEDDEV"; "INTERNAL"; "tcp"; 443; "EHR web integration for device display"; null; null),
 
+  # ALL zones to MGMT resolver on udp/53 and tcp/53
   flow("DMZ"; "MGMT"; "udp"; 53; "DNS resolution"; null; null),
   flow("DMZ"; "MGMT"; "tcp"; 53; "DNS resolution (zone transfer / large replies)"; null; null),
   flow("INTERNAL"; "MGMT"; "udp"; 53; "DNS resolution"; null; null),
