@@ -1,48 +1,41 @@
 [
   {
     "sid": 9000001,
-    "description": "MEDDEV to Internet (TCP)",
+    "description": "MEDDEV to Internet",
     "pcap": "meddev_egress.pcap",
-    "hits": 6,
+    "hits": 7,
     "result": "pass"
   },
   {
     "sid": 9000002,
-    "description": "MEDDEV to Internet (UDP, non-NTP)",
-    "pcap": "meddev_egress.pcap",
-    "hits": 1,
-    "result": "pass"
-  },
-  {
-    "sid": 9000003,
     "description": "Guest to SMB",
     "pcap": "guest_smb.pcap",
     "hits": 4,
     "result": "pass"
   },
   {
-    "sid": 9000004,
+    "sid": 9000003,
     "description": "Large Outbound From Server",
     "pcap": "large_outbound.pcap",
     "hits": 2,
     "result": "pass"
   },
   {
-    "sid": 9000005,
+    "sid": 9000004,
     "description": "DNS Tunneling Long Label",
     "pcap": "dns_tunnel.pcap",
     "hits": 5,
     "result": "pass"
   },
   {
-    "sid": 9000006,
+    "sid": 9000005,
     "description": "Clinical to Unauthorized DB",
     "pcap": "clinical_wrong_db.pcap",
     "hits": 4,
     "result": "pass"
   },
   {
-    "sid": 9000007,
+    "sid": 9000006,
     "description": "Telnet to MEDDEV",
     "pcap": "telnet_meddev.pcap",
     "hits": 5,

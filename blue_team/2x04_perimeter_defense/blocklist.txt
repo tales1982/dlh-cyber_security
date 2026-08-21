@@ -1,0 +1,7 @@
+c2.crimson-tide-ops.xyz
+crimson-tide-ops.xyz
+update.crimson-tide-ops.xyz
+malicious-payload-drop.net
+phishing-meddefense-lookalike.com
+ransomware-c2-relay.top
+darkweb-exfil-proxy.onion.to

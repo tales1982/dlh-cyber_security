@@ -28,6 +28,8 @@ DURATION="$(echo "$STATS" | grep -oE 'Capture duration:\s*[0-9.]+' | grep -oE '[
 echo "[*] Duration: ${DURATION:-0} s     Packets: ${PACKET_COUNT:-0}"
 
 # --- Conversation stats (TCP + UDP), top 10 by total bytes -----------------
+# Conversation statistics via tshark -q -z conv,tcp and tshark -q -z conv,udp
+# (parse_conv below is the shared implementation for both protocols).
 parse_conv() {
     local proto="$1"
     tshark -q -z "conv,${proto}" -r "$PCAP" 2>/dev/null | awk -v proto="$proto" '

@@ -1,0 +1,4 @@
+billing.meddefense.local
+ehr.meddefense.local
+meddefense.local
+ubuntu.com
