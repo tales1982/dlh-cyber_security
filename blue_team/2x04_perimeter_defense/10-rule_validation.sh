@@ -42,12 +42,12 @@ echo ""
 
 # --- Declarative target: pcap -> "sid:description" pairs -------------------
 declare -A TARGETS=(
-    ["meddev_egress.pcap"]="9000001:MEDDEV to Internet (TCP);9000002:MEDDEV to Internet (UDP, non-NTP)"
-    ["guest_smb.pcap"]="9000003:Guest to SMB"
-    ["large_outbound.pcap"]="9000004:Large Outbound From Server"
-    ["dns_tunnel.pcap"]="9000005:DNS Tunneling Long Label"
-    ["clinical_wrong_db.pcap"]="9000006:Clinical to Unauthorized DB"
-    ["telnet_meddev.pcap"]="9000007:Telnet to MEDDEV"
+    ["meddev_egress.pcap"]="9000001:MEDDEV to Internet"
+    ["guest_smb.pcap"]="9000002:Guest to SMB"
+    ["large_outbound.pcap"]="9000003:Large Outbound From Server"
+    ["dns_tunnel.pcap"]="9000004:DNS Tunneling Long Label"
+    ["clinical_wrong_db.pcap"]="9000005:Clinical to Unauthorized DB"
+    ["telnet_meddev.pcap"]="9000006:Telnet to MEDDEV"
 )
 
 RESULTS_FILE="$(mktemp)"

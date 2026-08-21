@@ -7,24 +7,26 @@
 # billing database's authorized-client list. sid range: 9000000-9000099
 # (reserved for this ruleset), rev:1, classtype from classification.config.
 #
-# Requirement 1 ("med device to Internet, any port except udp/123") needs
-# two rules, not one: Suricata's `ip` protocol keyword matches any L4
-# protocol but loses access to protocol-specific fields like a udp port
-# negation, and there is no single-rule way to say "any protocol except
-# udp on this one port". Splitting into a tcp rule (NTP is UDP, so no
-# exception needed there) and a udp rule with a negated port cleanly covers
-# the same requirement with valid syntax - both target the same labeled
-# PCAP (meddev_egress.pcap) in validation.
+# Requirement 1 ("med device to Internet, any port except udp/123") is one
+# detection (sid:9000001) plus one allow-list helper (sid:9000000, action
+# `pass`, not counted among the six `alert` sids - it never appears in an
+# eve.json alert). Suricata evaluates `pass` rules before `alert` rules
+# regardless of file order: a MEDDEV->Internet NTP packet matches the pass
+# rule first and is exempted from the rest of the engine, which is what
+# lets sid:9000001 use the protocol-agnostic `ip` keyword (any TCP, UDP,
+# ICMP, ... traffic) instead of needing a udp port negation it could not
+# otherwise express in a single rule.
 
-# 1a. MEDDEV -> Internet, any TCP traffic (never allowed regardless of port)
-alert tcp 10.10.4.0/24 any -> !$HOME_NET any (msg:"MEDDEFENSE MEDDEV Egress Traffic to Non-NTP External Host"; flow:to_server; classtype:policy-violation; sid:9000001; rev:1;)
+# 0. Allow-list: MEDDEV -> Internet NTP (clock sync) is the one permitted
+#    exception to requirement 1 - handled here so sid:9000001 does not have to.
+pass udp 10.10.4.0/24 any -> any 123 (msg:"MEDDEFENSE Allow MEDDEV NTP (clock sync exception)"; sid:9000000; rev:1;)
 
-# 1b. MEDDEV -> Internet, UDP traffic on any port except 123 (NTP is allowed)
-alert udp 10.10.4.0/24 any -> !$HOME_NET !123 (msg:"MEDDEFENSE MEDDEV Egress Traffic to Non-NTP External Host"; classtype:policy-violation; sid:9000002; rev:1;)
+# 1. MEDDEV -> Internet, any protocol other than the NTP exception above.
+alert ip 10.10.4.0/24 any -> !$HOME_NET any (msg:"MEDDEFENSE MEDDEV Egress Traffic to Non-NTP External Host"; classtype:policy-violation; sid:9000001; rev:1;)
 
 # 2. Unauthorized SMB from the guest network (10.10.5.0/24 is not a modeled
 #    zone in segmentation_rules.json - it should never reach SMB at all)
-alert tcp 10.10.5.0/24 any -> $HOME_NET 445 (msg:"MEDDEFENSE Unauthorized SMB from Guest Network"; flow:to_server,established; classtype:policy-violation; sid:9000003; rev:1;)
+alert tcp 10.10.5.0/24 any -> $HOME_NET 445 (msg:"MEDDEFENSE Unauthorized SMB from Guest Network"; flow:to_server,established; classtype:policy-violation; sid:9000002; rev:1;)
 
 # 3. Large outbound transfer from the server zone to a single external host.
 #    Suricata's stream_size gives per-flow accumulated byte count (the
@@ -32,14 +34,14 @@ alert tcp 10.10.5.0/24 any -> $HOME_NET 445 (msg:"MEDDEFENSE Unauthorized SMB fr
 #    threshold clause rate-limits the alert to once per source per 300s so
 #    a single large transfer does not spam duplicate alerts, approximating
 #    the "300-second window" the requirement describes.
-alert tcp 10.10.1.0/24 any -> !$HOME_NET any (msg:"MEDDEFENSE Large Outbound Transfer From Server Zone"; flow:to_server,established; stream_size:client,>,52428800; threshold:type limit, track by_src, count 1, seconds 300; classtype:policy-violation; sid:9000004; rev:1;)
+alert tcp 10.10.1.0/24 any -> !$HOME_NET any (msg:"MEDDEFENSE Large Outbound Transfer From Server Zone"; flow:to_server,established; stream_size:client,>,52428800; threshold:type limit, track by_src, count 1, seconds 300; classtype:policy-violation; sid:9000003; rev:1;)
 
 # 4. DNS tunneling: leftmost query label longer than 50 characters
-alert dns any any -> any any (msg:"MEDDEFENSE DNS Tunneling Suspected (Long Label)"; dns.query; pcre:"/^[^.]{51,}\./"; classtype:bad-unknown; sid:9000005; rev:1;)
+alert dns any any -> any any (msg:"MEDDEFENSE DNS Tunneling Suspected (Long Label)"; dns.query; pcre:"/^[^.]{51,}\./"; classtype:bad-unknown; sid:9000004; rev:1;)
 
 # 5. Clinical workstation reaching a MySQL port that is NOT the authorized
 #    billing database host (10.10.1.10) - negated address expression.
-alert tcp 10.10.2.0/24 any -> !10.10.1.10 3306 (msg:"MEDDEFENSE Clinical Workstation to Unauthorized Database Host"; flow:to_server,established; classtype:policy-violation; sid:9000006; rev:1;)
+alert tcp 10.10.2.0/24 any -> !10.10.1.10 3306 (msg:"MEDDEFENSE Clinical Workstation to Unauthorized Database Host"; flow:to_server,established; classtype:policy-violation; sid:9000005; rev:1;)
 
 # 6. Telnet cleartext session to a medical device, from any source.
-alert tcp any any -> 10.10.4.0/24 23 (msg:"MEDDEFENSE Telnet Cleartext to Medical Device"; flow:to_server,established; classtype:policy-violation; sid:9000007; rev:1;)
+alert tcp any any -> 10.10.4.0/24 23 (msg:"MEDDEFENSE Telnet Cleartext to Medical Device"; flow:to_server,established; classtype:policy-violation; sid:9000006; rev:1;)
