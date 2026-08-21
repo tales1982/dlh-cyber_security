@@ -4,34 +4,41 @@
 #
 # MedDefense-specific detections the community ruleset cannot know about:
 # the medical device VLAN's Internet ban, the guest network's SMB ban, the
-# billing database's authorized-client list. sid range: 9000000-9000099
-# (reserved for this ruleset), rev:1, classtype from classification.config.
+# billing database's authorized-client list.
 #
-# Requirement 1 ("med device to Internet, any port except udp/123") is a
-# single rule: protocol `ip` matches any L4 protocol (tcp, udp, icmp, ...)
-# while the destination port field is still evaluated against the packet's
-# decoded L4 port when one exists, so `!123` correctly excludes NTP without
-# needing a separate tcp/udp split.
-alert ip 10.10.4.0/24 any -> !$HOME_NET !123 (msg:"MEDDEFENSE MEDDEV Egress Traffic to Non-NTP External Host"; classtype:policy-violation; sid:9000001; rev:1;)
+# Classification codes:
+# - policy-violation: Policy violation
+# - attempted-admin: Attempted administrator privilege gain
+# - attempted-recon: Potential network-based reconnaissance
+# - bad-unknown: Potentially bad traffic
+#
+# HOME_NET is [10.10.0.0/16] as defined in suricata.yaml
 
-# 2. Unauthorized SMB from the guest network (10.10.5.0/24 is not a modeled
-#    zone in segmentation_rules.json - it should never reach SMB at all)
-alert tcp 10.10.5.0/24 any -> $HOME_NET 445 (msg:"MEDDEFENSE Unauthorized SMB from Guest Network"; flow:to_server,established; classtype:policy-violation; sid:9000002; rev:1;)
+# Rule 1: Medical Device to Internet (non-NTP)
+# MEDDEV zone 10.10.4.0/24 must never reach the Internet
+# except for NTP (udp/123). Covers both TCP and UDP traffic.
+alert ip 10.10.4.0/24 any -> !$HOME_NET !123 (msg:"MEDDEV to Internet non-NTP"; classtype:policy-violation; sid:9000001; rev:1;)
 
-# 3. Large outbound transfer from the server zone to a single external host.
-#    Suricata's stream_size gives per-flow accumulated byte count (the
-#    closest native equivalent to "more than 50MB in one session"); the
-#    threshold clause rate-limits the alert to once per source per 300s so
-#    a single large transfer does not spam duplicate alerts, approximating
-#    the "300-second window" the requirement describes.
-alert tcp 10.10.1.0/24 any -> !$HOME_NET any (msg:"MEDDEFENSE Large Outbound Transfer From Server Zone"; flow:to_server,established; stream_size:client,>,52428800; threshold:type limit, track by_src, count 1, seconds 300; classtype:policy-violation; sid:9000003; rev:1;)
+# Rule 2: Unauthorized SMB from Guest Network
+# Guest VLAN 10.10.5.0/24 should never access SMB (tcp/445)
+# on any MedDefense internal host.
+alert tcp 10.10.5.0/24 any -> $HOME_NET 445 (msg:"Guest to SMB Unauthorized"; flow:to_server,established; classtype:attempted-admin; sid:9000002; rev:1;)
 
-# 4. DNS tunneling: leftmost query label longer than 50 characters
-alert dns any any -> any any (msg:"MEDDEFENSE DNS Tunneling Suspected (Long Label)"; dns.query; pcre:"/^[^.]{51,}\./"; classtype:bad-unknown; sid:9000004; rev:1;)
+# Rule 3: Large Outbound Transfer from Server Zone
+# Fires when a host in 10.10.1.0/24 pushes excessive TCP
+# payload to a single external host within 300 seconds.
+alert tcp 10.10.1.0/24 any -> !$HOME_NET any (msg:"Large Outbound From Server 50MB+"; flow:to_server,established; stream_size:client,>,52428800; threshold:type limit, track by_src, count 1, seconds 300; classtype:policy-violation; sid:9000003; rev:1;)
 
-# 5. Clinical workstation reaching a MySQL port that is NOT the authorized
-#    billing database host (10.10.1.10) - negated address expression.
-alert tcp 10.10.2.0/24 any -> !10.10.1.10 3306 (msg:"MEDDEFENSE Clinical Workstation to Unauthorized Database Host"; flow:to_server,established; classtype:policy-violation; sid:9000005; rev:1;)
+# Rule 4: DNS Tunneling (Long Leftmost Label)
+# Detects DNS queries where the leftmost label exceeds 50
+# characters, indicating possible data exfiltration.
+alert udp any any -> any 53 (msg:"DNS Tunneling Long Label"; dns.query; pcre:"/^[^.]{51,}\./"; classtype:bad-unknown; sid:9000004; rev:1;)
 
-# 6. Telnet cleartext session to a medical device, from any source.
-alert tcp any any -> 10.10.4.0/24 23 (msg:"MEDDEFENSE Telnet Cleartext to Medical Device"; flow:to_server,established; classtype:policy-violation; sid:9000006; rev:1;)
+# Rule 5: Clinical Workstation to Unauthorized Database
+# tcp/3306 from 10.10.2.0/24 that is NOT destined to the
+# authorized billing database host (10.10.1.10).
+alert tcp 10.10.2.0/24 any -> ![10.10.1.10] 3306 (msg:"Clinical to Unauthorized DB"; flow:to_server,established; classtype:attempted-admin; sid:9000005; rev:1;)
+
+# Rule 6: Telnet Cleartext to Medical Device
+# Any source attempting telnet (tcp/23) to MEDDEV zone.
+alert tcp any any -> 10.10.4.0/24 23 (msg:"Telnet to MEDDEV"; flow:to_server,established; classtype:policy-violation; sid:9000006; rev:1;)

@@ -1,116 +1,148 @@
 #!/bin/bash
 #
-# 10-rule_validation.sh
+# Name:        10-rule_validation.sh
+# Purpose:     Validate meddefense.rules against labeled PCAPs
 #
 # MedDefense Health Systems - Perimeter and Network Defense (2x04)
 #
 # A custom rule that never fires is worse than no rule at all - it is a
 # false sense of coverage. This script proves each meddefense.rules
-# signature actually fires against the labeled PCAP built for it, using
-# the same suricata.yaml (and therefore the same ruleset) as T8/T9.
+# signature actually fires against the labeled PCAP built for it.
 #
 # Usage: sudo ./10-rule_validation.sh
 
-set -uo pipefail
+set -euo pipefail
 
-SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
-LABELS_DIR="/home/analyst/MedDefense_Lab/PCAPs/labels"
+# Configuration
+LAB_DIR="/home/analyst/MedDefense_Lab"
+RULES_FILE="./meddefense.rules"
+# Labeled PCAPs directory: /home/analyst/MedDefense_Lab/PCAPs/labels
+PCAPS_DIR="${LAB_DIR}/PCAPs/labels"
+CONFIG_FILE="./suricata.yaml"
+OUTPUT_DIR="/tmp/meddefense-validation-$$"
+TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
-resolve_input() {
-    local name="$1" candidate
-    for candidate in "./${name}" "${SCRIPT_DIR}/${name}" "${SCRIPT_DIR}/../${name}"; do
-        [ -f "$candidate" ] && { echo "$candidate"; return 0; }
-    done
-    echo "$name"
-}
-YAML="$(resolve_input suricata.yaml)"
-RULES_FILE="$(resolve_input meddefense.rules)"
+# Mapping of PCAP to expected SID and description
+declare -A PCAP_SID_MAP
+PCAP_SID_MAP["meddev_egress.pcap"]="9000001|MEDDEV to Internet"
+PCAP_SID_MAP["guest_smb.pcap"]="9000002|Guest to SMB"
+PCAP_SID_MAP["large_outbound.pcap"]="9000003|Large Outbound From Server"
+PCAP_SID_MAP["dns_tunnel.pcap"]="9000004|DNS Tunneling Long Label"
+PCAP_SID_MAP["clinical_wrong_db.pcap"]="9000005|Clinical to Unauthorized DB"
+PCAP_SID_MAP["telnet_meddev.pcap"]="9000006|Telnet to MEDDEV"
 
-if [ ! -f "$YAML" ]; then
-    echo "error: cannot find suricata.yaml (run 8-suricata_setup.sh first)" >&2
-    exit 1
-fi
-if [ ! -f "$RULES_FILE" ]; then
-    echo "error: cannot find meddefense.rules" >&2
-    exit 1
-fi
-if [ ! -d "$LABELS_DIR" ]; then
-    echo "error: labeled PCAP directory not found: $LABELS_DIR" >&2
-    exit 1
-fi
-
-# Do not depend on 8-suricata_setup.sh having already copied
-# meddefense.rules into /var/lib/suricata/rules - inject this repo's own
-# copy directly into a throwaway suricata.yaml via its absolute path, so
-# this script proves the *local* meddefense.rules fires, not whatever
-# happens to be installed system-wide.
-RULES_FILE_ABS="$(readlink -f "$RULES_FILE")"
-TEST_YAML="$(mktemp)"
-sed "s|^rule-files:|rule-files:\n  - ${RULES_FILE_ABS}|" "$YAML" > "$TEST_YAML"
-
-RULE_COUNT="$(grep -c '^alert' "$RULES_FILE" 2>/dev/null || echo 0)"
+# Count rules
+RULE_COUNT=$(grep -cE '^alert' "$RULES_FILE" 2>/dev/null || true)
+RULE_COUNT=${RULE_COUNT:-0}
 echo "[*] Loading meddefense.rules...          $RULE_COUNT rules"
+
+# Verify inputs
+if [[ ! -f "$RULES_FILE" ]]; then
+    echo "Error: meddefense.rules not found at $RULES_FILE" >&2
+    exit 1
+fi
+
+if [[ ! -d "$PCAPS_DIR" ]]; then
+    echo "Error: PCAP directory $PCAPS_DIR not found." >&2
+    exit 1
+fi
+
+if [[ ! -f "$CONFIG_FILE" ]]; then
+    echo "Error: suricata.yaml not found. Run 8-suricata_setup.sh first." >&2
+    exit 1
+fi
+
+# Create output directory
+mkdir -p "$OUTPUT_DIR"
+
 echo "[*] Running validation against labeled PCAPs..."
 echo ""
 
-# --- Declarative target: pcap -> "sid:description" pairs -------------------
-declare -A TARGETS=(
-    ["meddev_egress.pcap"]="9000001:MEDDEV to Internet"
-    ["guest_smb.pcap"]="9000002:Guest to SMB"
-    ["large_outbound.pcap"]="9000003:Large Outbound From Server"
-    ["dns_tunnel.pcap"]="9000004:DNS Tunneling Long Label"
-    ["clinical_wrong_db.pcap"]="9000005:Clinical to Unauthorized DB"
-    ["telnet_meddev.pcap"]="9000006:Telnet to MEDDEV"
-)
+PASSED=0
+FAILED=0
 
-RESULTS_FILE="$(mktemp)"
-trap 'rm -rf "$RESULTS_FILE" "$TEST_YAML" "${RUN_DIR:-}"' EXIT
+for pcaps_file in "$PCAPS_DIR"/*.pcap; do
+    [[ -f "$pcaps_file" ]] || continue
 
-total=0
-passed=0
+    PCAP_NAME=$(basename "$pcaps_file")
 
-for pcap_name in meddev_egress.pcap guest_smb.pcap large_outbound.pcap dns_tunnel.pcap clinical_wrong_db.pcap telnet_meddev.pcap; do
-    pcap_path="${LABELS_DIR}/${pcap_name}"
-    if [ ! -f "$pcap_path" ]; then
-        echo "[!] missing labeled PCAP: $pcap_path - skipping" >&2
+    # Skip if no SID mapping for this PCAP
+    if [[ -z "${PCAP_SID_MAP[$PCAP_NAME]:-}" ]]; then
         continue
     fi
 
-    RUN_DIR="$(mktemp -d)"
-    suricata -c "$TEST_YAML" -r "$pcap_path" -l "$RUN_DIR" >/dev/null 2>&1
-    HITS_JSON="[]"
-    [ -f "$RUN_DIR/eve.json" ] && HITS_JSON="$(jq -nc '[inputs | select(.event_type=="alert") | .alert.signature_id]' "$RUN_DIR/eve.json" 2>/dev/null)"
-    rm -rf "$RUN_DIR"
+    EXPECTED_INFO="${PCAP_SID_MAP[$PCAP_NAME]}"
+    EXPECTED_SID=$(echo "$EXPECTED_INFO" | cut -d'|' -f1)
+    EXPECTED_DESC=$(echo "$EXPECTED_INFO" | cut -d'|' -f2)
 
-    IFS=';' read -ra pairs <<< "${TARGETS[$pcap_name]}"
-    for pair in "${pairs[@]}"; do
-        sid="${pair%%:*}"
-        desc="${pair#*:}"
-        total=$((total + 1))
-        count="$(jq --argjson s "$sid" '[.[] | select(. == $s)] | length' <<<"$HITS_JSON")"
+    echo "sid $EXPECTED_SID $EXPECTED_DESC"
+    echo "  target: $PCAP_NAME"
+    echo "  expected: fire"
 
-        echo "sid $sid $desc"
-        echo "  target: $pcap_name"
-        echo "  expected: fire"
-        if [ "$count" -gt 0 ]; then
-            echo "  observed: fire ($count hits)                PASS"
-            passed=$((passed + 1))
-            jq -nc --argjson sid "$sid" --arg desc "$desc" --arg pcap "$pcap_name" --argjson count "$count" \
-                '{sid: $sid, description: $desc, pcap: $pcap, hits: $count, result: "pass"}' >> "$RESULTS_FILE"
+    # Run suricata with custom rules loaded
+    LOG_DIR="${OUTPUT_DIR}/${PCAP_NAME%.pcap}"
+    mkdir -p "$LOG_DIR"
+
+    # Temporarily modify suricata.yaml to load meddefense.rules
+    RULES_FILE_ABS="$(readlink -f "$RULES_FILE")"
+    TMP_CONFIG="${LOG_DIR}/test.yaml"
+    sed "s|rule-files:|rule-files:\n  - ${RULES_FILE_ABS}|g" "$CONFIG_FILE" > "$TMP_CONFIG"
+
+    # Run suricata replay (suppress noisy stderr)
+    suricata -c "$TMP_CONFIG" -r "$pcaps_file" -l "$LOG_DIR" 2>/dev/null
+
+    EVE_FILE="${LOG_DIR}/eve.json"
+
+    if [[ -f "$EVE_FILE" ]]; then
+        # Count alerts with expected SID
+        ALERT_COUNT=$(jq -s "[.[] | select(.alert.signature_id == $EXPECTED_SID)] | length" "$EVE_FILE" 2>/dev/null || true)
+        ALERT_COUNT=${ALERT_COUNT:-0}
+
+        if [[ "$ALERT_COUNT" -gt 0 ]]; then
+            echo "  observed: fire ($ALERT_COUNT hits)                PASS"
+            PASSED=$((PASSED + 1))
         else
-            echo "  observed: did not fire                       FAIL"
-            jq -nc --argjson sid "$sid" --arg desc "$desc" --arg pcap "$pcap_name" --argjson count "$count" \
-                '{sid: $sid, description: $desc, pcap: $pcap, hits: $count, result: "fail"}' >> "$RESULTS_FILE"
+            echo "  observed: FAILED (no matches)                      FAIL"
+            FAILED=$((FAILED + 1))
         fi
-        echo ""
-    done
+    else
+        echo "  observed: FAILED (no eve.json)                         FAIL"
+        FAILED=$((FAILED + 1))
+    fi
+    echo ""
 done
 
-failed=$((total - passed))
-echo "Rules:  $total"
-echo "Passed: $passed"
-echo "Failed: $failed"
+# Summary
+echo "Rules:  $RULE_COUNT"
+echo "Passed: $PASSED"
+echo "Failed: $FAILED"
+echo "Output: rule_validation.json"
 
-jq -s '.' "$RESULTS_FILE" > rule_validation.json
+# ---------------------------------------------------------------
+# Emit rule_validation.json with structured results
+# ---------------------------------------------------------------
+VALIDATION_JSON=$(jq -n \
+    --arg ts "$TIMESTAMP" \
+    --argjson rule_count "$RULE_COUNT" \
+    --argjson passed "$PASSED" \
+    --argjson failed "$FAILED" \
+    '{
+        timestamp: $ts,
+        rules_file: "meddefense.rules",
+        rule_count: $rule_count,
+        passed: $passed,
+        failed: $failed,
+        status: (if $failed == 0 then "all_passed" else "failures_detected" end)
+    }')
 
-[ "$failed" -eq 0 ]
+echo "$VALIDATION_JSON" > "rule_validation.json"
+
+# Cleanup
+rm -rf "$OUTPUT_DIR"
+
+# Exit non-zero if any failures
+if [[ "$FAILED" -gt 0 ]]; then
+    exit 1
+fi
+
+exit 0
