@@ -48,6 +48,12 @@ def deny($src; $dst):
   zone("MEDDEV"; "10.10.4.0/24"; "medical device VLAN (DICOM/PACS, EHR display)"; "accept only to INTERNAL and MGMT, never to DMZ or the Internet")
 ] as $zones
 |
+# Minimum required flows:
+#   MGMT to INTERNAL on tcp/22 for administration
+#   MGMT to DMZ on tcp/22 for administration
+#   INTERNAL clinical workstations to INTERNAL server hosts on tcp/443 and tcp/3306
+#   DMZ to INTERNAL databases on tcp/3306 only from named DMZ application hosts
+#   MEDDEV to INTERNAL hosts on tcp/4242 (DICOM) and tcp/443 (EHR web) only
 [
   flow("MGMT"; "INTERNAL"; "tcp"; 22; "administration"; null; null),
   flow("MGMT"; "DMZ"; "tcp"; 22; "administration"; null; null),
@@ -71,8 +77,9 @@ def deny($src; $dst):
   flow("MEDDEV"; "MGMT"; "tcp"; 53; "DNS resolution (zone transfer / large replies)"; null; null)
 ] as $flows
 |
-# Explicit deny_all for every cross-zone pair that has no allow flow above -
-# MEDDEV to DMZ and to the Internet, and everything into MEDDEV except MGMT.
+# No flows from MEDDEV to DMZ or the public Internet.
+# No flows from any zone into MEDDEV except MGMT on tcp/22 and tcp/4242.
+# Explicit deny_all for every other cross-zone pair that has no allow flow above.
 [
   deny("DMZ"; "MEDDEV"),
   deny("INTERNAL"; "DMZ"),
