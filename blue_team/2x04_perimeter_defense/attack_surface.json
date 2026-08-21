@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-20T17:06:15Z",
+  "generated_at": "2026-08-21T07:56:32Z",
   "hostname": "billing-srv-01",
   "sockets": [
     {
@@ -8,10 +8,11 @@
       "bind_addr": "127.0.0.53%lo",
       "process": "systemd-resolve",
       "package": "systemd",
-      "systemd_unit": "systemd-resolved.service",
       "function": "dns",
       "criticality": "medium",
-      "exposure_flags": []
+      "exposure_flags": [],
+      "service_unit": "systemd-resolved.service",
+      "binary_path": "/usr/lib/systemd/systemd-resolved"
     },
     {
       "proto": "udp",
@@ -19,10 +20,11 @@
       "bind_addr": "10.0.2.15%enp0s3",
       "process": "systemd-network",
       "package": "systemd",
-      "systemd_unit": "systemd-networkd.service",
       "function": "dhcp",
       "criticality": "low",
-      "exposure_flags": []
+      "exposure_flags": [],
+      "service_unit": "systemd-networkd.service",
+      "binary_path": "/usr/lib/systemd/systemd-networkd"
     },
     {
       "proto": "tcp",
@@ -30,10 +32,11 @@
       "bind_addr": "127.0.0.53%lo",
       "process": "systemd-resolve",
       "package": "systemd",
-      "systemd_unit": "systemd-resolved.service",
       "function": "dns",
       "criticality": "medium",
-      "exposure_flags": []
+      "exposure_flags": [],
+      "service_unit": "systemd-resolved.service",
+      "binary_path": "/usr/lib/systemd/systemd-resolved"
     },
     {
       "proto": "tcp",
@@ -41,13 +44,14 @@
       "bind_addr": "0.0.0.0",
       "process": "mysqld",
       "package": "mysql-server-core-8.0",
-      "systemd_unit": "mysql.service",
       "function": "database",
       "criticality": "critical",
       "exposure_flags": [
         "bound_0.0.0.0",
         "database_exposed"
-      ]
+      ],
+      "service_unit": "mysql.service",
+      "binary_path": "/usr/sbin/mysqld"
     },
     {
       "proto": "tcp",
@@ -55,10 +59,14 @@
       "bind_addr": "0.0.0.0",
       "process": "sshd",
       "package": "openssh-server",
-      "systemd_unit": "ssh.service",
       "function": "ssh",
       "criticality": "critical",
-      "exposure_flags": []
+      "exposure_flags": [
+        "bound_0.0.0.0",
+        "ssh_exposed"
+      ],
+      "service_unit": "ssh.service",
+      "binary_path": "/usr/sbin/sshd"
     },
     {
       "proto": "tcp",
@@ -66,10 +74,11 @@
       "bind_addr": "127.0.0.1",
       "process": "mysqld",
       "package": "mysql-server-core-8.0",
-      "systemd_unit": "mysql.service",
       "function": "database",
       "criticality": "critical",
-      "exposure_flags": []
+      "exposure_flags": [],
+      "service_unit": "mysql.service",
+      "binary_path": "/usr/sbin/mysqld"
     },
     {
       "proto": "tcp",
@@ -77,10 +86,14 @@
       "bind_addr": "*",
       "process": "apache2",
       "package": "apache2-bin",
-      "systemd_unit": "apache2.service",
       "function": "web",
       "criticality": "high",
-      "exposure_flags": []
+      "exposure_flags": [
+        "bound_0.0.0.0",
+        "web_exposed"
+      ],
+      "service_unit": "apache2.service",
+      "binary_path": "/usr/sbin/apache2"
     },
     {
       "proto": "tcp",
@@ -88,20 +101,22 @@
       "bind_addr": "[::]",
       "process": "sshd",
       "package": "openssh-server",
-      "systemd_unit": "ssh.service",
       "function": "ssh",
       "criticality": "critical",
-      "exposure_flags": []
+      "exposure_flags": [],
+      "service_unit": "ssh.service",
+      "binary_path": "/usr/sbin/sshd"
     }
   ],
   "summary": {
     "total_sockets": 8,
-    "flagged": 1,
-    "flagged_by_criticality": {
-      "critical": 1,
-      "high": 0,
-      "medium": 0
-    },
-    "unknown_function": 0
+    "flagged_sockets": 3,
+    "unknown_functions": 0,
+    "by_severity": {
+      "critical": 2,
+      "high": 1,
+      "medium": 0,
+      "low": 0
+    }
   }
 }
