@@ -1,7 +1,7 @@
 {
   "pcap": "/home/analyst/MedDefense_Lab/PCAPs/mixed_traffic.pcap",
-  "started_at": "2026-08-20T05:49:00Z",
-  "finished_at": "2026-08-20T05:49:00Z",
+  "started_at": "2026-08-21T08:16:58Z",
+  "finished_at": "2026-08-21T08:16:58Z",
   "total_alerts": 12,
   "unique_signatures": 5,
   "severity_distribution": {
@@ -63,46 +63,7 @@
   ],
   "alerts": [
     {
-      "timestamp": "2026-08-20T07:44:01.189029+0200",
-      "src_ip": "10.10.1.99",
-      "src_port": 55050,
-      "dst_ip": "10.10.1.10",
-      "dst_port": 6,
-      "proto": "TCP",
-      "signature": "ET SCAN Rapid TCP SYN Scan Multiple Ports",
-      "signature_id": 1000001,
-      "category": "Attempted Information Leak",
-      "severity": 2,
-      "classification": "reconnaissance"
-    },
-    {
-      "timestamp": "2026-08-20T07:44:01.192087+0200",
-      "src_ip": "10.10.1.10",
-      "src_port": 59740,
-      "dst_ip": "8.8.8.8",
-      "dst_port": 53,
-      "proto": "UDP",
-      "signature": "ET DNS Exfiltration Long TXT Query",
-      "signature_id": 1000040,
-      "category": "Potentially Bad Traffic",
-      "severity": 2,
-      "classification": "exfiltration"
-    },
-    {
-      "timestamp": "2026-08-20T07:44:01.192087+0200",
-      "src_ip": "10.10.1.10",
-      "src_port": 59740,
-      "dst_ip": "8.8.8.8",
-      "dst_port": 53,
-      "proto": "UDP",
-      "signature": "MEDDEFENSE DNS Tunneling Suspected (Long Label)",
-      "signature_id": 9000005,
-      "category": "Potentially Bad Traffic",
-      "severity": 2,
-      "classification": "exfiltration"
-    },
-    {
-      "timestamp": "2026-08-20T07:44:01.191314+0200",
+      "timestamp": "2026-08-20T07:53:58.041716+0200",
       "src_ip": "10.10.1.99",
       "src_port": 51000,
       "dst_ip": "10.10.1.10",
@@ -115,7 +76,46 @@
       "classification": "lateral_movement"
     },
     {
-      "timestamp": "2026-08-20T07:44:01.191578+0200",
+      "timestamp": "2026-08-20T07:53:58.039201+0200",
+      "src_ip": "10.10.1.99",
+      "src_port": 11882,
+      "dst_ip": "10.10.1.10",
+      "dst_port": 4,
+      "proto": "TCP",
+      "signature": "ET SCAN Rapid TCP SYN Scan Multiple Ports",
+      "signature_id": 1000001,
+      "category": "Attempted Information Leak",
+      "severity": 2,
+      "classification": "reconnaissance"
+    },
+    {
+      "timestamp": "2026-08-20T07:53:58.042517+0200",
+      "src_ip": "10.10.1.10",
+      "src_port": 59740,
+      "dst_ip": "8.8.8.8",
+      "dst_port": 53,
+      "proto": "UDP",
+      "signature": "ET DNS Exfiltration Long TXT Query",
+      "signature_id": 1000040,
+      "category": "Potentially Bad Traffic",
+      "severity": 2,
+      "classification": "exfiltration"
+    },
+    {
+      "timestamp": "2026-08-20T07:53:58.042517+0200",
+      "src_ip": "10.10.1.10",
+      "src_port": 59740,
+      "dst_ip": "8.8.8.8",
+      "dst_port": 53,
+      "proto": "UDP",
+      "signature": "MEDDEFENSE DNS Tunneling Suspected (Long Label)",
+      "signature_id": 9000005,
+      "category": "Potentially Bad Traffic",
+      "severity": 2,
+      "classification": "exfiltration"
+    },
+    {
+      "timestamp": "2026-08-20T07:53:58.041981+0200",
       "src_ip": "10.10.1.99",
       "src_port": 51000,
       "dst_ip": "10.10.1.10",
@@ -128,7 +128,7 @@
       "classification": "exploit"
     },
     {
-      "timestamp": "2026-08-20T07:44:01.191578+0200",
+      "timestamp": "2026-08-20T07:53:58.041981+0200",
       "src_ip": "10.10.1.99",
       "src_port": 51000,
       "dst_ip": "10.10.1.10",
@@ -141,7 +141,7 @@
       "classification": "lateral_movement"
     },
     {
-      "timestamp": "2026-08-20T07:44:01.191776+0200",
+      "timestamp": "2026-08-20T07:53:58.042190+0200",
       "src_ip": "10.10.1.99",
       "src_port": 51000,
       "dst_ip": "10.10.1.10",
@@ -154,7 +154,7 @@
       "classification": "lateral_movement"
     },
     {
-      "timestamp": "2026-08-20T07:44:01.191891+0200",
+      "timestamp": "2026-08-20T07:53:58.042323+0200",
       "src_ip": "10.10.1.10",
       "src_port": 42886,
       "dst_ip": "8.8.8.8",
@@ -167,7 +167,7 @@
       "classification": "exfiltration"
     },
     {
-      "timestamp": "2026-08-20T07:44:01.191891+0200",
+      "timestamp": "2026-08-20T07:53:58.042323+0200",
       "src_ip": "10.10.1.10",
       "src_port": 42886,
       "dst_ip": "8.8.8.8",
@@ -180,7 +180,7 @@
       "classification": "exfiltration"
     },
     {
-      "timestamp": "2026-08-20T07:44:01.192298+0200",
+      "timestamp": "2026-08-20T07:53:58.042753+0200",
       "src_ip": "10.10.1.10",
       "src_port": 22808,
       "dst_ip": "8.8.8.8",
@@ -193,7 +193,7 @@
       "classification": "exfiltration"
     },
     {
-      "timestamp": "2026-08-20T07:44:01.192298+0200",
+      "timestamp": "2026-08-20T07:53:58.042753+0200",
       "src_ip": "10.10.1.10",
       "src_port": 22808,
       "dst_ip": "8.8.8.8",
@@ -206,7 +206,7 @@
       "classification": "exfiltration"
     },
     {
-      "timestamp": "2026-08-20T07:44:01.187148+0200",
+      "timestamp": "2026-08-20T07:53:58.037435+0200",
       "src_ip": "10.10.1.99",
       "src_port": 51000,
       "dst_ip": "10.10.1.10",
