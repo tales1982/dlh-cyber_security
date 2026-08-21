@@ -1,44 +1,8 @@
-[
-  {
-    "sid": 9000001,
-    "description": "MEDDEV to Internet",
-    "pcap": "meddev_egress.pcap",
-    "hits": 7,
-    "result": "pass"
-  },
-  {
-    "sid": 9000002,
-    "description": "Guest to SMB",
-    "pcap": "guest_smb.pcap",
-    "hits": 4,
-    "result": "pass"
-  },
-  {
-    "sid": 9000003,
-    "description": "Large Outbound From Server",
-    "pcap": "large_outbound.pcap",
-    "hits": 2,
-    "result": "pass"
-  },
-  {
-    "sid": 9000004,
-    "description": "DNS Tunneling Long Label",
-    "pcap": "dns_tunnel.pcap",
-    "hits": 5,
-    "result": "pass"
-  },
-  {
-    "sid": 9000005,
-    "description": "Clinical to Unauthorized DB",
-    "pcap": "clinical_wrong_db.pcap",
-    "hits": 4,
-    "result": "pass"
-  },
-  {
-    "sid": 9000006,
-    "description": "Telnet to MEDDEV",
-    "pcap": "telnet_meddev.pcap",
-    "hits": 5,
-    "result": "pass"
-  }
-]
+{
+  "timestamp": "2026-08-21T08:44:49Z",
+  "rules_file": "meddefense.rules",
+  "rule_count": 6,
+  "passed": 6,
+  "failed": 0,
+  "status": "all_passed"
+}
