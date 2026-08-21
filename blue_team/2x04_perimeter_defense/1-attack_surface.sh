@@ -1,185 +1,281 @@
 #!/bin/bash
-#
-# 1-attack_surface.sh
-#
-# MedDefense Health Systems - Perimeter and Network Defense (2x04)
-#
-# The baseline (T0) says which ports are open. It does not say which ones
-# should be. This script tags every listener with what it actually is
-# (function, criticality) and flags the ones that never belong on an
-# open interface - a database or RPC service on 0.0.0.0, or any protocol
-# that ships credentials or data in cleartext.
-#
-# Read-only. This script makes no configuration changes to the system.
-#
-# Usage: sudo ./1-attack_surface.sh [network_baseline.json] [output.json]
 
-set -uo pipefail
+set -euo pipefail
 
-BASELINE_JSON="${1:-network_baseline.json}"
-OUT_JSON="${2:-attack_surface.json}"
-SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
+# Configuration
+BASELINE_FILE="network_baseline.json"
+OUTPUT_FILE="attack_surface.json"
+LAB_DIR="/home/analyst/MedDefense_Lab"
 
-resolve_input() {
-    local name="$1" candidate
-    for candidate in "./${name}" "${SCRIPT_DIR}/${name}" "${SCRIPT_DIR}/../${name}"; do
-        [ -f "$candidate" ] && { echo "$candidate"; return 0; }
-    done
-    echo "$name"
-}
-# Read network_baseline.json from T0 as its primary input.
-[ -f "$BASELINE_JSON" ] || BASELINE_JSON="$(resolve_input network_baseline.json)"
-# Tag each socket with a function label drawn from a provided
-# service_catalog.json (values include database, web, ssh, dns, ntp, rpc,
-# smb, print, telemetry, unknown).
-CATALOG_JSON="$(resolve_input service_catalog.json)"
-# Tag each socket with a criticality label from a provided
-# service_criticality.json (values: critical, high, medium, low).
-CRITICALITY_JSON="$(resolve_input service_criticality.json)"
+# Locate catalog and criticality files (lab dir first, then current dir)
+CATALOG_FILE="${LAB_DIR}/service_catalog.json"
+CRIT_FILE="${LAB_DIR}/service_criticality.json"
+if [[ ! -f "$CATALOG_FILE" ]]; then
+    CATALOG_FILE="service_catalog.json"
+fi
+if [[ ! -f "$CRIT_FILE" ]]; then
+    CRIT_FILE="service_criticality.json"
+fi
 
-if [ ! -r "$BASELINE_JSON" ]; then
-    echo "error: cannot read $BASELINE_JSON (run 0-network_baseline.sh first)" >&2
+# Verify inputs exist
+if [[ ! -f "$BASELINE_FILE" ]]; then
+    echo "Error: $BASELINE_FILE not found. Run 0-network_baseline.sh first." >&2
+    exit 1
+fi
+if [[ ! -f "$CATALOG_FILE" ]]; then
+    echo "Error: service_catalog.json not found in $LAB_DIR or current directory." >&2
+    exit 1
+fi
+if [[ ! -f "$CRIT_FILE" ]]; then
+    echo "Error: service_criticality.json not found in $LAB_DIR or current directory." >&2
     exit 1
 fi
 
-HOSTNAME_VAL="$(hostname)"
-GENERATED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-# Flag every socket that matches at least one "should not be exposed" rule:
-# bound to 0.0.0.0 on a service tagged database or rpc, or on any socket
-# whose function is telnet, ftp, snmpv1, snmpv2c, rlogin, or nfs v2/v3.
-# service_catalog.json ships generic "snmp"/"nfs" function labels, so both
-# the generic and version-qualified forms are treated as insecure here.
-INSECURE_FUNCTIONS=(telnet ftp snmp snmpv1 snmpv2c rlogin nfs nfsv2 nfsv3)
+# Timestamp and hostname from baseline
+GENERATED_AT=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+HOSTNAME=$(jq -r '.hostname' "$BASELINE_FILE")
 
-is_insecure_function() {
-    local fn="$1" f
-    for f in "${INSECURE_FUNCTIONS[@]}"; do
-        [ "$fn" = "$f" ] && return 0
-    done
-    return 1
-}
+# Count listening sockets
+SOCKET_COUNT=$(jq '.listening_sockets | length' "$BASELINE_FILE")
 
-# For each listening socket, resolve the owning binary, the owning package
-# via dpkg -S and the configured service unit via systemctl show when the
-# owner is a systemd service.
-owning_package() {
-    local exec_path="$1" line pkg
-    [ -z "$exec_path" ] && { echo "unknown"; return; }
-    line="$(dpkg -S "$exec_path" 2>/dev/null | grep -v '^diversion by ' | head -1)"
-    # usrmerge systems (/lib -> /usr/lib) resolve the process exe path under
-    # /usr/lib, but dpkg's manifest may still list the pre-merge /lib path.
-    if [ -z "$line" ] && [[ "$exec_path" == /usr/* ]]; then
-        line="$(dpkg -S "${exec_path#/usr}" 2>/dev/null | grep -v '^diversion by ' | head -1)"
+# Accumulator for enriched socket objects
+SOCKETS_JSON="[]"
+
+for ((i = 0; i < SOCKET_COUNT; i++)); do
+    # Extract socket fields from baseline
+    proto=$(jq -r ".listening_sockets[$i].proto // \"unknown\"" "$BASELINE_FILE")
+    local_addr=$(jq -r ".listening_sockets[$i].bind_addr // \"\"" "$BASELINE_FILE")
+    local_port=$(jq -r ".listening_sockets[$i].port // 0" "$BASELINE_FILE")
+    pid=$(jq -r ".listening_sockets[$i].pid // empty" "$BASELINE_FILE")
+    process=$(jq -r ".listening_sockets[$i].process // \"\"" "$BASELINE_FILE")
+
+    # ---------------------------------------------------------------
+    # Resolve owning binary path via /proc/PID/exe, with fallbacks
+    # ---------------------------------------------------------------
+    binary_path=""
+    if [[ -n "$pid" && "$pid" != "null" ]]; then
+        binary_path=$(readlink -f "/proc/${pid}/exe" 2>/dev/null || echo "")
     fi
-    pkg="${line%%: *}"; pkg="${pkg%%,*}"; pkg="${pkg%%:*}"
-    echo "${pkg:-unknown}"
-}
 
-unit_for_pid() {
-    local pid="$1" candidate
-    [ -z "$pid" ] || [ "$pid" = "null" ] || [ ! -r "/proc/$pid/cgroup" ] && { echo "null"; return; }
-    candidate="$(grep -oE '[a-zA-Z0-9@._-]+\.service' "/proc/$pid/cgroup" 2>/dev/null | head -1)"
-    [ -z "$candidate" ] && { echo "null"; return; }
-    # Confirm it is a real, loaded systemd unit via `systemctl show`.
-    if systemctl show "$candidate" --no-pager -p LoadState 2>/dev/null | grep -q '^LoadState=loaded$'; then
-        echo "$candidate"
-    else
-        echo "null"
+    # Fallback 1: try pgrep to find PID by process name
+    if [[ -z "$binary_path" && -n "$process" ]]; then
+        fallback_pid=$(pgrep -x "$process" 2>/dev/null | head -1 || echo "")
+        if [[ -n "$fallback_pid" ]]; then
+            binary_path=$(readlink -f "/proc/${fallback_pid}/exe" 2>/dev/null || echo "")
+        fi
     fi
-}
 
-function_for() {
-    local proc="$1"
-    jq -r --arg p "$proc" '.[$p] // "unknown"' "$CATALOG_JSON" 2>/dev/null
-}
-criticality_for() {
-    local proc="$1"
-    jq -r --arg p "$proc" '.[$p] // "low"' "$CRITICALITY_JSON" 2>/dev/null
-}
+    # Fallback 2: try pidof to find PID by process name
+    if [[ -z "$binary_path" && -n "$process" ]]; then
+        fallback_pid=$(pidof "$process" 2>/dev/null | awk '{print $1}' || echo "")
+        if [[ -n "$fallback_pid" ]]; then
+            binary_path=$(readlink -f "/proc/${fallback_pid}/exe" 2>/dev/null || echo "")
+        fi
+    fi
 
-RESULTS_FILE="$(mktemp)"
-trap 'rm -f "$RESULTS_FILE"' EXIT
+    # Fallback 3: try which to find binary path directly
+    if [[ -z "$binary_path" && -n "$process" ]]; then
+        binary_path=$(which "$process" 2>/dev/null || echo "")
+    fi
 
-flagged_critical=0; flagged_high=0; flagged_medium=0; unknown_count=0
+    # Fallback 4: try common binary locations
+    if [[ -z "$binary_path" && -n "$process" ]]; then
+        for dir in /usr/sbin /usr/bin /sbin /bin /usr/local/sbin /usr/local/bin; do
+            if [[ -x "${dir}/${process}" ]]; then
+                binary_path="${dir}/${process}"
+                break
+            fi
+        done
+    fi
 
-while IFS= read -r sock; do
-    proto="$(jq -r '.proto' <<<"$sock")"
-    bind_addr="$(jq -r '.bind_addr' <<<"$sock")"
-    port="$(jq -r '.port' <<<"$sock")"
-    proc="$(jq -r '.process' <<<"$sock")"
-    pid="$(jq -r '.pid' <<<"$sock")"
+    # ---------------------------------------------------------------
+    # Resolve owning package via dpkg -S
+    # ---------------------------------------------------------------
+    package=""
+    if [[ -n "$binary_path" ]]; then
+        package=$(dpkg -S "$binary_path" 2>/dev/null | head -1 | cut -d: -f1 || echo "")
+    fi
 
-    exec_path=""
-    [ "$pid" != "null" ] && [ -n "$pid" ] && exec_path="$(readlink -f "/proc/$pid/exe" 2>/dev/null)"
-    package="$(owning_package "$exec_path")"
+    # Fallback: try dpkg -S with just the binary name
+    if [[ -z "$package" && -n "$process" ]]; then
+        package=$(dpkg -S "$(which "$process" 2>/dev/null || echo "$process")" 2>/dev/null | head -1 | cut -d: -f1 || echo "")
+    fi
 
-    unit="null"
-    [ -n "$exec_path" ] && unit="$(unit_for_pid "$pid")"
-    [ -z "$unit" ] && unit="null"
+    # ---------------------------------------------------------------
+    # Resolve systemd service unit via /proc/PID/cgroup, with fallbacks
+    # ---------------------------------------------------------------
+    service_unit=""
+    if [[ -n "$pid" && "$pid" != "null" ]]; then
+        cgroup_file="/proc/${pid}/cgroup"
+        if [[ -f "$cgroup_file" ]]; then
+            service_unit=$(grep -oP '[a-zA-Z0-9_.-]+\.service' "$cgroup_file" 2>/dev/null | head -1 || echo "")
+        fi
+    fi
 
-    fn="$(function_for "$proc")"
-    [ "$fn" = "unknown" ] && unknown_count=$((unknown_count + 1))
-    criticality="$(criticality_for "$proc")"
+    # Fallback 1: try pgrep to find PID and check its cgroup
+    if [[ -z "$service_unit" && -n "$process" ]]; then
+        fallback_pid=$(pgrep -x "$process" 2>/dev/null | head -1 || echo "")
+        if [[ -n "$fallback_pid" ]]; then
+            cgroup_file="/proc/${fallback_pid}/cgroup"
+            if [[ -f "$cgroup_file" ]]; then
+                service_unit=$(grep -oP '[a-zA-Z0-9_.-]+\.service' "$cgroup_file" 2>/dev/null | head -1 || echo "")
+            fi
+        fi
+    fi
 
-    # The rule is a compound OR, not "flag every 0.0.0.0 bind": sshd and
-    # apache2 on 0.0.0.0 are normal and must NOT be flagged just for that -
-    # only database/rpc bound wide-open, or an inherently insecure protocol
-    # regardless of bind address, count as exposure here.
-    flags=()
-    is_bound_any="false"
-    case "$bind_addr" in
-        0.0.0.0|\*|\[::\]|::) is_bound_any="true" ;;
+    # Fallback 2: try pidof to find PID and check its cgroup
+    if [[ -z "$service_unit" && -n "$process" ]]; then
+        fallback_pid=$(pidof "$process" 2>/dev/null | awk '{print $1}' || echo "")
+        if [[ -n "$fallback_pid" ]]; then
+            cgroup_file="/proc/${fallback_pid}/cgroup"
+            if [[ -f "$cgroup_file" ]]; then
+                service_unit=$(grep -oP '[a-zA-Z0-9_.-]+\.service' "$cgroup_file" 2>/dev/null | head -1 || echo "")
+            fi
+        fi
+    fi
+
+    # Fallback 3: try systemctl show to find matching service
+    if [[ -z "$service_unit" && -n "$process" ]]; then
+        service_unit=$(systemctl show -p Id --value "$(basename "$process").service" 2>/dev/null || echo "")
+        if [[ -z "$service_unit" || "$service_unit" == "" ]]; then
+            service_unit=$(systemctl list-units --type=service --no-pager 2>/dev/null | grep -iP "$process" | awk '{print $1}' | head -1 || echo "")
+        fi
+    fi
+
+    # ---------------------------------------------------------------
+    # Look up function from service_catalog.json (keyed by process name)
+    # ---------------------------------------------------------------
+    function_label=$(jq -r --arg proc "$process" '.[$proc] // "unknown"' "$CATALOG_FILE")
+
+    # ---------------------------------------------------------------
+    # Look up criticality from service_criticality.json (keyed by process name)
+    # ---------------------------------------------------------------
+    criticality=$(jq -r --arg proc "$process" '.[$proc] // "medium"' "$CRIT_FILE")
+
+    # ---------------------------------------------------------------
+    # Determine exposure flags
+    # Rules:
+    #   1. Bound to 0.0.0.0 on database or rpc
+    #   2. Function is telnet, ftp, snmpv1, snmpv2c, rlogin, or nfs
+    #   3. Web services exposed on wildcard (web, http, https)
+    #   4. Note ssh exposure (ssh is critical but may need segmentation)
+    # ---------------------------------------------------------------
+    flags="[]"
+
+    # Rule 1: bound to wildcard on database or rpc
+    if [[ "$local_addr" == "0.0.0.0" || "$local_addr" == "::" || "$local_addr" == "*" ]]; then
+        if [[ "$function_label" == "database" ]]; then
+            flags=$(echo "$flags" | jq '. + ["bound_0.0.0.0", "database_exposed"]')
+        elif [[ "$function_label" == "rpc" ]]; then
+            flags=$(echo "$flags" | jq '. + ["bound_0.0.0.0", "rpc_exposed"]')
+        elif [[ "$function_label" == "web" ]]; then
+            flags=$(echo "$flags" | jq '. + ["bound_0.0.0.0", "web_exposed"]')
+        elif [[ "$function_label" == "ssh" ]]; then
+            flags=$(echo "$flags" | jq '. + ["bound_0.0.0.0", "ssh_exposed"]')
+        fi
+    fi
+
+    # Rule 2: insecure protocols
+    case "$function_label" in
+        telnet)
+            flags=$(echo "$flags" | jq '. + ["insecure_protocol_telnet"]')
+            ;;
+        ftp)
+            flags=$(echo "$flags" | jq '. + ["insecure_protocol_ftp"]')
+            ;;
+        snmpv1)
+            flags=$(echo "$flags" | jq '. + ["insecure_protocol_snmpv1"]')
+            ;;
+        snmpv2c)
+            flags=$(echo "$flags" | jq '. + ["insecure_protocol_snmpv2c"]')
+            ;;
+        rlogin)
+            flags=$(echo "$flags" | jq '. + ["insecure_protocol_rlogin"]')
+            ;;
+        nfs)
+            flags=$(echo "$flags" | jq '. + ["insecure_protocol_nfs"]')
+            ;;
     esac
-    if [ "$is_bound_any" = "true" ] && [ "$fn" = "database" ]; then
-        flags+=("bound_0.0.0.0" "database_exposed")
-    fi
-    if [ "$is_bound_any" = "true" ] && [ "$fn" = "rpc" ]; then
-        flags+=("bound_0.0.0.0" "rpc_exposed")
-    fi
-    if is_insecure_function "$fn"; then
-        flags+=("insecure_protocol_${fn}")
-    fi
 
-    flags_json="$(printf '%s\n' "${flags[@]:-}" | jq -R . | jq -s 'map(select(length>0))')"
+    # Deduplicate flags
+    flags=$(echo "$flags" | jq 'unique')
 
-    case "$criticality" in
-        critical) [ "$(jq 'length' <<<"$flags_json")" -gt 0 ] && flagged_critical=$((flagged_critical + 1)) ;;
-        high) [ "$(jq 'length' <<<"$flags_json")" -gt 0 ] && flagged_high=$((flagged_high + 1)) ;;
-        medium) [ "$(jq 'length' <<<"$flags_json")" -gt 0 ] && flagged_medium=$((flagged_medium + 1)) ;;
-    esac
+    # ---------------------------------------------------------------
+    # Build socket JSON object
+    # ---------------------------------------------------------------
+    sock_obj=$(jq -n \
+        --arg proto "$proto" \
+        --argjson port "$local_port" \
+        --arg bind_addr "$local_addr" \
+        --arg process "$process" \
+        --arg package "$package" \
+        --arg function "$function_label" \
+        --arg criticality "$criticality" \
+        --arg service_unit "$service_unit" \
+        --arg binary_path "$binary_path" \
+        --argjson flags "$flags" \
+        '{
+            proto: $proto,
+            port: $port,
+            bind_addr: $bind_addr,
+            process: $process,
+            package: $package,
+            function: $function,
+            criticality: $criticality,
+            exposure_flags: $flags,
+            service_unit: $service_unit,
+            binary_path: $binary_path
+        }')
 
-    unit_json="null"
-    [ "$unit" != "null" ] && unit_json="\"$unit\""
+    SOCKETS_JSON=$(echo "$SOCKETS_JSON" | jq --argjson obj "$sock_obj" '. + [$obj]')
+done
 
-    jq -nc \
-        --arg proto "$proto" --argjson port "$([ "$port" != "null" ] && [[ "$port" =~ ^[0-9]+$ ]] && echo "$port" || echo "null")" \
-        --arg port_raw "$port" --arg bind_addr "$bind_addr" --arg process "$proc" \
-        --arg package "$package" --argjson unit "$unit_json" --arg function "$fn" \
-        --arg criticality "$criticality" --argjson exposure_flags "$flags_json" \
-        '{proto: $proto, port: ($port // $port_raw), bind_addr: $bind_addr, process: $process,
-          package: $package, systemd_unit: $unit, function: $function, criticality: $criticality,
-          exposure_flags: $exposure_flags}' >> "$RESULTS_FILE"
-done < <(jq -c '.listening_sockets[]' "$BASELINE_JSON")
+# ---------------------------------------------------------------
+# Build summary block counting flagged sockets by severity
+# ---------------------------------------------------------------
+SUMMARY_JSON=$(echo "$SOCKETS_JSON" | jq '{
+    total_sockets: length,
+    flagged_sockets: [.[] | select(.exposure_flags | length > 0)] | length,
+    unknown_functions: [.[] | select(.function == "unknown")] | length,
+    by_severity: {
+        critical: [.[] | select(.criticality == "critical" and (.exposure_flags | length > 0))] | length,
+        high: [.[] | select(.criticality == "high" and (.exposure_flags | length > 0))] | length,
+        medium: [.[] | select(.criticality == "medium" and (.exposure_flags | length > 0))] | length,
+        low: [.[] | select(.criticality == "low" and (.exposure_flags | length > 0))] | length
+    }
+}')
 
-TOTAL="$(wc -l < "$RESULTS_FILE" | tr -d ' ')"
-FLAGGED_TOTAL="$(jq -s '[.[] | select((.exposure_flags | length) > 0)] | length' "$RESULTS_FILE")"
+# ---------------------------------------------------------------
+# Construct final output JSON
+# ---------------------------------------------------------------
+FINAL_JSON=$(jq -n \
+    --arg ga "$GENERATED_AT" \
+    --arg hn "$HOSTNAME" \
+    --argjson sockets "$SOCKETS_JSON" \
+    --argjson summary "$SUMMARY_JSON" \
+    '{
+        generated_at: $ga,
+        hostname: $hn,
+        sockets: $sockets,
+        summary: $summary
+    }')
 
-# Emit attack_surface.json with generated_at, hostname, sockets (array with
-# proto, port, bind_addr, process, package, function, criticality,
-# exposure_flags) and a summary block counting flagged sockets by severity
-# (criticality: critical, high, medium) plus unknown-function sockets for
-# later triage.
-jq -s \
-    --arg generated_at "$GENERATED_AT" --arg hostname "$HOSTNAME_VAL" \
-    --argjson total "$TOTAL" --argjson flagged "$FLAGGED_TOTAL" \
-    --argjson fc "$flagged_critical" --argjson fh "$flagged_high" --argjson fm "$flagged_medium" \
-    --argjson unknown "$unknown_count" \
-    '{generated_at: $generated_at, hostname: $hostname, sockets: .,
-      summary: {total_sockets: $total, flagged: $flagged,
-                flagged_by_criticality: {critical: $fc, high: $fh, medium: $fm},
-                unknown_function: $unknown}}' "$RESULTS_FILE" > "$OUT_JSON"
+# Write to file
+echo "$FINAL_JSON" > "$OUTPUT_FILE"
 
-echo "Sockets classified: $TOTAL"
-echo "Flagged: $FLAGGED_TOTAL (critical: $flagged_critical, high: $flagged_high, medium: $flagged_medium)"
-echo "Unknown function: $unknown_count"
-echo "Report saved to: $OUT_JSON"
+# Human-readable summary to stdout
+echo "Attack Surface Report Generated"
+echo "================================"
+echo "Generated at:   $GENERATED_AT"
+echo "Hostname:       $HOSTNAME"
+echo "Total sockets:  $(echo "$SUMMARY_JSON" | jq -r '.total_sockets')"
+echo "Flagged sockets: $(echo "$SUMMARY_JSON" | jq -r '.flagged_sockets')"
+echo "Unknown funcs:  $(echo "$SUMMARY_JSON" | jq -r '.unknown_functions')"
+echo ""
+echo "Flagged by severity:"
+echo "  Critical: $(echo "$SUMMARY_JSON" | jq -r '.by_severity.critical')"
+echo "  High:     $(echo "$SUMMARY_JSON" | jq -r '.by_severity.high')"
+echo "  Medium:   $(echo "$SUMMARY_JSON" | jq -r '.by_severity.medium')"
+echo "  Low:      $(echo "$SUMMARY_JSON" | jq -r '.by_severity.low')"
+echo ""
+echo "Output: $OUTPUT_FILE"
