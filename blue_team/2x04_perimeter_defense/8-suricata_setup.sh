@@ -64,6 +64,10 @@ RULE_FILES_JSON="$(find "$SURICATA_RULES_DIR" -maxdepth 1 -name '*.rules' -print
 RULE_COUNT="$(grep -shc '^alert\|^drop\|^pass\|^reject' "$SURICATA_RULES_DIR"/*.rules 2>/dev/null | awk -F: '{s+=$NF} END{print s+0}')"
 
 # --- Render suricata.yaml -----------------------------------------------
+# eve-log types: alert, http, dns, tls and "files" (the module name is
+# "files" - it is what produces the fileinfo-typed records in eve.json;
+# `types: - fileinfo` does not exist as a module name and suricata -T
+# rejects it with "No output module named eve-log.fileinfo").
 {
     echo "%YAML 1.1"
     echo "---"
