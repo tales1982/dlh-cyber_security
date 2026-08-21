@@ -1,0 +1,222 @@
+{
+  "pcap": "/home/analyst/MedDefense_Lab/PCAPs/mixed_traffic.pcap",
+  "started_at": "2026-08-20T05:49:00Z",
+  "finished_at": "2026-08-20T05:49:00Z",
+  "total_alerts": 12,
+  "unique_signatures": 5,
+  "severity_distribution": {
+    "1": 5,
+    "2": 7
+  },
+  "by_category": {
+    "exfiltration": 6,
+    "exploit": 1,
+    "lateral_movement": 4,
+    "reconnaissance": 1
+  },
+  "by_signature": [
+    {
+      "signature": "ET POLICY SMB Session Setup from Unexpected Source",
+      "signature_id": 1000020,
+      "count": 4
+    },
+    {
+      "signature": "ET DNS Exfiltration Long TXT Query",
+      "signature_id": 1000040,
+      "count": 3
+    },
+    {
+      "signature": "MEDDEFENSE DNS Tunneling Suspected (Long Label)",
+      "signature_id": 9000005,
+      "count": 3
+    },
+    {
+      "signature": "ET EXPLOIT PsExec Service Install via SMB",
+      "signature_id": 1000010,
+      "count": 1
+    },
+    {
+      "signature": "ET SCAN Rapid TCP SYN Scan Multiple Ports",
+      "signature_id": 1000001,
+      "count": 1
+    }
+  ],
+  "top_sources": [
+    {
+      "ip": "10.10.1.10",
+      "count": 6
+    },
+    {
+      "ip": "10.10.1.99",
+      "count": 6
+    }
+  ],
+  "top_destinations": [
+    {
+      "ip": "10.10.1.10",
+      "count": 6
+    },
+    {
+      "ip": "8.8.8.8",
+      "count": 6
+    }
+  ],
+  "alerts": [
+    {
+      "timestamp": "2026-08-20T07:44:01.189029+0200",
+      "src_ip": "10.10.1.99",
+      "src_port": 55050,
+      "dst_ip": "10.10.1.10",
+      "dst_port": 6,
+      "proto": "TCP",
+      "signature": "ET SCAN Rapid TCP SYN Scan Multiple Ports",
+      "signature_id": 1000001,
+      "category": "Attempted Information Leak",
+      "severity": 2,
+      "classification": "reconnaissance"
+    },
+    {
+      "timestamp": "2026-08-20T07:44:01.192087+0200",
+      "src_ip": "10.10.1.10",
+      "src_port": 59740,
+      "dst_ip": "8.8.8.8",
+      "dst_port": 53,
+      "proto": "UDP",
+      "signature": "ET DNS Exfiltration Long TXT Query",
+      "signature_id": 1000040,
+      "category": "Potentially Bad Traffic",
+      "severity": 2,
+      "classification": "exfiltration"
+    },
+    {
+      "timestamp": "2026-08-20T07:44:01.192087+0200",
+      "src_ip": "10.10.1.10",
+      "src_port": 59740,
+      "dst_ip": "8.8.8.8",
+      "dst_port": 53,
+      "proto": "UDP",
+      "signature": "MEDDEFENSE DNS Tunneling Suspected (Long Label)",
+      "signature_id": 9000005,
+      "category": "Potentially Bad Traffic",
+      "severity": 2,
+      "classification": "exfiltration"
+    },
+    {
+      "timestamp": "2026-08-20T07:44:01.191314+0200",
+      "src_ip": "10.10.1.99",
+      "src_port": 51000,
+      "dst_ip": "10.10.1.10",
+      "dst_port": 445,
+      "proto": "TCP",
+      "signature": "ET POLICY SMB Session Setup from Unexpected Source",
+      "signature_id": 1000020,
+      "category": "Potential Corporate Privacy Violation",
+      "severity": 1,
+      "classification": "lateral_movement"
+    },
+    {
+      "timestamp": "2026-08-20T07:44:01.191578+0200",
+      "src_ip": "10.10.1.99",
+      "src_port": 51000,
+      "dst_ip": "10.10.1.10",
+      "dst_port": 445,
+      "proto": "TCP",
+      "signature": "ET EXPLOIT PsExec Service Install via SMB",
+      "signature_id": 1000010,
+      "category": "A Network Trojan was detected",
+      "severity": 1,
+      "classification": "exploit"
+    },
+    {
+      "timestamp": "2026-08-20T07:44:01.191578+0200",
+      "src_ip": "10.10.1.99",
+      "src_port": 51000,
+      "dst_ip": "10.10.1.10",
+      "dst_port": 445,
+      "proto": "TCP",
+      "signature": "ET POLICY SMB Session Setup from Unexpected Source",
+      "signature_id": 1000020,
+      "category": "Potential Corporate Privacy Violation",
+      "severity": 1,
+      "classification": "lateral_movement"
+    },
+    {
+      "timestamp": "2026-08-20T07:44:01.191776+0200",
+      "src_ip": "10.10.1.99",
+      "src_port": 51000,
+      "dst_ip": "10.10.1.10",
+      "dst_port": 445,
+      "proto": "TCP",
+      "signature": "ET POLICY SMB Session Setup from Unexpected Source",
+      "signature_id": 1000020,
+      "category": "Potential Corporate Privacy Violation",
+      "severity": 1,
+      "classification": "lateral_movement"
+    },
+    {
+      "timestamp": "2026-08-20T07:44:01.191891+0200",
+      "src_ip": "10.10.1.10",
+      "src_port": 42886,
+      "dst_ip": "8.8.8.8",
+      "dst_port": 53,
+      "proto": "UDP",
+      "signature": "ET DNS Exfiltration Long TXT Query",
+      "signature_id": 1000040,
+      "category": "Potentially Bad Traffic",
+      "severity": 2,
+      "classification": "exfiltration"
+    },
+    {
+      "timestamp": "2026-08-20T07:44:01.191891+0200",
+      "src_ip": "10.10.1.10",
+      "src_port": 42886,
+      "dst_ip": "8.8.8.8",
+      "dst_port": 53,
+      "proto": "UDP",
+      "signature": "MEDDEFENSE DNS Tunneling Suspected (Long Label)",
+      "signature_id": 9000005,
+      "category": "Potentially Bad Traffic",
+      "severity": 2,
+      "classification": "exfiltration"
+    },
+    {
+      "timestamp": "2026-08-20T07:44:01.192298+0200",
+      "src_ip": "10.10.1.10",
+      "src_port": 22808,
+      "dst_ip": "8.8.8.8",
+      "dst_port": 53,
+      "proto": "UDP",
+      "signature": "ET DNS Exfiltration Long TXT Query",
+      "signature_id": 1000040,
+      "category": "Potentially Bad Traffic",
+      "severity": 2,
+      "classification": "exfiltration"
+    },
+    {
+      "timestamp": "2026-08-20T07:44:01.192298+0200",
+      "src_ip": "10.10.1.10",
+      "src_port": 22808,
+      "dst_ip": "8.8.8.8",
+      "dst_port": 53,
+      "proto": "UDP",
+      "signature": "MEDDEFENSE DNS Tunneling Suspected (Long Label)",
+      "signature_id": 9000005,
+      "category": "Potentially Bad Traffic",
+      "severity": 2,
+      "classification": "exfiltration"
+    },
+    {
+      "timestamp": "2026-08-20T07:44:01.187148+0200",
+      "src_ip": "10.10.1.99",
+      "src_port": 51000,
+      "dst_ip": "10.10.1.10",
+      "dst_port": 445,
+      "proto": "TCP",
+      "signature": "ET POLICY SMB Session Setup from Unexpected Source",
+      "signature_id": 1000020,
+      "category": "Potential Corporate Privacy Violation",
+      "severity": 1,
+      "classification": "lateral_movement"
+    }
+  ]
+}

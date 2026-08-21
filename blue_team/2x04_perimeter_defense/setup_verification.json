@@ -1,0 +1,11 @@
+{
+  "installed_version": "6.0.4",
+  "rule_files_loaded": [
+    "community.rules",
+    "meddefense.rules"
+  ],
+  "rule_count": 22,
+  "config_test_exit": 0,
+  "smoke_pcap": "/home/analyst/MedDefense_Lab/PCAPs/smoke.pcap",
+  "smoke_alerts": 5
+}
