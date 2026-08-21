@@ -10,6 +10,10 @@
 # fact. This script installs the engine, loads the ruleset and proves the
 # whole chain works with one smoke-test PCAP before T9-T11 rely on it.
 #
+# Hint honored: do not start the suricata.service systemd unit. This
+# project does not run the daemon - only -T (config test) and -r (offline
+# PCAP replay) are ever invoked below, both one-shot processes.
+#
 # Usage: sudo ./8-suricata_setup.sh [output.json]
 
 set -uo pipefail

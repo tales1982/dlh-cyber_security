@@ -40,6 +40,10 @@ STARTED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 RUN_DIR="$(mktemp -d)"
 trap 'rm -rf "$RUN_DIR"' EXIT
 
+# Run suricata -c ./suricata.yaml -r <pcap> -l <tmpdir> and wait for
+# completion ($YAML resolves to ./suricata.yaml when run from this
+# directory, same as 8-suricata_setup.sh, but also falls back to the
+# script's own directory so this still works when invoked from elsewhere).
 suricata -c "$YAML" -r "$PCAP" -l "$RUN_DIR" >/dev/null 2>&1
 FINISHED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
