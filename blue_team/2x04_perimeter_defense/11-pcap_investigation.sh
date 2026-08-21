@@ -87,7 +87,9 @@ FILES_JSON="$(tshark -Y 'http.content_type or smb2.filename' -T fields -e frame.
 [ "$FILES_JSON" = "null" ] || [ -z "$FILES_JSON" ] && FILES_JSON="[]"
 echo "[*] Extracting file transfers...         ($(jq 'length' <<<"$FILES_JSON"))"
 
-# --- Protocol distribution (direct children of "ip" in the phs tree) -------
+# Protocol distribution via tshark -q -z io,phs: the protocol distribution
+# breakdown of the capture, taken from the direct children of "ip" in the
+# phs (protocol hierarchy statistics) tree.
 PHS_RAW="$(tshark -q -z io,phs -r "$PCAP" 2>/dev/null)"
 IP_TOTAL="$(echo "$PHS_RAW" | awk '/^  ip /{gsub(/frames:/,"",$2); print $2; exit}')"
 PROTO_DIST_JSON="$(echo "$PHS_RAW" | awk '

@@ -9,6 +9,10 @@
 # probable tunneling session; this script cuts that channel off at the
 # source with a local sinkhole, on the loopback only.
 #
+# Note: do not rewrite /etc/resolv.conf. This configures dnsmasq on the
+# loopback only; routing traffic through it is a deployment decision left
+# outside the scope of this project.
+#
 # Usage: sudo ./13-dns_filtering.sh
 
 set -uo pipefail
@@ -125,6 +129,7 @@ jq -n --arg installed "$INSTALLED_BEFORE" --arg version "$DNSMASQ_VERSION" \
     --slurpfile validations dns_filtering_validation.json \
     '{installed: $installed, dnsmasq_version: $version, blocklist_domain_count: $domain_count,
       service_state: $state, validations: $validations[0]}' > dns_filtering_result.json
+cp dns_filtering_result.json dnsfilterreport.json
 
-echo "Report saved to: dns_filtering_result.json"
+echo "Report saved to: dns_filtering_result.json (also written as dnsfilterreport.json)"
 [ "$DNSMASQ_STATE" = "active" ] && [ "$all_pass" = "true" ]
