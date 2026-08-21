@@ -114,6 +114,7 @@ jq -n \
       tcp_conversations: $tcp_conversations, udp_conversations: $udp_conversations,
       dns_queries: $dns_queries, http_requests: $http_requests, tls_sni: $tls_sni,
       file_transfers: $file_transfers, protocol_distribution: $protocol_distribution}' > "$OUT_JSON"
+cp "$OUT_JSON" pcap_investigation.json
 
 # --- Stdout summary ------------------------------------------------------
 echo "Top conversations:"
