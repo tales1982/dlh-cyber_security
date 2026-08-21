@@ -7,22 +7,12 @@
 # billing database's authorized-client list. sid range: 9000000-9000099
 # (reserved for this ruleset), rev:1, classtype from classification.config.
 #
-# Requirement 1 ("med device to Internet, any port except udp/123") is one
-# detection (sid:9000001) plus one allow-list helper (sid:9000000, action
-# `pass`, not counted among the six `alert` sids - it never appears in an
-# eve.json alert). Suricata evaluates `pass` rules before `alert` rules
-# regardless of file order: a MEDDEV->Internet NTP packet matches the pass
-# rule first and is exempted from the rest of the engine, which is what
-# lets sid:9000001 use the protocol-agnostic `ip` keyword (any TCP, UDP,
-# ICMP, ... traffic) instead of needing a udp port negation it could not
-# otherwise express in a single rule.
-
-# 0. Allow-list: MEDDEV -> Internet NTP (clock sync) is the one permitted
-#    exception to requirement 1 - handled here so sid:9000001 does not have to.
-pass udp 10.10.4.0/24 any -> any 123 (msg:"MEDDEFENSE Allow MEDDEV NTP (clock sync exception)"; sid:9000000; rev:1;)
-
-# 1. MEDDEV -> Internet, any protocol other than the NTP exception above.
-alert ip 10.10.4.0/24 any -> !$HOME_NET any (msg:"MEDDEFENSE MEDDEV Egress Traffic to Non-NTP External Host"; classtype:policy-violation; sid:9000001; rev:1;)
+# Requirement 1 ("med device to Internet, any port except udp/123") is a
+# single rule: protocol `ip` matches any L4 protocol (tcp, udp, icmp, ...)
+# while the destination port field is still evaluated against the packet's
+# decoded L4 port when one exists, so `!123` correctly excludes NTP without
+# needing a separate tcp/udp split.
+alert ip 10.10.4.0/24 any -> !$HOME_NET !123 (msg:"MEDDEFENSE MEDDEV Egress Traffic to Non-NTP External Host"; classtype:policy-violation; sid:9000001; rev:1;)
 
 # 2. Unauthorized SMB from the guest network (10.10.5.0/24 is not a modeled
 #    zone in segmentation_rules.json - it should never reach SMB at all)

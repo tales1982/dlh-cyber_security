@@ -30,10 +30,23 @@ if [ ! -f "$YAML" ]; then
     echo "error: cannot find suricata.yaml (run 8-suricata_setup.sh first)" >&2
     exit 1
 fi
+if [ ! -f "$RULES_FILE" ]; then
+    echo "error: cannot find meddefense.rules" >&2
+    exit 1
+fi
 if [ ! -d "$LABELS_DIR" ]; then
     echo "error: labeled PCAP directory not found: $LABELS_DIR" >&2
     exit 1
 fi
+
+# Do not depend on 8-suricata_setup.sh having already copied
+# meddefense.rules into /var/lib/suricata/rules - inject this repo's own
+# copy directly into a throwaway suricata.yaml via its absolute path, so
+# this script proves the *local* meddefense.rules fires, not whatever
+# happens to be installed system-wide.
+RULES_FILE_ABS="$(readlink -f "$RULES_FILE")"
+TEST_YAML="$(mktemp)"
+sed "s|^rule-files:|rule-files:\n  - ${RULES_FILE_ABS}|" "$YAML" > "$TEST_YAML"
 
 RULE_COUNT="$(grep -c '^alert' "$RULES_FILE" 2>/dev/null || echo 0)"
 echo "[*] Loading meddefense.rules...          $RULE_COUNT rules"
@@ -51,7 +64,7 @@ declare -A TARGETS=(
 )
 
 RESULTS_FILE="$(mktemp)"
-trap 'rm -rf "$RESULTS_FILE" "${RUN_DIR:-}"' EXIT
+trap 'rm -rf "$RESULTS_FILE" "$TEST_YAML" "${RUN_DIR:-}"' EXIT
 
 total=0
 passed=0
@@ -64,7 +77,7 @@ for pcap_name in meddev_egress.pcap guest_smb.pcap large_outbound.pcap dns_tunne
     fi
 
     RUN_DIR="$(mktemp -d)"
-    suricata -c "$YAML" -r "$pcap_path" -l "$RUN_DIR" >/dev/null 2>&1
+    suricata -c "$TEST_YAML" -r "$pcap_path" -l "$RUN_DIR" >/dev/null 2>&1
     HITS_JSON="[]"
     [ -f "$RUN_DIR/eve.json" ] && HITS_JSON="$(jq -nc '[inputs | select(.event_type=="alert") | .alert.signature_id]' "$RUN_DIR/eve.json" 2>/dev/null)"
     rm -rf "$RUN_DIR"
