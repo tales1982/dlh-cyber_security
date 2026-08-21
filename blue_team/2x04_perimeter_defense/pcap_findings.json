@@ -1,0 +1,97 @@
+{
+  "pcap": "/home/analyst/MedDefense_Lab/PCAPs/suspicious_session.pcap",
+  "duration_seconds": 0.003285,
+  "packet_count": 28,
+  "tcp_conversations": [
+    {
+      "proto": "tcp",
+      "a": "10.10.1.10:52500",
+      "b": "185.220.101.42:80",
+      "frames": 10,
+      "bytes": 746
+    },
+    {
+      "proto": "tcp",
+      "a": "10.10.1.10:52344",
+      "b": "185.220.101.42:443",
+      "frames": 8,
+      "bytes": 530
+    },
+    {
+      "proto": "tcp",
+      "a": "10.10.1.10:52401",
+      "b": "10.10.1.50:445",
+      "frames": 8,
+      "bytes": 446
+    }
+  ],
+  "udp_conversations": [
+    {
+      "proto": "udp",
+      "a": "10.10.1.10:48878",
+      "b": "8.8.8.8:53",
+      "frames": 1,
+      "bytes": 139
+    },
+    {
+      "proto": "udp",
+      "a": "10.10.1.10:55790",
+      "b": "8.8.8.8:53",
+      "frames": 1,
+      "bytes": 83
+    }
+  ],
+  "dns_queries": [
+    {
+      "time": "1787205238.051115000",
+      "src": "10.10.1.10",
+      "query": "c2.crimson-tide-ops.xyz",
+      "qtype": "1"
+    },
+    {
+      "time": "1787205238.051319000",
+      "src": "10.10.1.10",
+      "query": "uzwot2yyjrpyf3avfr57yic6ym2hptd5nw8vrgj6c95sbjj3f53blmkpoc.crimson-tide-ops.xyz",
+      "qtype": "1"
+    }
+  ],
+  "http_requests": [
+    {
+      "time": "1787205238.052682000",
+      "src": "10.10.1.10",
+      "dst": "185.220.101.42",
+      "host": "update.crimson-tide-ops.xyz",
+      "method": "GET",
+      "uri": "/beacon?id=billing-srv-01"
+    }
+  ],
+  "tls_sni": [
+    {
+      "time": "1787205238.050518000",
+      "src": "10.10.1.10",
+      "dst": "185.220.101.42",
+      "sni": "update.crimson-tide-ops.xyz"
+    }
+  ],
+  "file_transfers": [
+    {
+      "time": "1787205238.053009000",
+      "src": "185.220.101.42",
+      "dst": "10.10.1.10",
+      "http_content_type": "text/html",
+      "smb_filename": ""
+    }
+  ],
+  "protocol_distribution": [
+    {
+      "proto": "tcp",
+      "frames": 26,
+      "pct": 92.9
+    },
+    {
+      "proto": "udp",
+      "frames": 2,
+      "pct": 7.1
+    }
+  ]
+}
