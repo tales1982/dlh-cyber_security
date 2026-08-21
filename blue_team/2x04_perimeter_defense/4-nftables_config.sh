@@ -16,6 +16,11 @@
 # outside the segmented production network. Everything else is enforced
 # strictly from segmentation_rules.json. See MGMT_ACCESS_IFACE below.
 #
+# Zone names (DMZ, INTERNAL, MGMT, MEDDEV) are never hardcoded below - every
+# set, chain rule and comment is rendered from the four zones defined in
+# segmentation_rules.json, so this script stays correct if T2's zone model
+# ever changes.
+#
 # Usage: sudo ./4-nftables_config.sh [--render-only] [segmentation_rules.json]
 # Env:   MGMT_ACCESS_IFACE   interface to always allow SSH on, out-of-band
 #                             (default: auto-detected as the interface
