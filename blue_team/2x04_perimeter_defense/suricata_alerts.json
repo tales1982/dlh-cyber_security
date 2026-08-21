@@ -1,18 +1,17 @@
 {
   "pcap": "/home/analyst/MedDefense_Lab/PCAPs/mixed_traffic.pcap",
-  "started_at": "2026-08-21T08:16:58Z",
-  "finished_at": "2026-08-21T08:16:58Z",
-  "total_alerts": 12,
-  "unique_signatures": 5,
+  "started_at": "2026-08-21T08:19:19Z",
+  "finished_at": "2026-08-21T08:19:19Z",
+  "total_alerts": 11,
+  "unique_signatures": 4,
   "severity_distribution": {
     "1": 5,
-    "2": 7
+    "2": 6
   },
   "by_category": {
     "exfiltration": 6,
     "exploit": 1,
-    "lateral_movement": 4,
-    "reconnaissance": 1
+    "lateral_movement": 4
   },
   "by_signature": [
     {
@@ -34,11 +33,6 @@
       "signature": "ET EXPLOIT PsExec Service Install via SMB",
       "signature_id": 1000010,
       "count": 1
-    },
-    {
-      "signature": "ET SCAN Rapid TCP SYN Scan Multiple Ports",
-      "signature_id": 1000001,
-      "count": 1
     }
   ],
   "top_sources": [
@@ -48,17 +42,17 @@
     },
     {
       "ip": "10.10.1.99",
-      "count": 6
+      "count": 5
     }
   ],
   "top_destinations": [
     {
-      "ip": "10.10.1.10",
+      "ip": "8.8.8.8",
       "count": 6
     },
     {
-      "ip": "8.8.8.8",
-      "count": 6
+      "ip": "10.10.1.10",
+      "count": 5
     }
   ],
   "alerts": [
@@ -74,45 +68,6 @@
       "category": "Potential Corporate Privacy Violation",
       "severity": 1,
       "classification": "lateral_movement"
-    },
-    {
-      "timestamp": "2026-08-20T07:53:58.039201+0200",
-      "src_ip": "10.10.1.99",
-      "src_port": 11882,
-      "dst_ip": "10.10.1.10",
-      "dst_port": 4,
-      "proto": "TCP",
-      "signature": "ET SCAN Rapid TCP SYN Scan Multiple Ports",
-      "signature_id": 1000001,
-      "category": "Attempted Information Leak",
-      "severity": 2,
-      "classification": "reconnaissance"
-    },
-    {
-      "timestamp": "2026-08-20T07:53:58.042517+0200",
-      "src_ip": "10.10.1.10",
-      "src_port": 59740,
-      "dst_ip": "8.8.8.8",
-      "dst_port": 53,
-      "proto": "UDP",
-      "signature": "ET DNS Exfiltration Long TXT Query",
-      "signature_id": 1000040,
-      "category": "Potentially Bad Traffic",
-      "severity": 2,
-      "classification": "exfiltration"
-    },
-    {
-      "timestamp": "2026-08-20T07:53:58.042517+0200",
-      "src_ip": "10.10.1.10",
-      "src_port": 59740,
-      "dst_ip": "8.8.8.8",
-      "dst_port": 53,
-      "proto": "UDP",
-      "signature": "MEDDEFENSE DNS Tunneling Suspected (Long Label)",
-      "signature_id": 9000005,
-      "category": "Potentially Bad Traffic",
-      "severity": 2,
-      "classification": "exfiltration"
     },
     {
       "timestamp": "2026-08-20T07:53:58.041981+0200",
@@ -196,6 +151,32 @@
       "timestamp": "2026-08-20T07:53:58.042753+0200",
       "src_ip": "10.10.1.10",
       "src_port": 22808,
+      "dst_ip": "8.8.8.8",
+      "dst_port": 53,
+      "proto": "UDP",
+      "signature": "MEDDEFENSE DNS Tunneling Suspected (Long Label)",
+      "signature_id": 9000005,
+      "category": "Potentially Bad Traffic",
+      "severity": 2,
+      "classification": "exfiltration"
+    },
+    {
+      "timestamp": "2026-08-20T07:53:58.042517+0200",
+      "src_ip": "10.10.1.10",
+      "src_port": 59740,
+      "dst_ip": "8.8.8.8",
+      "dst_port": 53,
+      "proto": "UDP",
+      "signature": "ET DNS Exfiltration Long TXT Query",
+      "signature_id": 1000040,
+      "category": "Potentially Bad Traffic",
+      "severity": 2,
+      "classification": "exfiltration"
+    },
+    {
+      "timestamp": "2026-08-20T07:53:58.042517+0200",
+      "src_ip": "10.10.1.10",
+      "src_port": 59740,
       "dst_ip": "8.8.8.8",
       "dst_port": 53,
       "proto": "UDP",

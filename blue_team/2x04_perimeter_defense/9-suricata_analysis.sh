@@ -55,6 +55,10 @@ fi
 ALERTS_JSON="$(jq -nc '[inputs | select(.event_type=="alert")]' "$RUN_DIR/eve.json" 2>/dev/null)"
 [ -z "$ALERTS_JSON" ] && ALERTS_JSON="[]"
 
+# Each signature is classified into one of: reconnaissance, exploit,
+# lateral_movement, exfiltration, malware_c2, policy_violation, other -
+# the mapping itself lives in signature_categories.json (provided with
+# the project); any signature missing from that map falls back to "other".
 CATEGORIES="{}"
 [ -f "$CATEGORIES_JSON" ] && CATEGORIES="$(cat "$CATEGORIES_JSON")"
 
