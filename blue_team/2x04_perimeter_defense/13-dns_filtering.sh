@@ -130,6 +130,7 @@ jq -n --arg installed "$INSTALLED_BEFORE" --arg version "$DNSMASQ_VERSION" \
     '{installed: $installed, dnsmasq_version: $version, blocklist_domain_count: $domain_count,
       service_state: $state, validations: $validations[0]}' > dns_filtering_result.json
 cp dns_filtering_result.json dnsfilterreport.json
+cp dns_filtering_result.json dns_filter_report.json
 
 echo "Report saved to: dns_filtering_result.json (also written as dnsfilterreport.json)"
 [ "$DNSMASQ_STATE" = "active" ] && [ "$all_pass" = "true" ]
