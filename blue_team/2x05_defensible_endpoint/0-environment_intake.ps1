@@ -1,3 +1,7 @@
+$ErrorActionPreference = 'Stop'
+
+try {
+
 #================================================================
 # 1. SYSTEM INFORMATION                                         |
 #================================================================
@@ -9,7 +13,17 @@ $PATCH_LEVEL = (Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVer
 #================================================================
 # 2. INSTALLED PACKAGES                                         |
 #================================================================
-$INSTALLED_FEATURE_COUNT = (Get-WindowsOptionalFeature -Online | Where-Object State -eq "Enabled").Count
+
+$OS_PRODUCT_TYPE = (Get-CimInstance Win32_OperatingSystem).ProductType
+
+if ($OS_PRODUCT_TYPE -eq 1) {
+    # Workstation (client)
+    $INSTALLED_FEATURE_COUNT = (Get-WindowsOptionalFeature -Online | Where-Object State -eq "Enabled").Count
+}
+else {
+    # Server or Domain Controller
+    $INSTALLED_FEATURE_COUNT = (Get-WindowsFeature | Where-Object Installed).Count
+}
 
 #================================================================
 # 3. RUNNING SERVICES                                           |
@@ -34,7 +48,28 @@ $AUDIT_POLICY = auditpol /get /category:*
 #================================================================
 # 7. SYSMON SERVICE                                             |
 #================================================================
-$SYSMON_SERVICE = Get-Service Sysmon -ErrorAction SilentlyContinue
+$SYSMON_SERVICE = Get-Service -Name "Sysmon*" -ErrorAction SilentlyContinue | Select-Object -First 1
+
+$SYSMON_VERSION = $null
+$SYSMON_CHANNEL_SIZE = $null
+
+if ($SYSMON_SERVICE) {
+    $imagePath = (Get-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Services\$($SYSMON_SERVICE.Name)" -ErrorAction SilentlyContinue).ImagePath
+
+    if ($imagePath) {
+        $exePath = ($imagePath -replace '^"?([^"]+\.exe)"?.*$', '$1')
+
+        if (Test-Path $exePath) {
+            $SYSMON_VERSION = (Get-Item $exePath).VersionInfo.ProductVersion
+        }
+    }
+
+    $sysmonLog = Get-WinEvent -ListLog "Microsoft-Windows-Sysmon/Operational" -ErrorAction SilentlyContinue
+
+    if ($sysmonLog) {
+        $SYSMON_CHANNEL_SIZE = $sysmonLog.FileSize
+    }
+}
 
 #================================================================
 # 8. POWERSHELL LOGGING STATE                                   |
@@ -59,10 +94,26 @@ $RESULT = [PSCustomObject]@{
         local_users_account     = $LOCAL_USERS_ACCOUNT
         firewall_status         = $FIREWALL_STATUS
         audit_policy            = $AUDIT_POLICY
+        sysmon_present          = [bool]$SYSMON_SERVICE
         sysmon_service          = $SYSMON_SERVICE
+        sysmon_version          = $SYSMON_VERSION
+        sysmon_channel_size     = $SYSMON_CHANNEL_SIZE
         script_block_logging    = $SCRIPT_BLOCK_LOGGING
-        account_policy          = $ACCOUNT_POLICY                                                                                                   
+        account_policy          = $ACCOUNT_POLICY
 
 }
 
+}
+catch {
+    Write-Error "Environment error: $($_.Exception.Message)"
+    exit 2
+}
+
+if ([string]::IsNullOrWhiteSpace($HOSTNAME) -or [string]::IsNullOrWhiteSpace($OS_BUILD)) {
+    Write-Error "Failed to capture core system information."
+    exit 1
+}
+
 $RESULT | ConvertTo-Json -Depth 5
+
+exit 0

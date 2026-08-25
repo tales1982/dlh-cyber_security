@@ -4,6 +4,16 @@ set -uo pipefail
 
 
 # ==================================================
+# 0. DEPENDENCY CHECK
+# ==================================================
+
+if ! command -v jq >/dev/null 2>&1; then
+    echo "Error: required command 'jq' not found." >&2
+    exit 2
+fi
+
+
+# ==================================================
 # 1. SYSTEM INFORMATION
 # ==================================================
 
@@ -118,7 +128,7 @@ RSYSLOG_STATUS=$(systemctl is-active rsyslog 2>/dev/null || true)
 # Sysmon for Linux executable path (empty if not installed)
 SYSMON_PATH=$(command -v sysmon 2>/dev/null || true)
 
-jq -n \
+OUTPUT_JSON=$(jq -n \
     --arg hostname "$HOSTNAME" \
     --arg kernel "$KERNEL" \
     --arg distribution "$DISTRIBUTION" \
@@ -155,27 +165,13 @@ jq -n \
             sysmon_present: ($sysmon_path != ""),
             sysmon_path: (if $sysmon_path == "" then null else $sysmon_path end)
         }
-    }'
+    }')
 
+echo "$OUTPUT_JSON"
 
+if [[ -z "$HOSTNAME" || -z "$KERNEL" || -z "$DISTRIBUTION" ]]; then
+    echo "Error: failed to capture core system information." >&2
+    exit 1
+fi
 
-
-
-# ==================================================
-# TEST
-# ==================================================
-
-#echo "$HOSTNAME"
-#echo "$KERNEL"
-#echo "$DISTRIBUTION"
-#echo "$PACKAGE_COUNT"
-#echo "$LISTENING_SOCKETS"
-#echo "$ACTIVE_SERVICES"
-#echo "$SSHD_CONFIG"
-#echo "$SYSCTL_SECURITY"
-#echo "$SUID_SGID_COUNT"
-#echo "$WORLD_WRITABLE_COUNT"
-#echo "$NFT_RULESET_SIZE"
-#echo "$AUDITD_STATUS"
-#echo "$RSYSLOG_STATUS"
-#echo "$SYSMON_PATH"
+exit 0
