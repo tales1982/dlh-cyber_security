@@ -168,7 +168,7 @@ OUTPUT_JSON=$(jq -n \
     }')
 
 OUTPUT_DIR="artifacts"
-OUTPUT_FILE="${OUTPUT_DIR}/${HOSTNAME}-environment_intake.json"
+OUTPUT_FILE="${OUTPUT_DIR}/${HOSTNAME}-capstone-environment_intake.json"
 
 mkdir -p "$OUTPUT_DIR" || {
     echo "Error: unable to create output directory '$OUTPUT_DIR'." >&2
