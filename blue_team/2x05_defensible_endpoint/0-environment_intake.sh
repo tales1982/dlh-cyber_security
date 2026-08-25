@@ -167,7 +167,20 @@ OUTPUT_JSON=$(jq -n \
         }
     }')
 
-echo "$OUTPUT_JSON"
+OUTPUT_DIR="artifacts"
+OUTPUT_FILE="${OUTPUT_DIR}/${HOSTNAME}-environment_intake.json"
+
+mkdir -p "$OUTPUT_DIR" || {
+    echo "Error: unable to create output directory '$OUTPUT_DIR'." >&2
+    exit 2
+}
+
+echo "$OUTPUT_JSON" > "$OUTPUT_FILE" || {
+    echo "Error: unable to write intake artifact to '$OUTPUT_FILE'." >&2
+    exit 2
+}
+
+echo "Intake artifact written to $OUTPUT_FILE"
 
 if [[ -z "$HOSTNAME" || -z "$KERNEL" || -z "$DISTRIBUTION" ]]; then
     echo "Error: failed to capture core system information." >&2
