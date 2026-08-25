@@ -114,6 +114,18 @@ if ([string]::IsNullOrWhiteSpace($HOSTNAME) -or [string]::IsNullOrWhiteSpace($OS
     exit 1
 }
 
-$RESULT | ConvertTo-Json -Depth 5
+$OUTPUT_DIR = "artifacts"
+$OUTPUT_FILE = Join-Path $OUTPUT_DIR "$($HOSTNAME)-environment_intake.json"
+
+try {
+    New-Item -ItemType Directory -Path $OUTPUT_DIR -Force | Out-Null
+    $RESULT | ConvertTo-Json -Depth 5 | Set-Content -Path $OUTPUT_FILE -Encoding UTF8
+}
+catch {
+    Write-Error "Environment error: $($_.Exception.Message)"
+    exit 2
+}
+
+Write-Output "Intake artifact written to $OUTPUT_FILE"
 
 exit 0
