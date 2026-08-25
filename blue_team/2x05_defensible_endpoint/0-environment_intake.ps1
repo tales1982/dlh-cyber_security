@@ -115,7 +115,7 @@ if ([string]::IsNullOrWhiteSpace($HOSTNAME) -or [string]::IsNullOrWhiteSpace($OS
 }
 
 $OUTPUT_DIR = "artifacts"
-$OUTPUT_FILE = Join-Path $OUTPUT_DIR "$($HOSTNAME)-environment_intake.json"
+$OUTPUT_FILE = Join-Path $OUTPUT_DIR "$($HOSTNAME)-capstone-environment_intake.json"
 
 try {
     New-Item -ItemType Directory -Path $OUTPUT_DIR -Force | Out-Null
