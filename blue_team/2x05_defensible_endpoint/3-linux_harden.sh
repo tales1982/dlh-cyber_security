@@ -1,5 +1,9 @@
 #!/bin/bash
 #
+# Orchestrates the Linux hardening pass against hawthorne-app-01 in
+# deterministic order: SSH hardening, sysctl hardening, permission sweep,
+# service minimization, PAM configuration, AppArmor enforcement, auditd deployment.
+#
 # Artifacts (relative to this script's directory):
 #   capstone/exec/linux_harden.log
 #   capstone/exec/linux_harden.json
