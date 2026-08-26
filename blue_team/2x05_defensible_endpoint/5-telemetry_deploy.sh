@@ -1,5 +1,12 @@
 #!/bin/bash
 #
+# Ensures auditd is active with the project-provided rules file at
+# /etc/audit/rules.d/meddefense.rules, then runs the controlled test
+# sequence: create a user, remove the user, run a service management
+# action, schedule a cron job, remove it, run a short authorized find as
+# root. For each test action, queries auditd (e.g. ausearch -k identity)
+# and verifies the expected record is present.
+#
 # Artifact (relative to this script's directory):
 #   capstone/telemetry/linux_events.json
 
