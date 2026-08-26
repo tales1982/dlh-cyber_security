@@ -1,3 +1,8 @@
+# Verifies Sysmon and Script Block Logging, runs the controlled test sequence, and for
+# each test action checks the relevant event channel for the expected event within the
+# last 10 minutes. Exports the last 30 minutes of Sysmon and PowerShell events, and emits
+# coverage with the same per-action schema as Linux.
+#
 # Artifacts (relative to this script's directory):
 #   capstone/telemetry/windows_events.json
 #   capstone/telemetry/windows_coverage.json
