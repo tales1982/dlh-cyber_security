@@ -6,6 +6,7 @@
 # Captures the stdout and exit code of each sub-step into the execution log below.
 # After the run, re-runs lynis audit system and captures the new Hardening Index.
 # Exits 0 only if every sub-step exited 0 and lynis_after >= target_state.linux.hardening_index.
+# controls_touched: list of target-state control IDs modified by this step.
 #
 # Artifacts (relative to this script's directory):
 #   capstone/exec/linux_harden.log
