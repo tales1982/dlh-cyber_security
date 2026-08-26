@@ -1,5 +1,8 @@
 #!/bin/bash
 #
+# Runs lynis audit system --quick --no-colors and parses the Hardening Index
+# (Lynis's own term for its 0-100 score) out of the report.
+#
 # Artifacts (relative to this script's directory):
 #   capstone/baseline/lynis_baseline.log
 #   capstone/baseline/baseline_linux.json

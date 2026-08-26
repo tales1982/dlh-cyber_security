@@ -1,3 +1,7 @@
+# Runs the provided win_audit.ps1 audit helper (CIS Level 1 control checks
+# reported per-line as PASS, FAIL or NOT_APPLICABLE) and computes the
+# resulting pass rate.
+#
 # Artifacts (relative to this script's directory):
 #   capstone/baseline/windows_baseline.log
 #   capstone/baseline/baseline_windows.json
