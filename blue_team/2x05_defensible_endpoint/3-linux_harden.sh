@@ -3,6 +3,9 @@
 # Orchestrates the Linux hardening pass against hawthorne-app-01 in
 # deterministic order: SSH hardening, sysctl hardening, permission sweep,
 # service minimization, PAM configuration, AppArmor enforcement, auditd deployment.
+# Captures the stdout and exit code of each sub-step into the execution log below.
+# After the run, re-runs lynis audit system and captures the new Hardening Index.
+# Exits 0 only if every sub-step exited 0 and lynis_after >= target_state.linux.hardening_index.
 #
 # Artifacts (relative to this script's directory):
 #   capstone/exec/linux_harden.log
