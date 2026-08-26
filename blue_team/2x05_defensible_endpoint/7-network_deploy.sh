@@ -97,6 +97,17 @@ if [[ -f "${PERIMETER_DIR}/nftables.conf" ]]; then
     cp "${PERIMETER_DIR}/nftables.conf" "${NETWORK_DIR}/nftables.conf"
 fi
 
+# 5-firewall_test.sh checks the LIVE loaded ruleset against the flow
+# matrix, so it only runs a meaningful test once nftables has actually been
+# applied (--apply-live). In the safe --render-only default there is no
+# live ruleset to test yet, so this step is skipped rather than failed.
+if [[ "$FW_EXIT" -eq 0 && "$APPLY_LIVE" -eq 1 ]]; then
+    echo "[*] Running firewall functional test (5-firewall_test.sh) against the live ruleset..."
+    ( cd "$NETWORK_DIR" && sudo bash "${PERIMETER_DIR}/5-firewall_test.sh" "$SEGMENTATION_FILE" )
+    FW_TEST_EXIT=$?
+    [[ "$FW_TEST_EXIT" -ne 0 ]] && FW_EXIT=1
+fi
+
 if [[ "$FW_EXIT" -ne 0 ]]; then
     echo "Error: firewall validation failed (exit ${FW_EXIT}). Refusing to proceed." >&2
 fi
