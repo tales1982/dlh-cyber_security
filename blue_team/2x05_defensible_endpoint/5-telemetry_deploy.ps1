@@ -1,3 +1,7 @@
+# Artifacts (relative to this script's directory):
+#   capstone/telemetry/windows_events.json
+#   capstone/telemetry/windows_coverage.json
+
 $ErrorActionPreference = 'Stop'
 
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path

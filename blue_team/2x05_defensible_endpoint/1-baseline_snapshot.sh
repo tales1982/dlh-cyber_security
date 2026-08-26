@@ -1,4 +1,8 @@
 #!/bin/bash
+#
+# Artifacts (relative to this script's directory):
+#   capstone/baseline/lynis_baseline.log
+#   capstone/baseline/baseline_linux.json
 
 set -uo pipefail
 

@@ -1,3 +1,7 @@
+# Artifacts (relative to this script's directory):
+#   capstone/exec/windows_harden.log
+#   capstone/exec/windows_harden.json
+
 $ErrorActionPreference = 'Stop'
 
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path

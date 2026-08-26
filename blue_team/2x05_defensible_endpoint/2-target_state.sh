@@ -1,4 +1,7 @@
 #!/bin/bash
+#
+# Artifact (relative to this script's directory):
+#   capstone/target_state.json
 
 set -uo pipefail
 
