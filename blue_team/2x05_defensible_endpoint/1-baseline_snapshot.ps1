@@ -1,3 +1,7 @@
+# Artifacts (relative to this script's directory):
+#   capstone/baseline/windows_baseline.log
+#   capstone/baseline/baseline_windows.json
+
 $ErrorActionPreference = 'Stop'
 
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path

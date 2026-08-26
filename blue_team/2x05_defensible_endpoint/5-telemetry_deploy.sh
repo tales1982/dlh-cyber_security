@@ -1,4 +1,7 @@
 #!/bin/bash
+#
+# Artifact (relative to this script's directory):
+#   capstone/telemetry/linux_events.json
 
 set -uo pipefail
 

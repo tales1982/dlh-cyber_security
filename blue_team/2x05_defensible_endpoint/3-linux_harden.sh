@@ -1,4 +1,8 @@
 #!/bin/bash
+#
+# Artifacts (relative to this script's directory):
+#   capstone/exec/linux_harden.log
+#   capstone/exec/linux_harden.json
 
 set -uo pipefail
 
