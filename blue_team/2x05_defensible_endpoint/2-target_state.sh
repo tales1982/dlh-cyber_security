@@ -1,5 +1,42 @@
 #!/bin/bash
 #
+# Declares the capstone's target state: the minimum control set below,
+# each with id, platform, family, description, check_type, check_target,
+# expected_value, source_project and severity.
+#
+# - SSH PermitRootLogin no
+# - SSH PasswordAuthentication no
+# - sysctl net.ipv4.ip_forward = 0
+# - sysctl kernel.randomize_va_space = 2
+# - auditd active
+# - apparmor enforce mode
+# - Lynis hardening index at least 80
+# - Windows Firewall default-deny inbound on every profile
+# - Script Block Logging enabled
+# - Sysmon service installed and running
+# - audit policy covers Account Logon, Logon, Object Access and Privilege Use subcategories
+# - CIS Level 1 pass rate at least 85 percent
+# - Linux auditd rules file present and loaded
+# - structured JSON export path exists
+# - Windows Sysmon event count greater than zero in the last 10 minutes
+# - Script Block Logging event channel size greater than zero
+# - vulnerability_inventory.json present
+# - patch_plan.json present
+# - patch_execution_log.json present with zero entries in failed state
+# - unattended-upgrades configured with the mandated blacklist
+# - nftables ruleset loaded with default-deny inbound
+# - segmentation_rules.json present
+# - Suricata custom rule file loaded with at least six rules
+# - Suricata rule validation report shows every rule fired against its target PCAP
+# - DNS filter active
+# - compliance.json present
+# - manifest.json present with SHA-256 per file
+# - telemetry export package exists and is tarballed
+# - runbook script present and executable
+#
+# check_type values used: file_exists, json_field_equals, json_field_gte,
+# command_exit_zero, grep_match.
+#
 # Artifact (relative to this script's directory):
 #   capstone/target_state.json
 
