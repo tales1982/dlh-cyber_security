@@ -68,4 +68,9 @@ fi
 
 echo "Baseline written to $OUTPUT_JSON_FILE (hardening_index=${HARDENING_INDEX})"
 
+if [[ "$HARDENING_INDEX" -eq 0 ]]; then
+    echo "Error: hardening_index parsed as 0 - lynis ran but the report did not contain a usable score." >&2
+    exit 1
+fi
+
 exit 0
