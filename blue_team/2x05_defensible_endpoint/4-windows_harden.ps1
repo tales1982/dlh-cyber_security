@@ -1,7 +1,16 @@
+# Orchestrates the Windows hardening pass against hawthorne-adm-01 in order:
+# account policy, audit policy, Windows Firewall baseline, Sysmon installation with the MedDefense config,
+# PowerShell Script Block Logging enable, AppLocker or Defender Application Control baseline, service minimization.
+# Captures the stdout and exit code of each sub-step into the execution log below.
+# After the run, invokes the provided win_audit.ps1 helper and computes the new CIS Level 1 pass rate.
+# Exits 0 only if every sub-step exited 0 and post_pass_rate >= target_state.windows.pass_rate.
+# Emits the same JSON schema as the Linux sibling (3-linux_harden.sh) so the validation suite can read both without branching.
+#
 # Artifacts (relative to this script's directory):
 #   capstone/exec/windows_harden.log
 #   capstone/exec/windows_harden.json
 
+Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
