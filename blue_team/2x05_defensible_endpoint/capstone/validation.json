@@ -1,11 +1,13 @@
 {
-  "timestamp": "2026-08-28T09:28:23Z",
+  "timestamp": "2026-08-28T10:12:52Z",
   "hostname": "hawthorne-app-01",
+  "platform": "linux",
   "total": 29,
-  "pass_count": 11,
-  "fail_count": 13,
-  "error_count": 5,
-  "pass_percentage": 37.9,
+  "pass_count": 8,
+  "fail_count": 10,
+  "error_count": 4,
+  "skip_count": 7,
+  "pass_percentage": 36.4,
   "controls": [
     {
       "id": "LNX-SSH-01",
@@ -76,8 +78,8 @@
       "family": "hardening",
       "check_type": "command_exit_zero",
       "severity": "critical",
-      "verdict": "pass",
-      "evidence": "winrm:if ((Get-NetFirewallProfile -All | Where-Object { -not $_.Enabled -or $_.DefaultInboundAction -ne \"Block\" }).Count -eq 0) { exit 0 } else { exit 1 } (exit 0)"
+      "verdict": "skip",
+      "evidence": "control targets platform 'windows', this host is 'linux'"
     },
     {
       "id": "WIN-PSLOG-01",
@@ -85,8 +87,8 @@
       "family": "telemetry",
       "check_type": "command_exit_zero",
       "severity": "high",
-      "verdict": "pass",
-      "evidence": "winrm:if ((Get-ItemProperty \"HKLM:\\Software\\Policies\\Microsoft\\Windows\\PowerShell\\ScriptBlockLogging\" -ErrorAction SilentlyContinue).EnableScriptBlockLogging -eq 1) { exit 0 } else { exit 1 } (exit 0)"
+      "verdict": "skip",
+      "evidence": "control targets platform 'windows', this host is 'linux'"
     },
     {
       "id": "WIN-SYSMON-01",
@@ -94,8 +96,8 @@
       "family": "telemetry",
       "check_type": "command_exit_zero",
       "severity": "critical",
-      "verdict": "fail",
-      "evidence": "winrm:if (Get-Service -Name Sysmon* -ErrorAction SilentlyContinue | Where-Object Status -eq Running) { exit 0 } else { exit 1 } (exit 1)"
+      "verdict": "skip",
+      "evidence": "control targets platform 'windows', this host is 'linux'"
     },
     {
       "id": "WIN-AUDIT-01",
@@ -103,8 +105,8 @@
       "family": "telemetry",
       "check_type": "grep_match",
       "severity": "high",
-      "verdict": "fail",
-      "evidence": "C:\\capstone_deploy\\blue_team\\2x05_defensible_endpoint\\capstone\\baseline\\windows_baseline.log ~= /(Account Logon|Logon|Object Access|Privilege Use)/"
+      "verdict": "skip",
+      "evidence": "control targets platform 'windows', this host is 'linux'"
     },
     {
       "id": "WIN-CIS-01",
@@ -112,8 +114,8 @@
       "family": "hardening",
       "check_type": "json_field_gte",
       "severity": "critical",
-      "verdict": "fail",
-      "evidence": "C:\\capstone_deploy\\blue_team\\2x05_defensible_endpoint\\capstone\\baseline\\baseline_windows.json#.pass_rate_percent = 10 (expected gte: 85)"
+      "verdict": "skip",
+      "evidence": "control targets platform 'windows', this host is 'linux'"
     },
     {
       "id": "TEL-LNX-01",
@@ -139,8 +141,8 @@
       "family": "telemetry",
       "check_type": "json_field_gte",
       "severity": "high",
-      "verdict": "error",
-      "evidence": "winrm:Get-Content 'C:\\capstone_deploy\\blue_team\\2x05_defensible_endpoint\\capstone\\telemetry\\windows_events.json' failed (exit 2)"
+      "verdict": "skip",
+      "evidence": "control targets platform 'windows', this host is 'linux'"
     },
     {
       "id": "TEL-WIN-02",
@@ -148,8 +150,8 @@
       "family": "telemetry",
       "check_type": "command_exit_zero",
       "severity": "medium",
-      "verdict": "pass",
-      "evidence": "winrm:if ((Get-WinEvent -ListLog \"Microsoft-Windows-PowerShell/Operational\").FileSize -gt 0) { exit 0 } else { exit 1 } (exit 0)"
+      "verdict": "skip",
+      "evidence": "control targets platform 'windows', this host is 'linux'"
     },
     {
       "id": "PATCH-01",

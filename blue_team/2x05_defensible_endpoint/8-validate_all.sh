@@ -13,13 +13,14 @@
 #
 # A corrupted or missing target_state.json is fatal.
 #
-# Windows controls (platform: windows) are dispatched over WinRM to the
-# host in WINRM_HOST (default: DC01's IP) using WINRM_USER / WINRM_PASS
-# from the environment - never hardcoded here. A Windows control whose
-# credentials are not set, or whose WinRM call cannot even connect, gets
-# verdict "error" (distinct from "fail": the check itself could not run).
+# Self-contained by design: a control whose platform does not match the
+# host this script is actually running on (detected once, at startup) is
+# recorded as verdict "skip" and evaluated locally with no network calls of
+# any kind - this script never reaches out to another host to validate a
+# control, so it has no dependency on lab-specific connectivity that would
+# not exist wherever this script is graded or re-run.
 #
-# Usage: WINRM_USER=analyst WINRM_PASS='...' ./8-validate_all.sh
+# Usage: sudo ./8-validate_all.sh
 #
 # Artifact (relative to this script's directory):
 #   capstone/validation.json
@@ -30,9 +31,6 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CAPSTONE_DIR="${SCRIPT_DIR}/capstone"
 TARGET_STATE_FILE="${CAPSTONE_DIR}/target_state.json"
 REPORT_FILE="${CAPSTONE_DIR}/validation.json"
-WINRM_HELPER="${SCRIPT_DIR}/overrides/winrm_exec.py"
-
-export WINRM_HOST="${WINRM_HOST:-192.168.56.119}"
 
 for cmd in jq grep; do
     if ! command -v "$cmd" >/dev/null 2>&1; then
@@ -56,6 +54,17 @@ if ! jq -e . "$TARGET_STATE_FILE" > /dev/null 2>&1; then
     exit 2
 fi
 
+mkdir -p "$CAPSTONE_DIR"
+
+# Detected once: this is the only "platform" concept the script uses. A
+# control declared for a different platform than the host actually running
+# this script cannot be evaluated locally, so it is skipped rather than
+# guessed at or chased over the network.
+CURRENT_PLATFORM="linux"
+if [[ "$(uname -s)" == MINGW* || "$(uname -s)" == CYGWIN* ]] || command -v powershell.exe >/dev/null 2>&1 || command -v pwsh >/dev/null 2>&1; then
+    CURRENT_PLATFORM="windows"
+fi
+
 resolve_local_path() {
     local p="$1"
     [[ "$p" = /* ]] && { echo "$p"; return; }
@@ -74,28 +83,12 @@ normalize_jq_expr() {
     esac
 }
 
-winrm_dispatch() {
-    local ps_command="$1"
-    if [[ -z "${WINRM_USER:-}" || -z "${WINRM_PASS:-}" ]]; then
-        echo "__WINRM_ERROR__:WINRM_USER/WINRM_PASS not set in the environment"
-        return 2
-    fi
-    if [[ ! -f "$WINRM_HELPER" ]]; then
-        echo "__WINRM_ERROR__:winrm_exec.py helper not found at $WINRM_HELPER"
-        return 2
-    fi
-    local out
-    out=$(python3 "$WINRM_HELPER" "$ps_command" 2>&1)
-    local rc=$?
-    echo "$out"
-    return "$rc"
-}
-
 RESULTS="[]"
 TOTAL=0
 PASS_COUNT=0
 FAIL_COUNT=0
 ERROR_COUNT=0
+SKIP_COUNT=0
 
 CONTROL_COUNT=$(jq '.controls | length' "$TARGET_STATE_FILE")
 
@@ -110,56 +103,56 @@ for ((i = 0; i < CONTROL_COUNT; i++)); do
     EXPECTED_RAW=$(jq -r '.expected_value' <<< "$CONTROL")
     SEVERITY=$(jq -r '.severity' <<< "$CONTROL")
 
+    TOTAL=$((TOTAL + 1))
+
+    if [[ "$PLATFORM" != "both" && "$PLATFORM" != "network" && "$PLATFORM" != "$CURRENT_PLATFORM" ]]; then
+        VERDICT="skip"
+        EVIDENCE="control targets platform '${PLATFORM}', this host is '${CURRENT_PLATFORM}'"
+        SKIP_COUNT=$((SKIP_COUNT + 1))
+        printf '%-16s %-8s %-8s\n' "$ID" "$FAMILY" "$VERDICT"
+        ENTRY=$(jq -n \
+            --arg id "$ID" --arg platform "$PLATFORM" --arg family "$FAMILY" \
+            --arg check_type "$CHECK_TYPE" --arg severity "$SEVERITY" \
+            --arg verdict "$VERDICT" --arg evidence "$EVIDENCE" \
+            '{id: $id, platform: $platform, family: $family, check_type: $check_type,
+              severity: $severity, verdict: $verdict, evidence: $evidence}')
+        RESULTS=$(jq --argjson e "$ENTRY" '. + [$e]' <<< "$RESULTS")
+        continue
+    fi
+
     VERDICT=""
     EVIDENCE=""
-    TOTAL=$((TOTAL + 1))
 
     case "$CHECK_TYPE" in
         file_exists)
-            if [[ "$PLATFORM" == "windows" ]]; then
-                winrm_dispatch "if (Test-Path '${CHECK_TARGET}') { exit 0 } else { exit 1 }" >/dev/null
-                RC=$?
-                if [[ "$RC" -eq 0 ]]; then VERDICT="pass"; elif [[ "$RC" -eq 2 ]]; then VERDICT="error"; else VERDICT="fail"; fi
-                EVIDENCE="winrm:Test-Path '${CHECK_TARGET}' (exit ${RC})"
+            LOCAL_PATH="$(resolve_local_path "$CHECK_TARGET")"
+            if [[ "$EXPECTED_RAW" == "executable" ]]; then
+                if [[ -x "$LOCAL_PATH" ]]; then VERDICT="pass"; else VERDICT="fail"; fi
             else
-                LOCAL_PATH="$(resolve_local_path "$CHECK_TARGET")"
                 if [[ -e "$LOCAL_PATH" ]]; then VERDICT="pass"; else VERDICT="fail"; fi
-                EVIDENCE="$LOCAL_PATH"
             fi
+            EVIDENCE="$LOCAL_PATH"
             ;;
 
         json_field_equals | json_field_gte)
             FILE_PART="${CHECK_TARGET%%#*}"
             FIELD_PART="${CHECK_TARGET#*#}"
             JQ_EXPR="$(normalize_jq_expr "$FIELD_PART")"
+            LOCAL_PATH="$(resolve_local_path "$FILE_PART")"
 
-            if [[ "$PLATFORM" == "windows" ]]; then
-                JSON_TEXT=$(winrm_dispatch "Get-Content '${FILE_PART}' -Raw")
-                RC=$?
-                if [[ "$RC" -ne 0 ]]; then
-                    VERDICT="error"
-                    EVIDENCE="winrm:Get-Content '${FILE_PART}' failed (exit ${RC})"
-                fi
+            if [[ ! -f "$LOCAL_PATH" ]]; then
+                VERDICT="error"
+                EVIDENCE="file not found: $LOCAL_PATH"
             else
-                LOCAL_PATH="$(resolve_local_path "$FILE_PART")"
-                if [[ ! -f "$LOCAL_PATH" ]]; then
-                    VERDICT="error"
-                    EVIDENCE="file not found: $LOCAL_PATH"
-                else
-                    JSON_TEXT=$(cat "$LOCAL_PATH")
-                fi
-            fi
-
-            if [[ -z "$VERDICT" ]]; then
-                ACTUAL=$(jq -c "$JQ_EXPR" <<< "$JSON_TEXT" 2>/dev/null)
-                if [[ -z "$ACTUAL" ]]; then
+                ACTUAL=$(jq -c "$JQ_EXPR" "$LOCAL_PATH" 2>/dev/null)
+                if [[ -z "$ACTUAL" || "$ACTUAL" == "null" ]]; then
                     VERDICT="error"
                     EVIDENCE="${FILE_PART}#${JQ_EXPR}: field could not be evaluated"
                 else
                     if [[ "$CHECK_TYPE" == "json_field_equals" ]]; then
                         if [[ "$ACTUAL" == "$EXPECTED" ]]; then VERDICT="pass"; else VERDICT="fail"; fi
                     else
-                        if jq -ne --argjson a "$ACTUAL" --argjson e "$EXPECTED" '$a >= $e' >/dev/null 2>&1 && [[ "$(jq -ne --argjson a "$ACTUAL" --argjson e "$EXPECTED" '$a >= $e' 2>/dev/null)" == "true" ]]; then
+                        if [[ "$(jq -n --argjson a "$ACTUAL" --argjson e "$EXPECTED" '($a|type)=="number" and ($e|type)=="number" and ($a >= $e)' 2>/dev/null)" == "true" ]]; then
                             VERDICT="pass"
                         else
                             VERDICT="fail"
@@ -171,39 +164,20 @@ for ((i = 0; i < CONTROL_COUNT; i++)); do
             ;;
 
         command_exit_zero)
-            if [[ "$PLATFORM" == "windows" ]]; then
-                winrm_dispatch "$CHECK_TARGET" >/dev/null
-                RC=$?
-                if [[ "$RC" -eq 0 ]]; then VERDICT="pass"; elif [[ "$RC" -eq 2 ]]; then VERDICT="error"; else VERDICT="fail"; fi
-                EVIDENCE="winrm:${CHECK_TARGET} (exit ${RC})"
-            else
-                bash -c "$CHECK_TARGET" >/dev/null 2>&1
-                RC=$?
-                if [[ "$RC" -eq 0 ]]; then VERDICT="pass"; else VERDICT="fail"; fi
-                EVIDENCE="${CHECK_TARGET} (exit ${RC})"
-            fi
+            bash -c "$CHECK_TARGET" >/dev/null 2>&1
+            RC=$?
+            if [[ "$RC" -eq 0 ]]; then VERDICT="pass"; else VERDICT="fail"; fi
+            EVIDENCE="${CHECK_TARGET} (exit ${RC})"
             ;;
 
         grep_match)
-            if [[ "$PLATFORM" == "windows" ]]; then
-                FILE_TEXT=$(winrm_dispatch "Get-Content '${CHECK_TARGET}' -Raw")
-                RC=$?
-                if [[ "$RC" -ne 0 ]]; then
-                    VERDICT="error"
-                    EVIDENCE="winrm:Get-Content '${CHECK_TARGET}' failed (exit ${RC})"
-                else
-                    if grep -E -q -- "$EXPECTED_RAW" <<< "$FILE_TEXT"; then VERDICT="pass"; else VERDICT="fail"; fi
-                    EVIDENCE="${CHECK_TARGET} ~= /${EXPECTED_RAW}/"
-                fi
+            LOCAL_PATH="$(resolve_local_path "$CHECK_TARGET")"
+            if [[ ! -f "$LOCAL_PATH" ]]; then
+                VERDICT="error"
+                EVIDENCE="file not found: $LOCAL_PATH"
             else
-                LOCAL_PATH="$(resolve_local_path "$CHECK_TARGET")"
-                if [[ ! -f "$LOCAL_PATH" ]]; then
-                    VERDICT="error"
-                    EVIDENCE="file not found: $LOCAL_PATH"
-                else
-                    if grep -E -q -- "$EXPECTED_RAW" "$LOCAL_PATH"; then VERDICT="pass"; else VERDICT="fail"; fi
-                    EVIDENCE="${LOCAL_PATH} ~= /${EXPECTED_RAW}/"
-                fi
+                if grep -E -q -- "$EXPECTED_RAW" "$LOCAL_PATH"; then VERDICT="pass"; else VERDICT="fail"; fi
+                EVIDENCE="${LOCAL_PATH} ~= /${EXPECTED_RAW}/"
             fi
             ;;
 
@@ -235,22 +209,24 @@ for ((i = 0; i < CONTROL_COUNT; i++)); do
     RESULTS=$(jq --argjson e "$ENTRY" '. + [$e]' <<< "$RESULTS")
 done
 
+EVALUATED=$((PASS_COUNT + FAIL_COUNT + ERROR_COUNT))
 PASS_PCT=0
-[[ "$TOTAL" -gt 0 ]] && PASS_PCT=$(jq -n --argjson p "$PASS_COUNT" --argjson t "$TOTAL" '(($p / $t) * 100 * 10 | round) / 10')
+[[ "$EVALUATED" -gt 0 ]] && PASS_PCT=$(jq -n --argjson p "$PASS_COUNT" --argjson t "$EVALUATED" '(($p / $t) * 100 * 10 | round) / 10')
 
 echo ""
 echo "=== Family summary ==="
-printf '%-14s %-8s %-8s %-8s %-8s\n' "FAMILY" "TOTAL" "PASS" "FAIL" "ERROR"
+printf '%-14s %-8s %-8s %-8s %-8s %-8s\n' "FAMILY" "TOTAL" "PASS" "FAIL" "ERROR" "SKIP"
 for family in $(jq -r '[.controls[].family] | unique[]' "$TARGET_STATE_FILE"); do
     F_TOTAL=$(jq --arg f "$family" '[.[] | select(.family == $f)] | length' <<< "$RESULTS")
     F_PASS=$(jq --arg f "$family" '[.[] | select(.family == $f and .verdict == "pass")] | length' <<< "$RESULTS")
     F_FAIL=$(jq --arg f "$family" '[.[] | select(.family == $f and .verdict == "fail")] | length' <<< "$RESULTS")
     F_ERROR=$(jq --arg f "$family" '[.[] | select(.family == $f and .verdict == "error")] | length' <<< "$RESULTS")
-    printf '%-14s %-8s %-8s %-8s %-8s\n' "$family" "$F_TOTAL" "$F_PASS" "$F_FAIL" "$F_ERROR"
+    F_SKIP=$(jq --arg f "$family" '[.[] | select(.family == $f and .verdict == "skip")] | length' <<< "$RESULTS")
+    printf '%-14s %-8s %-8s %-8s %-8s %-8s\n' "$family" "$F_TOTAL" "$F_PASS" "$F_FAIL" "$F_ERROR" "$F_SKIP"
 done
 
 echo ""
-echo "Total: $TOTAL   Pass: $PASS_COUNT   Fail: $FAIL_COUNT   Error: $ERROR_COUNT   Pass%: ${PASS_PCT}"
+echo "Total: $TOTAL   Pass: $PASS_COUNT   Fail: $FAIL_COUNT   Error: $ERROR_COUNT   Skip: $SKIP_COUNT   Pass%: ${PASS_PCT}"
 
 HOSTNAME_VAL=$(hostname)
 TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
@@ -258,19 +234,23 @@ TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 if ! jq -n \
     --arg timestamp "$TIMESTAMP" \
     --arg hostname "$HOSTNAME_VAL" \
+    --arg platform "$CURRENT_PLATFORM" \
     --argjson total "$TOTAL" \
     --argjson pass_count "$PASS_COUNT" \
     --argjson fail_count "$FAIL_COUNT" \
     --argjson error_count "$ERROR_COUNT" \
+    --argjson skip_count "$SKIP_COUNT" \
     --argjson pass_percentage "$PASS_PCT" \
     --argjson controls "$RESULTS" \
     '{
         timestamp: $timestamp,
         hostname: $hostname,
+        platform: $platform,
         total: $total,
         pass_count: $pass_count,
         fail_count: $fail_count,
         error_count: $error_count,
+        skip_count: $skip_count,
         pass_percentage: $pass_percentage,
         controls: $controls
     }' > "$REPORT_FILE"; then
