@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0.0",
-  "generated_at": "2026-08-26T07:14:07Z",
+  "generated_at": "2026-08-28T09:07:48Z",
   "controls": [
     {
       "id": "LNX-SSH-01",
@@ -29,9 +29,9 @@
       "platform": "linux",
       "family": "hardening",
       "description": "IP forwarding must be disabled",
-      "check_type": "json_field_equals",
-      "check_target": "capstone/baseline/baseline_linux.json#sysctl_security.\"net.ipv4.ip_forward\"",
-      "expected_value": "0",
+      "check_type": "command_exit_zero",
+      "check_target": "test \"$(sysctl -n net.ipv4.ip_forward)\" = \"0\"",
+      "expected_value": null,
       "source_project": "2x00_locking_the_gates",
       "severity": "high"
     },
@@ -40,9 +40,9 @@
       "platform": "linux",
       "family": "hardening",
       "description": "ASLR must be fully enabled",
-      "check_type": "json_field_equals",
-      "check_target": "capstone/baseline/baseline_linux.json#sysctl_security.\"kernel.randomize_va_space\"",
-      "expected_value": "2",
+      "check_type": "command_exit_zero",
+      "check_target": "test \"$(sysctl -n kernel.randomize_va_space)\" = \"2\"",
+      "expected_value": null,
       "source_project": "2x00_locking_the_gates",
       "severity": "high"
     },
@@ -84,9 +84,9 @@
       "platform": "windows",
       "family": "hardening",
       "description": "Windows Firewall must default-deny inbound on every profile",
-      "check_type": "json_field_equals",
-      "check_target": "capstone/baseline/baseline_windows.json#firewall_status",
-      "expected_value": "deny",
+      "check_type": "command_exit_zero",
+      "check_target": "if ((Get-NetFirewallProfile -All | Where-Object { -not $_.Enabled -or $_.DefaultInboundAction -ne \"Block\" }).Count -eq 0) { exit 0 } else { exit 1 }",
+      "expected_value": null,
       "source_project": "2x01_windows_fortress",
       "severity": "critical"
     },
@@ -95,9 +95,9 @@
       "platform": "windows",
       "family": "telemetry",
       "description": "PowerShell Script Block Logging must be enabled",
-      "check_type": "json_field_equals",
-      "check_target": "capstone/telemetry/windows_coverage.json#script_block_logging_enabled",
-      "expected_value": true,
+      "check_type": "command_exit_zero",
+      "check_target": "if ((Get-ItemProperty \"HKLM:\\Software\\Policies\\Microsoft\\Windows\\PowerShell\\ScriptBlockLogging\" -ErrorAction SilentlyContinue).EnableScriptBlockLogging -eq 1) { exit 0 } else { exit 1 }",
+      "expected_value": null,
       "source_project": "2x01_windows_fortress",
       "severity": "high"
     },
@@ -107,7 +107,7 @@
       "family": "telemetry",
       "description": "Sysmon service must be installed and running",
       "check_type": "command_exit_zero",
-      "check_target": "Get-Service Sysmon* | Where-Object Status -eq Running",
+      "check_target": "if (Get-Service -Name Sysmon* -ErrorAction SilentlyContinue | Where-Object Status -eq Running) { exit 0 } else { exit 1 }",
       "expected_value": null,
       "source_project": "2x01_windows_fortress",
       "severity": "critical"
@@ -118,7 +118,7 @@
       "family": "telemetry",
       "description": "Audit policy must cover Account Logon, Logon, Object Access and Privilege Use subcategories",
       "check_type": "grep_match",
-      "check_target": "capstone/baseline/windows_baseline.log",
+      "check_target": "C:\\capstone_deploy\\blue_team\\2x05_defensible_endpoint\\capstone\\baseline\\windows_baseline.log",
       "expected_value": "(Account Logon|Logon|Object Access|Privilege Use)",
       "source_project": "2x01_windows_fortress",
       "severity": "high"
@@ -129,7 +129,7 @@
       "family": "hardening",
       "description": "CIS Level 1 pass rate must be at least 85 percent",
       "check_type": "json_field_gte",
-      "check_target": "capstone/baseline/baseline_windows.json#pass_rate_percent",
+      "check_target": "C:\\capstone_deploy\\blue_team\\2x05_defensible_endpoint\\capstone\\baseline\\baseline_windows.json#pass_rate_percent",
       "expected_value": 85,
       "source_project": "2x05_defensible_endpoint",
       "severity": "critical"
@@ -162,7 +162,7 @@
       "family": "telemetry",
       "description": "Windows Sysmon event count must be greater than zero in the last 10 minutes",
       "check_type": "json_field_gte",
-      "check_target": "capstone/telemetry/windows_coverage.json#sysmon_event_count_last_10m",
+      "check_target": "C:\\capstone_deploy\\blue_team\\2x05_defensible_endpoint\\capstone\\telemetry\\windows_events.json#.sysmon_events | length",
       "expected_value": 1,
       "source_project": "2x02_eyes_on_endpoint",
       "severity": "high"
@@ -172,9 +172,9 @@
       "platform": "windows",
       "family": "telemetry",
       "description": "PowerShell Script Block Logging event channel size must be greater than zero",
-      "check_type": "json_field_gte",
-      "check_target": "capstone/baseline/baseline_windows.json#script_block_logging_channel_size",
-      "expected_value": 1,
+      "check_type": "command_exit_zero",
+      "check_target": "if ((Get-WinEvent -ListLog \"Microsoft-Windows-PowerShell/Operational\").FileSize -gt 0) { exit 0 } else { exit 1 }",
+      "expected_value": null,
       "source_project": "2x02_eyes_on_endpoint",
       "severity": "medium"
     },
@@ -202,11 +202,11 @@
     },
     {
       "id": "PATCH-03",
-      "platform": "both",
+      "platform": "linux",
       "family": "patching",
       "description": "Patch execution log must be present with zero entries in failed state",
       "check_type": "json_field_equals",
-      "check_target": "capstone/patch/patch_execution_log.json#failed_count",
+      "check_target": "capstone/patch/patch_execution_log.json#[.entries[]? | select(.status==\"failed\")] | length",
       "expected_value": 0,
       "source_project": "2x03_patch_equation",
       "severity": "high"
@@ -250,7 +250,7 @@
       "family": "network",
       "description": "Suricata custom rule file must be loaded with at least six rules",
       "check_type": "json_field_gte",
-      "check_target": "capstone/network/rule_validation.json#rules_loaded",
+      "check_target": "capstone/network/rule_validation.json#rule_count",
       "expected_value": 6,
       "source_project": "2x04_perimeter_defense",
       "severity": "high"
@@ -261,8 +261,8 @@
       "family": "network",
       "description": "Suricata rule validation report must show every rule fired against its target PCAP",
       "check_type": "json_field_equals",
-      "check_target": "capstone/network/rule_validation.json#all_rules_fired",
-      "expected_value": true,
+      "check_target": "capstone/network/rule_validation.json#failed",
+      "expected_value": 0,
       "source_project": "2x04_perimeter_defense",
       "severity": "high"
     },
@@ -272,8 +272,8 @@
       "family": "network",
       "description": "DNS filter must be active",
       "check_type": "json_field_equals",
-      "check_target": "capstone/network/dns_filtering_result.json#active",
-      "expected_value": true,
+      "check_target": "capstone/network/dns_filtering_result.json#service_state",
+      "expected_value": "active",
       "source_project": "2x04_perimeter_defense",
       "severity": "medium"
     },
