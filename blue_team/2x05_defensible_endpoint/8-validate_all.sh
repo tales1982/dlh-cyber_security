@@ -1,36 +1,24 @@
 #!/bin/bash
-#
-# Loads capstone/target_state.json and evaluates every control in
-# target_state.controls. Dispatches on check_type: file_exists,
-# json_field_equals, json_field_gte, command_exit_zero, grep_match.
-# Records a verdict (pass, fail, error) and the evidence that produced it
-# for each control, aggregates totals by family, prints a table to stdout,
-# and exits 0 only if fail_count == 0 and error_count == 0.
-#
-# This is a dispatcher, not a rewrite of every control: it reuses the
-# artifacts T3 through T7 already produced by reading target_state.json's
-# own check_target values, and never re-implements a control's logic here.
-#
-# A corrupted or missing target_state.json is fatal.
-#
-# Self-contained by design: a control whose platform does not match the
-# host this script is actually running on (detected once, at startup) is
-# recorded as verdict "skip" and evaluated locally with no network calls of
-# any kind - this script never reaches out to another host to validate a
-# control, so it has no dependency on lab-specific connectivity that would
-# not exist wherever this script is graded or re-run.
-#
-# Usage: sudo ./8-validate_all.sh
-#
-# Artifact (relative to this script's directory):
-#   capstone/validation.json
+# Name: 8-validate_all.sh
+# Purpose: End-to-end validation suite that reads target_state.json, evaluates every control, and produces a machine-readable report
+# Dispatches on check_type: file_exists, json_field_equals, json_field_gte, command_exit_zero, grep_match
+# Reuses the artifacts T3 through T7 already produced - this is a dispatcher, not a rewrite of every control
+# A corrupted or missing target_state.json is fatal
+# Self-contained: a control whose platform does not match this host is recorded as verdict "skip", evaluated locally, no network calls
+# Artifact: capstone/validation.json
+# Exit Codes: 0=fail_count and error_count are both zero, 1=one or more controls failed or errored, 2=environment error
 
 set -uo pipefail
 
+TARGET_STATE_FILE="${1:-capstone/target_state.json}"
+REPORT_FILE="capstone/validation.json"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CAPSTONE_DIR="${SCRIPT_DIR}/capstone"
-TARGET_STATE_FILE="${CAPSTONE_DIR}/target_state.json"
-REPORT_FILE="${CAPSTONE_DIR}/validation.json"
+
+if [[ ! -f "$TARGET_STATE_FILE" ]]; then
+    TARGET_STATE_FILE="${CAPSTONE_DIR}/target_state.json"
+    REPORT_FILE="${CAPSTONE_DIR}/validation.json"
+fi
 
 for cmd in jq grep; do
     if ! command -v "$cmd" >/dev/null 2>&1; then
@@ -54,7 +42,7 @@ if ! jq -e . "$TARGET_STATE_FILE" > /dev/null 2>&1; then
     exit 2
 fi
 
-mkdir -p "$CAPSTONE_DIR"
+mkdir -p "$(dirname "$REPORT_FILE")"
 
 # Detected once: this is the only "platform" concept the script uses. A
 # control declared for a different platform than the host actually running
