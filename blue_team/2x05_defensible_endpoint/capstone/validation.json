@@ -1,274 +1,430 @@
 {
-  "timestamp": "2026-08-28T10:15:58Z",
-  "hostname": "hawthorne-app-01",
+  "timestamp": "2026-08-28T10:18:49+00:00",
+  "host": "hawthorne-app-01",
   "platform": "linux",
-  "total": 29,
+  "target_state": "capstone/target_state.json",
+  "total_controls": 22,
   "pass_count": 8,
   "fail_count": 10,
   "error_count": 4,
   "skip_count": 7,
   "pass_percentage": 36.4,
+  "overall_verdict": "NOT_READY",
+  "summary": "Total controls: 22 | Pass: 8 | Fail: 10 | Error: 4 | Skip: 7",
+  "family_summary": [
+    {
+      "family": "hardening",
+      "total": 8,
+      "pass": 5,
+      "fail": 1,
+      "error": 0
+    },
+    {
+      "family": "telemetry",
+      "total": 8,
+      "pass": 2,
+      "fail": 1,
+      "error": 0
+    },
+    {
+      "family": "patching",
+      "total": 4,
+      "pass": 1,
+      "fail": 2,
+      "error": 1
+    },
+    {
+      "family": "network",
+      "total": 5,
+      "pass": 0,
+      "fail": 2,
+      "error": 3
+    },
+    {
+      "family": "handoff",
+      "total": 4,
+      "pass": 0,
+      "fail": 4,
+      "error": 0
+    }
+  ],
   "controls": [
     {
       "id": "LNX-SSH-01",
       "platform": "linux",
       "family": "hardening",
+      "description": "SSH must refuse direct root login",
       "check_type": "grep_match",
+      "check_target": "/etc/ssh/sshd_config",
+      "expected_value": "^PermitRootLogin\\s+no",
       "severity": "critical",
+      "source_project": "2x00_locking_the_gates",
       "verdict": "pass",
-      "evidence": "/etc/ssh/sshd_config ~= /^PermitRootLogin\\s+no/"
+      "evidence": "Pattern '^PermitRootLogin\\s+no' matched in /etc/ssh/sshd_config"
     },
     {
       "id": "LNX-SSH-02",
       "platform": "linux",
       "family": "hardening",
+      "description": "SSH must refuse password authentication",
       "check_type": "grep_match",
+      "check_target": "/etc/ssh/sshd_config",
+      "expected_value": "^PasswordAuthentication\\s+no",
       "severity": "critical",
+      "source_project": "2x00_locking_the_gates",
       "verdict": "pass",
-      "evidence": "/etc/ssh/sshd_config ~= /^PasswordAuthentication\\s+no/"
+      "evidence": "Pattern '^PasswordAuthentication\\s+no' matched in /etc/ssh/sshd_config"
     },
     {
       "id": "LNX-SYSCTL-01",
       "platform": "linux",
       "family": "hardening",
+      "description": "IP forwarding must be disabled",
       "check_type": "command_exit_zero",
+      "check_target": "test \"$(sysctl -n net.ipv4.ip_forward)\" = \"0\"",
+      "expected_value": "null",
       "severity": "high",
+      "source_project": "2x00_locking_the_gates",
       "verdict": "pass",
-      "evidence": "test \"$(sysctl -n net.ipv4.ip_forward)\" = \"0\" (exit 0)"
+      "evidence": "Command succeeded: test \"$(sysctl -n net.ipv4.ip_forward)\" = \"0\""
     },
     {
       "id": "LNX-SYSCTL-02",
       "platform": "linux",
       "family": "hardening",
+      "description": "ASLR must be fully enabled",
       "check_type": "command_exit_zero",
+      "check_target": "test \"$(sysctl -n kernel.randomize_va_space)\" = \"2\"",
+      "expected_value": "null",
       "severity": "high",
+      "source_project": "2x00_locking_the_gates",
       "verdict": "pass",
-      "evidence": "test \"$(sysctl -n kernel.randomize_va_space)\" = \"2\" (exit 0)"
+      "evidence": "Command succeeded: test \"$(sysctl -n kernel.randomize_va_space)\" = \"2\""
     },
     {
       "id": "LNX-AUDITD-01",
       "platform": "linux",
       "family": "telemetry",
+      "description": "auditd service must be active",
       "check_type": "command_exit_zero",
+      "check_target": "systemctl is-active --quiet auditd",
+      "expected_value": "null",
       "severity": "critical",
+      "source_project": "2x00_locking_the_gates",
       "verdict": "pass",
-      "evidence": "systemctl is-active --quiet auditd (exit 0)"
+      "evidence": "Command succeeded: systemctl is-active --quiet auditd"
     },
     {
       "id": "LNX-APPARMOR-01",
       "platform": "linux",
       "family": "hardening",
+      "description": "AppArmor must be running in enforce mode",
       "check_type": "command_exit_zero",
+      "check_target": "aa-status --enforced | grep -q .",
+      "expected_value": "null",
       "severity": "high",
+      "source_project": "2x00_locking_the_gates",
       "verdict": "pass",
-      "evidence": "aa-status --enforced | grep -q . (exit 0)"
+      "evidence": "Command succeeded: aa-status --enforced | grep -q ."
     },
     {
       "id": "LNX-LYNIS-01",
       "platform": "linux",
       "family": "hardening",
+      "description": "Lynis hardening index must be at least 80",
       "check_type": "json_field_gte",
+      "check_target": "capstone/baseline/baseline_linux.json#hardening_index",
+      "expected_value": "80",
       "severity": "critical",
+      "source_project": "2x05_defensible_endpoint",
       "verdict": "fail",
-      "evidence": "capstone/baseline/baseline_linux.json#.hardening_index = 54 (expected gte: 80)"
+      "evidence": "capstone/baseline/baseline_linux.json:.hardening_index = 54 (expected >= 80)"
     },
     {
       "id": "WIN-FW-01",
       "platform": "windows",
       "family": "hardening",
+      "description": "Windows Firewall must default-deny inbound on every profile",
       "check_type": "command_exit_zero",
+      "check_target": "if ((Get-NetFirewallProfile -All | Where-Object { -not $_.Enabled -or $_.DefaultInboundAction -ne \"Block\" }).Count -eq 0) { exit 0 } else { exit 1 }",
+      "expected_value": "null",
       "severity": "critical",
+      "source_project": "2x01_windows_fortress",
       "verdict": "skip",
-      "evidence": "control targets platform 'windows', this host is 'linux'"
+      "evidence": "Skipped: control targets windows, this host is linux"
     },
     {
       "id": "WIN-PSLOG-01",
       "platform": "windows",
       "family": "telemetry",
+      "description": "PowerShell Script Block Logging must be enabled",
       "check_type": "command_exit_zero",
+      "check_target": "if ((Get-ItemProperty \"HKLM:\\Software\\Policies\\Microsoft\\Windows\\PowerShell\\ScriptBlockLogging\" -ErrorAction SilentlyContinue).EnableScriptBlockLogging -eq 1) { exit 0 } else { exit 1 }",
+      "expected_value": "null",
       "severity": "high",
+      "source_project": "2x01_windows_fortress",
       "verdict": "skip",
-      "evidence": "control targets platform 'windows', this host is 'linux'"
+      "evidence": "Skipped: control targets windows, this host is linux"
     },
     {
       "id": "WIN-SYSMON-01",
       "platform": "windows",
       "family": "telemetry",
+      "description": "Sysmon service must be installed and running",
       "check_type": "command_exit_zero",
+      "check_target": "if (Get-Service -Name Sysmon* -ErrorAction SilentlyContinue | Where-Object Status -eq Running) { exit 0 } else { exit 1 }",
+      "expected_value": "null",
       "severity": "critical",
+      "source_project": "2x01_windows_fortress",
       "verdict": "skip",
-      "evidence": "control targets platform 'windows', this host is 'linux'"
+      "evidence": "Skipped: control targets windows, this host is linux"
     },
     {
       "id": "WIN-AUDIT-01",
       "platform": "windows",
       "family": "telemetry",
+      "description": "Audit policy must cover Account Logon, Logon, Object Access and Privilege Use subcategories",
       "check_type": "grep_match",
+      "check_target": "C:\\capstone_deploy\\blue_team\\2x05_defensible_endpoint\\capstone\\baseline\\windows_baseline.log",
+      "expected_value": "(Account Logon|Logon|Object Access|Privilege Use)",
       "severity": "high",
+      "source_project": "2x01_windows_fortress",
       "verdict": "skip",
-      "evidence": "control targets platform 'windows', this host is 'linux'"
+      "evidence": "Skipped: control targets windows, this host is linux"
     },
     {
       "id": "WIN-CIS-01",
       "platform": "windows",
       "family": "hardening",
+      "description": "CIS Level 1 pass rate must be at least 85 percent",
       "check_type": "json_field_gte",
+      "check_target": "C:\\capstone_deploy\\blue_team\\2x05_defensible_endpoint\\capstone\\baseline\\baseline_windows.json#pass_rate_percent",
+      "expected_value": "85",
       "severity": "critical",
+      "source_project": "2x05_defensible_endpoint",
       "verdict": "skip",
-      "evidence": "control targets platform 'windows', this host is 'linux'"
+      "evidence": "Skipped: control targets windows, this host is linux"
     },
     {
       "id": "TEL-LNX-01",
       "platform": "linux",
       "family": "telemetry",
+      "description": "Linux auditd rules file must be present and loaded",
       "check_type": "command_exit_zero",
+      "check_target": "test -f /etc/audit/rules.d/meddefense.rules && auditctl -l | grep -q meddefense",
+      "expected_value": "null",
       "severity": "high",
+      "source_project": "2x02_eyes_on_endpoint",
       "verdict": "pass",
-      "evidence": "test -f /etc/audit/rules.d/meddefense.rules && auditctl -l | grep -q meddefense (exit 0)"
+      "evidence": "Command succeeded: test -f /etc/audit/rules.d/meddefense.rules && auditctl -l | grep -q meddefense"
     },
     {
       "id": "TEL-EXPORT-01",
       "platform": "both",
       "family": "telemetry",
+      "description": "Structured telemetry JSON export path must exist",
       "check_type": "file_exists",
+      "check_target": "capstone/telemetry",
+      "expected_value": "null",
       "severity": "medium",
+      "source_project": "2x02_eyes_on_endpoint",
       "verdict": "fail",
-      "evidence": "/home/analyst/blue_team/2x05_defensible_endpoint/capstone/telemetry"
+      "evidence": "File capstone/telemetry not found"
     },
     {
       "id": "TEL-WIN-01",
       "platform": "windows",
       "family": "telemetry",
+      "description": "Windows Sysmon event count must be greater than zero in the last 10 minutes",
       "check_type": "json_field_gte",
+      "check_target": "C:\\capstone_deploy\\blue_team\\2x05_defensible_endpoint\\capstone\\telemetry\\windows_events.json#.sysmon_events | length",
+      "expected_value": "1",
       "severity": "high",
+      "source_project": "2x02_eyes_on_endpoint",
       "verdict": "skip",
-      "evidence": "control targets platform 'windows', this host is 'linux'"
+      "evidence": "Skipped: control targets windows, this host is linux"
     },
     {
       "id": "TEL-WIN-02",
       "platform": "windows",
       "family": "telemetry",
+      "description": "PowerShell Script Block Logging event channel size must be greater than zero",
       "check_type": "command_exit_zero",
+      "check_target": "if ((Get-WinEvent -ListLog \"Microsoft-Windows-PowerShell/Operational\").FileSize -gt 0) { exit 0 } else { exit 1 }",
+      "expected_value": "null",
       "severity": "medium",
+      "source_project": "2x02_eyes_on_endpoint",
       "verdict": "skip",
-      "evidence": "control targets platform 'windows', this host is 'linux'"
+      "evidence": "Skipped: control targets windows, this host is linux"
     },
     {
       "id": "PATCH-01",
       "platform": "both",
       "family": "patching",
+      "description": "Vulnerability inventory artifact must be present",
       "check_type": "file_exists",
+      "check_target": "capstone/patch/vulnerability_inventory.json",
+      "expected_value": "null",
       "severity": "medium",
+      "source_project": "2x03_patch_equation",
       "verdict": "fail",
-      "evidence": "/home/analyst/blue_team/2x05_defensible_endpoint/capstone/patch/vulnerability_inventory.json"
+      "evidence": "File capstone/patch/vulnerability_inventory.json not found"
     },
     {
       "id": "PATCH-02",
       "platform": "both",
       "family": "patching",
+      "description": "Patch plan artifact must be present",
       "check_type": "file_exists",
+      "check_target": "capstone/patch/patch_plan.json",
+      "expected_value": "null",
       "severity": "medium",
+      "source_project": "2x03_patch_equation",
       "verdict": "fail",
-      "evidence": "/home/analyst/blue_team/2x05_defensible_endpoint/capstone/patch/patch_plan.json"
+      "evidence": "File capstone/patch/patch_plan.json not found"
     },
     {
       "id": "PATCH-03",
       "platform": "linux",
       "family": "patching",
+      "description": "Patch execution log must be present with zero entries in failed state",
       "check_type": "json_field_equals",
+      "check_target": "capstone/patch/patch_execution_log.json#[.entries[]? | select(.status==\"failed\")] | length",
+      "expected_value": "0",
       "severity": "high",
+      "source_project": "2x03_patch_equation",
       "verdict": "error",
-      "evidence": "file not found: /home/analyst/blue_team/2x05_defensible_endpoint/capstone/patch/patch_execution_log.json"
+      "evidence": "JSON file capstone/patch/patch_execution_log.json not found"
     },
     {
       "id": "PATCH-04",
       "platform": "linux",
       "family": "patching",
+      "description": "unattended-upgrades must be configured with the mandated blacklist",
       "check_type": "grep_match",
+      "check_target": "/etc/apt/apt.conf.d/50unattended-upgrades",
+      "expected_value": "Unattended-Upgrade::Package-Blacklist",
       "severity": "medium",
+      "source_project": "2x03_patch_equation",
       "verdict": "pass",
-      "evidence": "/etc/apt/apt.conf.d/50unattended-upgrades ~= /Unattended-Upgrade::Package-Blacklist/"
+      "evidence": "Pattern 'Unattended-Upgrade::Package-Blacklist' matched in /etc/apt/apt.conf.d/50unattended-upgrades"
     },
     {
       "id": "NET-NFT-01",
       "platform": "network",
       "family": "network",
+      "description": "nftables input chain must default to drop",
       "check_type": "command_exit_zero",
+      "check_target": "nft list ruleset | grep -q \"hook input.*policy drop\"",
+      "expected_value": "null",
       "severity": "critical",
+      "source_project": "2x04_perimeter_defense",
       "verdict": "fail",
-      "evidence": "nft list ruleset | grep -q \"hook input.*policy drop\" (exit 1)"
+      "evidence": "Command failed: nft list ruleset | grep -q \"hook input.*policy drop\""
     },
     {
       "id": "NET-SEG-01",
       "platform": "network",
       "family": "network",
+      "description": "Segmentation rules artifact must be present",
       "check_type": "file_exists",
+      "check_target": "capstone/network/segmentation_rules.json",
+      "expected_value": "null",
       "severity": "medium",
+      "source_project": "2x04_perimeter_defense",
       "verdict": "fail",
-      "evidence": "/home/analyst/blue_team/2x05_defensible_endpoint/capstone/network/segmentation_rules.json"
+      "evidence": "File capstone/network/segmentation_rules.json not found"
     },
     {
       "id": "NET-SURICATA-01",
       "platform": "network",
       "family": "network",
+      "description": "Suricata custom rule file must be loaded with at least six rules",
       "check_type": "json_field_gte",
+      "check_target": "capstone/network/rule_validation.json#rule_count",
+      "expected_value": "6",
       "severity": "high",
+      "source_project": "2x04_perimeter_defense",
       "verdict": "error",
-      "evidence": "file not found: /home/analyst/blue_team/2x05_defensible_endpoint/capstone/network/rule_validation.json"
+      "evidence": "JSON file capstone/network/rule_validation.json not found"
     },
     {
       "id": "NET-SURICATA-02",
       "platform": "network",
       "family": "network",
+      "description": "Suricata rule validation report must show every rule fired against its target PCAP",
       "check_type": "json_field_equals",
+      "check_target": "capstone/network/rule_validation.json#failed",
+      "expected_value": "0",
       "severity": "high",
+      "source_project": "2x04_perimeter_defense",
       "verdict": "error",
-      "evidence": "file not found: /home/analyst/blue_team/2x05_defensible_endpoint/capstone/network/rule_validation.json"
+      "evidence": "JSON file capstone/network/rule_validation.json not found"
     },
     {
       "id": "NET-DNS-01",
       "platform": "network",
       "family": "network",
+      "description": "DNS filter must be active",
       "check_type": "json_field_equals",
+      "check_target": "capstone/network/dns_filtering_result.json#service_state",
+      "expected_value": "active",
       "severity": "medium",
+      "source_project": "2x04_perimeter_defense",
       "verdict": "error",
-      "evidence": "file not found: /home/analyst/blue_team/2x05_defensible_endpoint/capstone/network/dns_filtering_result.json"
+      "evidence": "JSON file capstone/network/dns_filtering_result.json not found"
     },
     {
       "id": "HANDOFF-01",
       "platform": "both",
       "family": "handoff",
+      "description": "Compliance report artifact must be present",
       "check_type": "file_exists",
+      "check_target": "capstone/handoff/compliance.json",
+      "expected_value": "null",
       "severity": "medium",
+      "source_project": "2x05_defensible_endpoint",
       "verdict": "fail",
-      "evidence": "/home/analyst/blue_team/2x05_defensible_endpoint/capstone/handoff/compliance.json"
+      "evidence": "File capstone/handoff/compliance.json not found"
     },
     {
       "id": "HANDOFF-02",
       "platform": "both",
       "family": "handoff",
+      "description": "Manifest must be present with a SHA-256 hash per file",
       "check_type": "file_exists",
+      "check_target": "capstone/handoff/manifest.json",
+      "expected_value": "null",
       "severity": "high",
+      "source_project": "2x05_defensible_endpoint",
       "verdict": "fail",
-      "evidence": "/home/analyst/blue_team/2x05_defensible_endpoint/capstone/handoff/manifest.json"
+      "evidence": "File capstone/handoff/manifest.json not found"
     },
     {
       "id": "HANDOFF-03",
       "platform": "both",
       "family": "handoff",
+      "description": "Telemetry export package must exist and be tarballed",
       "check_type": "file_exists",
+      "check_target": "capstone/handoff/telemetry_export.tar.gz",
+      "expected_value": "null",
       "severity": "medium",
+      "source_project": "2x05_defensible_endpoint",
       "verdict": "fail",
-      "evidence": "/home/analyst/blue_team/2x05_defensible_endpoint/capstone/handoff/telemetry_export.tar.gz"
+      "evidence": "File capstone/handoff/telemetry_export.tar.gz not found"
     },
     {
       "id": "HANDOFF-04",
       "platform": "both",
       "family": "handoff",
+      "description": "Runbook script must be present and executable",
       "check_type": "command_exit_zero",
+      "check_target": "test -x capstone/handoff/runbook.sh",
+      "expected_value": "null",
       "severity": "high",
+      "source_project": "2x05_defensible_endpoint",
       "verdict": "fail",
-      "evidence": "test -x capstone/handoff/runbook.sh (exit 1)"
+      "evidence": "Command failed: test -x capstone/handoff/runbook.sh"
     }
   ]
 }
