@@ -1,0 +1,10 @@
+﻿{
+    "timestamp":  "2026-08-26T05:30:29.5833055Z",
+    "hostname":  "DC01",
+    "controls_total":  20,
+    "pass_count":  2,
+    "fail_count":  15,
+    "na_count":  3,
+    "pass_rate_percent":  10,
+    "log_path":  "C:\\capstone_deploy\\blue_team\\2x05_defensible_endpoint\\capstone\\baseline\\windows_baseline.log"
+}

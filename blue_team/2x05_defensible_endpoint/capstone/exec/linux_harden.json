@@ -1,0 +1,66 @@
+{
+  "timestamp": "2026-08-26T04:20:47Z",
+  "hostname": "hawthorne-app-01",
+  "steps": [
+    {
+      "name": "ssh_hardening",
+      "script_path": "/home/analyst/blue_team/2x05_defensible_endpoint/../2x00_locking_the_gates/4-ssh_hardening.sh",
+      "exit_code": 0,
+      "duration_seconds": 0,
+      "changed": true
+    },
+    {
+      "name": "sysctl_hardening",
+      "script_path": "/home/analyst/blue_team/2x05_defensible_endpoint/../2x00_locking_the_gates/5-sysctl_hardening.sh",
+      "exit_code": 0,
+      "duration_seconds": 0,
+      "changed": true
+    },
+    {
+      "name": "permission_sweep",
+      "script_path": "/home/analyst/blue_team/2x05_defensible_endpoint/../2x00_locking_the_gates/6-filesystem_hardening.sh",
+      "exit_code": 0,
+      "duration_seconds": 1,
+      "changed": true
+    },
+    {
+      "name": "service_minimization",
+      "script_path": "/home/analyst/blue_team/2x05_defensible_endpoint/overrides/7-service_minimization.sh",
+      "exit_code": 0,
+      "duration_seconds": 23,
+      "changed": true
+    },
+    {
+      "name": "pam_configuration",
+      "script_path": "/home/analyst/blue_team/2x05_defensible_endpoint/../2x00_locking_the_gates/8-pam_hardening.sh",
+      "exit_code": 0,
+      "duration_seconds": 3,
+      "changed": true
+    },
+    {
+      "name": "apparmor_enforcement",
+      "script_path": "/home/analyst/blue_team/2x05_defensible_endpoint/../2x00_locking_the_gates/9-apparmor_config.sh",
+      "exit_code": 0,
+      "duration_seconds": 0,
+      "changed": true
+    },
+    {
+      "name": "auditd_deployment",
+      "script_path": "/home/analyst/blue_team/2x05_defensible_endpoint/../2x00_locking_the_gates/10-auditd_config.sh",
+      "exit_code": 0,
+      "duration_seconds": 7,
+      "changed": true
+    }
+  ],
+  "lynis_before": 54,
+  "lynis_after": 60,
+  "index_delta": 6,
+  "controls_touched": [
+    "LNX-SSH-01",
+    "LNX-SSH-02",
+    "LNX-SYSCTL-01",
+    "LNX-SYSCTL-02",
+    "LNX-APPARMOR-01",
+    "LNX-AUDITD-01"
+  ]
+}
