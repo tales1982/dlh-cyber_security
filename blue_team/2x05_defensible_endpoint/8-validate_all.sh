@@ -22,14 +22,14 @@
 # Usage: WINRM_USER=analyst WINRM_PASS='...' ./8-validate_all.sh
 #
 # Artifact (relative to this script's directory):
-#   capstone/validation_report.json
+#   capstone/validation.json
 
 set -uo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CAPSTONE_DIR="${SCRIPT_DIR}/capstone"
 TARGET_STATE_FILE="${CAPSTONE_DIR}/target_state.json"
-REPORT_FILE="${CAPSTONE_DIR}/validation_report.json"
+REPORT_FILE="${CAPSTONE_DIR}/validation.json"
 WINRM_HELPER="${SCRIPT_DIR}/overrides/winrm_exec.py"
 
 export WINRM_HOST="${WINRM_HOST:-192.168.56.119}"
