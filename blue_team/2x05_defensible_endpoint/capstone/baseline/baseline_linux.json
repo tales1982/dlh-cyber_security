@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-08-25T17:13:47Z",
+  "hostname": "hawthorne-app-01",
+  "lynis_version": "3.0.7",
+  "hardening_index": 54,
+  "warnings_count": 3,
+  "suggestions_count": 49,
+  "log_path": "/home/analyst/blue_team/2x05_defensible_endpoint/capstone/baseline/lynis_baseline.log"
+}

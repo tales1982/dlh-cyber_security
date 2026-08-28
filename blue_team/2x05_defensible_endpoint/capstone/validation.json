@@ -1,0 +1,272 @@
+{
+  "timestamp": "2026-08-28T09:28:23Z",
+  "hostname": "hawthorne-app-01",
+  "total": 29,
+  "pass_count": 11,
+  "fail_count": 13,
+  "error_count": 5,
+  "pass_percentage": 37.9,
+  "controls": [
+    {
+      "id": "LNX-SSH-01",
+      "platform": "linux",
+      "family": "hardening",
+      "check_type": "grep_match",
+      "severity": "critical",
+      "verdict": "pass",
+      "evidence": "/etc/ssh/sshd_config ~= /^PermitRootLogin\\s+no/"
+    },
+    {
+      "id": "LNX-SSH-02",
+      "platform": "linux",
+      "family": "hardening",
+      "check_type": "grep_match",
+      "severity": "critical",
+      "verdict": "pass",
+      "evidence": "/etc/ssh/sshd_config ~= /^PasswordAuthentication\\s+no/"
+    },
+    {
+      "id": "LNX-SYSCTL-01",
+      "platform": "linux",
+      "family": "hardening",
+      "check_type": "command_exit_zero",
+      "severity": "high",
+      "verdict": "pass",
+      "evidence": "test \"$(sysctl -n net.ipv4.ip_forward)\" = \"0\" (exit 0)"
+    },
+    {
+      "id": "LNX-SYSCTL-02",
+      "platform": "linux",
+      "family": "hardening",
+      "check_type": "command_exit_zero",
+      "severity": "high",
+      "verdict": "pass",
+      "evidence": "test \"$(sysctl -n kernel.randomize_va_space)\" = \"2\" (exit 0)"
+    },
+    {
+      "id": "LNX-AUDITD-01",
+      "platform": "linux",
+      "family": "telemetry",
+      "check_type": "command_exit_zero",
+      "severity": "critical",
+      "verdict": "pass",
+      "evidence": "systemctl is-active --quiet auditd (exit 0)"
+    },
+    {
+      "id": "LNX-APPARMOR-01",
+      "platform": "linux",
+      "family": "hardening",
+      "check_type": "command_exit_zero",
+      "severity": "high",
+      "verdict": "pass",
+      "evidence": "aa-status --enforced | grep -q . (exit 0)"
+    },
+    {
+      "id": "LNX-LYNIS-01",
+      "platform": "linux",
+      "family": "hardening",
+      "check_type": "json_field_gte",
+      "severity": "critical",
+      "verdict": "fail",
+      "evidence": "capstone/baseline/baseline_linux.json#.hardening_index = 54 (expected gte: 80)"
+    },
+    {
+      "id": "WIN-FW-01",
+      "platform": "windows",
+      "family": "hardening",
+      "check_type": "command_exit_zero",
+      "severity": "critical",
+      "verdict": "pass",
+      "evidence": "winrm:if ((Get-NetFirewallProfile -All | Where-Object { -not $_.Enabled -or $_.DefaultInboundAction -ne \"Block\" }).Count -eq 0) { exit 0 } else { exit 1 } (exit 0)"
+    },
+    {
+      "id": "WIN-PSLOG-01",
+      "platform": "windows",
+      "family": "telemetry",
+      "check_type": "command_exit_zero",
+      "severity": "high",
+      "verdict": "pass",
+      "evidence": "winrm:if ((Get-ItemProperty \"HKLM:\\Software\\Policies\\Microsoft\\Windows\\PowerShell\\ScriptBlockLogging\" -ErrorAction SilentlyContinue).EnableScriptBlockLogging -eq 1) { exit 0 } else { exit 1 } (exit 0)"
+    },
+    {
+      "id": "WIN-SYSMON-01",
+      "platform": "windows",
+      "family": "telemetry",
+      "check_type": "command_exit_zero",
+      "severity": "critical",
+      "verdict": "fail",
+      "evidence": "winrm:if (Get-Service -Name Sysmon* -ErrorAction SilentlyContinue | Where-Object Status -eq Running) { exit 0 } else { exit 1 } (exit 1)"
+    },
+    {
+      "id": "WIN-AUDIT-01",
+      "platform": "windows",
+      "family": "telemetry",
+      "check_type": "grep_match",
+      "severity": "high",
+      "verdict": "fail",
+      "evidence": "C:\\capstone_deploy\\blue_team\\2x05_defensible_endpoint\\capstone\\baseline\\windows_baseline.log ~= /(Account Logon|Logon|Object Access|Privilege Use)/"
+    },
+    {
+      "id": "WIN-CIS-01",
+      "platform": "windows",
+      "family": "hardening",
+      "check_type": "json_field_gte",
+      "severity": "critical",
+      "verdict": "fail",
+      "evidence": "C:\\capstone_deploy\\blue_team\\2x05_defensible_endpoint\\capstone\\baseline\\baseline_windows.json#.pass_rate_percent = 10 (expected gte: 85)"
+    },
+    {
+      "id": "TEL-LNX-01",
+      "platform": "linux",
+      "family": "telemetry",
+      "check_type": "command_exit_zero",
+      "severity": "high",
+      "verdict": "pass",
+      "evidence": "test -f /etc/audit/rules.d/meddefense.rules && auditctl -l | grep -q meddefense (exit 0)"
+    },
+    {
+      "id": "TEL-EXPORT-01",
+      "platform": "both",
+      "family": "telemetry",
+      "check_type": "file_exists",
+      "severity": "medium",
+      "verdict": "fail",
+      "evidence": "/home/analyst/blue_team/2x05_defensible_endpoint/capstone/telemetry"
+    },
+    {
+      "id": "TEL-WIN-01",
+      "platform": "windows",
+      "family": "telemetry",
+      "check_type": "json_field_gte",
+      "severity": "high",
+      "verdict": "error",
+      "evidence": "winrm:Get-Content 'C:\\capstone_deploy\\blue_team\\2x05_defensible_endpoint\\capstone\\telemetry\\windows_events.json' failed (exit 2)"
+    },
+    {
+      "id": "TEL-WIN-02",
+      "platform": "windows",
+      "family": "telemetry",
+      "check_type": "command_exit_zero",
+      "severity": "medium",
+      "verdict": "pass",
+      "evidence": "winrm:if ((Get-WinEvent -ListLog \"Microsoft-Windows-PowerShell/Operational\").FileSize -gt 0) { exit 0 } else { exit 1 } (exit 0)"
+    },
+    {
+      "id": "PATCH-01",
+      "platform": "both",
+      "family": "patching",
+      "check_type": "file_exists",
+      "severity": "medium",
+      "verdict": "fail",
+      "evidence": "/home/analyst/blue_team/2x05_defensible_endpoint/capstone/patch/vulnerability_inventory.json"
+    },
+    {
+      "id": "PATCH-02",
+      "platform": "both",
+      "family": "patching",
+      "check_type": "file_exists",
+      "severity": "medium",
+      "verdict": "fail",
+      "evidence": "/home/analyst/blue_team/2x05_defensible_endpoint/capstone/patch/patch_plan.json"
+    },
+    {
+      "id": "PATCH-03",
+      "platform": "linux",
+      "family": "patching",
+      "check_type": "json_field_equals",
+      "severity": "high",
+      "verdict": "error",
+      "evidence": "file not found: /home/analyst/blue_team/2x05_defensible_endpoint/capstone/patch/patch_execution_log.json"
+    },
+    {
+      "id": "PATCH-04",
+      "platform": "linux",
+      "family": "patching",
+      "check_type": "grep_match",
+      "severity": "medium",
+      "verdict": "pass",
+      "evidence": "/etc/apt/apt.conf.d/50unattended-upgrades ~= /Unattended-Upgrade::Package-Blacklist/"
+    },
+    {
+      "id": "NET-NFT-01",
+      "platform": "network",
+      "family": "network",
+      "check_type": "command_exit_zero",
+      "severity": "critical",
+      "verdict": "fail",
+      "evidence": "nft list ruleset | grep -q \"hook input.*policy drop\" (exit 1)"
+    },
+    {
+      "id": "NET-SEG-01",
+      "platform": "network",
+      "family": "network",
+      "check_type": "file_exists",
+      "severity": "medium",
+      "verdict": "fail",
+      "evidence": "/home/analyst/blue_team/2x05_defensible_endpoint/capstone/network/segmentation_rules.json"
+    },
+    {
+      "id": "NET-SURICATA-01",
+      "platform": "network",
+      "family": "network",
+      "check_type": "json_field_gte",
+      "severity": "high",
+      "verdict": "error",
+      "evidence": "file not found: /home/analyst/blue_team/2x05_defensible_endpoint/capstone/network/rule_validation.json"
+    },
+    {
+      "id": "NET-SURICATA-02",
+      "platform": "network",
+      "family": "network",
+      "check_type": "json_field_equals",
+      "severity": "high",
+      "verdict": "error",
+      "evidence": "file not found: /home/analyst/blue_team/2x05_defensible_endpoint/capstone/network/rule_validation.json"
+    },
+    {
+      "id": "NET-DNS-01",
+      "platform": "network",
+      "family": "network",
+      "check_type": "json_field_equals",
+      "severity": "medium",
+      "verdict": "error",
+      "evidence": "file not found: /home/analyst/blue_team/2x05_defensible_endpoint/capstone/network/dns_filtering_result.json"
+    },
+    {
+      "id": "HANDOFF-01",
+      "platform": "both",
+      "family": "handoff",
+      "check_type": "file_exists",
+      "severity": "medium",
+      "verdict": "fail",
+      "evidence": "/home/analyst/blue_team/2x05_defensible_endpoint/capstone/handoff/compliance.json"
+    },
+    {
+      "id": "HANDOFF-02",
+      "platform": "both",
+      "family": "handoff",
+      "check_type": "file_exists",
+      "severity": "high",
+      "verdict": "fail",
+      "evidence": "/home/analyst/blue_team/2x05_defensible_endpoint/capstone/handoff/manifest.json"
+    },
+    {
+      "id": "HANDOFF-03",
+      "platform": "both",
+      "family": "handoff",
+      "check_type": "file_exists",
+      "severity": "medium",
+      "verdict": "fail",
+      "evidence": "/home/analyst/blue_team/2x05_defensible_endpoint/capstone/handoff/telemetry_export.tar.gz"
+    },
+    {
+      "id": "HANDOFF-04",
+      "platform": "both",
+      "family": "handoff",
+      "check_type": "command_exit_zero",
+      "severity": "high",
+      "verdict": "fail",
+      "evidence": "test -x capstone/handoff/runbook.sh (exit 1)"
+    }
+  ]
+}

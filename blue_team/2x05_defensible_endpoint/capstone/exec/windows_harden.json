@@ -1,0 +1,62 @@
+﻿{
+    "timestamp":  "2026-08-26T06:39:00.6350350Z",
+    "hostname":  "DC01",
+    "steps":  [
+                  {
+                      "name":  "account_policy",
+                      "script_path":  "C:\\capstone_deploy\\blue_team\\2x05_defensible_endpoint\\..\\2x01_windows_fortress\\4-password_policy.ps1",
+                      "exit_code":  0,
+                      "duration_seconds":  7.55,
+                      "changed":  true
+                  },
+                  {
+                      "name":  "audit_policy",
+                      "script_path":  "C:\\capstone_deploy\\blue_team\\2x05_defensible_endpoint\\..\\2x01_windows_fortress\\5-audit_policy.ps1",
+                      "exit_code":  0,
+                      "duration_seconds":  6.63,
+                      "changed":  true
+                  },
+                  {
+                      "name":  "firewall_baseline",
+                      "script_path":  "C:\\capstone_deploy\\blue_team\\2x05_defensible_endpoint\\overrides\\11-firewall_hardening.ps1",
+                      "exit_code":  1,
+                      "duration_seconds":  4.22,
+                      "changed":  false
+                  },
+                  {
+                      "name":  "sysmon_deployment",
+                      "script_path":  "C:\\capstone_deploy\\blue_team\\2x05_defensible_endpoint\\..\\2x01_windows_fortress\\9-sysmon_deploy.ps1",
+                      "exit_code":  1,
+                      "duration_seconds":  2.63,
+                      "changed":  false
+                  },
+                  {
+                      "name":  "script_block_logging",
+                      "script_path":  "C:\\capstone_deploy\\blue_team\\2x05_defensible_endpoint\\..\\2x01_windows_fortress\\6-powershell_security.ps1",
+                      "exit_code":  0,
+                      "duration_seconds":  9.14,
+                      "changed":  true
+                  },
+                  {
+                      "name":  "applocker_baseline",
+                      "script_path":  "C:\\capstone_deploy\\blue_team\\2x05_defensible_endpoint\\..\\2x01_windows_fortress\\12-applocker_config.ps1",
+                      "exit_code":  1,
+                      "duration_seconds":  0.23,
+                      "changed":  false
+                  },
+                  {
+                      "name":  "service_minimization",
+                      "script_path":  "C:\\capstone_deploy\\blue_team\\2x05_defensible_endpoint\\..\\2x01_windows_fortress\\14-service_accounts.ps1",
+                      "exit_code":  0,
+                      "duration_seconds":  6.41,
+                      "changed":  true
+                  }
+              ],
+    "lynis_before":  10,
+    "lynis_after":  50,
+    "index_delta":  40,
+    "controls_touched":  [
+                             "WIN-AUDIT-01",
+                             "WIN-PSLOG-01"
+                         ]
+}
