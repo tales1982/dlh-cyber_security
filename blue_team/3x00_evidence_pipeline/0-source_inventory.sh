@@ -97,13 +97,38 @@ for PASTA in windows linux network; do
             esac
         fi
 
-        BYTE_SIZE=$(stat -c %s "$ARQUIVO")
-        HASH=$(sha256sum "$ARQUIVO" | awk '{print $1}')
-
-        RECORD_COUNT=$(wc -l < "$ARQUIVO")
-        if [ "$TIPO" = "network_csv" ]; then
-            RECORD_COUNT=$((RECORD_COUNT - 1))
+        if ! BYTE_SIZE=$(stat -c %s "$ARQUIVO" 2>/dev/null); then
+            echo "Warning: stat failed on '$ARQUIVO' - skipping this file." >&2
+            continue
         fi
+
+        HASH=$(sha256sum "$ARQUIVO" 2>/dev/null | awk '{print $1}')
+        if [ -z "$HASH" ]; then
+            echo "Warning: sha256sum failed on '$ARQUIVO' - skipping this file." >&2
+            continue
+        fi
+
+        # Files under windows/ and network/*.json are expected to be NDJSON
+        # (one JSON document per line, per the task note). Counting through
+        # jq instead of a raw `wc -l` both validates that assumption and
+        # normalizes any pretty-printed JSON (one document spanning several
+        # physical lines) to one line per document before counting.
+        case "$TIPO" in
+            windows_json|network_json)
+                if ! RECORD_COUNT=$(jq -c '.' "$ARQUIVO" 2>/dev/null | wc -l); then
+                    echo "Warning: '$ARQUIVO' did not parse cleanly as NDJSON - record_count may be incomplete." >&2
+                fi
+                ;;
+            *)
+                if ! RECORD_COUNT=$(wc -l < "$ARQUIVO" 2>/dev/null); then
+                    echo "Warning: wc failed on '$ARQUIVO' - skipping this file." >&2
+                    continue
+                fi
+                if [ "$TIPO" = "network_csv" ]; then
+                    RECORD_COUNT=$((RECORD_COUNT - 1))
+                fi
+                ;;
+        esac
 
         RANGE=""
         case "$ARQUIVO" in
@@ -130,6 +155,10 @@ for PASTA in windows linux network; do
         FIRST_TIME=$(echo "$RANGE" | sed -n '1p')
         LAST_TIME=$(echo "$RANGE" | sed -n '2p')
 
+        if [ -z "$FIRST_TIME" ] || [ -z "$LAST_TIME" ]; then
+            echo "Warning: could not determine event time range for '$ARQUIVO' - recording null." >&2
+        fi
+
         REL_PATH="${ARQUIVO#"$PACK_ROOT"/}"
 
         jq -n \
@@ -146,8 +175,8 @@ for PASTA in windows linux network; do
                 size_bytes: $size_bytes,
                 sha256: $sha256,
                 record_count: $record_count,
-                first_event_time: $first_event_time,
-                last_event_time: $last_event_time
+                first_event_time: (if $first_event_time == "" then null else $first_event_time end),
+                last_event_time: (if $last_event_time == "" then null else $last_event_time end)
             }' >> "$TMP_RECORDS"
 
         case "$PASTA" in
