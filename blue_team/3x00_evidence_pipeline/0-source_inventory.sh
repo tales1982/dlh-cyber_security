@@ -7,21 +7,15 @@
 #
 # Usage: ./0-source_inventory.sh [pack_root]
 #   pack_root defaults to $HOME/evidence_pack_primary
-#
-# -e is intentional and active: any command that legitimately represents
-# "best effort, this one file's data quality issue" is explicitly protected
-# with `|| fallback` so a single malformed record cannot abort the whole
-# manifest run. Anything left unprotected is meant to be fatal.
 
 set -euo pipefail
 
 PACK_ROOT="${1:-$HOME/evidence_pack_primary}"
-OUTPUT_JSON="source_inventory.json"
-TMP_RECORDS=$(mktemp)
-trap 'rm -f "$TMP_RECORDS"' EXIT
+WORKDIR="$(pwd)"
+OUTPUT_FILE="${WORKDIR}/source_inventory.json"
 
-if ! command -v jq >/dev/null 2>&1; then
-    echo "Error: required command 'jq' not found." >&2
+if ! command -v python3 >/dev/null 2>&1; then
+    echo "Error: required command 'python3' not found." >&2
     exit 2
 fi
 
@@ -30,238 +24,295 @@ if [ ! -d "$PACK_ROOT" ]; then
     exit 2
 fi
 
-# --- Timestamp extraction helpers ------------------------------------------
-# Each one prints exactly two lines on success: earliest ISO-8601 UTC value,
-# then latest. Nothing is assumed about file ordering - every record is
-# actually inspected before deciding first/last. Every raw value is passed
-# through `date` for real parsing/normalization before being compared -
-# none of these rely on sorting the raw source text as if it were already
-# a correctly-ordered, uniformly-formatted timestamp.
-
-# A file with SOME malformed records is the expected case, not a failure -
-# `date -f` parses what it can and exits non-zero merely because a handful
-# of lines were unparseable. Each such stage is wrapped in `{ ... || true; }`
-# so that expected, partial data-quality noise never makes the pipeline's
-# exit status non-zero and (under `pipefail`+`-e`) wipe out an otherwise
-# perfectly good result. A stage that fails completely still yields empty
-# output, which the caller already detects and reports.
-
-range_from_json_field() {
-    local file="$1" field="$2"
-    { jq -r ".${field}" "$file" 2>/dev/null || true; } \
-        | { TZ=UTC date -f - -u +'%s' 2>/dev/null || true; } \
-        | sort -n | sed -n '1p;$p' \
-        | sed 's/^/@/' \
-        | { TZ=UTC date -f - -u +'%Y-%m-%dT%H:%M:%SZ' 2>/dev/null || true; }
-}
-
-range_from_syslog() {
-    local file="$1"
-    # Classic syslog prefix "Mon DD HH:MM:SS" is a fixed 15 characters.
-    # No year in the source - assumes the current year, and treats the
-    # value as UTC per the evidence pack's own documented convention.
-    { cut -c1-15 "$file" || true; } \
-        | { TZ=UTC date -f - -u +'%s' 2>/dev/null || true; } \
-        | sort -n | sed -n '1p;$p' \
-        | sed 's/^/@/' \
-        | { TZ=UTC date -f - -u +'%Y-%m-%dT%H:%M:%SZ' 2>/dev/null || true; }
-}
-
-range_from_audit() {
-    local file="$1"
-    { grep -oP 'audit\(\K[0-9]+' "$file" 2>/dev/null || true; } \
-        | sort -n | sed -n '1p;$p' \
-        | sed 's/^/@/' \
-        | { TZ=UTC date -f - -u +'%Y-%m-%dT%H:%M:%SZ' 2>/dev/null || true; }
-}
-
-range_from_csv_epoch() {
-    local file="$1"
-    { awk -F, 'NR>1{print $1}' "$file" 2>/dev/null || true; } \
-        | sort -n | sed -n '1p;$p' \
-        | sed 's/^/@/' \
-        | { TZ=UTC date -f - -u +'%Y-%m-%dT%H:%M:%SZ' 2>/dev/null || true; }
-}
-
-range_from_pcap() {
-    local file="$1"
-    # start_time is US-format 12h, documented as CST (UTC-6). Appending the
-    # zone name lets `date` do the real parsing and UTC conversion, rather
-    # than trusting the raw text to sort in chronological order.
-    { jq -r '.start_time' "$file" 2>/dev/null || true; } \
-        | sed 's/$/ CST/' \
-        | { TZ=UTC date -f - -u +'%s' 2>/dev/null || true; } \
-        | sort -n | sed -n '1p;$p' \
-        | sed 's/^/@/' \
-        | { TZ=UTC date -f - -u +'%Y-%m-%dT%H:%M:%SZ' 2>/dev/null || true; }
-}
-
-# --- Category totals ---------------------------------------------------
-WINDOWS_COUNT=0; WINDOWS_BYTES=0
-LINUX_COUNT=0;   LINUX_BYTES=0
-NETWORK_COUNT=0; NETWORK_BYTES=0
-
-for PASTA in windows linux network; do
-
-    if [ ! -d "$PACK_ROOT/$PASTA" ]; then
-        echo "Warning: category directory '$PASTA' not found under '$PACK_ROOT'." >&2
-        continue
+for subdir in windows linux network; do
+    if [ ! -d "${PACK_ROOT}/${subdir}" ]; then
+        echo "Warning: ${PACK_ROOT}/${subdir}/ not found, skipping." >&2
     fi
-
-    for ARQUIVO in "$PACK_ROOT/$PASTA"/*; do
-        [ -f "$ARQUIVO" ] || continue
-
-        if [ "$PASTA" = "windows" ]; then
-            TIPO="windows_json"
-        elif [ "$PASTA" = "linux" ]; then
-            TIPO="linux_text"
-        else
-            case "$ARQUIVO" in
-                *.csv)
-                    TIPO="network_csv"
-                    ;;
-                *.json)
-                    TIPO="network_json"
-                    ;;
-                *)
-                    # Neither .csv nor .json - does not fit any of the four
-                    # source_type values the task defines. Reported loudly
-                    # and excluded, rather than invented under a fifth
-                    # "unknown" category the spec never asked for.
-                    echo "Warning: '$ARQUIVO' does not match a known network source_type (.csv/.json) - excluded from manifest." >&2
-                    continue
-                    ;;
-            esac
-        fi
-
-        if ! BYTE_SIZE=$(stat -c %s "$ARQUIVO" 2>/dev/null); then
-            echo "Warning: stat failed on '$ARQUIVO' - skipping this file." >&2
-            continue
-        fi
-
-        HASH=$(sha256sum "$ARQUIVO" 2>/dev/null | awk '{print $1}') || true
-        if [ -z "$HASH" ]; then
-            echo "Warning: sha256sum failed on '$ARQUIVO' - skipping this file." >&2
-            continue
-        fi
-
-        # Files under windows/ and network/*.json are expected to be NDJSON
-        # (one JSON document per line, per the task note). Counting through
-        # jq instead of a raw `wc -l` both validates that assumption and
-        # normalizes any pretty-printed JSON (one document spanning several
-        # physical lines) to one line per document before counting.
-        # jq's own exit status is read directly from PIPESTATUS, not
-        # inferred from the pipeline as a whole, so a parse failure is
-        # never masked by `wc -l` succeeding on partial output.
-        if [ "$TIPO" = "windows_json" ] || [ "$TIPO" = "network_json" ]; then
-            RECORD_COUNT=$(jq -c '.' "$ARQUIVO" 2>/dev/null | wc -l) || true
-            JQ_STATUS="${PIPESTATUS[0]}"
-            if [ "$JQ_STATUS" -ne 0 ]; then
-                echo "Warning: '$ARQUIVO' did not parse cleanly as NDJSON (jq exit $JQ_STATUS) - record_count may be incomplete." >&2
-            fi
-        else
-            if ! RECORD_COUNT=$(wc -l < "$ARQUIVO" 2>/dev/null); then
-                echo "Warning: wc failed on '$ARQUIVO' - skipping this file." >&2
-                continue
-            fi
-            if [ "$TIPO" = "network_csv" ]; then
-                RECORD_COUNT=$((RECORD_COUNT - 1))
-            fi
-        fi
-
-        # Each RANGE assignment is deliberately allowed to fail (`|| RANGE=""`):
-        # a parsing problem in one file's timestamps is a data-quality finding
-        # to report, not a reason to abort the entire manifest run.
-        RANGE=""
-        case "$ARQUIVO" in
-            */security.json|*/sysmon.json|*/powershell.json)
-                RANGE=$(range_from_json_field "$ARQUIVO" "timestamp_raw") || RANGE=""
-                ;;
-            */suricata_eve.json)
-                RANGE=$(range_from_json_field "$ARQUIVO" "timestamp") || RANGE=""
-                ;;
-            */pcap_summary.json)
-                RANGE=$(range_from_pcap "$ARQUIVO") || RANGE=""
-                ;;
-            */auth.log|*/syslog)
-                RANGE=$(range_from_syslog "$ARQUIVO") || RANGE=""
-                ;;
-            */audit.log)
-                RANGE=$(range_from_audit "$ARQUIVO") || RANGE=""
-                ;;
-            */firewall.csv)
-                RANGE=$(range_from_csv_epoch "$ARQUIVO") || RANGE=""
-                ;;
-        esac
-
-        FIRST_TIME=$(echo "$RANGE" | sed -n '1p')
-        LAST_TIME=$(echo "$RANGE" | sed -n '2p')
-
-        if [ -z "$FIRST_TIME" ] || [ -z "$LAST_TIME" ]; then
-            echo "Warning: could not determine event time range for '$ARQUIVO' - recording null." >&2
-        fi
-
-        REL_PATH="${ARQUIVO#"$PACK_ROOT"/}"
-
-        if ! jq -n \
-            --arg path "$REL_PATH" \
-            --arg source_type "$TIPO" \
-            --argjson size_bytes "$BYTE_SIZE" \
-            --arg sha256 "$HASH" \
-            --argjson record_count "$RECORD_COUNT" \
-            --arg first_event_time "$FIRST_TIME" \
-            --arg last_event_time "$LAST_TIME" \
-            '{
-                path: $path,
-                source_type: $source_type,
-                size_bytes: $size_bytes,
-                sha256: $sha256,
-                record_count: $record_count,
-                first_event_time: (if $first_event_time == "" then null else $first_event_time end),
-                last_event_time: (if $last_event_time == "" then null else $last_event_time end)
-            }' >> "$TMP_RECORDS"; then
-            echo "Error: failed to build manifest entry for '$ARQUIVO'." >&2
-            exit 2
-        fi
-
-        case "$PASTA" in
-            windows) WINDOWS_COUNT=$((WINDOWS_COUNT + 1)); WINDOWS_BYTES=$((WINDOWS_BYTES + BYTE_SIZE)) ;;
-            linux)   LINUX_COUNT=$((LINUX_COUNT + 1));     LINUX_BYTES=$((LINUX_BYTES + BYTE_SIZE)) ;;
-            network) NETWORK_COUNT=$((NETWORK_COUNT + 1)); NETWORK_BYTES=$((NETWORK_BYTES + BYTE_SIZE)) ;;
-        esac
-    done
 done
 
-TOTAL_COUNT=$((WINDOWS_COUNT + LINUX_COUNT + NETWORK_COUNT))
-TOTAL_BYTES=$((WINDOWS_BYTES + LINUX_BYTES + NETWORK_BYTES))
+python3 - "$PACK_ROOT" "$OUTPUT_FILE" <<'PYTHON_EOF'
+import hashlib
+import json
+import os
+import re
+import sys
+from datetime import datetime, timedelta, timezone
 
-# --- Human-readable summary ------------------------------------------------
-printf "%-7s : %d files  |  %5.1f MB\n" "windows" "$WINDOWS_COUNT" "$(awk -v b="$WINDOWS_BYTES" 'BEGIN{printf "%.1f", b/1000000}')"
-printf "%-7s : %d files  |  %5.1f MB\n" "linux"   "$LINUX_COUNT"   "$(awk -v b="$LINUX_BYTES" 'BEGIN{printf "%.1f", b/1000000}')"
-printf "%-7s : %d files  |  %5.1f MB\n" "network" "$NETWORK_COUNT" "$(awk -v b="$NETWORK_BYTES" 'BEGIN{printf "%.1f", b/1000000}')"
-printf "%-7s : %d files  |  %5.1f MB\n" "total"   "$TOTAL_COUNT"   "$(awk -v b="$TOTAL_BYTES" 'BEGIN{printf "%.1f", b/1000000}')"
+evidence_pack = sys.argv[1]
+output_file = sys.argv[2]
 
-# --- Assemble final manifest ------------------------------------------------
-if ! jq -s \
-    --arg generated_at "$(date -u +'%Y-%m-%dT%H:%M:%SZ')" \
-    --arg pack_root "$PACK_ROOT" \
-    --argjson windows_count "$WINDOWS_COUNT" --argjson windows_bytes "$WINDOWS_BYTES" \
-    --argjson linux_count "$LINUX_COUNT" --argjson linux_bytes "$LINUX_BYTES" \
-    --argjson network_count "$NETWORK_COUNT" --argjson network_bytes "$NETWORK_BYTES" \
-    --argjson total_count "$TOTAL_COUNT" --argjson total_bytes "$TOTAL_BYTES" \
-    '{
-        generated_at: $generated_at,
-        pack_root: $pack_root,
-        summary: {
-            windows: {file_count: $windows_count, total_bytes: $windows_bytes},
-            linux:   {file_count: $linux_count,   total_bytes: $linux_bytes},
-            network: {file_count: $network_count, total_bytes: $network_bytes},
-            total:   {file_count: $total_count,   total_bytes: $total_bytes}
-        },
-        files: .
-    }' "$TMP_RECORDS" > "$OUTPUT_JSON"; then
-    echo "Error: failed to write '$OUTPUT_JSON'." >&2
-    exit 2
-fi
+MONTHS = {"Jan": "01", "Feb": "02", "Mar": "03", "Apr": "04", "May": "05", "Jun": "06",
+          "Jul": "07", "Aug": "08", "Sep": "09", "Oct": "10", "Nov": "11", "Dec": "12"}
 
-echo "manifest written to $OUTPUT_JSON"
+# No year is present in classic syslog timestamps. There is nothing in the
+# source data to disambiguate it from, so the current year is used - a
+# documented, unavoidable limitation of that format, not a guess we can do
+# better than without external context.
+CURRENT_YEAR = datetime.now(timezone.utc).year
+
+
+def sha256_of(filepath):
+    h = hashlib.sha256()
+    with open(filepath, "rb") as f:
+        for chunk in iter(lambda: f.read(65536), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def classify(dir_name, filename):
+    if dir_name == "windows":
+        return "windows_json"
+    if dir_name == "linux":
+        return "linux_text"
+    # network/: only .csv is ever anything but JSON in this pack's layout;
+    # every other extension under network/ is treated as network_json,
+    # since the task defines exactly four source_type values and none of
+    # them is a catch-all "unknown".
+    if filename.endswith(".csv"):
+        return "network_csv"
+    return "network_json"
+
+
+def try_iso_normalize(ts_str):
+    """Parse a raw timestamp string in any of the pack's known formats and
+    return it as canonical ISO-8601 UTC (YYYY-MM-DDTHH:MM:SSZ), or None if
+    it cannot be parsed - never trusts the raw string's own ordering."""
+    if not ts_str:
+        return None
+    ts_str = ts_str.strip()
+
+    # Already ISO-8601 with Z, second precision.
+    if re.match(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$", ts_str):
+        return ts_str
+
+    # ISO-8601 with fractional seconds and Z (drop the fraction).
+    m = re.match(r"^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})\.\d+Z$", ts_str)
+    if m:
+        return m.group(1) + "Z"
+
+    # ISO-8601 with a numeric UTC offset, e.g. +00:00 or +0000, optionally
+    # with fractional seconds (Suricata's eve.json format).
+    m = re.match(r"^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})(?:\.\d+)?([+-]\d{2}:?\d{2})$", ts_str)
+    if m:
+        base, offset = m.groups()
+        offset = offset.replace(":", "")
+        try:
+            dt = datetime.strptime(base + offset, "%Y-%m-%dT%H:%M:%S%z")
+            return dt.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        except ValueError:
+            return None
+
+    # US-format 12h clock, as used by pcap_summary.json, documented as CST
+    # (UTC-6). The naive wall-clock value is parsed first, then genuinely
+    # shifted by +6 hours to land on the correct UTC instant - not just
+    # relabeled as if it had already been UTC.
+    try:
+        dt = datetime.strptime(ts_str, "%m/%d/%Y %I:%M:%S %p")
+        dt_utc = (dt + timedelta(hours=6)).replace(tzinfo=timezone.utc)
+        return dt_utc.strftime("%Y-%m-%dT%H:%M:%SZ")
+    except ValueError:
+        pass
+
+    # Bare epoch seconds (integer or float as text).
+    try:
+        val = float(ts_str)
+        if 1_000_000_000 < val < 2_000_000_000:
+            dt = datetime.fromtimestamp(val, tz=timezone.utc)
+            return dt.strftime("%Y-%m-%dT%H:%M:%SZ")
+    except ValueError:
+        pass
+
+    return None
+
+
+def extract_timestamp_from_json_obj(obj):
+    """Try every known JSON timestamp field, in priority order, on a
+    single parsed record."""
+    for field in ("timestamp_raw", "timestamp", "start_time"):
+        if field in obj:
+            ts = try_iso_normalize(str(obj[field]))
+            if ts:
+                return ts
+    return None
+
+
+def extract_timestamp_auditd(line):
+    m = re.search(r"msg=audit\((\d+)(?:\.\d+)?:\d+\)", line)
+    if not m:
+        return None
+    try:
+        dt = datetime.fromtimestamp(int(m.group(1)), tz=timezone.utc)
+        return dt.strftime("%Y-%m-%dT%H:%M:%SZ")
+    except (ValueError, OSError):
+        return None
+
+
+def extract_timestamp_syslog(line):
+    m = re.match(r"^([A-Z][a-z]{2})\s+(\d{1,2})\s+(\d{2}):(\d{2}):(\d{2})", line)
+    if not m:
+        return None
+    month_name, day, hh, mm, ss = m.groups()
+    mon = MONTHS.get(month_name)
+    if not mon:
+        return None
+    try:
+        datetime(CURRENT_YEAR, int(mon), int(day), int(hh), int(mm), int(ss))
+    except ValueError:
+        return None
+    return f"{CURRENT_YEAR}-{mon}-{int(day):02d}T{hh}:{mm}:{ss}Z"
+
+
+def extract_timestamp_csv_epoch(first_field):
+    if not first_field.strip().isdigit():
+        return None
+    try:
+        dt = datetime.fromtimestamp(int(first_field.strip()), tz=timezone.utc)
+        return dt.strftime("%Y-%m-%dT%H:%M:%SZ")
+    except (ValueError, OSError):
+        return None
+
+
+def parse_json_records(filepath):
+    """Read a JSON file that may be NDJSON (one document per line) or a
+    single pretty-printed JSON array/object. Malformed individual lines
+    are skipped, not fatal - a source file with a handful of corrupt
+    records is expected, real-world evidence, not a reason to abort."""
+    with open(filepath, "r", encoding="utf-8", errors="replace") as f:
+        content = f.read()
+
+    try:
+        data = json.loads(content)
+        if isinstance(data, list):
+            return [obj for obj in data if isinstance(obj, dict)]
+        if isinstance(data, dict):
+            return [data]
+    except json.JSONDecodeError:
+        pass
+
+    records = []
+    for line in content.splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            obj = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if isinstance(obj, dict):
+            records.append(obj)
+    return records
+
+
+def process_file(filepath, dir_name):
+    rel_path = os.path.relpath(filepath, evidence_pack)
+    filename = os.path.basename(filepath)
+    source_type = classify(dir_name, filename)
+    size_bytes = os.path.getsize(filepath)
+    sha = sha256_of(filepath)
+
+    first_event_time = None
+    last_event_time = None
+    record_count = 0
+
+    def update_range(ts):
+        nonlocal first_event_time, last_event_time
+        if ts is None:
+            return
+        if first_event_time is None or ts < first_event_time:
+            first_event_time = ts
+        if last_event_time is None or ts > last_event_time:
+            last_event_time = ts
+
+    if source_type in ("windows_json", "network_json"):
+        records = parse_json_records(filepath)
+        record_count = len(records)
+        for obj in records:
+            update_range(extract_timestamp_from_json_obj(obj))
+
+    elif source_type == "linux_text":
+        with open(filepath, "r", encoding="utf-8", errors="replace") as f:
+            lines = [line.rstrip("\n") for line in f if line.strip()]
+        record_count = len(lines)
+        for line in lines:
+            ts = extract_timestamp_auditd(line)
+            if ts is None:
+                ts = extract_timestamp_syslog(line)
+            update_range(ts)
+
+    elif source_type == "network_csv":
+        with open(filepath, "r", encoding="utf-8", errors="replace") as f:
+            lines = [line.rstrip("\n") for line in f if line.strip()]
+        header_present = bool(lines) and not lines[0].split(",")[0].strip().isdigit()
+        data_lines = lines[1:] if header_present else lines
+        record_count = len(data_lines)
+        for line in data_lines:
+            first_field = line.split(",")[0] if line else ""
+            update_range(extract_timestamp_csv_epoch(first_field))
+
+    return {
+        "path": rel_path,
+        "source_type": source_type,
+        "size_bytes": size_bytes,
+        "sha256": sha,
+        "record_count": record_count,
+        "first_event_time": first_event_time,
+        "last_event_time": last_event_time,
+    }
+
+
+categories = ["windows", "linux", "network"]
+manifest_files = []
+category_stats = {}
+
+for dir_name in categories:
+    dir_path = os.path.join(evidence_pack, dir_name)
+    if not os.path.isdir(dir_path):
+        category_stats[dir_name] = {"file_count": 0, "total_bytes": 0}
+        continue
+    entries = []
+    total_bytes = 0
+    for fname in sorted(os.listdir(dir_path)):
+        fpath = os.path.join(dir_path, fname)
+        if not os.path.isfile(fpath):
+            continue
+        try:
+            entry = process_file(fpath, dir_name)
+        except OSError as exc:
+            print(f"Warning: could not read '{fpath}': {exc}", file=sys.stderr)
+            continue
+        entries.append(entry)
+        total_bytes += entry["size_bytes"]
+    manifest_files.extend(entries)
+    category_stats[dir_name] = {"file_count": len(entries), "total_bytes": total_bytes}
+
+total_files = sum(s["file_count"] for s in category_stats.values())
+total_bytes_all = sum(s["total_bytes"] for s in category_stats.values())
+
+manifest = {
+    "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+    "pack_root": evidence_pack,
+    "summary": {
+        "windows": category_stats.get("windows", {"file_count": 0, "total_bytes": 0}),
+        "linux": category_stats.get("linux", {"file_count": 0, "total_bytes": 0}),
+        "network": category_stats.get("network", {"file_count": 0, "total_bytes": 0}),
+        "total": {"file_count": total_files, "total_bytes": total_bytes_all},
+    },
+    "files": manifest_files,
+}
+
+with open(output_file, "w", encoding="utf-8") as f:
+    json.dump(manifest, f, indent=2)
+    f.write("\n")
+
+
+def fmt_mb(n):
+    return f"{n / 1_000_000:5.1f} MB"
+
+
+for cat in ["windows", "linux", "network"]:
+    stats = category_stats.get(cat, {"file_count": 0, "total_bytes": 0})
+    print(f"{cat:7s} : {stats['file_count']} files  |  {fmt_mb(stats['total_bytes'])}")
+
+print(f"{'total':7s} : {total_files} files  |  {fmt_mb(total_bytes_all)}")
+print(f"manifest written to {os.path.basename(output_file)}")
+PYTHON_EOF
