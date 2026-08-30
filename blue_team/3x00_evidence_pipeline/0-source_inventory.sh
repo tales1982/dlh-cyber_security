@@ -124,7 +124,12 @@ for PASTA in windows linux network; do
                     TIPO="network_json"
                     ;;
                 *)
-                    TIPO="unknown"
+                    # Neither .csv nor .json - does not fit any of the four
+                    # source_type values the task defines. Reported loudly
+                    # and excluded, rather than invented under a fifth
+                    # "unknown" category the spec never asked for.
+                    echo "Warning: '$ARQUIVO' does not match a known network source_type (.csv/.json) - excluded from manifest." >&2
+                    continue
                     ;;
             esac
         fi
