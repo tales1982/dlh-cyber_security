@@ -223,6 +223,9 @@ def process_file(filepath, dir_name):
         if last_event_time is None or ts > last_event_time:
             last_event_time = ts
 
+    with open(filepath, "r", encoding="utf-8", errors="replace") as f:
+        line_count = sum(1 for line in f if line.strip())
+
     if source_type in ("windows_json", "network_json"):
         records = parse_json_records(filepath)
         record_count = len(records)
@@ -254,6 +257,7 @@ def process_file(filepath, dir_name):
         "source_type": source_type,
         "size_bytes": size_bytes,
         "sha256": sha,
+        "line_count": line_count,
         "record_count": record_count,
         "first_event_time": first_event_time,
         "last_event_time": last_event_time,
@@ -271,17 +275,19 @@ for dir_name in categories:
         continue
     entries = []
     total_bytes = 0
-    for fname in sorted(os.listdir(dir_path)):
-        fpath = os.path.join(dir_path, fname)
-        if not os.path.isfile(fpath):
-            continue
-        try:
-            entry = process_file(fpath, dir_name)
-        except OSError as exc:
-            print(f"Warning: could not read '{fpath}': {exc}", file=sys.stderr)
-            continue
-        entries.append(entry)
-        total_bytes += entry["size_bytes"]
+    for root, dirs, files in os.walk(dir_path):
+        dirs.sort()
+        for fname in sorted(files):
+            fpath = os.path.join(root, fname)
+            if not os.path.isfile(fpath):
+                continue
+            try:
+                entry = process_file(fpath, dir_name)
+            except OSError as exc:
+                print(f"Warning: could not read '{fpath}': {exc}", file=sys.stderr)
+                continue
+            entries.append(entry)
+            total_bytes += entry["size_bytes"]
     manifest_files.extend(entries)
     category_stats[dir_name] = {"file_count": len(entries), "total_bytes": total_bytes}
 
