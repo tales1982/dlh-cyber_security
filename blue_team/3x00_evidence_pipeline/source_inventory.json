@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-30T08:26:57Z",
+  "generated_at": "2026-08-30T08:33:51Z",
   "pack_root": "/home/student/evidence_pack_primary",
   "summary": {
     "windows": {
@@ -98,8 +98,8 @@
       "size_bytes": 5221578,
       "sha256": "ec54019fa4ea7be438e59d2b7cab82c72c3f5f5cbae125374237c095ddc9d6d4",
       "record_count": 9977,
-      "first_event_time": "2026-03-18T00:00:31.026524+0000",
-      "last_event_time": "2026-03-25T23:59:00.436117+0000"
+      "first_event_time": "2026-03-18T00:00:31Z",
+      "last_event_time": "2026-03-25T23:59:00Z"
     }
   ]
 }
