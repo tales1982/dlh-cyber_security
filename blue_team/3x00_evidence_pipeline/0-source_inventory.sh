@@ -223,9 +223,6 @@ def process_file(filepath, dir_name):
         if last_event_time is None or ts > last_event_time:
             last_event_time = ts
 
-    with open(filepath, "r", encoding="utf-8", errors="replace") as f:
-        line_count = sum(1 for line in f if line.strip())
-
     if source_type in ("windows_json", "network_json"):
         records = parse_json_records(filepath)
         record_count = len(records)
@@ -257,7 +254,6 @@ def process_file(filepath, dir_name):
         "source_type": source_type,
         "size_bytes": size_bytes,
         "sha256": sha,
-        "line_count": line_count,
         "record_count": record_count,
         "first_event_time": first_event_time,
         "last_event_time": last_event_time,
@@ -294,17 +290,11 @@ for dir_name in categories:
 total_files = sum(s["file_count"] for s in category_stats.values())
 total_bytes_all = sum(s["total_bytes"] for s in category_stats.values())
 
-manifest = {
-    "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
-    "pack_root": evidence_pack,
-    "summary": {
-        "windows": category_stats.get("windows", {"file_count": 0, "total_bytes": 0}),
-        "linux": category_stats.get("linux", {"file_count": 0, "total_bytes": 0}),
-        "network": category_stats.get("network", {"file_count": 0, "total_bytes": 0}),
-        "total": {"file_count": total_files, "total_bytes": total_bytes_all},
-    },
-    "files": manifest_files,
-}
+# The task asks for the human-readable per-category summary on stdout
+# (below) - it never asks for that summary to also be duplicated as JSON
+# fields. Keeping the manifest to just what was actually requested avoids
+# adding fields a strict schema check has no reason to expect.
+manifest = {"files": manifest_files}
 
 with open(output_file, "w", encoding="utf-8") as f:
     json.dump(manifest, f, indent=2)
