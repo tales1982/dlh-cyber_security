@@ -18,9 +18,9 @@
     {
       "name": "hostname",
       "type": "string",
-      "required": true,
+      "required": false,
       "description": "Name of the host that generated or observed the event.",
-      "justification": "Analysts and detection rules scope almost every question to a specific host, so it has to be a top-level field, not buried in raw text.",
+      "justification": "Almost every investigation scopes to a specific host, but auditd records never carry one in the raw line, so this cannot be mandatory without quarantining all Linux audit telemetry.",
       "source_mapping": {
         "windows_json": "hostname",
         "linux_text": "hostname",
