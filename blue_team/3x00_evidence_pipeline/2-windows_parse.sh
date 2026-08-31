@@ -49,14 +49,15 @@ EVIDENCE_FILES = ["security.json", "sysmon.json", "powershell.json"]
 def read_ndjson(path):
     records = []
     with open(path, "r", encoding="utf-8", errors="replace") as f:
-        for line in f:
+        for line_num, line in enumerate(f, start=1):
             line = line.strip()
             if not line:
                 continue
             try:
                 records.append(json.loads(line))
-            except json.JSONDecodeError:
-                continue
+            except json.JSONDecodeError as exc:
+                print(f"Warning: {path}:{line_num} is not valid JSON ({exc}) - skipped.",
+                      file=sys.stderr)
     return records
 
 
