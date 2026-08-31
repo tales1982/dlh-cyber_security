@@ -1,0 +1,227 @@
+{
+  "version": "1.0.0",
+  "author": "Tales Lima de Paula",
+  "fields": [
+    {
+      "name": "timestamp",
+      "type": "timestamp",
+      "required": true,
+      "description": "ISO 8601 UTC instant the event occurred, normalized from whatever raw format the source used.",
+      "justification": "Every downstream stage (timeline, detection, triage) has to sort and correlate events across sources on one common clock.",
+      "source_mapping": {
+        "windows_json": "timestamp_raw",
+        "linux_text": "timestamp_raw",
+        "network_csv": "timestamp (Unix epoch seconds)",
+        "network_json": "timestamp (suricata_eve.json) or start_time (pcap_summary.json)"
+      }
+    },
+    {
+      "name": "hostname",
+      "type": "string",
+      "required": true,
+      "description": "Name of the host that generated or observed the event.",
+      "justification": "Analysts and detection rules scope almost every question to a specific host, so it has to be a top-level field, not buried in raw text.",
+      "source_mapping": {
+        "windows_json": "hostname",
+        "linux_text": "hostname",
+        "network_csv": null,
+        "network_json": null
+      }
+    },
+    {
+      "name": "source_type",
+      "type": "string",
+      "required": true,
+      "description": "The origin format of the record, one of windows_json, linux_text, network_csv, network_json.",
+      "justification": "Lets a rule or analyst filter to a technology family without knowing every raw file name behind it.",
+      "source_mapping": {
+        "windows_json": "assigned during intake (Task 0 classification), not read from the record",
+        "linux_text": "assigned during intake (Task 0 classification), not read from the record",
+        "network_csv": "assigned during intake (Task 0 classification), not read from the record",
+        "network_json": "assigned during intake (Task 0 classification), not read from the record"
+      }
+    },
+    {
+      "name": "source_origin",
+      "type": "string",
+      "required": true,
+      "description": "Whether the record came from the real evidence pack or from Module 2 student-generated telemetry.",
+      "justification": "3x03 triage must be able to exclude or separately weight self-generated test telemetry from genuine evidence.",
+      "source_mapping": {
+        "windows_json": "source_origin",
+        "linux_text": "source_origin",
+        "network_csv": "constant: evidence_pack (no student network telemetry exists)",
+        "network_json": "constant: evidence_pack (no student network telemetry exists)"
+      }
+    },
+    {
+      "name": "event_category",
+      "type": "string",
+      "required": true,
+      "description": "High-level category of the event such as authentication, process, file, network, or audit.",
+      "justification": "Needed by 3x02 detection rules and 3x03 triage filters to group events independently of source vendor.",
+      "source_mapping": {
+        "windows_json": "channel + event_id mapping table",
+        "linux_text": "program or audit_type mapping table",
+        "network_csv": "constant: network",
+        "network_json": "event_type (suricata) or constant: network (pcap)"
+      }
+    },
+    {
+      "name": "severity",
+      "type": "string",
+      "required": true,
+      "description": "Normalized severity level (info, low, medium, high, critical) assigned to the event.",
+      "justification": "Gives 3x03 triage a single sortable field to prioritize the queue instead of re-deriving urgency from raw source fields every time.",
+      "source_mapping": {
+        "windows_json": "event_id severity mapping table",
+        "linux_text": "program/audit_type severity mapping table",
+        "network_csv": "action (block=medium, allow=info)",
+        "network_json": "alert.severity (suricata) or null (pcap)"
+      }
+    },
+    {
+      "name": "user",
+      "type": "string",
+      "required": false,
+      "description": "Username associated with the event, when the source identifies one.",
+      "justification": "Attributing an action to an account is a core question in almost every investigation, and not every event has one.",
+      "source_mapping": {
+        "windows_json": "event_data.TargetUserName or equivalent event_data field",
+        "linux_text": "user",
+        "network_csv": null,
+        "network_json": null
+      }
+    },
+    {
+      "name": "process_name",
+      "type": "string",
+      "required": false,
+      "description": "Name of the process or program that generated the event.",
+      "justification": "Process-level detection (living-off-the-land binaries, unexpected parent/child pairs) depends on having this as its own field, not embedded in raw_message.",
+      "source_mapping": {
+        "windows_json": "provider, or event_data.Image for Sysmon records",
+        "linux_text": "program",
+        "network_csv": null,
+        "network_json": null
+      }
+    },
+    {
+      "name": "pid",
+      "type": "integer",
+      "required": false,
+      "description": "Process ID associated with the event, when the source records one.",
+      "justification": "Correlating multiple events to the same process instance (not just the same process name) is needed for process-tree analysis.",
+      "source_mapping": {
+        "windows_json": "event_data.ProcessId (Sysmon records only)",
+        "linux_text": "pid",
+        "network_csv": null,
+        "network_json": null
+      }
+    },
+    {
+      "name": "command_line",
+      "type": "string",
+      "required": false,
+      "description": "The full command or arguments executed, when captured.",
+      "justification": "The specific command run is frequently the single most decisive piece of evidence in a process-execution investigation.",
+      "source_mapping": {
+        "windows_json": "event_data.CommandLine (Sysmon records only)",
+        "linux_text": "parsed_fields.message (e.g. sudo COMMAND=...) or student telemetry command field",
+        "network_csv": null,
+        "network_json": null
+      }
+    },
+    {
+      "name": "src_ip",
+      "type": "string",
+      "required": false,
+      "description": "Source IP address of the event, for network-observable or remote-logon activity.",
+      "justification": "Network-origin questions (where did this come from) are answered per-flow or per-logon, so this has to exist independent of hostname.",
+      "source_mapping": {
+        "windows_json": "event_data.IpAddress (remote logon events)",
+        "linux_text": null,
+        "network_csv": "src_ip",
+        "network_json": "src_ip"
+      }
+    },
+    {
+      "name": "dst_ip",
+      "type": "string",
+      "required": false,
+      "description": "Destination IP address of the event, for network-observable activity.",
+      "justification": "Egress/lateral-movement detection needs the destination side of a flow as its own field, symmetric with src_ip.",
+      "source_mapping": {
+        "windows_json": null,
+        "linux_text": null,
+        "network_csv": "dst_ip",
+        "network_json": "dest_ip (suricata) or dst_ip (pcap)"
+      }
+    },
+    {
+      "name": "src_port",
+      "type": "integer",
+      "required": false,
+      "description": "Source port of the network flow, when applicable.",
+      "justification": "Port pairs distinguish concurrent flows between the same two hosts, which src_ip/dst_ip alone cannot do.",
+      "source_mapping": {
+        "windows_json": "event_data.IpPort (remote logon events)",
+        "linux_text": null,
+        "network_csv": "src_port",
+        "network_json": "src_port"
+      }
+    },
+    {
+      "name": "dst_port",
+      "type": "integer",
+      "required": false,
+      "description": "Destination port of the network flow, when applicable.",
+      "justification": "The destination port is usually what identifies the service being accessed (22, 443, 445, etc.), a key triage signal.",
+      "source_mapping": {
+        "windows_json": null,
+        "linux_text": null,
+        "network_csv": "dst_port",
+        "network_json": "dest_port (suricata) or dst_port (pcap)"
+      }
+    },
+    {
+      "name": "protocol",
+      "type": "string",
+      "required": false,
+      "description": "Transport or application protocol of the network event (TCP, UDP, DNS, etc.).",
+      "justification": "Protocol-aware detection rules (e.g. DNS tunneling, unexpected protocol on a port) need this independent of the port number.",
+      "source_mapping": {
+        "windows_json": null,
+        "linux_text": null,
+        "network_csv": "protocol",
+        "network_json": "proto (suricata) or protocol (pcap)"
+      }
+    },
+    {
+      "name": "action",
+      "type": "string",
+      "required": false,
+      "description": "The outcome or disposition of the event, such as allow, block, success, or failure.",
+      "justification": "Separating what happened from whether it succeeded is required to tell a blocked attack apart from a successful one.",
+      "source_mapping": {
+        "windows_json": "event_id success/failure mapping (e.g. 4624 vs 4625)",
+        "linux_text": "parsed_fields.message keyword (opened/closed/Accepted/Failed)",
+        "network_csv": "action",
+        "network_json": "alert.action (suricata) or null (pcap)"
+      }
+    },
+    {
+      "name": "raw_message",
+      "type": "string",
+      "required": true,
+      "description": "The original, unmodified log line or message text the event was parsed from.",
+      "justification": "Normalization is always lossy in some direction, so analysts need a way back to the exact original evidence to verify any derived field.",
+      "source_mapping": {
+        "windows_json": "raw_message",
+        "linux_text": "raw_message",
+        "network_csv": "reconstructed from the CSV row",
+        "network_json": "reconstructed from the JSON record"
+      }
+    }
+  ]
+}
