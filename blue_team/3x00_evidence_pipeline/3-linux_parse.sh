@@ -175,18 +175,33 @@ def group_audit_lines(lines):
     return records
 
 
+def read_text_lines(path):
+    """Reads a file line by line, decoding each line as UTF-8 first and
+    only falling back to latin-1 for the specific lines that are not valid
+    UTF-8. latin-1 maps every byte 0-255 to a character, so it never
+    raises - it is only used as a last resort, and only on the lines that
+    actually need it, so well-formed UTF-8 lines are never touched. This
+    preserves the real original character instead of losing it to a
+    generic replacement character."""
+    with open(path, "rb") as f:
+        for raw_line in f:
+            try:
+                yield raw_line.decode("utf-8")
+            except UnicodeDecodeError:
+                yield raw_line.decode("latin-1")
+
+
 out_lines = []
 
 # --- auth.log and syslog: same grammar --------------------------------------
 for fname in ("auth.log", "syslog"):
     count = 0
-    with open(f"{linux_dir}/{fname}", "r", encoding="utf-8", errors="replace") as f:
-        for line in f:
-            line = line.rstrip("\n")
-            if not line.strip():
-                continue
-            out_lines.append(json.dumps(parse_syslog_line(line)))
-            count += 1
+    for line in read_text_lines(f"{linux_dir}/{fname}"):
+        line = line.rstrip("\n")
+        if not line.strip():
+            continue
+        out_lines.append(json.dumps(parse_syslog_line(line)))
+        count += 1
     print(f"parsing {fname:<12} ... {count:6d} lines  -> {count:6d} records")
 
 # --- audit.log: grouped by audit(...) id -------------------------------------
