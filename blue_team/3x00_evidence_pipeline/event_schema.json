@@ -211,6 +211,19 @@
       }
     },
     {
+      "name": "signature",
+      "type": "string",
+      "required": false,
+      "description": "The name of the detection rule or signature that fired, for alert-producing sources.",
+      "justification": "3x02 detection rules and 3x03 triage need to know which specific rule matched, not just that some alert occurred.",
+      "source_mapping": {
+        "windows_json": null,
+        "linux_text": null,
+        "network_csv": null,
+        "network_json": "alert.signature (suricata only)"
+      }
+    },
+    {
       "name": "raw_message",
       "type": "string",
       "required": true,
