@@ -1,0 +1,73 @@
+{
+  "window": {
+    "start": "2026-03-18T00:00:00Z",
+    "end": "2026-03-25T00:00:00Z"
+  },
+  "per_host": {
+    "clin-ws-01": {
+      "file_read_sensitive": 84,
+      "file_write_sensitive": 332,
+      "file_permission_change": 0
+    },
+    "clin-ws-12": {
+      "file_read_sensitive": 95,
+      "file_write_sensitive": 323,
+      "file_permission_change": 0
+    },
+    "pharm-app-01": {
+      "file_read_sensitive": 98,
+      "file_write_sensitive": 321,
+      "file_permission_change": 0
+    },
+    "srv-dc-01": {
+      "file_read_sensitive": 88,
+      "file_write_sensitive": 439,
+      "file_permission_change": 0
+    },
+    "clin-ws-05": {
+      "file_read_sensitive": 102,
+      "file_write_sensitive": 300,
+      "file_permission_change": 0
+    },
+    "srv-ehr-01": {
+      "file_read_sensitive": 95,
+      "file_write_sensitive": 461,
+      "file_permission_change": 0
+    },
+    "admin-ws-01": {
+      "file_read_sensitive": 90,
+      "file_write_sensitive": 354,
+      "file_permission_change": 0
+    },
+    "clin-ws-07": {
+      "file_read_sensitive": 108,
+      "file_write_sensitive": 327,
+      "file_permission_change": 0
+    },
+    "admin-ws-02": {
+      "file_read_sensitive": 103,
+      "file_write_sensitive": 308,
+      "file_permission_change": 0
+    },
+    "clin-ws-03": {
+      "file_read_sensitive": 84,
+      "file_write_sensitive": 299,
+      "file_permission_change": 0
+    },
+    "bill-ws-09": {
+      "file_read_sensitive": 86,
+      "file_write_sensitive": 345,
+      "file_permission_change": 0
+    },
+    "srv-dc-02": {
+      "file_read_sensitive": 99,
+      "file_write_sensitive": 442,
+      "file_permission_change": 0
+    }
+  },
+  "totals": {
+    "file_read_sensitive": 2637,
+    "file_write_sensitive": 5038,
+    "file_permission_change": 0
+  }
+}

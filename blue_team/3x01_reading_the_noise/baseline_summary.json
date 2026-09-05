@@ -1,0 +1,5484 @@
+{
+  "version": "1.0",
+  "generated_at": "2026-09-05T08:14:57Z",
+  "baseline_window": {
+    "start": "2026-03-18T00:00:00Z",
+    "end": "2026-03-25T00:00:00Z",
+    "duration_days": 7
+  },
+  "evaluation_window": {
+    "start": "2026-03-25T00:00:00Z",
+    "end": "2026-03-26T00:00:00Z",
+    "duration_hours": 24
+  },
+  "host_inventory": [
+    "admin-ws-01",
+    "admin-ws-02",
+    "bill-db-01",
+    "bill-ws-09",
+    "billdb01",
+    "clin-ws-01",
+    "clin-ws-03",
+    "clin-ws-05",
+    "clin-ws-07",
+    "clin-ws-12",
+    "db-patient-01",
+    "db-patient-02",
+    "dbpatient01",
+    "dbpatient02",
+    "ids-01",
+    "ids01",
+    "pharm-app-01",
+    "rad-srv-01",
+    "rad-srv-02",
+    "rad_srv_01",
+    "radsrv02",
+    "srv-dc-01",
+    "srv-dc-02",
+    "srv-ehr-01",
+    "srv-log-01",
+    "srv-mail-01",
+    "srv-web-01",
+    "srv_mail_01"
+  ],
+  "auth": {
+    "window": {
+      "start": "2026-03-18T00:00:00Z",
+      "end": "2026-03-25T00:00:00Z"
+    },
+    "per_host": {
+      "srv-dc-01": {
+        "login_failure": 1354,
+        "logout": 704,
+        "login_success": 925,
+        "privilege_escalation": 262,
+        "account_lockout": 166
+      },
+      "srv-ehr-01": {
+        "logout": 706,
+        "login_success": 1003,
+        "privilege_escalation": 281
+      },
+      "clin-ws-07": {
+        "logout": 697,
+        "login_success": 936,
+        "privilege_escalation": 259
+      },
+      "admin-ws-02": {
+        "logout": 722,
+        "login_success": 1026,
+        "privilege_escalation": 289
+      },
+      "srv-dc-02": {
+        "login_failure": 1333,
+        "login_success": 1023,
+        "logout": 705,
+        "privilege_escalation": 248
+      },
+      "pharm-app-01": {
+        "privilege_escalation": 265,
+        "login_success": 996,
+        "logout": 673
+      },
+      "clin-ws-12": {
+        "login_success": 978,
+        "logout": 726,
+        "privilege_escalation": 301
+      },
+      "clin-ws-05": {
+        "logout": 729,
+        "login_success": 964,
+        "privilege_escalation": 293
+      },
+      "clin-ws-01": {
+        "login_success": 970,
+        "logout": 738,
+        "privilege_escalation": 277
+      },
+      "clin-ws-03": {
+        "login_success": 1001,
+        "logout": 651,
+        "privilege_escalation": 301
+      },
+      "admin-ws-01": {
+        "privilege_escalation": 269,
+        "login_success": 998,
+        "logout": 696
+      },
+      "bill-ws-09": {
+        "privilege_escalation": 295,
+        "login_success": 962,
+        "logout": 695
+      },
+      "srv-mail-01": {
+        "login_success": 674,
+        "logout": 594,
+        "privilege_escalation": 339,
+        "login_failure": 87
+      },
+      "srv-web-01": {
+        "logout": 553,
+        "login_success": 762,
+        "privilege_escalation": 352,
+        "login_failure": 76
+      },
+      "ids-01": {
+        "privilege_escalation": 382,
+        "login_success": 724,
+        "logout": 618,
+        "login_failure": 58
+      },
+      "srv-log-01": {
+        "login_success": 711,
+        "logout": 586,
+        "login_failure": 70,
+        "privilege_escalation": 337
+      },
+      "db-patient-02": {
+        "logout": 633,
+        "privilege_escalation": 331,
+        "login_success": 743,
+        "login_failure": 64
+      },
+      "bill-db-01": {
+        "login_success": 723,
+        "logout": 584,
+        "privilege_escalation": 348,
+        "login_failure": 82
+      },
+      "rad-srv-02": {
+        "logout": 606,
+        "privilege_escalation": 341,
+        "login_success": 726,
+        "login_failure": 61
+      },
+      "db-patient-01": {
+        "login_success": 693,
+        "logout": 586,
+        "privilege_escalation": 350,
+        "login_failure": 70
+      },
+      "rad-srv-01": {
+        "login_success": 711,
+        "privilege_escalation": 363,
+        "logout": 573,
+        "login_failure": 75
+      }
+    },
+    "per_user": [
+      {
+        "user": "a",
+        "success": 346,
+        "failure": 0
+      },
+      {
+        "user": "a.thompson",
+        "success": 544,
+        "failure": 142
+      },
+      {
+        "user": "admin",
+        "success": 0,
+        "failure": 118
+      },
+      {
+        "user": "administrator",
+        "success": 0,
+        "failure": 129
+      },
+      {
+        "user": "b.martin",
+        "success": 478,
+        "failure": 132
+      },
+      {
+        "user": "c",
+        "success": 303,
+        "failure": 0
+      },
+      {
+        "user": "c.taylor",
+        "success": 542,
+        "failure": 145
+      },
+      {
+        "user": "d",
+        "success": 353,
+        "failure": 0
+      },
+      {
+        "user": "d.wilson",
+        "success": 540,
+        "failure": 162
+      },
+      {
+        "user": "e.thomas",
+        "success": 492,
+        "failure": 129
+      },
+      {
+        "user": "f.lee",
+        "success": 485,
+        "failure": 119
+      },
+      {
+        "user": "g.clark",
+        "success": 416,
+        "failure": 109
+      },
+      {
+        "user": "h.jackson",
+        "success": 477,
+        "failure": 116
+      },
+      {
+        "user": "j",
+        "success": 374,
+        "failure": 0
+      },
+      {
+        "user": "j.martinez",
+        "success": 549,
+        "failure": 150
+      },
+      {
+        "user": "james",
+        "success": 357,
+        "failure": 0
+      },
+      {
+        "user": "james.chen",
+        "success": 578,
+        "failure": 39
+      },
+      {
+        "user": "k",
+        "success": 337,
+        "failure": 0
+      },
+      {
+        "user": "k.brown",
+        "success": 551,
+        "failure": 158
+      },
+      {
+        "user": "l",
+        "success": 338,
+        "failure": 0
+      },
+      {
+        "user": "l.nguyen",
+        "success": 575,
+        "failure": 188
+      },
+      {
+        "user": "m",
+        "success": 346,
+        "failure": 0
+      },
+      {
+        "user": "m.johnson",
+        "success": 544,
+        "failure": 147
+      },
+      {
+        "user": "mike.torres",
+        "success": 450,
+        "failure": 0
+      },
+      {
+        "user": "n.white",
+        "success": 495,
+        "failure": 141
+      },
+      {
+        "user": "p.harris",
+        "success": 458,
+        "failure": 99
+      },
+      {
+        "user": "p.morales",
+        "success": 440,
+        "failure": 0
+      },
+      {
+        "user": "r",
+        "success": 351,
+        "failure": 0
+      },
+      {
+        "user": "r.garcia",
+        "success": 519,
+        "failure": 160
+      },
+      {
+        "user": "robert.kim",
+        "success": 465,
+        "failure": 0
+      },
+      {
+        "user": "s",
+        "success": 347,
+        "failure": 0
+      },
+      {
+        "user": "s.patel",
+        "success": 578,
+        "failure": 160
+      },
+      {
+        "user": "sarah",
+        "success": 344,
+        "failure": 0
+      },
+      {
+        "user": "sarah.park",
+        "success": 578,
+        "failure": 37
+      },
+      {
+        "user": "svc_backup",
+        "success": 439,
+        "failure": 54
+      },
+      {
+        "user": "svc_billing_sync",
+        "success": 431,
+        "failure": 51
+      },
+      {
+        "user": "svc_ehr",
+        "success": 443,
+        "failure": 36
+      },
+      {
+        "user": "t",
+        "success": 367,
+        "failure": 0
+      },
+      {
+        "user": "t.anderson",
+        "success": 573,
+        "failure": 133
+      },
+      {
+        "user": "test",
+        "success": 0,
+        "failure": 111
+      },
+      {
+        "user": "v.lewis",
+        "success": 483,
+        "failure": 114
+      },
+      {
+        "user": "w.robinson",
+        "success": 519,
+        "failure": 125
+      },
+      {
+        "user": "y.walker",
+        "success": 444,
+        "failure": 126
+      }
+    ],
+    "known_accounts": [
+      "a",
+      "a.thompson",
+      "admin",
+      "administrator",
+      "b.martin",
+      "c",
+      "c.taylor",
+      "d",
+      "d.wilson",
+      "e.thomas",
+      "f.lee",
+      "g.clark",
+      "h.jackson",
+      "j",
+      "j.martinez",
+      "james",
+      "james.chen",
+      "k",
+      "k.brown",
+      "l",
+      "l.nguyen",
+      "m",
+      "m.johnson",
+      "mike.torres",
+      "n.white",
+      "p.harris",
+      "p.morales",
+      "r",
+      "r.garcia",
+      "robert.kim",
+      "root",
+      "s",
+      "s.patel",
+      "sarah",
+      "sarah.park",
+      "svc_backup",
+      "svc_billing_sync",
+      "svc_ehr",
+      "t",
+      "t.anderson",
+      "temp_user_1",
+      "temp_user_10",
+      "temp_user_11",
+      "temp_user_12",
+      "temp_user_13",
+      "temp_user_14",
+      "temp_user_15",
+      "temp_user_16",
+      "temp_user_17",
+      "temp_user_18",
+      "temp_user_19",
+      "temp_user_2",
+      "temp_user_20",
+      "temp_user_21",
+      "temp_user_22",
+      "temp_user_23",
+      "temp_user_24",
+      "temp_user_25",
+      "temp_user_26",
+      "temp_user_27",
+      "temp_user_28",
+      "temp_user_29",
+      "temp_user_3",
+      "temp_user_30",
+      "temp_user_31",
+      "temp_user_32",
+      "temp_user_33",
+      "temp_user_34",
+      "temp_user_35",
+      "temp_user_36",
+      "temp_user_37",
+      "temp_user_38",
+      "temp_user_39",
+      "temp_user_4",
+      "temp_user_40",
+      "temp_user_41",
+      "temp_user_42",
+      "temp_user_43",
+      "temp_user_44",
+      "temp_user_45",
+      "temp_user_46",
+      "temp_user_47",
+      "temp_user_48",
+      "temp_user_49",
+      "temp_user_5",
+      "temp_user_50",
+      "temp_user_51",
+      "temp_user_52",
+      "temp_user_53",
+      "temp_user_54",
+      "temp_user_55",
+      "temp_user_56",
+      "temp_user_57",
+      "temp_user_58",
+      "temp_user_59",
+      "temp_user_6",
+      "temp_user_60",
+      "temp_user_61",
+      "temp_user_62",
+      "temp_user_63",
+      "temp_user_64",
+      "temp_user_65",
+      "temp_user_66",
+      "temp_user_67",
+      "temp_user_68",
+      "temp_user_69",
+      "temp_user_7",
+      "temp_user_70",
+      "temp_user_71",
+      "temp_user_72",
+      "temp_user_73",
+      "temp_user_74",
+      "temp_user_75",
+      "temp_user_76",
+      "temp_user_77",
+      "temp_user_78",
+      "temp_user_79",
+      "temp_user_8",
+      "temp_user_80",
+      "temp_user_81",
+      "temp_user_82",
+      "temp_user_83",
+      "temp_user_84",
+      "temp_user_85",
+      "temp_user_86",
+      "temp_user_87",
+      "temp_user_88",
+      "temp_user_89",
+      "temp_user_9",
+      "temp_user_90",
+      "temp_user_91",
+      "temp_user_92",
+      "temp_user_93",
+      "temp_user_94",
+      "temp_user_95",
+      "temp_user_96",
+      "temp_user_97",
+      "temp_user_98",
+      "temp_user_99",
+      "test",
+      "v.lewis",
+      "w.robinson",
+      "y.walker"
+    ],
+    "business_hours_avg": {
+      "success": 189,
+      "failure": 46.62
+    },
+    "offhours_avg": {
+      "success": 187.76,
+      "failure": 48.79
+    },
+    "max_failures_1h_window": 8
+  },
+  "process": {
+    "window": {
+      "start": "2026-03-18T00:00:00Z",
+      "end": "2026-03-25T00:00:00Z"
+    },
+    "per_host": {
+      "clin-ws-01": [
+        {
+          "process_name": "Microsoft-Windows-PowerShell",
+          "count": 669,
+          "first_seen": "2026-03-18T00:14:21Z",
+          "last_seen": "2026-03-24T23:44:29Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\ProgramData\\Microsoft\\Windows Defender\\MsMpEng.exe",
+          "count": 196,
+          "first_seen": "2026-03-18T00:27:36Z",
+          "last_seen": "2026-03-24T23:45:41Z",
+          "users": []
+        },
+        {
+          "process_name": "Microsoft-Windows-Security-Auditing",
+          "count": 184,
+          "first_seen": "2026-03-18T00:13:21Z",
+          "last_seen": "2026-03-24T21:22:18Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\svchost.exe",
+          "count": 179,
+          "first_seen": "2026-03-18T00:36:37Z",
+          "last_seen": "2026-03-24T23:41:58Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\spoolsv.exe",
+          "count": 176,
+          "first_seen": "2026-03-18T00:46:35Z",
+          "last_seen": "2026-03-24T23:39:04Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\conhost.exe",
+          "count": 174,
+          "first_seen": "2026-03-18T00:06:30Z",
+          "last_seen": "2026-03-24T22:19:42Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Program Files\\MedDefense\\Pharmacy\\PharmApp.exe",
+          "count": 167,
+          "first_seen": "2026-03-18T00:37:42Z",
+          "last_seen": "2026-03-24T23:52:51Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\lsass.exe",
+          "count": 165,
+          "first_seen": "2026-03-18T00:18:18Z",
+          "last_seen": "2026-03-24T21:44:22Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\dllhost.exe",
+          "count": 163,
+          "first_seen": "2026-03-18T03:05:52Z",
+          "last_seen": "2026-03-24T23:25:29Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\explorer.exe",
+          "count": 162,
+          "first_seen": "2026-03-18T00:05:35Z",
+          "last_seen": "2026-03-24T23:37:26Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Program Files\\MedDefense\\EHR\\EHRClient.exe",
+          "count": 161,
+          "first_seen": "2026-03-18T00:36:23Z",
+          "last_seen": "2026-03-24T21:15:04Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\csrss.exe",
+          "count": 158,
+          "first_seen": "2026-03-18T00:10:24Z",
+          "last_seen": "2026-03-24T22:40:56Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\RuntimeBroker.exe",
+          "count": 157,
+          "first_seen": "2026-03-18T01:23:02Z",
+          "last_seen": "2026-03-24T23:58:04Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\taskhostw.exe",
+          "count": 150,
+          "first_seen": "2026-03-18T00:31:03Z",
+          "last_seen": "2026-03-24T22:19:04Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+          "count": 147,
+          "first_seen": "2026-03-18T02:41:35Z",
+          "last_seen": "2026-03-24T22:23:18Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+          "count": 142,
+          "first_seen": "2026-03-18T00:08:17Z",
+          "last_seen": "2026-03-24T23:07:46Z",
+          "users": []
+        }
+      ],
+      "clin-ws-05": [
+        {
+          "process_name": "Microsoft-Windows-PowerShell",
+          "count": 677,
+          "first_seen": "2026-03-18T00:29:13Z",
+          "last_seen": "2026-03-24T23:39:48Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\ProgramData\\Microsoft\\Windows Defender\\MsMpEng.exe",
+          "count": 200,
+          "first_seen": "2026-03-18T01:07:54Z",
+          "last_seen": "2026-03-24T23:12:09Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\svchost.exe",
+          "count": 184,
+          "first_seen": "2026-03-18T00:20:41Z",
+          "last_seen": "2026-03-24T23:42:37Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\explorer.exe",
+          "count": 179,
+          "first_seen": "2026-03-18T01:48:18Z",
+          "last_seen": "2026-03-24T22:19:57Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\conhost.exe",
+          "count": 178,
+          "first_seen": "2026-03-18T00:06:27Z",
+          "last_seen": "2026-03-24T23:32:11Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\lsass.exe",
+          "count": 178,
+          "first_seen": "2026-03-18T02:32:25Z",
+          "last_seen": "2026-03-24T22:29:29Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\RuntimeBroker.exe",
+          "count": 177,
+          "first_seen": "2026-03-18T01:45:19Z",
+          "last_seen": "2026-03-24T23:35:16Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Program Files\\MedDefense\\Pharmacy\\PharmApp.exe",
+          "count": 174,
+          "first_seen": "2026-03-18T00:01:35Z",
+          "last_seen": "2026-03-24T23:55:53Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\csrss.exe",
+          "count": 173,
+          "first_seen": "2026-03-18T00:35:04Z",
+          "last_seen": "2026-03-24T23:36:07Z",
+          "users": []
+        },
+        {
+          "process_name": "Microsoft-Windows-Security-Auditing",
+          "count": 173,
+          "first_seen": "2026-03-18T00:13:21Z",
+          "last_seen": "2026-03-24T23:12:16Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+          "count": 162,
+          "first_seen": "2026-03-18T00:50:53Z",
+          "last_seen": "2026-03-24T22:33:37Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+          "count": 162,
+          "first_seen": "2026-03-18T02:01:14Z",
+          "last_seen": "2026-03-24T23:26:33Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\spoolsv.exe",
+          "count": 156,
+          "first_seen": "2026-03-18T00:28:14Z",
+          "last_seen": "2026-03-24T23:25:33Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Program Files\\MedDefense\\EHR\\EHRClient.exe",
+          "count": 153,
+          "first_seen": "2026-03-18T02:01:43Z",
+          "last_seen": "2026-03-24T22:53:06Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\taskhostw.exe",
+          "count": 149,
+          "first_seen": "2026-03-18T00:25:42Z",
+          "last_seen": "2026-03-24T23:33:10Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\dllhost.exe",
+          "count": 147,
+          "first_seen": "2026-03-18T02:48:15Z",
+          "last_seen": "2026-03-24T23:16:40Z",
+          "users": []
+        }
+      ],
+      "pharm-app-01": [
+        {
+          "process_name": "Microsoft-Windows-PowerShell",
+          "count": 691,
+          "first_seen": "2026-03-18T00:16:05Z",
+          "last_seen": "2026-03-24T23:40:08Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\RuntimeBroker.exe",
+          "count": 196,
+          "first_seen": "2026-03-18T00:47:50Z",
+          "last_seen": "2026-03-24T23:31:19Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Program Files\\MedDefense\\Pharmacy\\PharmApp.exe",
+          "count": 189,
+          "first_seen": "2026-03-18T00:40:05Z",
+          "last_seen": "2026-03-24T21:32:20Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\taskhostw.exe",
+          "count": 183,
+          "first_seen": "2026-03-18T00:18:52Z",
+          "last_seen": "2026-03-24T21:38:42Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\explorer.exe",
+          "count": 183,
+          "first_seen": "2026-03-18T00:21:15Z",
+          "last_seen": "2026-03-24T23:26:00Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\dllhost.exe",
+          "count": 182,
+          "first_seen": "2026-03-18T00:57:24Z",
+          "last_seen": "2026-03-24T23:53:58Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\spoolsv.exe",
+          "count": 177,
+          "first_seen": "2026-03-18T00:20:01Z",
+          "last_seen": "2026-03-24T23:54:45Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\lsass.exe",
+          "count": 176,
+          "first_seen": "2026-03-18T01:17:15Z",
+          "last_seen": "2026-03-24T23:55:47Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+          "count": 174,
+          "first_seen": "2026-03-18T00:44:13Z",
+          "last_seen": "2026-03-24T21:59:46Z",
+          "users": []
+        },
+        {
+          "process_name": "Microsoft-Windows-Security-Auditing",
+          "count": 173,
+          "first_seen": "2026-03-18T00:43:14Z",
+          "last_seen": "2026-03-24T22:48:08Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\svchost.exe",
+          "count": 170,
+          "first_seen": "2026-03-18T00:34:33Z",
+          "last_seen": "2026-03-24T21:02:12Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+          "count": 169,
+          "first_seen": "2026-03-18T00:12:03Z",
+          "last_seen": "2026-03-24T21:31:35Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\conhost.exe",
+          "count": 168,
+          "first_seen": "2026-03-18T00:00:50Z",
+          "last_seen": "2026-03-24T23:39:38Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Program Files\\MedDefense\\EHR\\EHRClient.exe",
+          "count": 162,
+          "first_seen": "2026-03-18T01:35:35Z",
+          "last_seen": "2026-03-24T23:49:34Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\csrss.exe",
+          "count": 162,
+          "first_seen": "2026-03-18T02:02:24Z",
+          "last_seen": "2026-03-24T22:45:44Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\ProgramData\\Microsoft\\Windows Defender\\MsMpEng.exe",
+          "count": 159,
+          "first_seen": "2026-03-18T00:07:10Z",
+          "last_seen": "2026-03-24T23:09:49Z",
+          "users": []
+        }
+      ],
+      "srv-ehr-01": [
+        {
+          "process_name": "Microsoft-Windows-PowerShell",
+          "count": 684,
+          "first_seen": "2026-03-18T00:43:32Z",
+          "last_seen": "2026-03-24T23:49:36Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\explorer.exe",
+          "count": 194,
+          "first_seen": "2026-03-18T00:48:45Z",
+          "last_seen": "2026-03-24T22:57:07Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\spoolsv.exe",
+          "count": 193,
+          "first_seen": "2026-03-18T00:14:21Z",
+          "last_seen": "2026-03-24T23:48:07Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\RuntimeBroker.exe",
+          "count": 181,
+          "first_seen": "2026-03-18T01:33:21Z",
+          "last_seen": "2026-03-24T23:58:45Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\svchost.exe",
+          "count": 178,
+          "first_seen": "2026-03-18T02:09:28Z",
+          "last_seen": "2026-03-24T23:12:03Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\lsass.exe",
+          "count": 177,
+          "first_seen": "2026-03-18T00:19:50Z",
+          "last_seen": "2026-03-24T23:30:38Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\dllhost.exe",
+          "count": 170,
+          "first_seen": "2026-03-18T01:07:26Z",
+          "last_seen": "2026-03-24T23:35:34Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\ProgramData\\Microsoft\\Windows Defender\\MsMpEng.exe",
+          "count": 169,
+          "first_seen": "2026-03-18T01:15:55Z",
+          "last_seen": "2026-03-24T23:19:40Z",
+          "users": []
+        },
+        {
+          "process_name": "Microsoft-Windows-Security-Auditing",
+          "count": 169,
+          "first_seen": "2026-03-18T00:49:25Z",
+          "last_seen": "2026-03-24T23:59:23Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\csrss.exe",
+          "count": 166,
+          "first_seen": "2026-03-18T00:51:49Z",
+          "last_seen": "2026-03-24T23:08:20Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+          "count": 165,
+          "first_seen": "2026-03-18T00:21:25Z",
+          "last_seen": "2026-03-24T23:55:30Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+          "count": 165,
+          "first_seen": "2026-03-18T01:38:16Z",
+          "last_seen": "2026-03-24T23:15:28Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\taskhostw.exe",
+          "count": 165,
+          "first_seen": "2026-03-18T00:07:11Z",
+          "last_seen": "2026-03-24T22:59:13Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\conhost.exe",
+          "count": 159,
+          "first_seen": "2026-03-18T01:29:43Z",
+          "last_seen": "2026-03-24T23:57:22Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Program Files\\MedDefense\\Pharmacy\\PharmApp.exe",
+          "count": 158,
+          "first_seen": "2026-03-18T01:01:55Z",
+          "last_seen": "2026-03-24T21:29:10Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Program Files\\MedDefense\\EHR\\EHRClient.exe",
+          "count": 155,
+          "first_seen": "2026-03-18T00:02:37Z",
+          "last_seen": "2026-03-24T22:26:47Z",
+          "users": []
+        }
+      ],
+      "clin-ws-12": [
+        {
+          "process_name": "Microsoft-Windows-PowerShell",
+          "count": 718,
+          "first_seen": "2026-03-18T00:05:19Z",
+          "last_seen": "2026-03-24T23:34:25Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\ProgramData\\Microsoft\\Windows Defender\\MsMpEng.exe",
+          "count": 193,
+          "first_seen": "2026-03-18T00:01:09Z",
+          "last_seen": "2026-03-24T22:42:35Z",
+          "users": []
+        },
+        {
+          "process_name": "Microsoft-Windows-Security-Auditing",
+          "count": 189,
+          "first_seen": "2026-03-18T00:49:57Z",
+          "last_seen": "2026-03-24T23:42:39Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\csrss.exe",
+          "count": 188,
+          "first_seen": "2026-03-18T00:22:23Z",
+          "last_seen": "2026-03-24T23:31:49Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\spoolsv.exe",
+          "count": 185,
+          "first_seen": "2026-03-18T00:03:54Z",
+          "last_seen": "2026-03-24T22:55:27Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Program Files\\MedDefense\\EHR\\EHRClient.exe",
+          "count": 184,
+          "first_seen": "2026-03-18T01:03:14Z",
+          "last_seen": "2026-03-24T23:20:28Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\svchost.exe",
+          "count": 180,
+          "first_seen": "2026-03-18T00:00:37Z",
+          "last_seen": "2026-03-24T22:48:49Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\conhost.exe",
+          "count": 179,
+          "first_seen": "2026-03-18T01:18:25Z",
+          "last_seen": "2026-03-24T23:20:54Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\taskhostw.exe",
+          "count": 175,
+          "first_seen": "2026-03-18T01:09:23Z",
+          "last_seen": "2026-03-24T19:08:53Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+          "count": 174,
+          "first_seen": "2026-03-18T00:33:31Z",
+          "last_seen": "2026-03-24T23:31:17Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\explorer.exe",
+          "count": 171,
+          "first_seen": "2026-03-18T00:42:03Z",
+          "last_seen": "2026-03-24T23:52:54Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\lsass.exe",
+          "count": 167,
+          "first_seen": "2026-03-18T01:11:23Z",
+          "last_seen": "2026-03-24T23:56:59Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+          "count": 163,
+          "first_seen": "2026-03-18T01:44:02Z",
+          "last_seen": "2026-03-24T23:58:20Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\RuntimeBroker.exe",
+          "count": 163,
+          "first_seen": "2026-03-18T00:21:49Z",
+          "last_seen": "2026-03-24T23:10:25Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\dllhost.exe",
+          "count": 161,
+          "first_seen": "2026-03-18T01:18:24Z",
+          "last_seen": "2026-03-24T23:32:21Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Program Files\\MedDefense\\Pharmacy\\PharmApp.exe",
+          "count": 159,
+          "first_seen": "2026-03-18T00:07:22Z",
+          "last_seen": "2026-03-24T23:39:25Z",
+          "users": []
+        }
+      ],
+      "srv-dc-02": [
+        {
+          "process_name": "Microsoft-Windows-PowerShell",
+          "count": 678,
+          "first_seen": "2026-03-18T00:25:05Z",
+          "last_seen": "2026-03-24T23:40:34Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\taskhostw.exe",
+          "count": 190,
+          "first_seen": "2026-03-18T00:58:40Z",
+          "last_seen": "2026-03-24T23:53:09Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Program Files\\MedDefense\\Pharmacy\\PharmApp.exe",
+          "count": 189,
+          "first_seen": "2026-03-18T00:25:08Z",
+          "last_seen": "2026-03-24T23:17:17Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Program Files\\MedDefense\\EHR\\EHRClient.exe",
+          "count": 188,
+          "first_seen": "2026-03-18T00:40:14Z",
+          "last_seen": "2026-03-24T23:41:37Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\RuntimeBroker.exe",
+          "count": 188,
+          "first_seen": "2026-03-18T00:04:08Z",
+          "last_seen": "2026-03-24T23:40:50Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\csrss.exe",
+          "count": 182,
+          "first_seen": "2026-03-18T00:08:50Z",
+          "last_seen": "2026-03-24T20:46:01Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\lsass.exe",
+          "count": 180,
+          "first_seen": "2026-03-18T00:12:40Z",
+          "last_seen": "2026-03-24T23:54:19Z",
+          "users": []
+        },
+        {
+          "process_name": "Microsoft-Windows-Security-Auditing",
+          "count": 174,
+          "first_seen": "2026-03-18T01:01:52Z",
+          "last_seen": "2026-03-24T23:59:10Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+          "count": 166,
+          "first_seen": "2026-03-18T00:26:50Z",
+          "last_seen": "2026-03-24T23:22:58Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+          "count": 164,
+          "first_seen": "2026-03-18T01:02:35Z",
+          "last_seen": "2026-03-24T22:45:15Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\conhost.exe",
+          "count": 163,
+          "first_seen": "2026-03-18T00:50:08Z",
+          "last_seen": "2026-03-24T23:11:27Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\svchost.exe",
+          "count": 161,
+          "first_seen": "2026-03-18T01:40:16Z",
+          "last_seen": "2026-03-24T23:23:11Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\dllhost.exe",
+          "count": 157,
+          "first_seen": "2026-03-18T00:44:54Z",
+          "last_seen": "2026-03-24T23:23:16Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\spoolsv.exe",
+          "count": 153,
+          "first_seen": "2026-03-18T00:47:27Z",
+          "last_seen": "2026-03-24T23:20:09Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\ProgramData\\Microsoft\\Windows Defender\\MsMpEng.exe",
+          "count": 152,
+          "first_seen": "2026-03-18T02:28:04Z",
+          "last_seen": "2026-03-24T21:22:25Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\explorer.exe",
+          "count": 150,
+          "first_seen": "2026-03-18T00:42:09Z",
+          "last_seen": "2026-03-24T22:33:07Z",
+          "users": []
+        }
+      ],
+      "clin-ws-07": [
+        {
+          "process_name": "Microsoft-Windows-PowerShell",
+          "count": 691,
+          "first_seen": "2026-03-18T00:42:37Z",
+          "last_seen": "2026-03-24T22:42:35Z",
+          "users": []
+        },
+        {
+          "process_name": "Microsoft-Windows-Security-Auditing",
+          "count": 202,
+          "first_seen": "2026-03-18T01:13:55Z",
+          "last_seen": "2026-03-24T23:25:55Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\dllhost.exe",
+          "count": 184,
+          "first_seen": "2026-03-18T00:18:17Z",
+          "last_seen": "2026-03-24T22:53:30Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\ProgramData\\Microsoft\\Windows Defender\\MsMpEng.exe",
+          "count": 183,
+          "first_seen": "2026-03-18T02:03:49Z",
+          "last_seen": "2026-03-24T22:52:50Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\conhost.exe",
+          "count": 180,
+          "first_seen": "2026-03-18T01:00:18Z",
+          "last_seen": "2026-03-24T23:07:49Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\svchost.exe",
+          "count": 179,
+          "first_seen": "2026-03-18T00:17:54Z",
+          "last_seen": "2026-03-24T23:42:06Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\taskhostw.exe",
+          "count": 174,
+          "first_seen": "2026-03-18T00:54:31Z",
+          "last_seen": "2026-03-24T23:53:01Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+          "count": 170,
+          "first_seen": "2026-03-18T00:46:38Z",
+          "last_seen": "2026-03-24T23:35:11Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+          "count": 167,
+          "first_seen": "2026-03-18T04:49:11Z",
+          "last_seen": "2026-03-24T19:03:58Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\csrss.exe",
+          "count": 167,
+          "first_seen": "2026-03-18T00:05:23Z",
+          "last_seen": "2026-03-24T20:55:52Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Program Files\\MedDefense\\EHR\\EHRClient.exe",
+          "count": 166,
+          "first_seen": "2026-03-18T00:34:32Z",
+          "last_seen": "2026-03-24T19:46:12Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\lsass.exe",
+          "count": 159,
+          "first_seen": "2026-03-18T00:09:51Z",
+          "last_seen": "2026-03-24T23:54:05Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\RuntimeBroker.exe",
+          "count": 157,
+          "first_seen": "2026-03-18T05:39:53Z",
+          "last_seen": "2026-03-24T22:52:07Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\explorer.exe",
+          "count": 157,
+          "first_seen": "2026-03-18T01:53:46Z",
+          "last_seen": "2026-03-24T22:07:29Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Program Files\\MedDefense\\Pharmacy\\PharmApp.exe",
+          "count": 152,
+          "first_seen": "2026-03-18T00:24:27Z",
+          "last_seen": "2026-03-24T23:27:19Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\spoolsv.exe",
+          "count": 139,
+          "first_seen": "2026-03-18T02:04:38Z",
+          "last_seen": "2026-03-24T23:48:49Z",
+          "users": []
+        }
+      ],
+      "srv-dc-01": [
+        {
+          "process_name": "Microsoft-Windows-PowerShell",
+          "count": 712,
+          "first_seen": "2026-03-18T00:13:43Z",
+          "last_seen": "2026-03-24T23:24:13Z",
+          "users": []
+        },
+        {
+          "process_name": "Microsoft-Windows-Security-Auditing",
+          "count": 195,
+          "first_seen": "2026-03-18T01:29:59Z",
+          "last_seen": "2026-03-24T23:18:23Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+          "count": 183,
+          "first_seen": "2026-03-18T01:36:52Z",
+          "last_seen": "2026-03-24T22:36:23Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\RuntimeBroker.exe",
+          "count": 183,
+          "first_seen": "2026-03-18T00:10:16Z",
+          "last_seen": "2026-03-24T23:45:04Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\explorer.exe",
+          "count": 177,
+          "first_seen": "2026-03-18T01:09:57Z",
+          "last_seen": "2026-03-24T23:00:39Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Program Files\\MedDefense\\Pharmacy\\PharmApp.exe",
+          "count": 173,
+          "first_seen": "2026-03-18T00:00:53Z",
+          "last_seen": "2026-03-24T22:31:23Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\taskhostw.exe",
+          "count": 169,
+          "first_seen": "2026-03-18T00:49:31Z",
+          "last_seen": "2026-03-24T22:54:23Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+          "count": 167,
+          "first_seen": "2026-03-18T00:25:42Z",
+          "last_seen": "2026-03-24T23:20:52Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\ProgramData\\Microsoft\\Windows Defender\\MsMpEng.exe",
+          "count": 166,
+          "first_seen": "2026-03-18T01:34:27Z",
+          "last_seen": "2026-03-24T22:26:04Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\conhost.exe",
+          "count": 166,
+          "first_seen": "2026-03-18T00:44:42Z",
+          "last_seen": "2026-03-24T23:13:06Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\spoolsv.exe",
+          "count": 164,
+          "first_seen": "2026-03-18T03:17:40Z",
+          "last_seen": "2026-03-24T23:24:35Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\csrss.exe",
+          "count": 163,
+          "first_seen": "2026-03-18T00:00:05Z",
+          "last_seen": "2026-03-24T23:14:16Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Program Files\\MedDefense\\EHR\\EHRClient.exe",
+          "count": 161,
+          "first_seen": "2026-03-18T00:49:28Z",
+          "last_seen": "2026-03-24T21:59:41Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\lsass.exe",
+          "count": 158,
+          "first_seen": "2026-03-18T05:01:22Z",
+          "last_seen": "2026-03-24T23:51:49Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\svchost.exe",
+          "count": 157,
+          "first_seen": "2026-03-18T01:35:24Z",
+          "last_seen": "2026-03-24T23:06:09Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\dllhost.exe",
+          "count": 141,
+          "first_seen": "2026-03-18T02:02:42Z",
+          "last_seen": "2026-03-24T23:16:02Z",
+          "users": []
+        }
+      ],
+      "admin-ws-02": [
+        {
+          "process_name": "Microsoft-Windows-PowerShell",
+          "count": 657,
+          "first_seen": "2026-03-18T00:38:06Z",
+          "last_seen": "2026-03-24T23:56:53Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\conhost.exe",
+          "count": 199,
+          "first_seen": "2026-03-18T00:08:33Z",
+          "last_seen": "2026-03-24T23:13:57Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\spoolsv.exe",
+          "count": 199,
+          "first_seen": "2026-03-18T00:45:47Z",
+          "last_seen": "2026-03-24T23:12:13Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\lsass.exe",
+          "count": 196,
+          "first_seen": "2026-03-18T00:11:46Z",
+          "last_seen": "2026-03-24T23:01:11Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\svchost.exe",
+          "count": 183,
+          "first_seen": "2026-03-18T00:01:40Z",
+          "last_seen": "2026-03-24T23:07:27Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\explorer.exe",
+          "count": 181,
+          "first_seen": "2026-03-18T00:19:15Z",
+          "last_seen": "2026-03-24T23:07:46Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+          "count": 178,
+          "first_seen": "2026-03-18T01:42:02Z",
+          "last_seen": "2026-03-24T17:14:10Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\dllhost.exe",
+          "count": 178,
+          "first_seen": "2026-03-18T01:54:06Z",
+          "last_seen": "2026-03-24T23:09:34Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\csrss.exe",
+          "count": 177,
+          "first_seen": "2026-03-18T01:40:07Z",
+          "last_seen": "2026-03-24T23:36:33Z",
+          "users": []
+        },
+        {
+          "process_name": "Microsoft-Windows-Security-Auditing",
+          "count": 176,
+          "first_seen": "2026-03-18T01:53:32Z",
+          "last_seen": "2026-03-24T23:48:08Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Program Files\\MedDefense\\EHR\\EHRClient.exe",
+          "count": 175,
+          "first_seen": "2026-03-18T00:23:07Z",
+          "last_seen": "2026-03-24T23:12:23Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\ProgramData\\Microsoft\\Windows Defender\\MsMpEng.exe",
+          "count": 174,
+          "first_seen": "2026-03-18T01:04:47Z",
+          "last_seen": "2026-03-24T21:51:03Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+          "count": 172,
+          "first_seen": "2026-03-18T00:12:56Z",
+          "last_seen": "2026-03-24T22:36:27Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\taskhostw.exe",
+          "count": 152,
+          "first_seen": "2026-03-18T00:34:23Z",
+          "last_seen": "2026-03-24T21:12:20Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Program Files\\MedDefense\\Pharmacy\\PharmApp.exe",
+          "count": 151,
+          "first_seen": "2026-03-18T01:01:31Z",
+          "last_seen": "2026-03-24T22:35:28Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\RuntimeBroker.exe",
+          "count": 141,
+          "first_seen": "2026-03-18T02:16:06Z",
+          "last_seen": "2026-03-24T23:13:57Z",
+          "users": []
+        }
+      ],
+      "clin-ws-03": [
+        {
+          "process_name": "Microsoft-Windows-PowerShell",
+          "count": 641,
+          "first_seen": "2026-03-18T00:11:02Z",
+          "last_seen": "2026-03-24T23:36:12Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\dllhost.exe",
+          "count": 191,
+          "first_seen": "2026-03-18T00:06:09Z",
+          "last_seen": "2026-03-24T23:11:07Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\svchost.exe",
+          "count": 188,
+          "first_seen": "2026-03-18T00:41:04Z",
+          "last_seen": "2026-03-24T23:54:57Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+          "count": 185,
+          "first_seen": "2026-03-18T00:02:10Z",
+          "last_seen": "2026-03-24T23:53:20Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\csrss.exe",
+          "count": 180,
+          "first_seen": "2026-03-18T01:22:30Z",
+          "last_seen": "2026-03-24T23:47:36Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\taskhostw.exe",
+          "count": 180,
+          "first_seen": "2026-03-18T03:00:48Z",
+          "last_seen": "2026-03-24T23:50:23Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+          "count": 178,
+          "first_seen": "2026-03-18T00:47:16Z",
+          "last_seen": "2026-03-24T23:23:52Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Program Files\\MedDefense\\Pharmacy\\PharmApp.exe",
+          "count": 177,
+          "first_seen": "2026-03-18T00:03:23Z",
+          "last_seen": "2026-03-24T23:37:28Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\ProgramData\\Microsoft\\Windows Defender\\MsMpEng.exe",
+          "count": 173,
+          "first_seen": "2026-03-18T00:53:42Z",
+          "last_seen": "2026-03-24T23:28:04Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\lsass.exe",
+          "count": 173,
+          "first_seen": "2026-03-18T01:07:43Z",
+          "last_seen": "2026-03-24T23:54:04Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Program Files\\MedDefense\\EHR\\EHRClient.exe",
+          "count": 167,
+          "first_seen": "2026-03-18T00:17:59Z",
+          "last_seen": "2026-03-24T23:55:43Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\conhost.exe",
+          "count": 166,
+          "first_seen": "2026-03-18T00:05:00Z",
+          "last_seen": "2026-03-24T23:27:38Z",
+          "users": []
+        },
+        {
+          "process_name": "Microsoft-Windows-Security-Auditing",
+          "count": 166,
+          "first_seen": "2026-03-18T01:55:13Z",
+          "last_seen": "2026-03-24T23:51:06Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\RuntimeBroker.exe",
+          "count": 165,
+          "first_seen": "2026-03-18T01:42:06Z",
+          "last_seen": "2026-03-24T22:17:51Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\explorer.exe",
+          "count": 165,
+          "first_seen": "2026-03-18T01:11:01Z",
+          "last_seen": "2026-03-24T23:12:10Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\spoolsv.exe",
+          "count": 158,
+          "first_seen": "2026-03-18T01:21:17Z",
+          "last_seen": "2026-03-24T22:49:55Z",
+          "users": []
+        }
+      ],
+      "admin-ws-01": [
+        {
+          "process_name": "Microsoft-Windows-PowerShell",
+          "count": 666,
+          "first_seen": "2026-03-18T00:25:31Z",
+          "last_seen": "2026-03-24T23:59:12Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\svchost.exe",
+          "count": 182,
+          "first_seen": "2026-03-18T00:34:18Z",
+          "last_seen": "2026-03-24T22:36:46Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\lsass.exe",
+          "count": 181,
+          "first_seen": "2026-03-18T00:08:12Z",
+          "last_seen": "2026-03-24T23:16:35Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+          "count": 180,
+          "first_seen": "2026-03-18T03:31:40Z",
+          "last_seen": "2026-03-24T22:04:28Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\conhost.exe",
+          "count": 180,
+          "first_seen": "2026-03-18T02:06:10Z",
+          "last_seen": "2026-03-24T21:51:48Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\spoolsv.exe",
+          "count": 180,
+          "first_seen": "2026-03-18T00:38:23Z",
+          "last_seen": "2026-03-24T23:51:47Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\taskhostw.exe",
+          "count": 175,
+          "first_seen": "2026-03-18T00:04:07Z",
+          "last_seen": "2026-03-24T23:41:20Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Program Files\\MedDefense\\EHR\\EHRClient.exe",
+          "count": 173,
+          "first_seen": "2026-03-18T00:15:53Z",
+          "last_seen": "2026-03-24T21:02:29Z",
+          "users": []
+        },
+        {
+          "process_name": "Microsoft-Windows-Security-Auditing",
+          "count": 173,
+          "first_seen": "2026-03-18T02:56:02Z",
+          "last_seen": "2026-03-24T23:19:58Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Program Files\\MedDefense\\Pharmacy\\PharmApp.exe",
+          "count": 170,
+          "first_seen": "2026-03-18T00:44:03Z",
+          "last_seen": "2026-03-24T23:20:11Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\explorer.exe",
+          "count": 167,
+          "first_seen": "2026-03-18T00:32:44Z",
+          "last_seen": "2026-03-24T23:47:59Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\RuntimeBroker.exe",
+          "count": 164,
+          "first_seen": "2026-03-18T00:32:04Z",
+          "last_seen": "2026-03-24T23:23:18Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\dllhost.exe",
+          "count": 162,
+          "first_seen": "2026-03-18T00:53:16Z",
+          "last_seen": "2026-03-24T23:34:09Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\ProgramData\\Microsoft\\Windows Defender\\MsMpEng.exe",
+          "count": 159,
+          "first_seen": "2026-03-18T01:11:33Z",
+          "last_seen": "2026-03-24T23:34:04Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+          "count": 155,
+          "first_seen": "2026-03-18T03:41:05Z",
+          "last_seen": "2026-03-24T23:41:57Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\csrss.exe",
+          "count": 154,
+          "first_seen": "2026-03-18T00:27:12Z",
+          "last_seen": "2026-03-24T23:38:19Z",
+          "users": []
+        }
+      ],
+      "bill-ws-09": [
+        {
+          "process_name": "Microsoft-Windows-PowerShell",
+          "count": 684,
+          "first_seen": "2026-03-18T00:37:38Z",
+          "last_seen": "2026-03-24T23:33:25Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\svchost.exe",
+          "count": 191,
+          "first_seen": "2026-03-18T00:53:46Z",
+          "last_seen": "2026-03-24T23:15:23Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+          "count": 178,
+          "first_seen": "2026-03-18T00:33:03Z",
+          "last_seen": "2026-03-24T23:54:04Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+          "count": 176,
+          "first_seen": "2026-03-18T00:37:36Z",
+          "last_seen": "2026-03-24T23:42:50Z",
+          "users": []
+        },
+        {
+          "process_name": "Microsoft-Windows-Security-Auditing",
+          "count": 176,
+          "first_seen": "2026-03-18T04:21:58Z",
+          "last_seen": "2026-03-24T23:24:15Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Program Files\\MedDefense\\Pharmacy\\PharmApp.exe",
+          "count": 175,
+          "first_seen": "2026-03-18T01:22:30Z",
+          "last_seen": "2026-03-24T23:46:36Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\conhost.exe",
+          "count": 173,
+          "first_seen": "2026-03-18T01:53:09Z",
+          "last_seen": "2026-03-24T22:59:59Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\lsass.exe",
+          "count": 173,
+          "first_seen": "2026-03-18T00:35:56Z",
+          "last_seen": "2026-03-24T23:40:44Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\csrss.exe",
+          "count": 172,
+          "first_seen": "2026-03-18T00:12:42Z",
+          "last_seen": "2026-03-24T23:03:17Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Program Files\\MedDefense\\EHR\\EHRClient.exe",
+          "count": 167,
+          "first_seen": "2026-03-18T01:43:18Z",
+          "last_seen": "2026-03-24T21:56:00Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\spoolsv.exe",
+          "count": 166,
+          "first_seen": "2026-03-18T00:29:30Z",
+          "last_seen": "2026-03-24T23:54:39Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\explorer.exe",
+          "count": 161,
+          "first_seen": "2026-03-18T01:59:59Z",
+          "last_seen": "2026-03-24T23:53:20Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\RuntimeBroker.exe",
+          "count": 160,
+          "first_seen": "2026-03-18T03:37:40Z",
+          "last_seen": "2026-03-24T23:14:06Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\taskhostw.exe",
+          "count": 157,
+          "first_seen": "2026-03-18T00:08:21Z",
+          "last_seen": "2026-03-24T23:46:25Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\Windows\\System32\\dllhost.exe",
+          "count": 154,
+          "first_seen": "2026-03-18T00:00:35Z",
+          "last_seen": "2026-03-24T22:30:26Z",
+          "users": []
+        },
+        {
+          "process_name": "C:\\ProgramData\\Microsoft\\Windows Defender\\MsMpEng.exe",
+          "count": 152,
+          "first_seen": "2026-03-18T00:58:49Z",
+          "last_seen": "2026-03-24T23:54:43Z",
+          "users": []
+        }
+      ],
+      "rad-srv-02": [
+        {
+          "process_name": "cron",
+          "count": 402,
+          "first_seen": "2026-03-18T00:06:39Z",
+          "last_seen": "2026-03-24T23:45:38Z",
+          "users": []
+        },
+        {
+          "process_name": "CRON",
+          "count": 320,
+          "first_seen": "2026-03-18T00:02:48Z",
+          "last_seen": "2026-03-24T23:44:19Z",
+          "users": [
+            "a",
+            "c",
+            "d",
+            "j",
+            "james",
+            "k",
+            "l",
+            "m",
+            "r",
+            "root",
+            "s",
+            "sarah",
+            "svc_backup",
+            "svc_billing_sync",
+            "svc_ehr",
+            "t"
+          ]
+        }
+      ],
+      "srv-web-01": [
+        {
+          "process_name": "cron",
+          "count": 433,
+          "first_seen": "2026-03-18T00:04:40Z",
+          "last_seen": "2026-03-24T23:46:24Z",
+          "users": []
+        },
+        {
+          "process_name": "CRON",
+          "count": 353,
+          "first_seen": "2026-03-18T00:03:52Z",
+          "last_seen": "2026-03-24T23:46:57Z",
+          "users": [
+            "a",
+            "c",
+            "d",
+            "j",
+            "james",
+            "k",
+            "l",
+            "m",
+            "r",
+            "root",
+            "s",
+            "sarah",
+            "svc_backup",
+            "svc_billing_sync",
+            "svc_ehr",
+            "t"
+          ]
+        }
+      ],
+      "rad-srv-01": [
+        {
+          "process_name": "cron",
+          "count": 422,
+          "first_seen": "2026-03-18T00:10:39Z",
+          "last_seen": "2026-03-24T23:51:10Z",
+          "users": []
+        },
+        {
+          "process_name": "CRON",
+          "count": 345,
+          "first_seen": "2026-03-18T00:03:58Z",
+          "last_seen": "2026-03-24T23:57:32Z",
+          "users": [
+            "a",
+            "c",
+            "d",
+            "j",
+            "james",
+            "k",
+            "l",
+            "m",
+            "r",
+            "root",
+            "s",
+            "sarah",
+            "svc_backup",
+            "svc_billing_sync",
+            "svc_ehr",
+            "t"
+          ]
+        }
+      ],
+      "db-patient-02": [
+        {
+          "process_name": "cron",
+          "count": 405,
+          "first_seen": "2026-03-18T00:18:03Z",
+          "last_seen": "2026-03-24T23:47:57Z",
+          "users": []
+        },
+        {
+          "process_name": "CRON",
+          "count": 328,
+          "first_seen": "2026-03-18T00:17:20Z",
+          "last_seen": "2026-03-24T23:43:28Z",
+          "users": [
+            "a",
+            "c",
+            "d",
+            "j",
+            "james",
+            "k",
+            "l",
+            "m",
+            "r",
+            "root",
+            "s",
+            "sarah",
+            "svc_backup",
+            "svc_billing_sync",
+            "svc_ehr",
+            "t"
+          ]
+        }
+      ],
+      "db-patient-01": [
+        {
+          "process_name": "cron",
+          "count": 433,
+          "first_seen": "2026-03-18T00:22:02Z",
+          "last_seen": "2026-03-24T23:49:51Z",
+          "users": []
+        },
+        {
+          "process_name": "CRON",
+          "count": 320,
+          "first_seen": "2026-03-18T00:21:56Z",
+          "last_seen": "2026-03-24T23:40:08Z",
+          "users": [
+            "a",
+            "c",
+            "d",
+            "j",
+            "james",
+            "k",
+            "l",
+            "m",
+            "r",
+            "root",
+            "s",
+            "sarah",
+            "svc_backup",
+            "svc_billing_sync",
+            "svc_ehr",
+            "t"
+          ]
+        }
+      ],
+      "bill-db-01": [
+        {
+          "process_name": "cron",
+          "count": 441,
+          "first_seen": "2026-03-18T00:03:16Z",
+          "last_seen": "2026-03-24T23:57:51Z",
+          "users": []
+        },
+        {
+          "process_name": "CRON",
+          "count": 363,
+          "first_seen": "2026-03-18T00:22:07Z",
+          "last_seen": "2026-03-24T22:34:54Z",
+          "users": [
+            "a",
+            "c",
+            "d",
+            "j",
+            "james",
+            "k",
+            "l",
+            "m",
+            "r",
+            "root",
+            "s",
+            "sarah",
+            "svc_backup",
+            "svc_billing_sync",
+            "svc_ehr",
+            "t"
+          ]
+        }
+      ],
+      "srv-log-01": [
+        {
+          "process_name": "cron",
+          "count": 412,
+          "first_seen": "2026-03-18T00:16:26Z",
+          "last_seen": "2026-03-24T23:58:21Z",
+          "users": []
+        },
+        {
+          "process_name": "CRON",
+          "count": 358,
+          "first_seen": "2026-03-18T00:32:55Z",
+          "last_seen": "2026-03-24T23:40:33Z",
+          "users": [
+            "a",
+            "c",
+            "d",
+            "j",
+            "james",
+            "k",
+            "l",
+            "m",
+            "r",
+            "root",
+            "s",
+            "sarah",
+            "svc_backup",
+            "svc_billing_sync",
+            "svc_ehr",
+            "t"
+          ]
+        }
+      ],
+      "srv-mail-01": [
+        {
+          "process_name": "cron",
+          "count": 417,
+          "first_seen": "2026-03-18T00:06:18Z",
+          "last_seen": "2026-03-24T23:37:51Z",
+          "users": []
+        },
+        {
+          "process_name": "CRON",
+          "count": 349,
+          "first_seen": "2026-03-18T00:59:48Z",
+          "last_seen": "2026-03-24T23:59:35Z",
+          "users": [
+            "a",
+            "c",
+            "d",
+            "j",
+            "james",
+            "k",
+            "l",
+            "m",
+            "r",
+            "root",
+            "s",
+            "sarah",
+            "svc_backup",
+            "svc_billing_sync",
+            "svc_ehr",
+            "t"
+          ]
+        }
+      ],
+      "ids-01": [
+        {
+          "process_name": "cron",
+          "count": 405,
+          "first_seen": "2026-03-18T00:20:14Z",
+          "last_seen": "2026-03-24T23:44:40Z",
+          "users": []
+        },
+        {
+          "process_name": "CRON",
+          "count": 311,
+          "first_seen": "2026-03-18T01:13:59Z",
+          "last_seen": "2026-03-24T23:19:42Z",
+          "users": [
+            "a",
+            "c",
+            "d",
+            "j",
+            "james",
+            "k",
+            "l",
+            "m",
+            "r",
+            "root",
+            "s",
+            "sarah",
+            "svc_backup",
+            "svc_billing_sync",
+            "svc_ehr",
+            "t"
+          ]
+        }
+      ],
+      "ids01": [
+        {
+          "process_name": "cron",
+          "count": 1,
+          "first_seen": "2026-03-19T04:18:32Z",
+          "last_seen": "2026-03-19T04:18:32Z",
+          "users": []
+        }
+      ],
+      "rad_srv_01": [
+        {
+          "process_name": "cron",
+          "count": 2,
+          "first_seen": "2026-03-19T18:31:36Z",
+          "last_seen": "2026-03-23T02:41:46Z",
+          "users": []
+        }
+      ],
+      "srv_mail_01": [
+        {
+          "process_name": "cron",
+          "count": 1,
+          "first_seen": "2026-03-21T14:30:01Z",
+          "last_seen": "2026-03-21T14:30:01Z",
+          "users": []
+        }
+      ],
+      "dbpatient02": [
+        {
+          "process_name": "cron",
+          "count": 2,
+          "first_seen": "2026-03-22T01:14:52Z",
+          "last_seen": "2026-03-23T14:11:04Z",
+          "users": []
+        }
+      ],
+      "dbpatient01": [
+        {
+          "process_name": "cron",
+          "count": 1,
+          "first_seen": "2026-03-22T01:44:11Z",
+          "last_seen": "2026-03-22T01:44:11Z",
+          "users": []
+        }
+      ],
+      "billdb01": [
+        {
+          "process_name": "cron",
+          "count": 2,
+          "first_seen": "2026-03-22T07:51:03Z",
+          "last_seen": "2026-03-24T14:42:37Z",
+          "users": []
+        }
+      ],
+      "radsrv02": [
+        {
+          "process_name": "cron",
+          "count": 1,
+          "first_seen": "2026-03-23T14:32:54Z",
+          "last_seen": "2026-03-23T14:32:54Z",
+          "users": []
+        }
+      ]
+    },
+    "global_top": [
+      {
+        "process_name": "Microsoft-Windows-PowerShell",
+        "count": 8168
+      },
+      {
+        "process_name": "cron",
+        "count": 3780
+      },
+      {
+        "process_name": "CRON",
+        "count": 3047
+      },
+      {
+        "process_name": "Microsoft-Windows-Security-Auditing",
+        "count": 2150
+      },
+      {
+        "process_name": "C:\\Windows\\System32\\svchost.exe",
+        "count": 2132
+      },
+      {
+        "process_name": "C:\\Windows\\System32\\conhost.exe",
+        "count": 2085
+      },
+      {
+        "process_name": "C:\\Windows\\System32\\lsass.exe",
+        "count": 2083
+      },
+      {
+        "process_name": "C:\\ProgramData\\Microsoft\\Windows Defender\\MsMpEng.exe",
+        "count": 2076
+      },
+      {
+        "process_name": "C:\\Windows\\explorer.exe",
+        "count": 2047
+      },
+      {
+        "process_name": "C:\\Windows\\System32\\spoolsv.exe",
+        "count": 2046
+      },
+      {
+        "process_name": "C:\\Windows\\System32\\csrss.exe",
+        "count": 2042
+      },
+      {
+        "process_name": "C:\\Program Files\\MedDefense\\Pharmacy\\PharmApp.exe",
+        "count": 2034
+      },
+      {
+        "process_name": "C:\\Windows\\System32\\RuntimeBroker.exe",
+        "count": 2032
+      },
+      {
+        "process_name": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+        "count": 2028
+      },
+      {
+        "process_name": "C:\\Windows\\System32\\taskhostw.exe",
+        "count": 2019
+      },
+      {
+        "process_name": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+        "count": 2014
+      },
+      {
+        "process_name": "C:\\Program Files\\MedDefense\\EHR\\EHRClient.exe",
+        "count": 2012
+      },
+      {
+        "process_name": "C:\\Windows\\System32\\dllhost.exe",
+        "count": 1990
+      }
+    ],
+    "rare_processes": [],
+    "parent_child_pairs": {
+      "srv-dc-01": [
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Program Files\\MedDefense\\EHR\\EHRClient.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Program Files\\MedDefense\\Pharmacy\\PharmApp.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\ProgramData\\Microsoft\\Windows Defender\\MsMpEng.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Windows\\System32\\RuntimeBroker.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Windows\\System32\\conhost.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Windows\\System32\\dllhost.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Windows\\System32\\spoolsv.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Windows\\System32\\taskhostw.exe"
+        },
+        {
+          "parent": "services.exe",
+          "child": "C:\\Windows\\System32\\svchost.exe"
+        },
+        {
+          "parent": "smss.exe",
+          "child": "C:\\Windows\\System32\\csrss.exe"
+        },
+        {
+          "parent": "userinit.exe",
+          "child": "C:\\Windows\\explorer.exe"
+        },
+        {
+          "parent": "wininit.exe",
+          "child": "C:\\Windows\\System32\\lsass.exe"
+        }
+      ],
+      "bill-ws-09": [
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Program Files\\MedDefense\\EHR\\EHRClient.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Program Files\\MedDefense\\Pharmacy\\PharmApp.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\ProgramData\\Microsoft\\Windows Defender\\MsMpEng.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Windows\\System32\\RuntimeBroker.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Windows\\System32\\conhost.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Windows\\System32\\dllhost.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Windows\\System32\\spoolsv.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Windows\\System32\\taskhostw.exe"
+        },
+        {
+          "parent": "services.exe",
+          "child": "C:\\Windows\\System32\\svchost.exe"
+        },
+        {
+          "parent": "smss.exe",
+          "child": "C:\\Windows\\System32\\csrss.exe"
+        },
+        {
+          "parent": "userinit.exe",
+          "child": "C:\\Windows\\explorer.exe"
+        },
+        {
+          "parent": "wininit.exe",
+          "child": "C:\\Windows\\System32\\lsass.exe"
+        }
+      ],
+      "clin-ws-12": [
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Program Files\\MedDefense\\EHR\\EHRClient.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Program Files\\MedDefense\\Pharmacy\\PharmApp.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\ProgramData\\Microsoft\\Windows Defender\\MsMpEng.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Windows\\System32\\RuntimeBroker.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Windows\\System32\\conhost.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Windows\\System32\\dllhost.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Windows\\System32\\spoolsv.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Windows\\System32\\taskhostw.exe"
+        },
+        {
+          "parent": "services.exe",
+          "child": "C:\\Windows\\System32\\svchost.exe"
+        },
+        {
+          "parent": "smss.exe",
+          "child": "C:\\Windows\\System32\\csrss.exe"
+        },
+        {
+          "parent": "userinit.exe",
+          "child": "C:\\Windows\\explorer.exe"
+        },
+        {
+          "parent": "wininit.exe",
+          "child": "C:\\Windows\\System32\\lsass.exe"
+        }
+      ],
+      "pharm-app-01": [
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Program Files\\MedDefense\\EHR\\EHRClient.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Program Files\\MedDefense\\Pharmacy\\PharmApp.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\ProgramData\\Microsoft\\Windows Defender\\MsMpEng.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Windows\\System32\\RuntimeBroker.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Windows\\System32\\conhost.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Windows\\System32\\dllhost.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Windows\\System32\\spoolsv.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Windows\\System32\\taskhostw.exe"
+        },
+        {
+          "parent": "services.exe",
+          "child": "C:\\Windows\\System32\\svchost.exe"
+        },
+        {
+          "parent": "smss.exe",
+          "child": "C:\\Windows\\System32\\csrss.exe"
+        },
+        {
+          "parent": "userinit.exe",
+          "child": "C:\\Windows\\explorer.exe"
+        },
+        {
+          "parent": "wininit.exe",
+          "child": "C:\\Windows\\System32\\lsass.exe"
+        }
+      ],
+      "clin-ws-05": [
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Program Files\\MedDefense\\EHR\\EHRClient.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Program Files\\MedDefense\\Pharmacy\\PharmApp.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\ProgramData\\Microsoft\\Windows Defender\\MsMpEng.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Windows\\System32\\RuntimeBroker.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Windows\\System32\\conhost.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Windows\\System32\\dllhost.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Windows\\System32\\spoolsv.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Windows\\System32\\taskhostw.exe"
+        },
+        {
+          "parent": "services.exe",
+          "child": "C:\\Windows\\System32\\svchost.exe"
+        },
+        {
+          "parent": "smss.exe",
+          "child": "C:\\Windows\\System32\\csrss.exe"
+        },
+        {
+          "parent": "userinit.exe",
+          "child": "C:\\Windows\\explorer.exe"
+        },
+        {
+          "parent": "wininit.exe",
+          "child": "C:\\Windows\\System32\\lsass.exe"
+        }
+      ],
+      "admin-ws-02": [
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Program Files\\MedDefense\\EHR\\EHRClient.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Program Files\\MedDefense\\Pharmacy\\PharmApp.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\ProgramData\\Microsoft\\Windows Defender\\MsMpEng.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Windows\\System32\\RuntimeBroker.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Windows\\System32\\conhost.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Windows\\System32\\dllhost.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Windows\\System32\\spoolsv.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Windows\\System32\\taskhostw.exe"
+        },
+        {
+          "parent": "services.exe",
+          "child": "C:\\Windows\\System32\\svchost.exe"
+        },
+        {
+          "parent": "smss.exe",
+          "child": "C:\\Windows\\System32\\csrss.exe"
+        },
+        {
+          "parent": "userinit.exe",
+          "child": "C:\\Windows\\explorer.exe"
+        },
+        {
+          "parent": "wininit.exe",
+          "child": "C:\\Windows\\System32\\lsass.exe"
+        }
+      ],
+      "clin-ws-03": [
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Program Files\\MedDefense\\EHR\\EHRClient.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Program Files\\MedDefense\\Pharmacy\\PharmApp.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\ProgramData\\Microsoft\\Windows Defender\\MsMpEng.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Windows\\System32\\RuntimeBroker.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Windows\\System32\\conhost.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Windows\\System32\\dllhost.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Windows\\System32\\spoolsv.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Windows\\System32\\taskhostw.exe"
+        },
+        {
+          "parent": "services.exe",
+          "child": "C:\\Windows\\System32\\svchost.exe"
+        },
+        {
+          "parent": "smss.exe",
+          "child": "C:\\Windows\\System32\\csrss.exe"
+        },
+        {
+          "parent": "userinit.exe",
+          "child": "C:\\Windows\\explorer.exe"
+        },
+        {
+          "parent": "wininit.exe",
+          "child": "C:\\Windows\\System32\\lsass.exe"
+        }
+      ],
+      "srv-ehr-01": [
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Program Files\\MedDefense\\EHR\\EHRClient.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Program Files\\MedDefense\\Pharmacy\\PharmApp.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\ProgramData\\Microsoft\\Windows Defender\\MsMpEng.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Windows\\System32\\RuntimeBroker.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Windows\\System32\\conhost.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Windows\\System32\\dllhost.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Windows\\System32\\spoolsv.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Windows\\System32\\taskhostw.exe"
+        },
+        {
+          "parent": "services.exe",
+          "child": "C:\\Windows\\System32\\svchost.exe"
+        },
+        {
+          "parent": "smss.exe",
+          "child": "C:\\Windows\\System32\\csrss.exe"
+        },
+        {
+          "parent": "userinit.exe",
+          "child": "C:\\Windows\\explorer.exe"
+        },
+        {
+          "parent": "wininit.exe",
+          "child": "C:\\Windows\\System32\\lsass.exe"
+        }
+      ],
+      "admin-ws-01": [
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Program Files\\MedDefense\\EHR\\EHRClient.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Program Files\\MedDefense\\Pharmacy\\PharmApp.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\ProgramData\\Microsoft\\Windows Defender\\MsMpEng.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Windows\\System32\\RuntimeBroker.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Windows\\System32\\conhost.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Windows\\System32\\dllhost.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Windows\\System32\\spoolsv.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Windows\\System32\\taskhostw.exe"
+        },
+        {
+          "parent": "services.exe",
+          "child": "C:\\Windows\\System32\\svchost.exe"
+        },
+        {
+          "parent": "smss.exe",
+          "child": "C:\\Windows\\System32\\csrss.exe"
+        },
+        {
+          "parent": "userinit.exe",
+          "child": "C:\\Windows\\explorer.exe"
+        },
+        {
+          "parent": "wininit.exe",
+          "child": "C:\\Windows\\System32\\lsass.exe"
+        }
+      ],
+      "srv-dc-02": [
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Program Files\\MedDefense\\EHR\\EHRClient.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Program Files\\MedDefense\\Pharmacy\\PharmApp.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\ProgramData\\Microsoft\\Windows Defender\\MsMpEng.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Windows\\System32\\RuntimeBroker.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Windows\\System32\\conhost.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Windows\\System32\\dllhost.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Windows\\System32\\spoolsv.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Windows\\System32\\taskhostw.exe"
+        },
+        {
+          "parent": "services.exe",
+          "child": "C:\\Windows\\System32\\svchost.exe"
+        },
+        {
+          "parent": "smss.exe",
+          "child": "C:\\Windows\\System32\\csrss.exe"
+        },
+        {
+          "parent": "userinit.exe",
+          "child": "C:\\Windows\\explorer.exe"
+        },
+        {
+          "parent": "wininit.exe",
+          "child": "C:\\Windows\\System32\\lsass.exe"
+        }
+      ],
+      "clin-ws-07": [
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Program Files\\MedDefense\\EHR\\EHRClient.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Program Files\\MedDefense\\Pharmacy\\PharmApp.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\ProgramData\\Microsoft\\Windows Defender\\MsMpEng.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Windows\\System32\\RuntimeBroker.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Windows\\System32\\conhost.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Windows\\System32\\dllhost.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Windows\\System32\\spoolsv.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Windows\\System32\\taskhostw.exe"
+        },
+        {
+          "parent": "services.exe",
+          "child": "C:\\Windows\\System32\\svchost.exe"
+        },
+        {
+          "parent": "smss.exe",
+          "child": "C:\\Windows\\System32\\csrss.exe"
+        },
+        {
+          "parent": "userinit.exe",
+          "child": "C:\\Windows\\explorer.exe"
+        },
+        {
+          "parent": "wininit.exe",
+          "child": "C:\\Windows\\System32\\lsass.exe"
+        }
+      ],
+      "clin-ws-01": [
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Program Files\\MedDefense\\EHR\\EHRClient.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Program Files\\MedDefense\\Pharmacy\\PharmApp.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\ProgramData\\Microsoft\\Windows Defender\\MsMpEng.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Windows\\System32\\RuntimeBroker.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Windows\\System32\\conhost.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Windows\\System32\\dllhost.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Windows\\System32\\spoolsv.exe"
+        },
+        {
+          "parent": "explorer.exe",
+          "child": "C:\\Windows\\System32\\taskhostw.exe"
+        },
+        {
+          "parent": "services.exe",
+          "child": "C:\\Windows\\System32\\svchost.exe"
+        },
+        {
+          "parent": "smss.exe",
+          "child": "C:\\Windows\\System32\\csrss.exe"
+        },
+        {
+          "parent": "userinit.exe",
+          "child": "C:\\Windows\\explorer.exe"
+        },
+        {
+          "parent": "wininit.exe",
+          "child": "C:\\Windows\\System32\\lsass.exe"
+        }
+      ]
+    }
+  },
+  "network": {
+    "window": {
+      "start": "2026-03-18T00:00:00Z",
+      "end": "2026-03-25T00:00:00Z"
+    },
+    "per_src_ip": {
+      "10.1.1.10": {
+        "network_connection_outbound": 2258,
+        "network_connection_inbound": 0,
+        "network_blocked": 476,
+        "known_dst_ports": [
+          22,
+          25,
+          53,
+          80,
+          88,
+          135,
+          389,
+          443,
+          445,
+          636,
+          993,
+          1433,
+          3389,
+          5432
+        ]
+      },
+      "10.1.1.40": {
+        "network_connection_outbound": 2238,
+        "network_connection_inbound": 0,
+        "network_blocked": 479,
+        "known_dst_ports": [
+          22,
+          25,
+          53,
+          80,
+          88,
+          135,
+          389,
+          443,
+          445,
+          636,
+          993,
+          1433,
+          3389,
+          5432
+        ]
+      },
+      "13.107.42.14": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 1921,
+        "network_blocked": 499,
+        "known_dst_ports": [
+          22,
+          25,
+          53,
+          80,
+          88,
+          135,
+          389,
+          443,
+          445,
+          636,
+          993,
+          1433,
+          3389,
+          5432
+        ]
+      },
+      "10.1.1.30": {
+        "network_connection_outbound": 2254,
+        "network_connection_inbound": 0,
+        "network_blocked": 463,
+        "known_dst_ports": [
+          22,
+          25,
+          53,
+          80,
+          88,
+          135,
+          389,
+          443,
+          445,
+          636,
+          993,
+          1433,
+          3389,
+          5432
+        ]
+      },
+      "10.1.11.9": {
+        "network_connection_outbound": 1918,
+        "network_connection_inbound": 0,
+        "network_blocked": 426,
+        "known_dst_ports": [
+          22,
+          25,
+          53,
+          80,
+          88,
+          135,
+          389,
+          443,
+          445,
+          636,
+          993,
+          1433,
+          3389,
+          5432
+        ]
+      },
+      "10.0.0.10": {
+        "network_connection_outbound": 2219,
+        "network_connection_inbound": 0,
+        "network_blocked": 458,
+        "known_dst_ports": [
+          22,
+          25,
+          53,
+          80,
+          88,
+          135,
+          389,
+          443,
+          445,
+          636,
+          993,
+          1433,
+          3389,
+          5432
+        ]
+      },
+      "10.1.10.1": {
+        "network_connection_outbound": 1860,
+        "network_connection_inbound": 0,
+        "network_blocked": 456,
+        "known_dst_ports": [
+          22,
+          25,
+          53,
+          80,
+          88,
+          135,
+          389,
+          443,
+          445,
+          636,
+          993,
+          1433,
+          3389,
+          5432
+        ]
+      },
+      "10.1.12.2": {
+        "network_connection_outbound": 1905,
+        "network_connection_inbound": 0,
+        "network_blocked": 467,
+        "known_dst_ports": [
+          22,
+          25,
+          53,
+          80,
+          88,
+          135,
+          389,
+          443,
+          445,
+          636,
+          993,
+          1433,
+          3389,
+          5432
+        ]
+      },
+      "10.1.10.5": {
+        "network_connection_outbound": 1831,
+        "network_connection_inbound": 0,
+        "network_blocked": 488,
+        "known_dst_ports": [
+          22,
+          25,
+          53,
+          80,
+          88,
+          135,
+          389,
+          443,
+          445,
+          636,
+          993,
+          1433,
+          3389,
+          5432
+        ]
+      },
+      "10.1.1.11": {
+        "network_connection_outbound": 1792,
+        "network_connection_inbound": 0,
+        "network_blocked": 509,
+        "known_dst_ports": [
+          22,
+          25,
+          53,
+          80,
+          88,
+          135,
+          389,
+          443,
+          445,
+          636,
+          993,
+          1433,
+          3389,
+          5432
+        ]
+      },
+      "10.1.2.11": {
+        "network_connection_outbound": 2256,
+        "network_connection_inbound": 0,
+        "network_blocked": 465,
+        "known_dst_ports": [
+          22,
+          25,
+          53,
+          80,
+          88,
+          135,
+          389,
+          443,
+          445,
+          636,
+          993,
+          1433,
+          3389,
+          5432
+        ]
+      },
+      "10.2.1.10": {
+        "network_connection_outbound": 2231,
+        "network_connection_inbound": 0,
+        "network_blocked": 500,
+        "known_dst_ports": [
+          22,
+          25,
+          53,
+          80,
+          88,
+          135,
+          389,
+          443,
+          445,
+          636,
+          993,
+          1433,
+          3389,
+          5432
+        ]
+      },
+      "10.2.1.11": {
+        "network_connection_outbound": 2165,
+        "network_connection_inbound": 0,
+        "network_blocked": 477,
+        "known_dst_ports": [
+          22,
+          25,
+          53,
+          80,
+          88,
+          135,
+          389,
+          443,
+          445,
+          636,
+          993,
+          1433,
+          3389,
+          5432
+        ]
+      },
+      "10.1.2.20": {
+        "network_connection_outbound": 2186,
+        "network_connection_inbound": 0,
+        "network_blocked": 477,
+        "known_dst_ports": [
+          22,
+          25,
+          53,
+          80,
+          88,
+          135,
+          389,
+          443,
+          445,
+          636,
+          993,
+          1433,
+          3389,
+          5432
+        ]
+      },
+      "10.1.2.30": {
+        "network_connection_outbound": 1938,
+        "network_connection_inbound": 0,
+        "network_blocked": 471,
+        "known_dst_ports": [
+          22,
+          25,
+          53,
+          80,
+          88,
+          135,
+          389,
+          443,
+          445,
+          636,
+          993,
+          1433,
+          3389,
+          5432
+        ]
+      },
+      "52.168.112.78": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 1850,
+        "network_blocked": 500,
+        "known_dst_ports": [
+          22,
+          25,
+          53,
+          80,
+          88,
+          135,
+          389,
+          443,
+          445,
+          636,
+          993,
+          1433,
+          3389,
+          5432
+        ]
+      },
+      "10.1.12.1": {
+        "network_connection_outbound": 1913,
+        "network_connection_inbound": 0,
+        "network_blocked": 453,
+        "known_dst_ports": [
+          22,
+          25,
+          53,
+          80,
+          88,
+          135,
+          389,
+          443,
+          445,
+          636,
+          993,
+          1433,
+          3389,
+          5432
+        ]
+      },
+      "10.1.2.10": {
+        "network_connection_outbound": 2275,
+        "network_connection_inbound": 0,
+        "network_blocked": 486,
+        "known_dst_ports": [
+          22,
+          25,
+          53,
+          80,
+          88,
+          135,
+          389,
+          443,
+          445,
+          636,
+          993,
+          1433,
+          3389,
+          5432
+        ]
+      },
+      "10.1.2.40": {
+        "network_connection_outbound": 1969,
+        "network_connection_inbound": 0,
+        "network_blocked": 474,
+        "known_dst_ports": [
+          22,
+          25,
+          53,
+          80,
+          88,
+          135,
+          389,
+          443,
+          445,
+          636,
+          993,
+          1433,
+          3389,
+          5432
+        ]
+      },
+      "10.1.10.7": {
+        "network_connection_outbound": 1949,
+        "network_connection_inbound": 0,
+        "network_blocked": 471,
+        "known_dst_ports": [
+          22,
+          25,
+          53,
+          80,
+          88,
+          135,
+          389,
+          443,
+          445,
+          636,
+          993,
+          1433,
+          3389,
+          5432
+        ]
+      },
+      "10.1.10.12": {
+        "network_connection_outbound": 1877,
+        "network_connection_inbound": 0,
+        "network_blocked": 484,
+        "known_dst_ports": [
+          22,
+          25,
+          53,
+          80,
+          88,
+          135,
+          389,
+          443,
+          445,
+          636,
+          993,
+          1433,
+          3389,
+          5432
+        ]
+      },
+      "140.82.112.22": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 1851,
+        "network_blocked": 461,
+        "known_dst_ports": [
+          22,
+          25,
+          53,
+          80,
+          88,
+          135,
+          389,
+          443,
+          445,
+          636,
+          993,
+          1433,
+          3389,
+          5432
+        ]
+      },
+      "10.1.10.3": {
+        "network_connection_outbound": 1906,
+        "network_connection_inbound": 0,
+        "network_blocked": 485,
+        "known_dst_ports": [
+          22,
+          25,
+          53,
+          80,
+          88,
+          135,
+          389,
+          443,
+          445,
+          636,
+          993,
+          1433,
+          3389,
+          5432
+        ]
+      },
+      "10.1.1.50": {
+        "network_connection_outbound": 2277,
+        "network_connection_inbound": 0,
+        "network_blocked": 497,
+        "known_dst_ports": [
+          22,
+          25,
+          53,
+          80,
+          88,
+          135,
+          389,
+          443,
+          445,
+          636,
+          993,
+          1433,
+          3389,
+          5432
+        ]
+      },
+      "52.168.112.45": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 1855,
+        "network_blocked": 478,
+        "known_dst_ports": [
+          22,
+          25,
+          53,
+          80,
+          88,
+          135,
+          389,
+          443,
+          445,
+          636,
+          993,
+          1433,
+          3389,
+          5432
+        ]
+      },
+      "203.0.113.155": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          443,
+          445,
+          1433
+        ]
+      },
+      "203.0.113.168": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          53
+        ]
+      },
+      "203.0.113.56": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          445,
+          1433
+        ]
+      },
+      "203.0.113.115": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          445,
+          3389
+        ]
+      },
+      "203.0.113.17": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          53,
+          80,
+          445
+        ]
+      },
+      "203.0.113.154": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          80,
+          443
+        ]
+      },
+      "203.0.113.201": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          443,
+          1433
+        ]
+      },
+      "203.0.113.236": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          443,
+          1433,
+          3389
+        ]
+      },
+      "203.0.113.166": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          22
+        ]
+      },
+      "203.0.113.84": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          80,
+          3389
+        ]
+      },
+      "203.0.113.12": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          80,
+          1433
+        ]
+      },
+      "203.0.113.87": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          443
+        ]
+      },
+      "203.0.113.13": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          443,
+          1433
+        ]
+      },
+      "203.0.113.214": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          22,
+          445
+        ]
+      },
+      "203.0.113.136": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          443
+        ]
+      },
+      "203.0.113.161": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          1433
+        ]
+      },
+      "203.0.113.212": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          443,
+          3389
+        ]
+      },
+      "203.0.113.231": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          22,
+          53,
+          80,
+          443,
+          445,
+          3389
+        ]
+      },
+      "203.0.113.8": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          53,
+          80,
+          445
+        ]
+      },
+      "203.0.113.86": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          1433
+        ]
+      },
+      "203.0.113.196": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          80
+        ]
+      },
+      "203.0.113.169": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          53
+        ]
+      },
+      "203.0.113.65": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          443,
+          1433
+        ]
+      },
+      "203.0.113.100": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          80
+        ]
+      },
+      "203.0.113.178": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          443
+        ]
+      },
+      "203.0.113.159": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          53,
+          80
+        ]
+      },
+      "203.0.113.120": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          443
+        ]
+      },
+      "203.0.113.32": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          80
+        ]
+      },
+      "203.0.113.1": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          53
+        ]
+      },
+      "203.0.113.138": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          53,
+          1433,
+          3389
+        ]
+      },
+      "203.0.113.221": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          53,
+          445
+        ]
+      },
+      "203.0.113.11": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          22,
+          1433,
+          3389
+        ]
+      },
+      "203.0.113.182": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          443,
+          445
+        ]
+      },
+      "203.0.113.108": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          22,
+          53
+        ]
+      },
+      "203.0.113.253": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          443,
+          445
+        ]
+      },
+      "203.0.113.215": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          53,
+          445,
+          3389
+        ]
+      },
+      "203.0.113.118": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          443
+        ]
+      },
+      "203.0.113.114": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          22,
+          1433,
+          3389
+        ]
+      },
+      "203.0.113.250": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          53,
+          443
+        ]
+      },
+      "203.0.113.76": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          1433,
+          3389
+        ]
+      },
+      "203.0.113.222": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          80,
+          3389
+        ]
+      },
+      "203.0.113.63": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          443,
+          1433
+        ]
+      },
+      "203.0.113.50": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          80
+        ]
+      },
+      "203.0.113.165": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          53,
+          80
+        ]
+      },
+      "203.0.113.197": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          3389
+        ]
+      },
+      "203.0.113.47": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          53,
+          3389
+        ]
+      },
+      "203.0.113.146": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          80
+        ]
+      },
+      "203.0.113.188": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          22,
+          445,
+          3389
+        ]
+      },
+      "203.0.113.75": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          22,
+          80,
+          443,
+          1433,
+          3389
+        ]
+      },
+      "203.0.113.98": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          443,
+          445,
+          3389
+        ]
+      },
+      "203.0.113.20": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          1433
+        ]
+      },
+      "203.0.113.45": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          445,
+          1433
+        ]
+      },
+      "203.0.113.103": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          22,
+          80,
+          445
+        ]
+      },
+      "203.0.113.92": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          53
+        ]
+      },
+      "203.0.113.150": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          22
+        ]
+      },
+      "203.0.113.202": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          22,
+          443,
+          445
+        ]
+      },
+      "203.0.113.224": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          3389
+        ]
+      },
+      "203.0.113.3": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          443,
+          3389
+        ]
+      },
+      "203.0.113.217": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          445
+        ]
+      },
+      "203.0.113.156": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          1433
+        ]
+      },
+      "203.0.113.186": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          80
+        ]
+      },
+      "203.0.113.37": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          443,
+          445
+        ]
+      },
+      "203.0.113.9": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          53
+        ]
+      },
+      "203.0.113.22": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          80,
+          443,
+          3389
+        ]
+      },
+      "203.0.113.209": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          80,
+          3389
+        ]
+      },
+      "203.0.113.46": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          53,
+          3389
+        ]
+      },
+      "203.0.113.135": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          53
+        ]
+      },
+      "203.0.113.59": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          80,
+          1433,
+          3389
+        ]
+      },
+      "203.0.113.132": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          443,
+          445
+        ]
+      },
+      "203.0.113.15": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          443,
+          445
+        ]
+      },
+      "203.0.113.116": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          53,
+          443
+        ]
+      },
+      "203.0.113.218": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          443,
+          1433
+        ]
+      },
+      "203.0.113.35": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          80,
+          1433,
+          3389
+        ]
+      },
+      "203.0.113.241": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          1433
+        ]
+      },
+      "203.0.113.208": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          80,
+          445
+        ]
+      },
+      "203.0.113.177": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          53,
+          445,
+          1433
+        ]
+      },
+      "203.0.113.254": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          445
+        ]
+      },
+      "203.0.113.38": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          22,
+          443,
+          445
+        ]
+      },
+      "203.0.113.228": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          53,
+          443
+        ]
+      },
+      "203.0.113.185": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          3389
+        ]
+      },
+      "203.0.113.238": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          80,
+          443
+        ]
+      },
+      "203.0.113.19": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          53,
+          445,
+          1433
+        ]
+      },
+      "203.0.113.94": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          1433
+        ]
+      },
+      "203.0.113.243": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          53,
+          445
+        ]
+      },
+      "203.0.113.144": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          3389
+        ]
+      },
+      "203.0.113.16": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          443
+        ]
+      },
+      "203.0.113.160": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          445
+        ]
+      },
+      "203.0.113.105": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          53
+        ]
+      },
+      "203.0.113.139": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          53,
+          1433,
+          3389
+        ]
+      },
+      "203.0.113.172": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          80,
+          443,
+          3389
+        ]
+      },
+      "203.0.113.27": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          443,
+          1433,
+          3389
+        ]
+      },
+      "203.0.113.101": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          53,
+          445
+        ]
+      },
+      "203.0.113.60": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          80,
+          445
+        ]
+      },
+      "203.0.113.71": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          445
+        ]
+      },
+      "203.0.113.123": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          1433
+        ]
+      },
+      "203.0.113.233": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          3389
+        ]
+      },
+      "203.0.113.229": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          3389
+        ]
+      },
+      "203.0.113.235": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          3389
+        ]
+      },
+      "203.0.113.147": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          53,
+          1433,
+          3389
+        ]
+      },
+      "203.0.113.140": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          53,
+          445
+        ]
+      },
+      "203.0.113.223": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          1433
+        ]
+      },
+      "203.0.113.93": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          445
+        ]
+      },
+      "203.0.113.102": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          445,
+          3389
+        ]
+      },
+      "203.0.113.57": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          53,
+          1433,
+          3389
+        ]
+      },
+      "203.0.113.226": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          22,
+          80
+        ]
+      },
+      "203.0.113.244": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          22,
+          80,
+          443
+        ]
+      },
+      "203.0.113.124": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          22,
+          80,
+          443
+        ]
+      },
+      "203.0.113.26": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          22,
+          80,
+          3389
+        ]
+      },
+      "203.0.113.10": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          1433,
+          3389
+        ]
+      },
+      "203.0.113.64": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          3389
+        ]
+      },
+      "203.0.113.205": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          53
+        ]
+      },
+      "203.0.113.133": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          80,
+          3389
+        ]
+      },
+      "203.0.113.149": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          22
+        ]
+      },
+      "203.0.113.112": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          22
+        ]
+      },
+      "203.0.113.225": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          3389
+        ]
+      },
+      "203.0.113.91": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          445
+        ]
+      },
+      "203.0.113.62": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          22,
+          80
+        ]
+      },
+      "203.0.113.232": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          443,
+          445
+        ]
+      },
+      "203.0.113.176": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          22,
+          80,
+          445
+        ]
+      },
+      "203.0.113.95": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          443,
+          445
+        ]
+      },
+      "203.0.113.70": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          80
+        ]
+      },
+      "203.0.113.67": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          3389
+        ]
+      },
+      "203.0.113.174": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          53
+        ]
+      },
+      "203.0.113.130": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          53,
+          445
+        ]
+      },
+      "203.0.113.4": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          3389
+        ]
+      },
+      "203.0.113.28": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          1433
+        ]
+      },
+      "203.0.113.191": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          22
+        ]
+      },
+      "203.0.113.157": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          80,
+          3389
+        ]
+      },
+      "203.0.113.237": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          22,
+          1433
+        ]
+      },
+      "203.0.113.171": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          53,
+          445,
+          1433
+        ]
+      },
+      "203.0.113.96": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          80
+        ]
+      },
+      "203.0.113.53": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          53
+        ]
+      },
+      "203.0.113.42": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          443,
+          445
+        ]
+      },
+      "203.0.113.230": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          53
+        ]
+      },
+      "203.0.113.72": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          445,
+          3389
+        ]
+      },
+      "203.0.113.66": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          1433
+        ]
+      },
+      "203.0.113.121": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          1433
+        ]
+      },
+      "203.0.113.200": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          22,
+          80
+        ]
+      },
+      "203.0.113.137": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          80,
+          445
+        ]
+      },
+      "203.0.113.251": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          22,
+          443
+        ]
+      },
+      "203.0.113.89": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          22,
+          80,
+          3389
+        ]
+      },
+      "203.0.113.48": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          22,
+          3389
+        ]
+      },
+      "203.0.113.111": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          1433
+        ]
+      },
+      "203.0.113.81": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          80,
+          1433
+        ]
+      },
+      "203.0.113.49": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          3389
+        ]
+      },
+      "203.0.113.242": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          53,
+          443
+        ]
+      },
+      "203.0.113.82": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          3389
+        ]
+      },
+      "203.0.113.252": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          443
+        ]
+      },
+      "203.0.113.7": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          22,
+          443
+        ]
+      },
+      "203.0.113.145": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          80
+        ]
+      },
+      "203.0.113.23": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          443
+        ]
+      },
+      "203.0.113.122": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          443,
+          445
+        ]
+      },
+      "203.0.113.40": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          445
+        ]
+      },
+      "203.0.113.51": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          22
+        ]
+      },
+      "203.0.113.227": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          22
+        ]
+      },
+      "203.0.113.80": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          53
+        ]
+      },
+      "203.0.113.41": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          22,
+          80
+        ]
+      },
+      "203.0.113.119": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          445,
+          3389
+        ]
+      },
+      "203.0.113.129": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          3389
+        ]
+      },
+      "203.0.113.183": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          22,
+          443
+        ]
+      },
+      "203.0.113.30": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          53,
+          443
+        ]
+      },
+      "203.0.113.187": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          1433
+        ]
+      },
+      "203.0.113.216": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          1433
+        ]
+      },
+      "203.0.113.153": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          3389
+        ]
+      },
+      "203.0.113.211": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          443
+        ]
+      },
+      "203.0.113.6": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          1433
+        ]
+      },
+      "203.0.113.151": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          443
+        ]
+      },
+      "203.0.113.162": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          1433
+        ]
+      },
+      "203.0.113.163": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          80
+        ]
+      },
+      "203.0.113.21": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          443,
+          1433
+        ]
+      },
+      "203.0.113.220": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          80
+        ]
+      },
+      "203.0.113.175": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          1433
+        ]
+      },
+      "203.0.113.207": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          3389
+        ]
+      },
+      "203.0.113.213": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          22,
+          3389
+        ]
+      },
+      "203.0.113.204": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          22
+        ]
+      },
+      "203.0.113.199": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          80
+        ]
+      },
+      "203.0.113.173": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          445
+        ]
+      },
+      "203.0.113.184": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          80
+        ]
+      },
+      "203.0.113.110": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          445
+        ]
+      },
+      "203.0.113.167": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          80
+        ]
+      },
+      "203.0.113.79": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          53
+        ]
+      },
+      "203.0.113.36": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          3389
+        ]
+      },
+      "203.0.113.190": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          445,
+          3389
+        ]
+      },
+      "203.0.113.245": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          53
+        ]
+      },
+      "203.0.113.33": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          1433
+        ]
+      },
+      "203.0.113.39": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          443
+        ]
+      },
+      "203.0.113.14": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          445,
+          1433
+        ]
+      },
+      "203.0.113.203": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          443
+        ]
+      },
+      "203.0.113.113": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          445
+        ]
+      },
+      "203.0.113.58": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          3389
+        ]
+      },
+      "203.0.113.61": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          1433
+        ]
+      },
+      "203.0.113.99": {
+        "network_connection_outbound": 0,
+        "network_connection_inbound": 0,
+        "network_blocked": 0,
+        "known_dst_ports": [
+          80
+        ]
+      }
+    },
+    "known_dst_ports": [
+      22,
+      25,
+      53,
+      80,
+      88,
+      135,
+      389,
+      443,
+      445,
+      636,
+      993,
+      1433,
+      3389,
+      5432
+    ],
+    "top_destinations": [
+      {
+        "dst_ip": "13.107.42.14",
+        "count": 5280
+      },
+      {
+        "dst_ip": "52.168.112.78",
+        "count": 5276
+      },
+      {
+        "dst_ip": "52.168.112.45",
+        "count": 5276
+      },
+      {
+        "dst_ip": "140.82.112.22",
+        "count": 5268
+      },
+      {
+        "dst_ip": "10.1.1.10",
+        "count": 5006
+      },
+      {
+        "dst_ip": "10.1.2.30",
+        "count": 4983
+      },
+      {
+        "dst_ip": "10.1.2.40",
+        "count": 4961
+      },
+      {
+        "dst_ip": "10.1.10.1",
+        "count": 4956
+      },
+      {
+        "dst_ip": "10.1.10.3",
+        "count": 4909
+      },
+      {
+        "dst_ip": "10.1.10.7",
+        "count": 4876
+      },
+      {
+        "dst_ip": "10.1.10.5",
+        "count": 4857
+      },
+      {
+        "dst_ip": "10.1.1.11",
+        "count": 4784
+      },
+      {
+        "dst_ip": "10.1.1.40",
+        "count": 1503
+      },
+      {
+        "dst_ip": "10.1.1.50",
+        "count": 1493
+      },
+      {
+        "dst_ip": "10.1.2.10",
+        "count": 1473
+      },
+      {
+        "dst_ip": "10.1.1.30",
+        "count": 1451
+      },
+      {
+        "dst_ip": "10.1.2.11",
+        "count": 1423
+      },
+      {
+        "dst_ip": "10.2.1.11",
+        "count": 1084
+      },
+      {
+        "dst_ip": "10.1.2.20",
+        "count": 1080
+      },
+      {
+        "dst_ip": "10.2.1.10",
+        "count": 1054
+      }
+    ],
+    "alert_count": 8746
+  },
+  "file": {
+    "window": {
+      "start": "2026-03-18T00:00:00Z",
+      "end": "2026-03-25T00:00:00Z"
+    },
+    "per_host": {
+      "clin-ws-01": {
+        "file_read_sensitive": 84,
+        "file_write_sensitive": 332,
+        "file_permission_change": 0
+      },
+      "clin-ws-12": {
+        "file_read_sensitive": 95,
+        "file_write_sensitive": 323,
+        "file_permission_change": 0
+      },
+      "pharm-app-01": {
+        "file_read_sensitive": 98,
+        "file_write_sensitive": 321,
+        "file_permission_change": 0
+      },
+      "srv-dc-01": {
+        "file_read_sensitive": 88,
+        "file_write_sensitive": 439,
+        "file_permission_change": 0
+      },
+      "clin-ws-05": {
+        "file_read_sensitive": 102,
+        "file_write_sensitive": 300,
+        "file_permission_change": 0
+      },
+      "srv-ehr-01": {
+        "file_read_sensitive": 95,
+        "file_write_sensitive": 461,
+        "file_permission_change": 0
+      },
+      "admin-ws-01": {
+        "file_read_sensitive": 90,
+        "file_write_sensitive": 354,
+        "file_permission_change": 0
+      },
+      "clin-ws-07": {
+        "file_read_sensitive": 108,
+        "file_write_sensitive": 327,
+        "file_permission_change": 0
+      },
+      "admin-ws-02": {
+        "file_read_sensitive": 103,
+        "file_write_sensitive": 308,
+        "file_permission_change": 0
+      },
+      "clin-ws-03": {
+        "file_read_sensitive": 84,
+        "file_write_sensitive": 299,
+        "file_permission_change": 0
+      },
+      "bill-ws-09": {
+        "file_read_sensitive": 86,
+        "file_write_sensitive": 345,
+        "file_permission_change": 0
+      },
+      "srv-dc-02": {
+        "file_read_sensitive": 99,
+        "file_write_sensitive": 442,
+        "file_permission_change": 0
+      }
+    },
+    "totals": {
+      "file_read_sensitive": 2637,
+      "file_write_sensitive": 5038,
+      "file_permission_change": 0
+    }
+  },
+  "temporal": {
+    "window": {
+      "start": "2026-03-18T00:00:00Z",
+      "end": "2026-03-25T00:00:00Z",
+      "days": 7
+    },
+    "hourly_avg": {
+      "00": 1744,
+      "01": 1746,
+      "02": 1802.14,
+      "03": 1783.14,
+      "04": 1750.86,
+      "05": 1772.43,
+      "06": 1769.43,
+      "07": 1765.43,
+      "08": 1749.43,
+      "09": 1788.86,
+      "10": 1737.43,
+      "11": 1798.43,
+      "12": 1746.14,
+      "13": 1760.29,
+      "14": 1779.29,
+      "15": 1779,
+      "16": 1785.57,
+      "17": 1787.14,
+      "18": 1755.71,
+      "19": 1763.57,
+      "20": 1783.14,
+      "21": 1776.57,
+      "22": 1765.43,
+      "23": 1770
+    },
+    "daily_totals": {
+      "2026-03-18": 42587,
+      "2026-03-19": 42284,
+      "2026-03-20": 42216,
+      "2026-03-21": 42246,
+      "2026-03-22": 42431,
+      "2026-03-23": 42767,
+      "2026-03-24": 42685
+    },
+    "busiest_hour": "02",
+    "quietest_hour": "10"
+  },
+  "thresholds": {
+    "failure_rate_multiplier": {
+      "value": 3,
+      "comment": "baseline max_failures_1h_window from a single src_ip, multiplied by 3, marks a burst as anomalous; chosen so normal variance (up to ~3x the worst clean-window hour) does not alert"
+    },
+    "privilege_escalation_surge_threshold": {
+      "value": 2,
+      "comment": "hosts with zero privilege_escalation events in the baseline are expected to have none; more than 2 in a single evaluation day is treated as a surge rather than isolated noise"
+    },
+    "unknown_process_penalty": {
+      "value": 5,
+      "comment": "score weight added per process seen on a host that never appeared in that host per_host baseline; placeholder for the composite ranking used by later process anomaly scripts"
+    },
+    "unknown_port_penalty": {
+      "value": 4,
+      "comment": "score weight added per destination port not present in known_dst_ports; placeholder for the composite ranking used by later network anomaly scripts"
+    }
+  }
+}

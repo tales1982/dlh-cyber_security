@@ -1,0 +1,41 @@
+[
+  {
+    "timestamp": "2026-03-25T01:18:07Z",
+    "host": "db-patient-01",
+    "user": "ubuntu",
+    "src_ip": null,
+    "anomaly_type": "unknown_account",
+    "baseline_value": 0,
+    "observed_value": 5,
+    "severity": "medium",
+    "event_refs": [
+      "2026-03-25T01:18:07Z",
+      "2026-03-25T01:24:28Z",
+      "2026-03-25T01:26:48Z",
+      "2026-03-25T01:35:00Z",
+      "2026-03-25T01:37:45Z"
+    ]
+  },
+  {
+    "timestamp": "2026-03-25T01:25:59Z",
+    "host": "db-patient-01",
+    "user": "postgres",
+    "src_ip": null,
+    "anomaly_type": "unknown_account",
+    "baseline_value": 0,
+    "observed_value": 10,
+    "severity": "medium",
+    "event_refs": [
+      "2026-03-25T01:25:59Z",
+      "2026-03-25T01:26:18Z",
+      "2026-03-25T01:29:02Z",
+      "2026-03-25T01:33:24Z",
+      "2026-03-25T01:33:31Z",
+      "2026-03-25T01:34:46Z",
+      "2026-03-25T01:35:27Z",
+      "2026-03-25T01:36:40Z",
+      "2026-03-25T01:38:25Z",
+      "2026-03-25T01:44:34Z"
+    ]
+  }
+]
