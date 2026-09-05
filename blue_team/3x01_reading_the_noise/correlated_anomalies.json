@@ -1,0 +1,37 @@
+[
+  {
+    "correlation_id": "corr-1774405200-Y2xpbi13",
+    "host": "clin-ws-07",
+    "window_start": "2026-03-25T02:20:00Z",
+    "window_end": "2026-03-25T02:20:00Z",
+    "sources_involved": [
+      "process"
+    ],
+    "anomaly_types": [
+      "high_risk_process",
+      "unknown_parent_child",
+      "unknown_process_for_host"
+    ],
+    "member_refs": [
+      {
+        "source": "process",
+        "anomaly_type": "unknown_process_for_host",
+        "timestamp": "2026-03-25T02:20:00Z",
+        "host": "clin-ws-07"
+      },
+      {
+        "source": "process",
+        "anomaly_type": "unknown_parent_child",
+        "timestamp": "2026-03-25T02:20:00Z",
+        "host": "clin-ws-07"
+      },
+      {
+        "source": "process",
+        "anomaly_type": "high_risk_process",
+        "timestamp": "2026-03-25T02:20:00Z",
+        "host": "clin-ws-07"
+      }
+    ],
+    "score": 14
+  }
+]
