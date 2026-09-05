@@ -1,0 +1,2300 @@
+{
+  "window": {
+    "start": "2026-03-18T00:00:00Z",
+    "end": "2026-03-25T00:00:00Z"
+  },
+  "per_src_ip": {
+    "10.1.1.10": {
+      "network_connection_outbound": 2258,
+      "network_connection_inbound": 0,
+      "network_blocked": 476,
+      "known_dst_ports": [
+        22,
+        25,
+        53,
+        80,
+        88,
+        135,
+        389,
+        443,
+        445,
+        636,
+        993,
+        1433,
+        3389,
+        5432
+      ]
+    },
+    "10.1.1.40": {
+      "network_connection_outbound": 2238,
+      "network_connection_inbound": 0,
+      "network_blocked": 479,
+      "known_dst_ports": [
+        22,
+        25,
+        53,
+        80,
+        88,
+        135,
+        389,
+        443,
+        445,
+        636,
+        993,
+        1433,
+        3389,
+        5432
+      ]
+    },
+    "13.107.42.14": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 1921,
+      "network_blocked": 499,
+      "known_dst_ports": [
+        22,
+        25,
+        53,
+        80,
+        88,
+        135,
+        389,
+        443,
+        445,
+        636,
+        993,
+        1433,
+        3389,
+        5432
+      ]
+    },
+    "10.1.1.30": {
+      "network_connection_outbound": 2254,
+      "network_connection_inbound": 0,
+      "network_blocked": 463,
+      "known_dst_ports": [
+        22,
+        25,
+        53,
+        80,
+        88,
+        135,
+        389,
+        443,
+        445,
+        636,
+        993,
+        1433,
+        3389,
+        5432
+      ]
+    },
+    "10.1.11.9": {
+      "network_connection_outbound": 1918,
+      "network_connection_inbound": 0,
+      "network_blocked": 426,
+      "known_dst_ports": [
+        22,
+        25,
+        53,
+        80,
+        88,
+        135,
+        389,
+        443,
+        445,
+        636,
+        993,
+        1433,
+        3389,
+        5432
+      ]
+    },
+    "10.0.0.10": {
+      "network_connection_outbound": 2219,
+      "network_connection_inbound": 0,
+      "network_blocked": 458,
+      "known_dst_ports": [
+        22,
+        25,
+        53,
+        80,
+        88,
+        135,
+        389,
+        443,
+        445,
+        636,
+        993,
+        1433,
+        3389,
+        5432
+      ]
+    },
+    "10.1.10.1": {
+      "network_connection_outbound": 1860,
+      "network_connection_inbound": 0,
+      "network_blocked": 456,
+      "known_dst_ports": [
+        22,
+        25,
+        53,
+        80,
+        88,
+        135,
+        389,
+        443,
+        445,
+        636,
+        993,
+        1433,
+        3389,
+        5432
+      ]
+    },
+    "10.1.12.2": {
+      "network_connection_outbound": 1905,
+      "network_connection_inbound": 0,
+      "network_blocked": 467,
+      "known_dst_ports": [
+        22,
+        25,
+        53,
+        80,
+        88,
+        135,
+        389,
+        443,
+        445,
+        636,
+        993,
+        1433,
+        3389,
+        5432
+      ]
+    },
+    "10.1.10.5": {
+      "network_connection_outbound": 1831,
+      "network_connection_inbound": 0,
+      "network_blocked": 488,
+      "known_dst_ports": [
+        22,
+        25,
+        53,
+        80,
+        88,
+        135,
+        389,
+        443,
+        445,
+        636,
+        993,
+        1433,
+        3389,
+        5432
+      ]
+    },
+    "10.1.1.11": {
+      "network_connection_outbound": 1792,
+      "network_connection_inbound": 0,
+      "network_blocked": 509,
+      "known_dst_ports": [
+        22,
+        25,
+        53,
+        80,
+        88,
+        135,
+        389,
+        443,
+        445,
+        636,
+        993,
+        1433,
+        3389,
+        5432
+      ]
+    },
+    "10.1.2.11": {
+      "network_connection_outbound": 2256,
+      "network_connection_inbound": 0,
+      "network_blocked": 465,
+      "known_dst_ports": [
+        22,
+        25,
+        53,
+        80,
+        88,
+        135,
+        389,
+        443,
+        445,
+        636,
+        993,
+        1433,
+        3389,
+        5432
+      ]
+    },
+    "10.2.1.10": {
+      "network_connection_outbound": 2231,
+      "network_connection_inbound": 0,
+      "network_blocked": 500,
+      "known_dst_ports": [
+        22,
+        25,
+        53,
+        80,
+        88,
+        135,
+        389,
+        443,
+        445,
+        636,
+        993,
+        1433,
+        3389,
+        5432
+      ]
+    },
+    "10.2.1.11": {
+      "network_connection_outbound": 2165,
+      "network_connection_inbound": 0,
+      "network_blocked": 477,
+      "known_dst_ports": [
+        22,
+        25,
+        53,
+        80,
+        88,
+        135,
+        389,
+        443,
+        445,
+        636,
+        993,
+        1433,
+        3389,
+        5432
+      ]
+    },
+    "10.1.2.20": {
+      "network_connection_outbound": 2186,
+      "network_connection_inbound": 0,
+      "network_blocked": 477,
+      "known_dst_ports": [
+        22,
+        25,
+        53,
+        80,
+        88,
+        135,
+        389,
+        443,
+        445,
+        636,
+        993,
+        1433,
+        3389,
+        5432
+      ]
+    },
+    "10.1.2.30": {
+      "network_connection_outbound": 1938,
+      "network_connection_inbound": 0,
+      "network_blocked": 471,
+      "known_dst_ports": [
+        22,
+        25,
+        53,
+        80,
+        88,
+        135,
+        389,
+        443,
+        445,
+        636,
+        993,
+        1433,
+        3389,
+        5432
+      ]
+    },
+    "52.168.112.78": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 1850,
+      "network_blocked": 500,
+      "known_dst_ports": [
+        22,
+        25,
+        53,
+        80,
+        88,
+        135,
+        389,
+        443,
+        445,
+        636,
+        993,
+        1433,
+        3389,
+        5432
+      ]
+    },
+    "10.1.12.1": {
+      "network_connection_outbound": 1913,
+      "network_connection_inbound": 0,
+      "network_blocked": 453,
+      "known_dst_ports": [
+        22,
+        25,
+        53,
+        80,
+        88,
+        135,
+        389,
+        443,
+        445,
+        636,
+        993,
+        1433,
+        3389,
+        5432
+      ]
+    },
+    "10.1.2.10": {
+      "network_connection_outbound": 2275,
+      "network_connection_inbound": 0,
+      "network_blocked": 486,
+      "known_dst_ports": [
+        22,
+        25,
+        53,
+        80,
+        88,
+        135,
+        389,
+        443,
+        445,
+        636,
+        993,
+        1433,
+        3389,
+        5432
+      ]
+    },
+    "10.1.2.40": {
+      "network_connection_outbound": 1969,
+      "network_connection_inbound": 0,
+      "network_blocked": 474,
+      "known_dst_ports": [
+        22,
+        25,
+        53,
+        80,
+        88,
+        135,
+        389,
+        443,
+        445,
+        636,
+        993,
+        1433,
+        3389,
+        5432
+      ]
+    },
+    "10.1.10.7": {
+      "network_connection_outbound": 1949,
+      "network_connection_inbound": 0,
+      "network_blocked": 471,
+      "known_dst_ports": [
+        22,
+        25,
+        53,
+        80,
+        88,
+        135,
+        389,
+        443,
+        445,
+        636,
+        993,
+        1433,
+        3389,
+        5432
+      ]
+    },
+    "10.1.10.12": {
+      "network_connection_outbound": 1877,
+      "network_connection_inbound": 0,
+      "network_blocked": 484,
+      "known_dst_ports": [
+        22,
+        25,
+        53,
+        80,
+        88,
+        135,
+        389,
+        443,
+        445,
+        636,
+        993,
+        1433,
+        3389,
+        5432
+      ]
+    },
+    "140.82.112.22": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 1851,
+      "network_blocked": 461,
+      "known_dst_ports": [
+        22,
+        25,
+        53,
+        80,
+        88,
+        135,
+        389,
+        443,
+        445,
+        636,
+        993,
+        1433,
+        3389,
+        5432
+      ]
+    },
+    "10.1.10.3": {
+      "network_connection_outbound": 1906,
+      "network_connection_inbound": 0,
+      "network_blocked": 485,
+      "known_dst_ports": [
+        22,
+        25,
+        53,
+        80,
+        88,
+        135,
+        389,
+        443,
+        445,
+        636,
+        993,
+        1433,
+        3389,
+        5432
+      ]
+    },
+    "10.1.1.50": {
+      "network_connection_outbound": 2277,
+      "network_connection_inbound": 0,
+      "network_blocked": 497,
+      "known_dst_ports": [
+        22,
+        25,
+        53,
+        80,
+        88,
+        135,
+        389,
+        443,
+        445,
+        636,
+        993,
+        1433,
+        3389,
+        5432
+      ]
+    },
+    "52.168.112.45": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 1855,
+      "network_blocked": 478,
+      "known_dst_ports": [
+        22,
+        25,
+        53,
+        80,
+        88,
+        135,
+        389,
+        443,
+        445,
+        636,
+        993,
+        1433,
+        3389,
+        5432
+      ]
+    },
+    "203.0.113.155": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        443,
+        445,
+        1433
+      ]
+    },
+    "203.0.113.168": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        53
+      ]
+    },
+    "203.0.113.56": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        445,
+        1433
+      ]
+    },
+    "203.0.113.115": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        445,
+        3389
+      ]
+    },
+    "203.0.113.17": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        53,
+        80,
+        445
+      ]
+    },
+    "203.0.113.154": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        80,
+        443
+      ]
+    },
+    "203.0.113.201": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        443,
+        1433
+      ]
+    },
+    "203.0.113.236": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        443,
+        1433,
+        3389
+      ]
+    },
+    "203.0.113.166": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        22
+      ]
+    },
+    "203.0.113.84": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        80,
+        3389
+      ]
+    },
+    "203.0.113.12": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        80,
+        1433
+      ]
+    },
+    "203.0.113.87": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        443
+      ]
+    },
+    "203.0.113.13": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        443,
+        1433
+      ]
+    },
+    "203.0.113.214": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        22,
+        445
+      ]
+    },
+    "203.0.113.136": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        443
+      ]
+    },
+    "203.0.113.161": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        1433
+      ]
+    },
+    "203.0.113.212": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        443,
+        3389
+      ]
+    },
+    "203.0.113.231": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        22,
+        53,
+        80,
+        443,
+        445,
+        3389
+      ]
+    },
+    "203.0.113.8": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        53,
+        80,
+        445
+      ]
+    },
+    "203.0.113.86": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        1433
+      ]
+    },
+    "203.0.113.196": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        80
+      ]
+    },
+    "203.0.113.169": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        53
+      ]
+    },
+    "203.0.113.65": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        443,
+        1433
+      ]
+    },
+    "203.0.113.100": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        80
+      ]
+    },
+    "203.0.113.178": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        443
+      ]
+    },
+    "203.0.113.159": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        53,
+        80
+      ]
+    },
+    "203.0.113.120": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        443
+      ]
+    },
+    "203.0.113.32": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        80
+      ]
+    },
+    "203.0.113.1": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        53
+      ]
+    },
+    "203.0.113.138": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        53,
+        1433,
+        3389
+      ]
+    },
+    "203.0.113.221": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        53,
+        445
+      ]
+    },
+    "203.0.113.11": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        22,
+        1433,
+        3389
+      ]
+    },
+    "203.0.113.182": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        443,
+        445
+      ]
+    },
+    "203.0.113.108": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        22,
+        53
+      ]
+    },
+    "203.0.113.253": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        443,
+        445
+      ]
+    },
+    "203.0.113.215": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        53,
+        445,
+        3389
+      ]
+    },
+    "203.0.113.118": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        443
+      ]
+    },
+    "203.0.113.114": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        22,
+        1433,
+        3389
+      ]
+    },
+    "203.0.113.250": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        53,
+        443
+      ]
+    },
+    "203.0.113.76": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        1433,
+        3389
+      ]
+    },
+    "203.0.113.222": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        80,
+        3389
+      ]
+    },
+    "203.0.113.63": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        443,
+        1433
+      ]
+    },
+    "203.0.113.50": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        80
+      ]
+    },
+    "203.0.113.165": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        53,
+        80
+      ]
+    },
+    "203.0.113.197": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        3389
+      ]
+    },
+    "203.0.113.47": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        53,
+        3389
+      ]
+    },
+    "203.0.113.146": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        80
+      ]
+    },
+    "203.0.113.188": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        22,
+        445,
+        3389
+      ]
+    },
+    "203.0.113.75": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        22,
+        80,
+        443,
+        1433,
+        3389
+      ]
+    },
+    "203.0.113.98": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        443,
+        445,
+        3389
+      ]
+    },
+    "203.0.113.20": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        1433
+      ]
+    },
+    "203.0.113.45": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        445,
+        1433
+      ]
+    },
+    "203.0.113.103": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        22,
+        80,
+        445
+      ]
+    },
+    "203.0.113.92": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        53
+      ]
+    },
+    "203.0.113.150": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        22
+      ]
+    },
+    "203.0.113.202": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        22,
+        443,
+        445
+      ]
+    },
+    "203.0.113.224": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        3389
+      ]
+    },
+    "203.0.113.3": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        443,
+        3389
+      ]
+    },
+    "203.0.113.217": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        445
+      ]
+    },
+    "203.0.113.156": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        1433
+      ]
+    },
+    "203.0.113.186": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        80
+      ]
+    },
+    "203.0.113.37": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        443,
+        445
+      ]
+    },
+    "203.0.113.9": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        53
+      ]
+    },
+    "203.0.113.22": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        80,
+        443,
+        3389
+      ]
+    },
+    "203.0.113.209": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        80,
+        3389
+      ]
+    },
+    "203.0.113.46": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        53,
+        3389
+      ]
+    },
+    "203.0.113.135": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        53
+      ]
+    },
+    "203.0.113.59": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        80,
+        1433,
+        3389
+      ]
+    },
+    "203.0.113.132": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        443,
+        445
+      ]
+    },
+    "203.0.113.15": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        443,
+        445
+      ]
+    },
+    "203.0.113.116": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        53,
+        443
+      ]
+    },
+    "203.0.113.218": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        443,
+        1433
+      ]
+    },
+    "203.0.113.35": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        80,
+        1433,
+        3389
+      ]
+    },
+    "203.0.113.241": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        1433
+      ]
+    },
+    "203.0.113.208": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        80,
+        445
+      ]
+    },
+    "203.0.113.177": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        53,
+        445,
+        1433
+      ]
+    },
+    "203.0.113.254": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        445
+      ]
+    },
+    "203.0.113.38": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        22,
+        443,
+        445
+      ]
+    },
+    "203.0.113.228": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        53,
+        443
+      ]
+    },
+    "203.0.113.185": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        3389
+      ]
+    },
+    "203.0.113.238": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        80,
+        443
+      ]
+    },
+    "203.0.113.19": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        53,
+        445,
+        1433
+      ]
+    },
+    "203.0.113.94": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        1433
+      ]
+    },
+    "203.0.113.243": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        53,
+        445
+      ]
+    },
+    "203.0.113.144": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        3389
+      ]
+    },
+    "203.0.113.16": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        443
+      ]
+    },
+    "203.0.113.160": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        445
+      ]
+    },
+    "203.0.113.105": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        53
+      ]
+    },
+    "203.0.113.139": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        53,
+        1433,
+        3389
+      ]
+    },
+    "203.0.113.172": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        80,
+        443,
+        3389
+      ]
+    },
+    "203.0.113.27": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        443,
+        1433,
+        3389
+      ]
+    },
+    "203.0.113.101": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        53,
+        445
+      ]
+    },
+    "203.0.113.60": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        80,
+        445
+      ]
+    },
+    "203.0.113.71": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        445
+      ]
+    },
+    "203.0.113.123": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        1433
+      ]
+    },
+    "203.0.113.233": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        3389
+      ]
+    },
+    "203.0.113.229": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        3389
+      ]
+    },
+    "203.0.113.235": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        3389
+      ]
+    },
+    "203.0.113.147": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        53,
+        1433,
+        3389
+      ]
+    },
+    "203.0.113.140": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        53,
+        445
+      ]
+    },
+    "203.0.113.223": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        1433
+      ]
+    },
+    "203.0.113.93": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        445
+      ]
+    },
+    "203.0.113.102": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        445,
+        3389
+      ]
+    },
+    "203.0.113.57": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        53,
+        1433,
+        3389
+      ]
+    },
+    "203.0.113.226": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        22,
+        80
+      ]
+    },
+    "203.0.113.244": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        22,
+        80,
+        443
+      ]
+    },
+    "203.0.113.124": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        22,
+        80,
+        443
+      ]
+    },
+    "203.0.113.26": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        22,
+        80,
+        3389
+      ]
+    },
+    "203.0.113.10": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        1433,
+        3389
+      ]
+    },
+    "203.0.113.64": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        3389
+      ]
+    },
+    "203.0.113.205": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        53
+      ]
+    },
+    "203.0.113.133": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        80,
+        3389
+      ]
+    },
+    "203.0.113.149": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        22
+      ]
+    },
+    "203.0.113.112": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        22
+      ]
+    },
+    "203.0.113.225": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        3389
+      ]
+    },
+    "203.0.113.91": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        445
+      ]
+    },
+    "203.0.113.62": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        22,
+        80
+      ]
+    },
+    "203.0.113.232": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        443,
+        445
+      ]
+    },
+    "203.0.113.176": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        22,
+        80,
+        445
+      ]
+    },
+    "203.0.113.95": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        443,
+        445
+      ]
+    },
+    "203.0.113.70": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        80
+      ]
+    },
+    "203.0.113.67": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        3389
+      ]
+    },
+    "203.0.113.174": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        53
+      ]
+    },
+    "203.0.113.130": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        53,
+        445
+      ]
+    },
+    "203.0.113.4": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        3389
+      ]
+    },
+    "203.0.113.28": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        1433
+      ]
+    },
+    "203.0.113.191": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        22
+      ]
+    },
+    "203.0.113.157": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        80,
+        3389
+      ]
+    },
+    "203.0.113.237": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        22,
+        1433
+      ]
+    },
+    "203.0.113.171": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        53,
+        445,
+        1433
+      ]
+    },
+    "203.0.113.96": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        80
+      ]
+    },
+    "203.0.113.53": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        53
+      ]
+    },
+    "203.0.113.42": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        443,
+        445
+      ]
+    },
+    "203.0.113.230": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        53
+      ]
+    },
+    "203.0.113.72": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        445,
+        3389
+      ]
+    },
+    "203.0.113.66": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        1433
+      ]
+    },
+    "203.0.113.121": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        1433
+      ]
+    },
+    "203.0.113.200": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        22,
+        80
+      ]
+    },
+    "203.0.113.137": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        80,
+        445
+      ]
+    },
+    "203.0.113.251": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        22,
+        443
+      ]
+    },
+    "203.0.113.89": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        22,
+        80,
+        3389
+      ]
+    },
+    "203.0.113.48": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        22,
+        3389
+      ]
+    },
+    "203.0.113.111": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        1433
+      ]
+    },
+    "203.0.113.81": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        80,
+        1433
+      ]
+    },
+    "203.0.113.49": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        3389
+      ]
+    },
+    "203.0.113.242": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        53,
+        443
+      ]
+    },
+    "203.0.113.82": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        3389
+      ]
+    },
+    "203.0.113.252": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        443
+      ]
+    },
+    "203.0.113.7": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        22,
+        443
+      ]
+    },
+    "203.0.113.145": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        80
+      ]
+    },
+    "203.0.113.23": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        443
+      ]
+    },
+    "203.0.113.122": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        443,
+        445
+      ]
+    },
+    "203.0.113.40": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        445
+      ]
+    },
+    "203.0.113.51": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        22
+      ]
+    },
+    "203.0.113.227": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        22
+      ]
+    },
+    "203.0.113.80": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        53
+      ]
+    },
+    "203.0.113.41": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        22,
+        80
+      ]
+    },
+    "203.0.113.119": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        445,
+        3389
+      ]
+    },
+    "203.0.113.129": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        3389
+      ]
+    },
+    "203.0.113.183": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        22,
+        443
+      ]
+    },
+    "203.0.113.30": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        53,
+        443
+      ]
+    },
+    "203.0.113.187": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        1433
+      ]
+    },
+    "203.0.113.216": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        1433
+      ]
+    },
+    "203.0.113.153": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        3389
+      ]
+    },
+    "203.0.113.211": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        443
+      ]
+    },
+    "203.0.113.6": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        1433
+      ]
+    },
+    "203.0.113.151": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        443
+      ]
+    },
+    "203.0.113.162": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        1433
+      ]
+    },
+    "203.0.113.163": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        80
+      ]
+    },
+    "203.0.113.21": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        443,
+        1433
+      ]
+    },
+    "203.0.113.220": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        80
+      ]
+    },
+    "203.0.113.175": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        1433
+      ]
+    },
+    "203.0.113.207": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        3389
+      ]
+    },
+    "203.0.113.213": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        22,
+        3389
+      ]
+    },
+    "203.0.113.204": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        22
+      ]
+    },
+    "203.0.113.199": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        80
+      ]
+    },
+    "203.0.113.173": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        445
+      ]
+    },
+    "203.0.113.184": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        80
+      ]
+    },
+    "203.0.113.110": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        445
+      ]
+    },
+    "203.0.113.167": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        80
+      ]
+    },
+    "203.0.113.79": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        53
+      ]
+    },
+    "203.0.113.36": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        3389
+      ]
+    },
+    "203.0.113.190": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        445,
+        3389
+      ]
+    },
+    "203.0.113.245": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        53
+      ]
+    },
+    "203.0.113.33": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        1433
+      ]
+    },
+    "203.0.113.39": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        443
+      ]
+    },
+    "203.0.113.14": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        445,
+        1433
+      ]
+    },
+    "203.0.113.203": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        443
+      ]
+    },
+    "203.0.113.113": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        445
+      ]
+    },
+    "203.0.113.58": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        3389
+      ]
+    },
+    "203.0.113.61": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        1433
+      ]
+    },
+    "203.0.113.99": {
+      "network_connection_outbound": 0,
+      "network_connection_inbound": 0,
+      "network_blocked": 0,
+      "known_dst_ports": [
+        80
+      ]
+    }
+  },
+  "known_dst_ports": [
+    22,
+    25,
+    53,
+    80,
+    88,
+    135,
+    389,
+    443,
+    445,
+    636,
+    993,
+    1433,
+    3389,
+    5432
+  ],
+  "top_destinations": [
+    {
+      "dst_ip": "13.107.42.14",
+      "count": 5280
+    },
+    {
+      "dst_ip": "52.168.112.78",
+      "count": 5276
+    },
+    {
+      "dst_ip": "52.168.112.45",
+      "count": 5276
+    },
+    {
+      "dst_ip": "140.82.112.22",
+      "count": 5268
+    },
+    {
+      "dst_ip": "10.1.1.10",
+      "count": 5006
+    },
+    {
+      "dst_ip": "10.1.2.30",
+      "count": 4983
+    },
+    {
+      "dst_ip": "10.1.2.40",
+      "count": 4961
+    },
+    {
+      "dst_ip": "10.1.10.1",
+      "count": 4956
+    },
+    {
+      "dst_ip": "10.1.10.3",
+      "count": 4909
+    },
+    {
+      "dst_ip": "10.1.10.7",
+      "count": 4876
+    },
+    {
+      "dst_ip": "10.1.10.5",
+      "count": 4857
+    },
+    {
+      "dst_ip": "10.1.1.11",
+      "count": 4784
+    },
+    {
+      "dst_ip": "10.1.1.40",
+      "count": 1503
+    },
+    {
+      "dst_ip": "10.1.1.50",
+      "count": 1493
+    },
+    {
+      "dst_ip": "10.1.2.10",
+      "count": 1473
+    },
+    {
+      "dst_ip": "10.1.1.30",
+      "count": 1451
+    },
+    {
+      "dst_ip": "10.1.2.11",
+      "count": 1423
+    },
+    {
+      "dst_ip": "10.2.1.11",
+      "count": 1084
+    },
+    {
+      "dst_ip": "10.1.2.20",
+      "count": 1080
+    },
+    {
+      "dst_ip": "10.2.1.10",
+      "count": 1054
+    }
+  ],
+  "alert_count": 8746
+}
