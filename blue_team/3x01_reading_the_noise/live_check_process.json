@@ -1,0 +1,62 @@
+[
+  {
+    "timestamp": "2026-03-25T02:20:00Z",
+    "host": "clin-ws-07",
+    "user": null,
+    "process_name": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+    "parent_process_name": null,
+    "anomaly_type": "unknown_process_for_host",
+    "severity": "low",
+    "event_refs": [
+      "2026-03-25T02:20:00Z"
+    ]
+  },
+  {
+    "timestamp": "2026-03-25T02:20:00Z",
+    "host": "clin-ws-07",
+    "user": null,
+    "process_name": "powershell.exe",
+    "parent_process_name": "explorer.exe",
+    "anomaly_type": "unknown_parent_child",
+    "severity": "medium",
+    "event_refs": [
+      "2026-03-25T02:20:00Z"
+    ]
+  },
+  {
+    "timestamp": "2026-03-25T02:20:00Z",
+    "host": "clin-ws-07",
+    "user": null,
+    "process_name": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+    "parent_process_name": null,
+    "anomaly_type": "high_risk_process",
+    "severity": "high",
+    "event_refs": [
+      "2026-03-25T02:20:00Z"
+    ]
+  },
+  {
+    "timestamp": "2026-03-25T08:17:29Z",
+    "host": "srvweb01",
+    "user": null,
+    "process_name": "cron",
+    "parent_process_name": null,
+    "anomaly_type": "unknown_process_for_host",
+    "severity": "low",
+    "event_refs": [
+      "2026-03-25T08:17:29Z"
+    ]
+  },
+  {
+    "timestamp": "2026-03-25T14:22:08Z",
+    "host": "clin-ws-12",
+    "user": null,
+    "process_name": "C:\\Windows\\System32\\rundll32.exe",
+    "parent_process_name": null,
+    "anomaly_type": "unknown_process_for_host",
+    "severity": "low",
+    "event_refs": [
+      "2026-03-25T14:22:08Z"
+    ]
+  }
+]

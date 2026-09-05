@@ -7,9 +7,9 @@ SEV_UNKNOWN_DEST="medium"
 SEV_UNKNOWN_PORT="low"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-SUMMARY_FILE="$SCRIPT_DIR/baseline_summary.json"
+SUMMARY_FILE="${SUMMARY_FILE:-$SCRIPT_DIR/baseline_summary.json}"
 LABELED_FILE="$SCRIPT_DIR/labeled_events.json"
-OUT_FILE="$SCRIPT_DIR/anomalies_network.json"
+OUT_FILE="${OUT_FILE:-$SCRIPT_DIR/anomalies_network.json}"
 
 BSTART=$(jq -r '.baseline_window.start' "$SUMMARY_FILE")
 BEND=$(jq -r '.baseline_window.end' "$SUMMARY_FILE")
