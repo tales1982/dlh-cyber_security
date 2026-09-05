@@ -9,9 +9,9 @@ SEV_RARE_SPIKE="medium"
 SEV_HIGH_RISK="high"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-SUMMARY_FILE="$SCRIPT_DIR/baseline_summary.json"
+SUMMARY_FILE="${SUMMARY_FILE:-$SCRIPT_DIR/baseline_summary.json}"
 LABELED_FILE="$SCRIPT_DIR/labeled_events.json"
-OUT_FILE="$SCRIPT_DIR/anomalies_process.json"
+OUT_FILE="${OUT_FILE:-$SCRIPT_DIR/anomalies_process.json}"
 
 ESTART=$(jq -r '.evaluation_window.start' "$SUMMARY_FILE")
 EEND=$(jq -r '.evaluation_window.end' "$SUMMARY_FILE")

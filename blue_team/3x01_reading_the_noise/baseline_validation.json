@@ -1,0 +1,17 @@
+{
+  "self_check_total": 0,
+  "live_check_total": 7,
+  "signal_to_noise_ratio": 7,
+  "self_check_by_type": {},
+  "live_check_by_type": {
+    "high_risk_process": 1,
+    "unknown_account": 2,
+    "unknown_parent_child": 1,
+    "unknown_process_for_host": 3
+  },
+  "thresholds": {
+    "self_check_max": 5,
+    "min_signal_to_noise_ratio": 3.0
+  },
+  "verdict": "pass"
+}
