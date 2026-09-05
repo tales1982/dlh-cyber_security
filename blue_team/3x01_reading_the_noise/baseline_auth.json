@@ -1,0 +1,496 @@
+{
+  "window": {
+    "start": "2026-03-18T00:00:00Z",
+    "end": "2026-03-25T00:00:00Z"
+  },
+  "per_host": {
+    "srv-dc-01": {
+      "login_failure": 1354,
+      "logout": 704,
+      "login_success": 925,
+      "privilege_escalation": 262,
+      "account_lockout": 166
+    },
+    "srv-ehr-01": {
+      "logout": 706,
+      "login_success": 1003,
+      "privilege_escalation": 281
+    },
+    "clin-ws-07": {
+      "logout": 697,
+      "login_success": 936,
+      "privilege_escalation": 259
+    },
+    "admin-ws-02": {
+      "logout": 722,
+      "login_success": 1026,
+      "privilege_escalation": 289
+    },
+    "srv-dc-02": {
+      "login_failure": 1333,
+      "login_success": 1023,
+      "logout": 705,
+      "privilege_escalation": 248
+    },
+    "pharm-app-01": {
+      "privilege_escalation": 265,
+      "login_success": 996,
+      "logout": 673
+    },
+    "clin-ws-12": {
+      "login_success": 978,
+      "logout": 726,
+      "privilege_escalation": 301
+    },
+    "clin-ws-05": {
+      "logout": 729,
+      "login_success": 964,
+      "privilege_escalation": 293
+    },
+    "clin-ws-01": {
+      "login_success": 970,
+      "logout": 738,
+      "privilege_escalation": 277
+    },
+    "clin-ws-03": {
+      "login_success": 1001,
+      "logout": 651,
+      "privilege_escalation": 301
+    },
+    "admin-ws-01": {
+      "privilege_escalation": 269,
+      "login_success": 998,
+      "logout": 696
+    },
+    "bill-ws-09": {
+      "privilege_escalation": 295,
+      "login_success": 962,
+      "logout": 695
+    },
+    "srv-mail-01": {
+      "login_success": 674,
+      "logout": 594,
+      "privilege_escalation": 339,
+      "login_failure": 87
+    },
+    "srv-web-01": {
+      "logout": 553,
+      "login_success": 762,
+      "privilege_escalation": 352,
+      "login_failure": 76
+    },
+    "ids-01": {
+      "privilege_escalation": 382,
+      "login_success": 724,
+      "logout": 618,
+      "login_failure": 58
+    },
+    "srv-log-01": {
+      "login_success": 711,
+      "logout": 586,
+      "login_failure": 70,
+      "privilege_escalation": 337
+    },
+    "db-patient-02": {
+      "logout": 633,
+      "privilege_escalation": 331,
+      "login_success": 743,
+      "login_failure": 64
+    },
+    "bill-db-01": {
+      "login_success": 723,
+      "logout": 584,
+      "privilege_escalation": 348,
+      "login_failure": 82
+    },
+    "rad-srv-02": {
+      "logout": 606,
+      "privilege_escalation": 341,
+      "login_success": 726,
+      "login_failure": 61
+    },
+    "db-patient-01": {
+      "login_success": 693,
+      "logout": 586,
+      "privilege_escalation": 350,
+      "login_failure": 70
+    },
+    "rad-srv-01": {
+      "login_success": 711,
+      "privilege_escalation": 363,
+      "logout": 573,
+      "login_failure": 75
+    }
+  },
+  "per_user": [
+    {
+      "user": "a",
+      "success": 346,
+      "failure": 0
+    },
+    {
+      "user": "a.thompson",
+      "success": 544,
+      "failure": 142
+    },
+    {
+      "user": "admin",
+      "success": 0,
+      "failure": 118
+    },
+    {
+      "user": "administrator",
+      "success": 0,
+      "failure": 129
+    },
+    {
+      "user": "b.martin",
+      "success": 478,
+      "failure": 132
+    },
+    {
+      "user": "c",
+      "success": 303,
+      "failure": 0
+    },
+    {
+      "user": "c.taylor",
+      "success": 542,
+      "failure": 145
+    },
+    {
+      "user": "d",
+      "success": 353,
+      "failure": 0
+    },
+    {
+      "user": "d.wilson",
+      "success": 540,
+      "failure": 162
+    },
+    {
+      "user": "e.thomas",
+      "success": 492,
+      "failure": 129
+    },
+    {
+      "user": "f.lee",
+      "success": 485,
+      "failure": 119
+    },
+    {
+      "user": "g.clark",
+      "success": 416,
+      "failure": 109
+    },
+    {
+      "user": "h.jackson",
+      "success": 477,
+      "failure": 116
+    },
+    {
+      "user": "j",
+      "success": 374,
+      "failure": 0
+    },
+    {
+      "user": "j.martinez",
+      "success": 549,
+      "failure": 150
+    },
+    {
+      "user": "james",
+      "success": 357,
+      "failure": 0
+    },
+    {
+      "user": "james.chen",
+      "success": 578,
+      "failure": 39
+    },
+    {
+      "user": "k",
+      "success": 337,
+      "failure": 0
+    },
+    {
+      "user": "k.brown",
+      "success": 551,
+      "failure": 158
+    },
+    {
+      "user": "l",
+      "success": 338,
+      "failure": 0
+    },
+    {
+      "user": "l.nguyen",
+      "success": 575,
+      "failure": 188
+    },
+    {
+      "user": "m",
+      "success": 346,
+      "failure": 0
+    },
+    {
+      "user": "m.johnson",
+      "success": 544,
+      "failure": 147
+    },
+    {
+      "user": "mike.torres",
+      "success": 450,
+      "failure": 0
+    },
+    {
+      "user": "n.white",
+      "success": 495,
+      "failure": 141
+    },
+    {
+      "user": "p.harris",
+      "success": 458,
+      "failure": 99
+    },
+    {
+      "user": "p.morales",
+      "success": 440,
+      "failure": 0
+    },
+    {
+      "user": "r",
+      "success": 351,
+      "failure": 0
+    },
+    {
+      "user": "r.garcia",
+      "success": 519,
+      "failure": 160
+    },
+    {
+      "user": "robert.kim",
+      "success": 465,
+      "failure": 0
+    },
+    {
+      "user": "s",
+      "success": 347,
+      "failure": 0
+    },
+    {
+      "user": "s.patel",
+      "success": 578,
+      "failure": 160
+    },
+    {
+      "user": "sarah",
+      "success": 344,
+      "failure": 0
+    },
+    {
+      "user": "sarah.park",
+      "success": 578,
+      "failure": 37
+    },
+    {
+      "user": "svc_backup",
+      "success": 439,
+      "failure": 54
+    },
+    {
+      "user": "svc_billing_sync",
+      "success": 431,
+      "failure": 51
+    },
+    {
+      "user": "svc_ehr",
+      "success": 443,
+      "failure": 36
+    },
+    {
+      "user": "t",
+      "success": 367,
+      "failure": 0
+    },
+    {
+      "user": "t.anderson",
+      "success": 573,
+      "failure": 133
+    },
+    {
+      "user": "test",
+      "success": 0,
+      "failure": 111
+    },
+    {
+      "user": "v.lewis",
+      "success": 483,
+      "failure": 114
+    },
+    {
+      "user": "w.robinson",
+      "success": 519,
+      "failure": 125
+    },
+    {
+      "user": "y.walker",
+      "success": 444,
+      "failure": 126
+    }
+  ],
+  "known_accounts": [
+    "a",
+    "a.thompson",
+    "admin",
+    "administrator",
+    "b.martin",
+    "c",
+    "c.taylor",
+    "d",
+    "d.wilson",
+    "e.thomas",
+    "f.lee",
+    "g.clark",
+    "h.jackson",
+    "j",
+    "j.martinez",
+    "james",
+    "james.chen",
+    "k",
+    "k.brown",
+    "l",
+    "l.nguyen",
+    "m",
+    "m.johnson",
+    "mike.torres",
+    "n.white",
+    "p.harris",
+    "p.morales",
+    "r",
+    "r.garcia",
+    "robert.kim",
+    "root",
+    "s",
+    "s.patel",
+    "sarah",
+    "sarah.park",
+    "svc_backup",
+    "svc_billing_sync",
+    "svc_ehr",
+    "t",
+    "t.anderson",
+    "temp_user_1",
+    "temp_user_10",
+    "temp_user_11",
+    "temp_user_12",
+    "temp_user_13",
+    "temp_user_14",
+    "temp_user_15",
+    "temp_user_16",
+    "temp_user_17",
+    "temp_user_18",
+    "temp_user_19",
+    "temp_user_2",
+    "temp_user_20",
+    "temp_user_21",
+    "temp_user_22",
+    "temp_user_23",
+    "temp_user_24",
+    "temp_user_25",
+    "temp_user_26",
+    "temp_user_27",
+    "temp_user_28",
+    "temp_user_29",
+    "temp_user_3",
+    "temp_user_30",
+    "temp_user_31",
+    "temp_user_32",
+    "temp_user_33",
+    "temp_user_34",
+    "temp_user_35",
+    "temp_user_36",
+    "temp_user_37",
+    "temp_user_38",
+    "temp_user_39",
+    "temp_user_4",
+    "temp_user_40",
+    "temp_user_41",
+    "temp_user_42",
+    "temp_user_43",
+    "temp_user_44",
+    "temp_user_45",
+    "temp_user_46",
+    "temp_user_47",
+    "temp_user_48",
+    "temp_user_49",
+    "temp_user_5",
+    "temp_user_50",
+    "temp_user_51",
+    "temp_user_52",
+    "temp_user_53",
+    "temp_user_54",
+    "temp_user_55",
+    "temp_user_56",
+    "temp_user_57",
+    "temp_user_58",
+    "temp_user_59",
+    "temp_user_6",
+    "temp_user_60",
+    "temp_user_61",
+    "temp_user_62",
+    "temp_user_63",
+    "temp_user_64",
+    "temp_user_65",
+    "temp_user_66",
+    "temp_user_67",
+    "temp_user_68",
+    "temp_user_69",
+    "temp_user_7",
+    "temp_user_70",
+    "temp_user_71",
+    "temp_user_72",
+    "temp_user_73",
+    "temp_user_74",
+    "temp_user_75",
+    "temp_user_76",
+    "temp_user_77",
+    "temp_user_78",
+    "temp_user_79",
+    "temp_user_8",
+    "temp_user_80",
+    "temp_user_81",
+    "temp_user_82",
+    "temp_user_83",
+    "temp_user_84",
+    "temp_user_85",
+    "temp_user_86",
+    "temp_user_87",
+    "temp_user_88",
+    "temp_user_89",
+    "temp_user_9",
+    "temp_user_90",
+    "temp_user_91",
+    "temp_user_92",
+    "temp_user_93",
+    "temp_user_94",
+    "temp_user_95",
+    "temp_user_96",
+    "temp_user_97",
+    "temp_user_98",
+    "temp_user_99",
+    "test",
+    "v.lewis",
+    "w.robinson",
+    "y.walker"
+  ],
+  "business_hours_avg": {
+    "success": 189,
+    "failure": 46.62
+  },
+  "offhours_avg": {
+    "success": 187.76,
+    "failure": 48.79
+  },
+  "max_failures_1h_window": 8
+}
