@@ -1,0 +1,65 @@
+title: Reconnaissance Tool Execution Not Seen in Host Baseline
+id: e8cc5cef-1357-4e65-b263-0e5463021264
+status: experimental
+description: |
+  Detects execution of common host/network reconnaissance tools (whoami.exe,
+  net.exe, systeminfo.exe, tasklist.exe, netstat.exe on Windows; whoami,
+  netstat, nmap on Linux) on a host where that process was never observed
+  during the 3x01 baseline window. This directly encodes the high_risk_process
+  and unknown_process_for_host anomaly types the 3x01 process baseline
+  (anomalies_process.json) already flagged - see risk_register.json scenario
+  RR-01 (db-patient-01, T1046 Network Service Discovery) - as a standing
+  Sigma rule the runner can evaluate against any future evidence drop without
+  first recomputing a fresh baseline.
+
+  Runner extension: baseline_seen is not a literal field on any process
+  event. The runner computes it per (hostname, process_name) pair by checking
+  membership in $BASELINE_PKG/baselines/baseline_process.json's
+  per_host[<hostname>] process list; baseline_seen: false means the process
+  was never recorded for that host during the 7-day baseline window.
+references:
+  - https://attack.mitre.org/techniques/T1087/
+  - https://attack.mitre.org/techniques/T1082/
+  - https://attack.mitre.org/techniques/T1046/
+author: MedDefense SOC
+date: 2026-09-08
+logsource:
+  category: process_creation
+detection:
+  selection_windows:
+    source_type: windows_json
+    process_name|endswith:
+      - '\whoami.exe'
+      - '\net.exe'
+      - '\systeminfo.exe'
+      - '\tasklist.exe'
+      - '\netstat.exe'
+      - '\nmap.exe'
+    baseline_seen: false
+  selection_windows_message:
+    source_type: windows_json
+    raw_message|contains:
+      - 'whoami'
+      - 'systeminfo'
+      - 'tasklist'
+      - 'netstat'
+      - 'nmap'
+    baseline_seen: false
+  selection_linux:
+    source_type: linux_text
+    process_name:
+      - whoami
+      - netstat
+      - nmap
+    baseline_seen: false
+  condition: selection_windows or selection_windows_message or selection_linux
+falsepositives:
+  - A help desk technician running whoami or systeminfo while troubleshooting
+    a ticket on a workstation that had not previously run that tool
+  - An IT-run internal vulnerability scan (e.g. quarterly PCI scan) executing
+    nmap or netstat against hosts outside its usual scan schedule
+level: medium
+tags:
+  - attack.discovery
+  - attack.t1087
+  - attack.t1082

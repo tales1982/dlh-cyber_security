@@ -1,0 +1,68 @@
+title: Script Interpreter Launched by a Non-Standard Parent Process
+id: bf512fe3-5517-41ed-bfb0-b94f5a12b3ad
+status: experimental
+description: |
+  Detects execution of powershell.exe, cmd.exe, wscript.exe, cscript.exe or
+  mshta.exe whose parent process is not a standard interactive shell
+  (explorer.exe, cmd.exe, powershell.exe or a core system process). These
+  interpreters are the most common living-off-the-land execution vector once
+  an attacker has any code execution on a MedDefense endpoint - the RR-02 risk
+  register scenario (off-hours PHI access on clin-ws-07) chains directly into
+  this rule when the off-hours session spawns PowerShell against the EHR
+  server. Because a MedDefense analyst manually running PowerShell from
+  Explorer is routine, the parent-process filter is what separates that from
+  a document handler, browser, or mail client spawning an interpreter, which
+  is not.
+
+  Data source: Windows process_creation telemetry (Sysmon Event ID 1 /
+  Security Event ID 4688), normalized into event_category process/audit.
+  Since this pipeline's normalized schema does not always carry a literal
+  process_name for the launched interpreter (some records only carry it as
+  free text in raw_message, e.g. "Process Create: powershell.exe spawned by
+  explorer.exe"), the selection matches both the structured process_name
+  field and the raw_message text. parent_process_name is likewise derived by
+  the runner from that raw_message pattern when no literal field is present.
+references:
+  - https://attack.mitre.org/techniques/T1059/001/
+  - https://attack.mitre.org/techniques/T1059/003/
+author: MedDefense SOC
+date: 2026-09-08
+logsource:
+  category: process_creation
+  product: windows
+detection:
+  selection_process:
+    process_name|endswith:
+      - '\powershell.exe'
+      - '\cmd.exe'
+      - '\wscript.exe'
+      - '\cscript.exe'
+      - '\mshta.exe'
+  selection_message:
+    raw_message|contains:
+      - 'powershell.exe'
+      - 'cmd.exe'
+      - 'wscript.exe'
+      - 'cscript.exe'
+      - 'mshta.exe'
+  filter_standard_parent:
+    parent_process_name|endswith:
+      - '\explorer.exe'
+      - '\cmd.exe'
+      - '\powershell.exe'
+      - '\services.exe'
+      - '\svchost.exe'
+      - '\wininit.exe'
+      - '\taskeng.exe'
+  condition: (selection_process or selection_message) and not filter_standard_parent
+falsepositives:
+  - IT-authored scheduled maintenance scripts (patch verification, log
+    rotation) that legitimately launch PowerShell or cmd.exe from the Task
+    Scheduler engine (taskeng.exe/svchost.exe) rather than from a user shell
+  - Software packaging tools (e.g. an MSI custom action) that shell out to
+    cscript.exe or mshta.exe as part of a signed, IT-approved installer
+level: high
+tags:
+  - attack.execution
+  - attack.t1059.001
+  - attack.t1059.003

@@ -1,0 +1,50 @@
+title: SSH Repeated Authentication Failures from Single Source
+id: 363cf282-aaeb-4c55-8e70-39fbcacc8c61
+status: experimental
+description: |
+  Detects SSH brute force / credential stuffing against Linux hosts: more than
+  five failed authentications from the same source IP within a 120-second
+  window. Data source is the Linux auth service (sshd, via auditd/syslog,
+  normalized into event_category=authentication with canonical_label
+  login_failure). Any host in MedDefense's Linux fleet - including the domain
+  file servers and the patient database replicas - is in scope, since sshd
+  is reachable on every one of them.
+  Operational response: Tier 1 blocks the source IP at the perimeter firewall
+  and checks whether any login_success canonical_label event followed from
+  the same src_ip in the following 15 minutes; if so, escalate to Tier 2
+  immediately as a suspected successful compromise, not just a brute force
+  attempt.
+
+  Runner extension: the normalized schema's src_ip field is null for every
+  linux_text auth record in the current 3x00 pipeline output - the client IP
+  only appears inside raw_message ("Failed password for USER from IP port
+  PORT ssh2"), which is the standard OpenSSH log line. The runner
+  (3-sigma_runner.sh) extracts src_ip from that pattern when the structured
+  field is absent, so this rule's count() by src_ip aggregation has a value
+  to group on.
+references:
+  - https://attack.mitre.org/techniques/T1110/001/
+author: MedDefense SOC
+date: 2026-09-08
+logsource:
+  product: linux
+  service: auth
+detection:
+  selection:
+    canonical_label: login_failure
+    event_category: authentication
+  condition: selection | count() by src_ip > 5
+  timeframe: 120s
+falsepositives:
+  - A credential rotation script retrying an already-rotated password against
+    every Linux host in a short burst instead of stopping after the first
+    failure
+  - An authorized vulnerability scan (e.g. quarterly PCI scan) that attempts
+    several stale service-account credentials per host as part of its
+    authentication checks
+  - A misconfigured monitoring agent or cron job using an expired SSH key
+    and retrying rapidly instead of backing off
+level: high
+tags:
+  - attack.credential_access
+  - attack.t1110.001

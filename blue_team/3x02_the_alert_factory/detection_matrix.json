@@ -1,0 +1,198 @@
+[
+  {
+    "source_type": "firewall",
+    "record_count": 67420,
+    "stable_fields": [
+      "action",
+      "dst_ip",
+      "dst_port",
+      "dst_zone",
+      "event_category",
+      "protocol",
+      "raw_message",
+      "severity",
+      "source_origin",
+      "source_type",
+      "src_ip",
+      "src_port",
+      "src_zone",
+      "timestamp"
+    ],
+    "high_cardinality_fields": [
+      "raw_message",
+      "timestamp"
+    ],
+    "supported_detection_types": [
+      "anomaly",
+      "behavioral",
+      "correlation"
+    ],
+    "rationale": {
+      "signature": "no candidate field is both stable and low-cardinality (checked ['signature', 'raw_message', 'process_name', 'command_line'])",
+      "anomaly": "8428.4 records/day across the 7-day baseline window is sufficient to model a normal-volume distribution (threshold 5.0)",
+      "behavioral": "stable, repeatable entity field(s) ['src_ip', 'dst_ip'] allow sequencing multiple events per entity over time",
+      "correlation": "stable join key(s) ['src_ip', 'dst_ip'] can be matched against the same field in other sources"
+    },
+    "recommended_attack_tactics": [
+      "TA0008",
+      "TA0010",
+      "TA0011"
+    ]
+  },
+  {
+    "source_type": "linux_text",
+    "record_count": 135820,
+    "stable_fields": [
+      "event_category",
+      "pid",
+      "raw_message",
+      "severity",
+      "source_origin",
+      "source_type",
+      "timestamp"
+    ],
+    "high_cardinality_fields": [
+      "raw_message",
+      "timestamp"
+    ],
+    "supported_detection_types": [
+      "anomaly",
+      "behavioral"
+    ],
+    "rationale": {
+      "signature": "no candidate field is both stable and low-cardinality (checked ['signature', 'raw_message', 'process_name', 'command_line'])",
+      "anomaly": "16983.1 records/day across the 7-day baseline window is sufficient to model a normal-volume distribution (threshold 5.0)",
+      "behavioral": "stable, repeatable entity field(s) ['pid'] allow sequencing multiple events per entity over time",
+      "correlation": "no stable field is shared with other sources to join on (checked ['src_ip', 'dst_ip', 'user', 'hostname'])"
+    },
+    "recommended_attack_tactics": [
+      "TA0001",
+      "TA0002",
+      "TA0006"
+    ]
+  },
+  {
+    "source_type": "pcap",
+    "record_count": 4096,
+    "stable_fields": [
+      "dst_ip",
+      "dst_port",
+      "dst_zone",
+      "event_category",
+      "protocol",
+      "raw_message",
+      "severity",
+      "source_origin",
+      "source_type",
+      "src_ip",
+      "src_port",
+      "src_zone",
+      "timestamp"
+    ],
+    "high_cardinality_fields": [
+      "raw_message",
+      "src_port",
+      "timestamp"
+    ],
+    "supported_detection_types": [
+      "anomaly",
+      "behavioral",
+      "correlation"
+    ],
+    "rationale": {
+      "signature": "no candidate field is both stable and low-cardinality (checked ['signature', 'raw_message', 'process_name', 'command_line'])",
+      "anomaly": "513.6 records/day across the 7-day baseline window is sufficient to model a normal-volume distribution (threshold 5.0)",
+      "behavioral": "stable, repeatable entity field(s) ['src_ip', 'dst_ip'] allow sequencing multiple events per entity over time",
+      "correlation": "stable join key(s) ['src_ip', 'dst_ip'] can be matched against the same field in other sources"
+    },
+    "recommended_attack_tactics": [
+      "TA0008",
+      "TA0010",
+      "TA0011"
+    ]
+  },
+  {
+    "source_type": "suricata",
+    "record_count": 9977,
+    "stable_fields": [
+      "action",
+      "dst_ip",
+      "dst_port",
+      "dst_zone",
+      "event_category",
+      "protocol",
+      "raw_message",
+      "severity",
+      "signature",
+      "source_origin",
+      "source_type",
+      "src_ip",
+      "src_port",
+      "src_zone",
+      "timestamp"
+    ],
+    "high_cardinality_fields": [
+      "raw_message",
+      "src_port",
+      "timestamp"
+    ],
+    "supported_detection_types": [
+      "signature",
+      "anomaly",
+      "behavioral",
+      "correlation"
+    ],
+    "rationale": {
+      "signature": "stable, repeatable field(s) ['signature'] support exact/keyword pattern matching",
+      "anomaly": "1249.4 records/day across the 7-day baseline window is sufficient to model a normal-volume distribution (threshold 5.0)",
+      "behavioral": "stable, repeatable entity field(s) ['src_ip', 'dst_ip'] allow sequencing multiple events per entity over time",
+      "correlation": "stable join key(s) ['src_ip', 'dst_ip'] can be matched against the same field in other sources"
+    },
+    "recommended_attack_tactics": [
+      "TA0001",
+      "TA0007",
+      "TA0010",
+      "TA0011"
+    ]
+  },
+  {
+    "source_type": "windows_json",
+    "record_count": 122569,
+    "stable_fields": [
+      "asset.criticality",
+      "asset.os",
+      "asset.owner",
+      "asset.role",
+      "asset.zone",
+      "event_category",
+      "hostname",
+      "process_name",
+      "raw_message",
+      "severity",
+      "source_origin",
+      "source_type",
+      "timestamp"
+    ],
+    "high_cardinality_fields": [
+      "timestamp"
+    ],
+    "supported_detection_types": [
+      "signature",
+      "anomaly",
+      "behavioral",
+      "correlation"
+    ],
+    "rationale": {
+      "signature": "stable, repeatable field(s) ['raw_message', 'process_name'] support exact/keyword pattern matching",
+      "anomaly": "15284.9 records/day across the 7-day baseline window is sufficient to model a normal-volume distribution (threshold 5.0)",
+      "behavioral": "stable, repeatable entity field(s) ['hostname'] allow sequencing multiple events per entity over time",
+      "correlation": "stable join key(s) ['hostname'] can be matched against the same field in other sources"
+    },
+    "recommended_attack_tactics": [
+      "TA0001",
+      "TA0002",
+      "TA0004",
+      "TA0006"
+    ]
+  }
+]

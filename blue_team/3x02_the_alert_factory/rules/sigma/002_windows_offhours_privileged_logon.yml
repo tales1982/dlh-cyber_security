@@ -1,0 +1,61 @@
+title: Windows Privileged Logon During Off-Hours
+id: 38218550-e772-4817-972e-cf9393cc2a7a
+status: experimental
+description: |
+  Detects a successful logon (event_id 4624) or an explicit privileged-rights
+  logon (event_id 4672) using a network (LogonType 3) or remote interactive /
+  RDP (LogonType 10) session, occurring between 18:00 and 05:59 local time.
+  In a hospital, clinical staff shifts explain most off-hours activity on
+  clinical workstations, but a privileged or administrative logon in that
+  window - on a domain controller, an EHR application server, or a clinical
+  workstation with elevated rights - falls outside normal support staffing
+  and is a leading indicator of stolen or reused credentials (T1078) being
+  exercised while fewer analysts are watching the queue.
+
+  Runner extension: `hour_of_day` is not a literal field on any Windows
+  Security event. It is computed by the runner (3-sigma_runner.sh) at
+  execution time from each event's timestamp (UTC hour extracted from the
+  ISO 8601 timestamp field), because Sigma field matching only supports
+  equality/list/regex and cannot express a wrapping time range (18:00-05:59
+  crosses midnight) against a raw timestamp field directly. The rule expresses
+  that range as the explicit list of qualifying hours below.
+references:
+  - https://attack.mitre.org/techniques/T1078/
+author: MedDefense SOC
+date: 2026-09-08
+logsource:
+  product: windows
+  service: security
+detection:
+  selection:
+    event_id:
+      - 4624
+      - 4672
+    LogonType:
+      - '3'
+      - '10'
+  offhours:
+    hour_of_day:
+      - 18
+      - 19
+      - 20
+      - 21
+      - 22
+      - 23
+      - 0
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+  condition: selection and offhours
+falsepositives:
+  - An on-call system administrator or help desk technician responding to an
+    after-hours support ticket from a documented shift schedule
+  - A scheduled administrative job (patch deployment, backup verification,
+    certificate renewal) that authenticates under a privileged service
+    account at a fixed off-hours time every night
+level: medium
+tags:
+  - attack.initial_access
+  - attack.t1078
