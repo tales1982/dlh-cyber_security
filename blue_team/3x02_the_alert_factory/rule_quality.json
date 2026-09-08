@@ -1,0 +1,62 @@
+[
+  {
+    "rule_id": "363cf282-aaeb-4c55-8e70-39fbcacc8c61",
+    "rule_title": "SSH Repeated Authentication Failures from Single Source",
+    "level": "high",
+    "tp_count": 0,
+    "fp_count": 0,
+    "fn_count": 15,
+    "precision": 0.0,
+    "recall": 0.0,
+    "f1": 0.0,
+    "target_categories": [
+      "login_failure"
+    ]
+  },
+  {
+    "rule_id": "38218550-e772-4817-972e-cf9393cc2a7a",
+    "rule_title": "Windows Privileged Logon During Off-Hours",
+    "level": "medium",
+    "tp_count": 0,
+    "fp_count": 0,
+    "fn_count": 15,
+    "precision": 0.0,
+    "recall": 0.0,
+    "f1": 0.0,
+    "target_categories": [
+      "login_failure",
+      "login_success",
+      "privilege_escalation"
+    ]
+  },
+  {
+    "rule_id": "bf512fe3-5517-41ed-bfb0-b94f5a12b3ad",
+    "rule_title": "Script Interpreter Launched by a Non-Standard Parent Process",
+    "level": "high",
+    "tp_count": 1,
+    "fp_count": 2,
+    "fn_count": 2,
+    "precision": 0.3333,
+    "recall": 0.3333,
+    "f1": 0.3333,
+    "target_categories": [
+      "child_process_spawn",
+      "process_start"
+    ]
+  },
+  {
+    "rule_id": "e8cc5cef-1357-4e65-b263-0e5463021264",
+    "rule_title": "Reconnaissance Tool Execution Not Seen in Host Baseline",
+    "level": "medium",
+    "tp_count": 0,
+    "fp_count": 0,
+    "fn_count": 3,
+    "precision": 0.0,
+    "recall": 0.0,
+    "f1": 0.0,
+    "target_categories": [
+      "child_process_spawn",
+      "process_start"
+    ]
+  }
+]

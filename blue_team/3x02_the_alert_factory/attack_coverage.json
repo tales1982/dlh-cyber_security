@@ -1,0 +1,213 @@
+[
+  {
+    "technique_id": "T1059.001",
+    "name": "PowerShell",
+    "tactic": "TA0002",
+    "covered": true,
+    "covering_rules": [
+      "003_interpreter_abuse"
+    ]
+  },
+  {
+    "technique_id": "T1059.003",
+    "name": "Windows Command Shell",
+    "tactic": "TA0002",
+    "covered": true,
+    "covering_rules": [
+      "003_interpreter_abuse"
+    ]
+  },
+  {
+    "technique_id": "T1059.004",
+    "name": "Unix Shell",
+    "tactic": "TA0002",
+    "covered": false,
+    "covering_rules": []
+  },
+  {
+    "technique_id": "T1078",
+    "name": "Valid Accounts",
+    "tactic": "TA0001",
+    "covered": true,
+    "covering_rules": [
+      "002_windows_offhours_privileged_logon"
+    ]
+  },
+  {
+    "technique_id": "T1078.002",
+    "name": "Domain Accounts",
+    "tactic": "TA0001",
+    "covered": false,
+    "covering_rules": []
+  },
+  {
+    "technique_id": "T1110.001",
+    "name": "Password Guessing",
+    "tactic": "TA0006",
+    "covered": true,
+    "covering_rules": [
+      "001_ssh_brute_force"
+    ]
+  },
+  {
+    "technique_id": "T1003.001",
+    "name": "LSASS Memory",
+    "tactic": "TA0006",
+    "covered": false,
+    "covering_rules": []
+  },
+  {
+    "technique_id": "T1550.002",
+    "name": "Pass the Hash",
+    "tactic": "TA0008",
+    "covered": false,
+    "covering_rules": []
+  },
+  {
+    "technique_id": "T1021.002",
+    "name": "SMB/Windows Admin Shares",
+    "tactic": "TA0008",
+    "covered": false,
+    "covering_rules": []
+  },
+  {
+    "technique_id": "T1021.004",
+    "name": "SSH",
+    "tactic": "TA0008",
+    "covered": false,
+    "covering_rules": []
+  },
+  {
+    "technique_id": "T1046",
+    "name": "Network Service Discovery",
+    "tactic": "TA0007",
+    "covered": false,
+    "covering_rules": []
+  },
+  {
+    "technique_id": "T1190",
+    "name": "Exploit Public-Facing App",
+    "tactic": "TA0001",
+    "covered": false,
+    "covering_rules": []
+  },
+  {
+    "technique_id": "T1133",
+    "name": "External Remote Services",
+    "tactic": "TA0001",
+    "covered": false,
+    "covering_rules": []
+  },
+  {
+    "technique_id": "T1566.001",
+    "name": "Spearphishing Attachment",
+    "tactic": "TA0001",
+    "covered": false,
+    "covering_rules": []
+  },
+  {
+    "technique_id": "T1071.001",
+    "name": "Web Protocols (C2)",
+    "tactic": "TA0011",
+    "covered": false,
+    "covering_rules": []
+  },
+  {
+    "technique_id": "T1041",
+    "name": "Exfiltration Over C2 Channel",
+    "tactic": "TA0010",
+    "covered": false,
+    "covering_rules": []
+  },
+  {
+    "technique_id": "T1048",
+    "name": "Exfiltration Over Alt Protocol",
+    "tactic": "TA0010",
+    "covered": false,
+    "covering_rules": []
+  },
+  {
+    "technique_id": "T1005",
+    "name": "Data from Local System",
+    "tactic": "TA0009",
+    "covered": false,
+    "covering_rules": []
+  },
+  {
+    "technique_id": "T1530",
+    "name": "Data from Cloud Storage",
+    "tactic": "TA0009",
+    "covered": false,
+    "covering_rules": []
+  },
+  {
+    "technique_id": "T1543.003",
+    "name": "Windows Service",
+    "tactic": "TA0003",
+    "covered": false,
+    "covering_rules": []
+  },
+  {
+    "technique_id": "T1053.005",
+    "name": "Scheduled Task",
+    "tactic": "TA0003",
+    "covered": false,
+    "covering_rules": []
+  },
+  {
+    "technique_id": "T1547.001",
+    "name": "Registry Run Keys",
+    "tactic": "TA0003",
+    "covered": false,
+    "covering_rules": []
+  },
+  {
+    "technique_id": "T1070.001",
+    "name": "Clear Windows Event Logs",
+    "tactic": "TA0005",
+    "covered": false,
+    "covering_rules": []
+  },
+  {
+    "technique_id": "T1070.002",
+    "name": "Clear Linux/Mac Logs",
+    "tactic": "TA0005",
+    "covered": false,
+    "covering_rules": []
+  },
+  {
+    "technique_id": "T1562.001",
+    "name": "Disable Security Tools",
+    "tactic": "TA0005",
+    "covered": false,
+    "covering_rules": []
+  },
+  {
+    "technique_id": "T1562.006",
+    "name": "Indicator Blocking",
+    "tactic": "TA0005",
+    "covered": false,
+    "covering_rules": []
+  },
+  {
+    "technique_id": "T1036.005",
+    "name": "Match Legitimate Name",
+    "tactic": "TA0005",
+    "covered": false,
+    "covering_rules": []
+  },
+  {
+    "technique_id": "T1567",
+    "name": "Exfiltration to Cloud Storage",
+    "tactic": "TA0010",
+    "covered": false,
+    "covering_rules": []
+  },
+  {
+    "technique_id": "T1595.001",
+    "name": "Scanning IP Blocks",
+    "tactic": "TA0043",
+    "covered": false,
+    "covering_rules": []
+  }
+]

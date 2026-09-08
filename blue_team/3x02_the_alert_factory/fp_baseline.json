@@ -1,0 +1,38 @@
+[
+  {
+    "rule_id": "363cf282-aaeb-4c55-8e70-39fbcacc8c61",
+    "rule_title": "SSH Repeated Authentication Failures from Single Source",
+    "level": "high",
+    "fp_count": 0,
+    "baseline_window_start": "2026-03-18T00:00:00Z",
+    "baseline_window_end": "2026-03-25T00:00:00Z",
+    "fp_rate_per_day": 0.0
+  },
+  {
+    "rule_id": "38218550-e772-4817-972e-cf9393cc2a7a",
+    "rule_title": "Windows Privileged Logon During Off-Hours",
+    "level": "medium",
+    "fp_count": 0,
+    "baseline_window_start": "2026-03-18T00:00:00Z",
+    "baseline_window_end": "2026-03-25T00:00:00Z",
+    "fp_rate_per_day": 0.0
+  },
+  {
+    "rule_id": "bf512fe3-5517-41ed-bfb0-b94f5a12b3ad",
+    "rule_title": "Script Interpreter Launched by a Non-Standard Parent Process",
+    "level": "high",
+    "fp_count": 0,
+    "baseline_window_start": "2026-03-18T00:00:00Z",
+    "baseline_window_end": "2026-03-25T00:00:00Z",
+    "fp_rate_per_day": 0.0
+  },
+  {
+    "rule_id": "e8cc5cef-1357-4e65-b263-0e5463021264",
+    "rule_title": "Reconnaissance Tool Execution Not Seen in Host Baseline",
+    "level": "medium",
+    "fp_count": 0,
+    "baseline_window_start": "2026-03-18T00:00:00Z",
+    "baseline_window_end": "2026-03-25T00:00:00Z",
+    "fp_rate_per_day": 0.0
+  }
+]
