@@ -1,0 +1,49 @@
+[
+  {
+    "rule_id": "bf512fe3-5517-41ed-bfb0-b94f5a12b3ad",
+    "rule_title": "Script Interpreter Launched by a Non-Standard Parent Process",
+    "rule_short_name": "003_interpreter_abuse",
+    "risk_score": 8.0,
+    "f1": 0.3333,
+    "priority_score": 2.67,
+    "covering_scenarios": [
+      "RR-02"
+    ],
+    "level": "high"
+  },
+  {
+    "rule_id": "38218550-e772-4817-972e-cf9393cc2a7a",
+    "rule_title": "Windows Privileged Logon During Off-Hours",
+    "rule_short_name": "002_windows_offhours_privileged_logon",
+    "risk_score": 20.0,
+    "f1": 0.0,
+    "priority_score": 2.0,
+    "covering_scenarios": [
+      "RR-01",
+      "RR-02"
+    ],
+    "level": "medium"
+  },
+  {
+    "rule_id": "363cf282-aaeb-4c55-8e70-39fbcacc8c61",
+    "rule_title": "SSH Repeated Authentication Failures from Single Source",
+    "rule_short_name": "001_ssh_brute_force",
+    "risk_score": 12.0,
+    "f1": 0.0,
+    "priority_score": 1.2,
+    "covering_scenarios": [
+      "RR-01"
+    ],
+    "level": "high"
+  },
+  {
+    "rule_id": "e8cc5cef-1357-4e65-b263-0e5463021264",
+    "rule_title": "Reconnaissance Tool Execution Not Seen in Host Baseline",
+    "rule_short_name": "004_recon_tool_execution",
+    "risk_score": 0.0,
+    "f1": 0.0,
+    "priority_score": 0.0,
+    "covering_scenarios": [],
+    "level": "medium"
+  }
+]

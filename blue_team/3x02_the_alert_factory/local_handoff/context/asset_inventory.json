@@ -1,0 +1,170 @@
+[
+  {
+    "hostname": "srv-dc-01",
+    "ip": "10.1.1.10",
+    "criticality": "CRITICAL",
+    "business_impact_multiplier": 5,
+    "data_classification": "SYSTEM",
+    "owner": "robert.kim"
+  },
+  {
+    "hostname": "srv-dc-02",
+    "ip": "10.1.1.11",
+    "criticality": "CRITICAL",
+    "business_impact_multiplier": 5,
+    "data_classification": "SYSTEM",
+    "owner": "robert.kim"
+  },
+  {
+    "hostname": "srv-ehr-01",
+    "ip": "10.1.2.30",
+    "criticality": "CRITICAL",
+    "business_impact_multiplier": 5,
+    "data_classification": "PHI",
+    "owner": "sarah.park"
+  },
+  {
+    "hostname": "pharm-app-01",
+    "ip": "10.1.2.40",
+    "criticality": "HIGH",
+    "business_impact_multiplier": 4,
+    "data_classification": "PHI",
+    "owner": "sarah.park"
+  },
+  {
+    "hostname": "clin-ws-01",
+    "ip": "10.1.10.1",
+    "criticality": "MEDIUM",
+    "business_impact_multiplier": 2,
+    "data_classification": "PHI",
+    "owner": "james.chen"
+  },
+  {
+    "hostname": "clin-ws-03",
+    "ip": "10.1.10.3",
+    "criticality": "MEDIUM",
+    "business_impact_multiplier": 2,
+    "data_classification": "PHI",
+    "owner": "james.chen"
+  },
+  {
+    "hostname": "clin-ws-05",
+    "ip": "10.1.10.5",
+    "criticality": "MEDIUM",
+    "business_impact_multiplier": 2,
+    "data_classification": "PHI",
+    "owner": "james.chen"
+  },
+  {
+    "hostname": "clin-ws-07",
+    "ip": "10.1.10.7",
+    "criticality": "MEDIUM",
+    "business_impact_multiplier": 3,
+    "data_classification": "PHI",
+    "owner": "james.chen"
+  },
+  {
+    "hostname": "clin-ws-12",
+    "ip": "10.1.10.12",
+    "criticality": "MEDIUM",
+    "business_impact_multiplier": 3,
+    "data_classification": "PHI",
+    "owner": "james.chen"
+  },
+  {
+    "hostname": "bill-ws-09",
+    "ip": "10.1.11.9",
+    "criticality": "MEDIUM",
+    "business_impact_multiplier": 2,
+    "data_classification": "PCI",
+    "owner": "robert.kim"
+  },
+  {
+    "hostname": "admin-ws-01",
+    "ip": "10.1.12.1",
+    "criticality": "LOW",
+    "business_impact_multiplier": 1,
+    "data_classification": "INTERNAL",
+    "owner": "james.chen"
+  },
+  {
+    "hostname": "admin-ws-02",
+    "ip": "10.1.12.2",
+    "criticality": "LOW",
+    "business_impact_multiplier": 1,
+    "data_classification": "INTERNAL",
+    "owner": "james.chen"
+  },
+  {
+    "hostname": "srv-mail-01",
+    "ip": "10.1.1.30",
+    "criticality": "HIGH",
+    "business_impact_multiplier": 3,
+    "data_classification": "INTERNAL",
+    "owner": "mike.torres"
+  },
+  {
+    "hostname": "srv-web-01",
+    "ip": "10.1.1.40",
+    "criticality": "MEDIUM",
+    "business_impact_multiplier": 2,
+    "data_classification": "PUBLIC",
+    "owner": "mike.torres"
+  },
+  {
+    "hostname": "srv-log-01",
+    "ip": "10.1.1.50",
+    "criticality": "HIGH",
+    "business_impact_multiplier": 4,
+    "data_classification": "SYSTEM",
+    "owner": "robert.kim"
+  },
+  {
+    "hostname": "db-patient-01",
+    "ip": "10.1.2.10",
+    "criticality": "CRITICAL",
+    "business_impact_multiplier": 5,
+    "data_classification": "PHI",
+    "owner": "robert.kim"
+  },
+  {
+    "hostname": "db-patient-02",
+    "ip": "10.1.2.11",
+    "criticality": "CRITICAL",
+    "business_impact_multiplier": 5,
+    "data_classification": "PHI",
+    "owner": "robert.kim"
+  },
+  {
+    "hostname": "bill-db-01",
+    "ip": "10.1.2.20",
+    "criticality": "HIGH",
+    "business_impact_multiplier": 4,
+    "data_classification": "PCI",
+    "owner": "robert.kim"
+  },
+  {
+    "hostname": "rad-srv-01",
+    "ip": "10.2.1.10",
+    "criticality": "HIGH",
+    "business_impact_multiplier": 3,
+    "data_classification": "PHI",
+    "owner": "mike.torres"
+  },
+  {
+    "hostname": "rad-srv-02",
+    "ip": "10.2.1.11",
+    "criticality": "HIGH",
+    "business_impact_multiplier": 3,
+    "data_classification": "PHI",
+    "owner": "mike.torres"
+  },
+  {
+    "hostname": "ids-01",
+    "ip": "10.0.0.10",
+    "criticality": "HIGH",
+    "business_impact_multiplier": 4,
+    "data_classification": "SYSTEM",
+    "owner": "mike.torres"
+  }
+]

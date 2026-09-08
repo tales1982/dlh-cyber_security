@@ -1,0 +1,68 @@
+[
+  {
+    "alert_id": "b31806ec-dfe8-5468-917b-94d00c6990f3",
+    "generated_at": "2026-09-08T11:30:20Z",
+    "rule_id": "bf512fe3-5517-41ed-bfb0-b94f5a12b3ad",
+    "rule_title": "Script Interpreter Launched by a Non-Standard Parent Process",
+    "rule_level": "high",
+    "priority_score": 2.67,
+    "event_ref": "line:102944",
+    "event_summary": {
+      "timestamp": "2026-03-25T02:20:00Z",
+      "hostname": "clin-ws-07",
+      "user": null,
+      "src_ip": null,
+      "dst_ip": null,
+      "process_name": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+      "canonical_label": "child_process_spawn",
+      "event_category": "audit"
+    },
+    "asset_context": {
+      "hostname": "clin-ws-07",
+      "ip": "10.1.10.7",
+      "criticality": "MEDIUM",
+      "business_impact_multiplier": 3,
+      "data_classification": "PHI",
+      "owner": "james.chen"
+    },
+    "attack_techniques": [
+      "T1059.001",
+      "T1059.003"
+    ],
+    "status": "new",
+    "evidence_hash": "4d3880f71e353fbd7e6af7468cd8211a9148dfb8db66b551a001735fd4388cb9"
+  },
+  {
+    "alert_id": "d51946eb-1042-5261-965b-a20647fa0361",
+    "generated_at": "2026-09-08T11:30:20Z",
+    "rule_id": "bf512fe3-5517-41ed-bfb0-b94f5a12b3ad",
+    "rule_title": "Script Interpreter Launched by a Non-Standard Parent Process",
+    "rule_level": "high",
+    "priority_score": 2.67,
+    "event_ref": "line:107604",
+    "event_summary": {
+      "timestamp": "2026-03-25T14:24:11Z",
+      "hostname": "clin-ws-12",
+      "user": null,
+      "src_ip": null,
+      "dst_ip": null,
+      "process_name": "C:\\Windows\\System32\\cmd.exe",
+      "canonical_label": "network_connection_outbound",
+      "event_category": "audit"
+    },
+    "asset_context": {
+      "hostname": "clin-ws-12",
+      "ip": "10.1.10.12",
+      "criticality": "MEDIUM",
+      "business_impact_multiplier": 3,
+      "data_classification": "PHI",
+      "owner": "james.chen"
+    },
+    "attack_techniques": [
+      "T1059.001",
+      "T1059.003"
+    ],
+    "status": "new",
+    "evidence_hash": "434fbdc52fae802f4fce8cf7fa416c53c81a5eb7af4fcda69c086b6b088e40e6"
+  }
+]
