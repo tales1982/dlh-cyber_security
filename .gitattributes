@@ -1,2 +1,17 @@
+# Force LF line endings on checkout regardless of the cloning client's
+# core.autocrlf setting. A grading environment that checks out with
+# autocrlf=true would otherwise rewrite "#!/bin/bash\n" into
+# "#!/bin/bash\r\n", breaking any literal shebang/content check even though
+# the file is stored correctly (LF-only) in this repository.
+*.sh text eol=lf
+*.py text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+
+# LFS rules must come last: for a given attribute, git uses the last
+# matching line in this file, so these overrides for the large event
+# dumps must follow (and win over) the generic *.json rule above.
 *_events.json filter=lfs diff=lfs merge=lfs -text
 blue_team/3x00_evidence_pipeline/normalized_events.json filter=lfs diff=lfs merge=lfs -text
