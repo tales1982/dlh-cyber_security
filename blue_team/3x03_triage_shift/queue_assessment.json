@@ -1,0 +1,48 @@
+{
+  "queue_size": 2,
+  "validation_errors": [],
+  "by_priority_band": {
+    "critical": 0,
+    "high": 0,
+    "medium": 0,
+    "low": 2
+  },
+  "by_rule": [
+    {
+      "rule_id": "bf512fe3-5517-41ed-bfb0-b94f5a12b3ad",
+      "rule_title": "Script Interpreter Launched by a Non-Standard Parent Process",
+      "count": 2
+    }
+  ],
+  "by_hostname": [
+    {
+      "hostname": "clin-ws-07",
+      "count": 1
+    },
+    {
+      "hostname": "clin-ws-12",
+      "count": 1
+    }
+  ],
+  "by_attack_tactic": [
+    {
+      "tactic_id": "TA0002",
+      "tactic_name": "execution",
+      "count": 2
+    }
+  ],
+  "time_span": {
+    "start": "2026-03-25T02:20:00Z",
+    "end": "2026-03-25T14:24:11Z"
+  },
+  "top_targets": [
+    {
+      "hostname": "clin-ws-07",
+      "score": 2.67
+    },
+    {
+      "hostname": "clin-ws-12",
+      "score": 2.67
+    }
+  ]
+}
