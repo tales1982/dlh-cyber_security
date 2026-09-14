@@ -1,0 +1,488 @@
+[
+  {
+    "alert_id": "b31806ec-dfe8-5468-917b-94d00c6990f3",
+    "generated_at": "2026-09-08T11:30:20Z",
+    "rule_id": "bf512fe3-5517-41ed-bfb0-b94f5a12b3ad",
+    "rule_title": "Script Interpreter Launched by a Non-Standard Parent Process",
+    "rule_level": "high",
+    "priority_score": 2.67,
+    "event_ref": "line:102944",
+    "event_summary": {
+      "timestamp": "2026-03-25T02:20:00Z",
+      "hostname": "clin-ws-07",
+      "user": null,
+      "src_ip": null,
+      "dst_ip": null,
+      "process_name": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+      "canonical_label": "child_process_spawn",
+      "event_category": "audit"
+    },
+    "asset_context": {
+      "hostname": "clin-ws-07",
+      "ip": "10.1.10.7",
+      "criticality": "MEDIUM",
+      "business_impact_multiplier": 3,
+      "data_classification": "PHI",
+      "owner": "james.chen"
+    },
+    "attack_techniques": [
+      "T1059.001",
+      "T1059.003"
+    ],
+    "status": "new",
+    "evidence_hash": "4d3880f71e353fbd7e6af7468cd8211a9148dfb8db66b551a001735fd4388cb9",
+    "asset": {
+      "hostname": "clin-ws-07",
+      "ip": "10.1.10.7",
+      "criticality": "MEDIUM",
+      "role": "Clinical Workstation",
+      "data_classification": "PHI",
+      "owner": "james.chen",
+      "network_zone": "CLINICAL",
+      "business_impact_multiplier": 3
+    },
+    "baseline_host_profile": {
+      "auth": {
+        "logout": 697,
+        "login_success": 936,
+        "privilege_escalation": 259
+      },
+      "process": {
+        "expected": [
+          "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+          "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+          "C:\\Program Files\\MedDefense\\EHR\\EHRClient.exe",
+          "C:\\Program Files\\MedDefense\\Pharmacy\\PharmApp.exe",
+          "C:\\ProgramData\\Microsoft\\Windows Defender\\MsMpEng.exe",
+          "C:\\Windows\\System32\\RuntimeBroker.exe",
+          "C:\\Windows\\System32\\conhost.exe",
+          "C:\\Windows\\System32\\csrss.exe",
+          "C:\\Windows\\System32\\dllhost.exe",
+          "C:\\Windows\\System32\\lsass.exe",
+          "C:\\Windows\\System32\\spoolsv.exe",
+          "C:\\Windows\\System32\\svchost.exe",
+          "C:\\Windows\\System32\\taskhostw.exe",
+          "C:\\Windows\\explorer.exe",
+          "Microsoft-Windows-PowerShell",
+          "Microsoft-Windows-Security-Auditing"
+        ],
+        "entries": [
+          {
+            "process_name": "Microsoft-Windows-PowerShell",
+            "count": 691,
+            "first_seen": "2026-03-18T00:42:37Z",
+            "last_seen": "2026-03-24T22:42:35Z",
+            "users": []
+          },
+          {
+            "process_name": "Microsoft-Windows-Security-Auditing",
+            "count": 202,
+            "first_seen": "2026-03-18T01:13:55Z",
+            "last_seen": "2026-03-24T23:25:55Z",
+            "users": []
+          },
+          {
+            "process_name": "C:\\Windows\\System32\\dllhost.exe",
+            "count": 184,
+            "first_seen": "2026-03-18T00:18:17Z",
+            "last_seen": "2026-03-24T22:53:30Z",
+            "users": []
+          },
+          {
+            "process_name": "C:\\ProgramData\\Microsoft\\Windows Defender\\MsMpEng.exe",
+            "count": 183,
+            "first_seen": "2026-03-18T02:03:49Z",
+            "last_seen": "2026-03-24T22:52:50Z",
+            "users": []
+          },
+          {
+            "process_name": "C:\\Windows\\System32\\conhost.exe",
+            "count": 180,
+            "first_seen": "2026-03-18T01:00:18Z",
+            "last_seen": "2026-03-24T23:07:49Z",
+            "users": []
+          },
+          {
+            "process_name": "C:\\Windows\\System32\\svchost.exe",
+            "count": 179,
+            "first_seen": "2026-03-18T00:17:54Z",
+            "last_seen": "2026-03-24T23:42:06Z",
+            "users": []
+          },
+          {
+            "process_name": "C:\\Windows\\System32\\taskhostw.exe",
+            "count": 174,
+            "first_seen": "2026-03-18T00:54:31Z",
+            "last_seen": "2026-03-24T23:53:01Z",
+            "users": []
+          },
+          {
+            "process_name": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+            "count": 170,
+            "first_seen": "2026-03-18T00:46:38Z",
+            "last_seen": "2026-03-24T23:35:11Z",
+            "users": []
+          },
+          {
+            "process_name": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+            "count": 167,
+            "first_seen": "2026-03-18T04:49:11Z",
+            "last_seen": "2026-03-24T19:03:58Z",
+            "users": []
+          },
+          {
+            "process_name": "C:\\Windows\\System32\\csrss.exe",
+            "count": 167,
+            "first_seen": "2026-03-18T00:05:23Z",
+            "last_seen": "2026-03-24T20:55:52Z",
+            "users": []
+          },
+          {
+            "process_name": "C:\\Program Files\\MedDefense\\EHR\\EHRClient.exe",
+            "count": 166,
+            "first_seen": "2026-03-18T00:34:32Z",
+            "last_seen": "2026-03-24T19:46:12Z",
+            "users": []
+          },
+          {
+            "process_name": "C:\\Windows\\System32\\lsass.exe",
+            "count": 159,
+            "first_seen": "2026-03-18T00:09:51Z",
+            "last_seen": "2026-03-24T23:54:05Z",
+            "users": []
+          },
+          {
+            "process_name": "C:\\Windows\\System32\\RuntimeBroker.exe",
+            "count": 157,
+            "first_seen": "2026-03-18T05:39:53Z",
+            "last_seen": "2026-03-24T22:52:07Z",
+            "users": []
+          },
+          {
+            "process_name": "C:\\Windows\\explorer.exe",
+            "count": 157,
+            "first_seen": "2026-03-18T01:53:46Z",
+            "last_seen": "2026-03-24T22:07:29Z",
+            "users": []
+          },
+          {
+            "process_name": "C:\\Program Files\\MedDefense\\Pharmacy\\PharmApp.exe",
+            "count": 152,
+            "first_seen": "2026-03-18T00:24:27Z",
+            "last_seen": "2026-03-24T23:27:19Z",
+            "users": []
+          },
+          {
+            "process_name": "C:\\Windows\\System32\\spoolsv.exe",
+            "count": 139,
+            "first_seen": "2026-03-18T02:04:38Z",
+            "last_seen": "2026-03-24T23:48:49Z",
+            "users": []
+          }
+        ]
+      },
+      "network": {
+        "host_ip": "10.1.10.7",
+        "profile": {
+          "network_connection_outbound": 1949,
+          "network_connection_inbound": 0,
+          "network_blocked": 471,
+          "known_dst_ports": [
+            22,
+            25,
+            53,
+            80,
+            88,
+            135,
+            389,
+            443,
+            445,
+            636,
+            993,
+            1433,
+            3389,
+            5432
+          ]
+        }
+      },
+      "file": {
+        "file_read_sensitive": 108,
+        "file_write_sensitive": 327,
+        "file_permission_change": 0
+      }
+    },
+    "event_record": {
+      "timestamp": "2026-03-25T02:20:00Z",
+      "hostname": "clin-ws-07",
+      "source_type": "windows_json",
+      "source_origin": "evidence_pack",
+      "event_category": "audit",
+      "severity": "info",
+      "user": null,
+      "process_name": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+      "pid": 8412,
+      "command_line": "powershell.exe -ExecutionPolicy Bypass -File C:\\Temp\\export_records.ps1",
+      "src_ip": null,
+      "dst_ip": null,
+      "src_port": null,
+      "dst_port": null,
+      "protocol": null,
+      "action": null,
+      "raw_message": "Process Create: powershell.exe spawned by explorer.exe",
+      "asset": {
+        "role": "Clinical Workstation",
+        "criticality": "MEDIUM",
+        "os": "Windows 11 Enterprise",
+        "owner": "sarah.park",
+        "zone": "CLINICAL"
+      },
+      "src_zone": null,
+      "dst_zone": null
+    },
+    "ioc_hits": [],
+    "priority_band": "low"
+  },
+  {
+    "alert_id": "d51946eb-1042-5261-965b-a20647fa0361",
+    "generated_at": "2026-09-08T11:30:20Z",
+    "rule_id": "bf512fe3-5517-41ed-bfb0-b94f5a12b3ad",
+    "rule_title": "Script Interpreter Launched by a Non-Standard Parent Process",
+    "rule_level": "high",
+    "priority_score": 2.67,
+    "event_ref": "line:107604",
+    "event_summary": {
+      "timestamp": "2026-03-25T14:24:11Z",
+      "hostname": "clin-ws-12",
+      "user": null,
+      "src_ip": null,
+      "dst_ip": null,
+      "process_name": "C:\\Windows\\System32\\cmd.exe",
+      "canonical_label": "network_connection_outbound",
+      "event_category": "audit"
+    },
+    "asset_context": {
+      "hostname": "clin-ws-12",
+      "ip": "10.1.10.12",
+      "criticality": "MEDIUM",
+      "business_impact_multiplier": 3,
+      "data_classification": "PHI",
+      "owner": "james.chen"
+    },
+    "attack_techniques": [
+      "T1059.001",
+      "T1059.003"
+    ],
+    "status": "new",
+    "evidence_hash": "434fbdc52fae802f4fce8cf7fa416c53c81a5eb7af4fcda69c086b6b088e40e6",
+    "asset": {
+      "hostname": "clin-ws-12",
+      "ip": "10.1.10.12",
+      "criticality": "MEDIUM",
+      "role": "Clinical Workstation",
+      "data_classification": "PHI",
+      "owner": "james.chen",
+      "network_zone": "CLINICAL",
+      "business_impact_multiplier": 3
+    },
+    "baseline_host_profile": {
+      "auth": {
+        "login_success": 978,
+        "logout": 726,
+        "privilege_escalation": 301
+      },
+      "process": {
+        "expected": [
+          "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+          "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+          "C:\\Program Files\\MedDefense\\EHR\\EHRClient.exe",
+          "C:\\Program Files\\MedDefense\\Pharmacy\\PharmApp.exe",
+          "C:\\ProgramData\\Microsoft\\Windows Defender\\MsMpEng.exe",
+          "C:\\Windows\\System32\\RuntimeBroker.exe",
+          "C:\\Windows\\System32\\conhost.exe",
+          "C:\\Windows\\System32\\csrss.exe",
+          "C:\\Windows\\System32\\dllhost.exe",
+          "C:\\Windows\\System32\\lsass.exe",
+          "C:\\Windows\\System32\\spoolsv.exe",
+          "C:\\Windows\\System32\\svchost.exe",
+          "C:\\Windows\\System32\\taskhostw.exe",
+          "C:\\Windows\\explorer.exe",
+          "Microsoft-Windows-PowerShell",
+          "Microsoft-Windows-Security-Auditing"
+        ],
+        "entries": [
+          {
+            "process_name": "Microsoft-Windows-PowerShell",
+            "count": 718,
+            "first_seen": "2026-03-18T00:05:19Z",
+            "last_seen": "2026-03-24T23:34:25Z",
+            "users": []
+          },
+          {
+            "process_name": "C:\\ProgramData\\Microsoft\\Windows Defender\\MsMpEng.exe",
+            "count": 193,
+            "first_seen": "2026-03-18T00:01:09Z",
+            "last_seen": "2026-03-24T22:42:35Z",
+            "users": []
+          },
+          {
+            "process_name": "Microsoft-Windows-Security-Auditing",
+            "count": 189,
+            "first_seen": "2026-03-18T00:49:57Z",
+            "last_seen": "2026-03-24T23:42:39Z",
+            "users": []
+          },
+          {
+            "process_name": "C:\\Windows\\System32\\csrss.exe",
+            "count": 188,
+            "first_seen": "2026-03-18T00:22:23Z",
+            "last_seen": "2026-03-24T23:31:49Z",
+            "users": []
+          },
+          {
+            "process_name": "C:\\Windows\\System32\\spoolsv.exe",
+            "count": 185,
+            "first_seen": "2026-03-18T00:03:54Z",
+            "last_seen": "2026-03-24T22:55:27Z",
+            "users": []
+          },
+          {
+            "process_name": "C:\\Program Files\\MedDefense\\EHR\\EHRClient.exe",
+            "count": 184,
+            "first_seen": "2026-03-18T01:03:14Z",
+            "last_seen": "2026-03-24T23:20:28Z",
+            "users": []
+          },
+          {
+            "process_name": "C:\\Windows\\System32\\svchost.exe",
+            "count": 180,
+            "first_seen": "2026-03-18T00:00:37Z",
+            "last_seen": "2026-03-24T22:48:49Z",
+            "users": []
+          },
+          {
+            "process_name": "C:\\Windows\\System32\\conhost.exe",
+            "count": 179,
+            "first_seen": "2026-03-18T01:18:25Z",
+            "last_seen": "2026-03-24T23:20:54Z",
+            "users": []
+          },
+          {
+            "process_name": "C:\\Windows\\System32\\taskhostw.exe",
+            "count": 175,
+            "first_seen": "2026-03-18T01:09:23Z",
+            "last_seen": "2026-03-24T19:08:53Z",
+            "users": []
+          },
+          {
+            "process_name": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+            "count": 174,
+            "first_seen": "2026-03-18T00:33:31Z",
+            "last_seen": "2026-03-24T23:31:17Z",
+            "users": []
+          },
+          {
+            "process_name": "C:\\Windows\\explorer.exe",
+            "count": 171,
+            "first_seen": "2026-03-18T00:42:03Z",
+            "last_seen": "2026-03-24T23:52:54Z",
+            "users": []
+          },
+          {
+            "process_name": "C:\\Windows\\System32\\lsass.exe",
+            "count": 167,
+            "first_seen": "2026-03-18T01:11:23Z",
+            "last_seen": "2026-03-24T23:56:59Z",
+            "users": []
+          },
+          {
+            "process_name": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+            "count": 163,
+            "first_seen": "2026-03-18T01:44:02Z",
+            "last_seen": "2026-03-24T23:58:20Z",
+            "users": []
+          },
+          {
+            "process_name": "C:\\Windows\\System32\\RuntimeBroker.exe",
+            "count": 163,
+            "first_seen": "2026-03-18T00:21:49Z",
+            "last_seen": "2026-03-24T23:10:25Z",
+            "users": []
+          },
+          {
+            "process_name": "C:\\Windows\\System32\\dllhost.exe",
+            "count": 161,
+            "first_seen": "2026-03-18T01:18:24Z",
+            "last_seen": "2026-03-24T23:32:21Z",
+            "users": []
+          },
+          {
+            "process_name": "C:\\Program Files\\MedDefense\\Pharmacy\\PharmApp.exe",
+            "count": 159,
+            "first_seen": "2026-03-18T00:07:22Z",
+            "last_seen": "2026-03-24T23:39:25Z",
+            "users": []
+          }
+        ]
+      },
+      "network": {
+        "host_ip": "10.1.10.12",
+        "profile": {
+          "network_connection_outbound": 1877,
+          "network_connection_inbound": 0,
+          "network_blocked": 484,
+          "known_dst_ports": [
+            22,
+            25,
+            53,
+            80,
+            88,
+            135,
+            389,
+            443,
+            445,
+            636,
+            993,
+            1433,
+            3389,
+            5432
+          ]
+        }
+      },
+      "file": {
+        "file_read_sensitive": 95,
+        "file_write_sensitive": 323,
+        "file_permission_change": 0
+      }
+    },
+    "event_record": {
+      "timestamp": "2026-03-25T14:24:11Z",
+      "hostname": "clin-ws-12",
+      "source_type": "windows_json",
+      "source_origin": "evidence_pack",
+      "event_category": "audit",
+      "severity": "info",
+      "user": null,
+      "process_name": "C:\\Windows\\System32\\cmd.exe",
+      "pid": null,
+      "command_line": null,
+      "src_ip": null,
+      "dst_ip": null,
+      "src_port": null,
+      "dst_port": null,
+      "protocol": null,
+      "action": null,
+      "raw_message": "Network connection: cmd.exe -> 10.1.1.10:445 (SMB)",
+      "asset": {
+        "role": "Clinical Workstation",
+        "criticality": "MEDIUM",
+        "os": "Windows 11 Enterprise",
+        "owner": "sarah.park",
+        "zone": "CLINICAL"
+      },
+      "src_zone": null,
+      "dst_zone": null
+    },
+    "ioc_hits": [],
+    "priority_band": "low"
+  }
+]
