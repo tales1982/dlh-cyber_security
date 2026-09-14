@@ -1,0 +1,66 @@
+[
+  {
+    "incident_id": "INC-20260908-0001",
+    "summary": "Script Interpreter Launched by a Non-Standard Parent Process detected on clin-ws-07.",
+    "timeline": [
+      {
+        "timestamp": "2026-03-25T02:20:00Z",
+        "hostname": "clin-ws-07",
+        "event_category": "audit",
+        "description": "Process Create: powershell.exe spawned by explorer.exe"
+      }
+    ],
+    "affected_assets": [
+      {
+        "hostname": "clin-ws-07",
+        "criticality": "MEDIUM",
+        "data_classification": "PHI",
+        "network_zone": "CLINICAL"
+      }
+    ],
+    "iocs": [
+      {
+        "type": "process",
+        "value": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"
+      }
+    ],
+    "attack_techniques": [
+      "T1059.001",
+      "T1059.003"
+    ],
+    "recommended_containment": "isolate_host",
+    "related_incidents": []
+  },
+  {
+    "incident_id": "INC-20260908-0002",
+    "summary": "Script Interpreter Launched by a Non-Standard Parent Process detected on clin-ws-12.",
+    "timeline": [
+      {
+        "timestamp": "2026-03-25T14:24:11Z",
+        "hostname": "clin-ws-12",
+        "event_category": "audit",
+        "description": "Network connection: cmd.exe -> 10.1.1.10:445 (SMB)"
+      }
+    ],
+    "affected_assets": [
+      {
+        "hostname": "clin-ws-12",
+        "criticality": "MEDIUM",
+        "data_classification": "PHI",
+        "network_zone": "CLINICAL"
+      }
+    ],
+    "iocs": [
+      {
+        "type": "process",
+        "value": "C:\\Windows\\System32\\cmd.exe"
+      }
+    ],
+    "attack_techniques": [
+      "T1059.001",
+      "T1059.003"
+    ],
+    "recommended_containment": "isolate_host",
+    "related_incidents": []
+  }
+]
