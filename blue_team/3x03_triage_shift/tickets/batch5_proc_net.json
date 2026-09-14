@@ -1,0 +1,36 @@
+[
+  {
+    "ticket_id": "1e1f3fb4-3dc9-59f2-a6d1-5c6273d63e48",
+    "alert_id": "b31806ec-dfe8-5468-917b-94d00c6990f3",
+    "classification": "true_positive",
+    "justification": "ambiguous: reputation=None, criticality=MEDIUM, process_name='C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe', parent_process='explorer.exe', dst_ip=None, dst_port=None, known_elsewhere=False, baseline_deviation=True",
+    "evidence_refs": [
+      "line:102944"
+    ],
+    "ioc_hits": [],
+    "attack_techniques": [
+      "T1059.001",
+      "T1059.003"
+    ],
+    "recommended_action": "monitor",
+    "analyst_time_seconds": 180,
+    "created_at": "2026-09-14T08:03:25Z"
+  },
+  {
+    "ticket_id": "49c7b364-10fa-5f53-85d5-b0ba7b16ee76",
+    "alert_id": "d51946eb-1042-5261-965b-a20647fa0361",
+    "classification": "true_positive",
+    "justification": "ambiguous: reputation=None, criticality=MEDIUM, process_name='C:\\\\Windows\\\\System32\\\\cmd.exe', parent_process=None, dst_ip=None, dst_port=None, known_elsewhere=False, baseline_deviation=True",
+    "evidence_refs": [
+      "line:107604"
+    ],
+    "ioc_hits": [],
+    "attack_techniques": [
+      "T1059.001",
+      "T1059.003"
+    ],
+    "recommended_action": "monitor",
+    "analyst_time_seconds": 180,
+    "created_at": "2026-09-14T08:03:25Z"
+  }
+]

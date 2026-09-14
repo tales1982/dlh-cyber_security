@@ -144,3 +144,76 @@ matching any of the four FP signatures from the methodology
 (`service_account_activity`, `management_subnet`, `baseline_match`,
 `clean_ioc_no_deviation`), tagging each ticket's `fp_reason` for T10.
 Writes `tickets/batch2_clearcut_fp.json`.
+
+Tasks 3, 4, 6 and 7 each glob every existing `tickets/batch*.json` (their own
+output excluded) to build the "already handled" set of `alert_id`s, so the
+batches can run in any order relative to a not-yet-written task (e.g. the
+still-missing batch 3) without double-processing an alert.
+
+### 6. Batch 4: Ambiguous Authentication Alerts — `6-triage_ambiguous_auth.sh`
+
+Reads `enriched_queue.json` plus, specifically for this batch,
+`$BASELINE_PKG/baselines/baseline_summary.json` (`auth.known_accounts`,
+`auth.max_failures_1h_window`) and `$HANDOFF_DIR/data/enriched_events.json`
+(the user's full authentication history — not just the one event T2 already
+attached) — re-opening these is a deliberate exception to the "read only
+enriched_queue.json" norm, exactly what the task narrative describes
+("neither the baseline nor the IOC feed alone answers the question").
+For every unticketed `auth`-category alert it builds the user's historical
+host/IP set and last 20 auth events in one streaming pass, then applies the
+4-branch decision tree from the task (unknown IP + critical/high + never
+logged into host → escalate; unknown IP + medium/low + no IOC → close
+`unknown_ip_low_asset`; known IP + failure burst inside
+`[max_failures_1h_window, 2x]` → close `baseline_edge_burst`; else →
+monitor). Writes `tickets/batch4_auth.json`.
+
+### 7. Batch 5: Ambiguous Process and Network Alerts — `7-triage_ambiguous_proc_net.sh`
+
+Reads `enriched_queue.json` (process fields and `ioc_hits` were already
+joined by T2, so no need to reopen `ioc_context.json`) plus
+`$BASELINE_PKG/baselines/baseline_summary.json` for the one thing T2 didn't
+attach: *other* hosts' baseline profiles, needed for the
+"known elsewhere" FP signature (`process.per_host` on a different host, or
+`network.top_destinations`, a global list — not scoped to this alert's own
+host). `parent_process` is parsed from `event_record.raw_message`'s
+`"... by <parent>"` suffix, the same convention `003_interpreter_abuse.yml`
+already documents for when no literal parent-process field exists. Applies
+the 5-branch decision tree (malicious → escalate; suspicious on
+critical/high asset → monitor; suspicious on medium/low but known elsewhere
+→ close; clean/no baseline deviation → close; else → monitor). Writes
+`tickets/batch5_proc_net.json`.
+
+### 8. Batch 6: Multi-Alert Correlation — `8-triage_correlation.sh`
+
+Reads `enriched_queue.json` only. Groups same-hostname alerts by chaining
+consecutive (sorted-by-timestamp) alerts whose gap is ≤ 600s into one
+incident — this correctly merges transitive chains (A–B ≤600s, B–C ≤600s)
+even when A and C themselves are further apart. Groups of ≥3 are
+`high_confidence`, groups of 2 are `medium_confidence`; singletons are not
+incidents. An incident inherits `true_positive` if any contributing alert
+already has a `true_positive` ticket in `tickets/batch*.json`, otherwise
+it's evaluated fresh from the group's highest-`priority_score` alert's
+`priority_band`. This is the one script that **mutates already-written
+ticket files**: every contributing alert's individual ticket (wherever it
+lives) is updated in place with `grouped: true`, so T11 (and later T10/T12)
+can skip it in favor of the single incident ticket. Writes
+`tickets/batch6_incidents.json`.
+
+### 11. Incident Assembly — `11-incident_assembly.sh`
+
+Reads every `tickets/batch*.json` plus `enriched_queue.json` (tickets are
+intentionally lean; the full event/asset/IOC context for the escalation
+package only exists in the enriched queue). Selects every `true_positive`
+ticket with `recommended_action` in `{escalate_tier2, monitor}` —
+individual tickets marked `grouped: true` are skipped in favor of their
+`batch6_incidents.json` entry, so one correlated attack produces one
+incident record, not several. `incident_id` is `INC-<YYYYMMDD>-NNNN`, dated
+from the queue's own `generated_at` (not wall-clock) and numbered in a
+timestamp-then-alert_id sort so reruns are idempotent.
+`recommended_containment` comes from a fixed, ordered table: malicious IOC
+category c2/botnet/ransomware/tor → `isolate_host`; exfiltration/cloud
+storage abuse → `block_ip_at_egress`; a brute-force rule name →
+`block_source_ip`; a credential/privilege rule name → `disable_account`;
+any other flagged IOC → `block_ip_at_egress`; otherwise → `isolate_host`.
+`related_incidents` is a second pass linking any two incidents that share a
+hostname or an extracted IOC value. Writes `incidents.json`.
