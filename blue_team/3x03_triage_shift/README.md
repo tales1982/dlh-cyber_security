@@ -217,3 +217,14 @@ storage abuse → `block_ip_at_egress`; a brute-force rule name →
 any other flagged IOC → `block_ip_at_egress`; otherwise → `isolate_host`.
 `related_incidents` is a second pass linking any two incidents that share a
 hostname or an extracted IOC value. Writes `incidents.json`.
+
+### 15. Review: Classification Under Ambiguity — `15-classification_under_ambiguity.md`
+
+Written reflection on a 3-alert/90-second correlation scenario on a HIGH/PHI
+host where no single alert crosses the escalation bar on its own. Traces
+the scenario through the actual Escalation Criteria bullets (the
+correlation bullet fires on its own) and through the real decision logic in
+T3/T6/T7/T8 to show the pipeline already escalates it correctly, then
+names a real, honest limitation in `baseline_violation()`'s process check
+(it doesn't look at the parent-child relationship) and why the correlation
+requirement is what keeps that blind spot from mattering here.
