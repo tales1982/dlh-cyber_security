@@ -1,0 +1,73 @@
+{
+  "per_interface": {
+    "cli": {
+      "interface": "cli",
+      "total_seconds": 70,
+      "avg_seconds": 17.5,
+      "median_seconds": 21,
+      "total_actions": 19,
+      "avg_actions": 4.75,
+      "total_fields_touched": 22,
+      "avg_fields_touched": 5.5,
+      "total_event_refs": 60,
+      "avg_event_refs": 15
+    },
+    "wazuh_export": {
+      "interface": "wazuh_export",
+      "total_seconds": 3,
+      "avg_seconds": 0.75,
+      "median_seconds": 1,
+      "total_actions": 26,
+      "avg_actions": 6.5,
+      "total_fields_touched": 23,
+      "avg_fields_touched": 5.75,
+      "total_event_refs": 59,
+      "avg_event_refs": 14.75
+    }
+  },
+  "per_scenario": [
+    {
+      "scenario_id": "anchor",
+      "cli_seconds": 21,
+      "export_seconds": 1,
+      "delta_seconds": -20,
+      "faster": "wazuh_export"
+    },
+    {
+      "scenario_id": "scenario_a",
+      "cli_seconds": 23,
+      "export_seconds": 1,
+      "delta_seconds": -22,
+      "faster": "wazuh_export"
+    },
+    {
+      "scenario_id": "scenario_b",
+      "cli_seconds": 21,
+      "export_seconds": 1,
+      "delta_seconds": -20,
+      "faster": "wazuh_export"
+    },
+    {
+      "scenario_id": "scenario_c",
+      "cli_seconds": 5,
+      "export_seconds": 0,
+      "delta_seconds": -5,
+      "faster": "wazuh_export"
+    }
+  ],
+  "confidence_distribution": {
+    "cli": {
+      "interface": "cli",
+      "high": 3,
+      "medium": 1,
+      "low": 0
+    },
+    "wazuh_export": {
+      "interface": "wazuh_export",
+      "high": 3,
+      "medium": 1,
+      "low": 0
+    }
+  },
+  "generated_at": "2026-09-15T11:37:58Z"
+}

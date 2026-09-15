@@ -1,0 +1,35 @@
+{
+  "finding_id": "scenario_b_export",
+  "scenario_id": "scenario_b",
+  "interface": "wazuh_export",
+  "investigation_start": "2026-09-15T11:33:49Z",
+  "investigation_end": "2026-09-15T11:33:50Z",
+  "time_to_first_answer_seconds": 1,
+  "actions": [
+    "read scenario_b_search_results.json (11 events)",
+    "extract agent.name, user.name, winlog.event_id from events",
+    "check agent.labels for data_classification (absent)",
+    "fallback: read /home/student/3x00_handoff/evidence_handoff/context/asset_inventory.json for data_classification",
+    "read scenario_b_dashboard_trace.json click path",
+    "write findings/scenario_b_export.json"
+  ],
+  "fields_touched": [
+    "agent.name",
+    "user.name",
+    "winlog.event_id",
+    "agent.labels",
+    "@timestamp"
+  ],
+  "event_refs": [
+    "e7f265cf-72f1-434b-a8ea-a332156ff2b0",
+    "06c08ad1-baea-4dfe-ba93-e9d25c8af167",
+    "df444197-c660-4d88-8d02-d62aa516f0cd"
+  ],
+  "attack_techniques": [
+    "T1078.002",
+    "T1059.001"
+  ],
+  "hypothesis": "p.morales logged on to the PHI-classified clin-ws-07 off-hours and ran a PowerShell command with -ExecutionPolicy Bypass. The Wazuh export's agent.labels did not carry data_classification, requiring a fallback lookup in asset_inventory.json to confirm PHI scope.",
+  "confidence": "medium",
+  "created_at": "2026-09-15T11:33:50Z"
+}

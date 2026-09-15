@@ -1,0 +1,12 @@
+{
+  "mode": "wazuh_export",
+  "source_index": "meddefense-evidence-2026-03",
+  "total_documents": 339882,
+  "time_range": {
+    "earliest": "2026-03-18T00:00:13Z",
+    "latest": "2026-03-26T01:57:33Z"
+  },
+  "export_files_verified": true,
+  "field_mapping_loaded": true,
+  "initialized_at": "2026-09-15T11:14:11Z"
+}

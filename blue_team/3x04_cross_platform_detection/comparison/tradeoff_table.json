@@ -1,0 +1,42 @@
+[
+  {
+    "scenario_id": "anchor",
+    "cli_seconds": 21,
+    "export_seconds": 1,
+    "time_delta_seconds": 20,
+    "cli_actions": 4,
+    "export_actions": 7,
+    "faster_interface": "wazuh_export",
+    "cause": "native_field_surface"
+  },
+  {
+    "scenario_id": "scenario_a",
+    "cli_seconds": 23,
+    "export_seconds": 1,
+    "time_delta_seconds": 22,
+    "cli_actions": 4,
+    "export_actions": 7,
+    "faster_interface": "wazuh_export",
+    "cause": "native_field_surface"
+  },
+  {
+    "scenario_id": "scenario_b",
+    "cli_seconds": 21,
+    "export_seconds": 1,
+    "time_delta_seconds": 20,
+    "cli_actions": 5,
+    "export_actions": 6,
+    "faster_interface": "wazuh_export",
+    "cause": "context_join_ergonomics"
+  },
+  {
+    "scenario_id": "scenario_c",
+    "cli_seconds": 5,
+    "export_seconds": 0,
+    "time_delta_seconds": 5,
+    "cli_actions": 6,
+    "export_actions": 6,
+    "faster_interface": "wazuh_export",
+    "cause": "native_field_surface"
+  }
+]

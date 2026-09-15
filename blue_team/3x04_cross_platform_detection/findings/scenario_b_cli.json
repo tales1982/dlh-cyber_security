@@ -1,0 +1,35 @@
+{
+  "finding_id": "scenario_b_cli",
+  "scenario_id": "scenario_b",
+  "interface": "cli",
+  "investigation_start": "2026-09-15T11:26:06Z",
+  "investigation_end": "2026-09-15T11:26:27Z",
+  "time_to_first_answer_seconds": 21,
+  "actions": [
+    "read scenario manifest: /home/student/3x04_assets/scenarios/scenario_b_offhours_phi.json",
+    "read asset_inventory.json for clin-ws-07 criticality and data classification",
+    "jq scope enriched_events.json by hostname and scenario time window",
+    "filter scoped events for p.morales logon, privilege assignment, and PowerShell bypass execution",
+    "write findings/scenario_b_cli.json"
+  ],
+  "fields_touched": [
+    "hostname",
+    "timestamp",
+    "user",
+    "raw_message",
+    "command_line",
+    "asset"
+  ],
+  "event_refs": [
+    "2026-03-25T02:17:00Z",
+    "2026-03-25T02:17:02Z",
+    "2026-03-25T02:20:00Z"
+  ],
+  "attack_techniques": [
+    "T1078.002",
+    "T1059.001"
+  ],
+  "hypothesis": "p.morales (CISO, authorized for EHR access) logged on to the PHI-classified clin-ws-07 off-hours and ran a PowerShell script with -ExecutionPolicy Bypass. The user is authorized for EHR access, but the off-hours timing and bypass flag put this in the FP/TP grey zone and warrant escalation.",
+  "confidence": "medium",
+  "created_at": "2026-09-15T11:26:27Z"
+}

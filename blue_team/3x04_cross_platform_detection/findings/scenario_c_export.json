@@ -1,0 +1,38 @@
+{
+  "finding_id": "scenario_c_export",
+  "scenario_id": "scenario_c",
+  "interface": "wazuh_export",
+  "investigation_start": "2026-09-15T11:34:48Z",
+  "investigation_end": "2026-09-15T11:34:48Z",
+  "time_to_first_answer_seconds": 0,
+  "actions": [
+    "read scenario_c_search_results.json (6 events)",
+    "extract @timestamp, source.ip, destination.ip, source.zone from events",
+    "check source.zone field (immediately available)",
+    "order beacon flows chronologically and compute inter-beacon intervals",
+    "read scenario_c_dashboard_trace.json click path",
+    "write findings/scenario_c_export.json"
+  ],
+  "fields_touched": [
+    "source.ip",
+    "destination.ip",
+    "source.zone",
+    "@timestamp",
+    "full_log"
+  ],
+  "event_refs": [
+    "5161e1a6-6faf-47be-b647-9a6be7f1f34f",
+    "057fb629-deda-4b97-be19-87ed1c8329fa",
+    "e0f33d27-a580-4f7d-9799-d10370ec76f4",
+    "c0973003-dd64-4968-ba70-c5d8c114e8f1",
+    "f425f331-5e21-4533-86b8-423292a59186",
+    "47d9731e-da35-4e02-87c9-14a1d70abd16"
+  ],
+  "attack_techniques": [
+    "T1071.001",
+    "T1041"
+  ],
+  "hypothesis": "The Wazuh export confirms med-mri-02 beaconed from the MEDICAL_IOT zone to external IP 198.51.100.73 five times at a 12-minute interval, with source.zone immediately available in the document unlike scenario B's missing data_classification label. This is a critical zone-violation true positive.",
+  "confidence": "high",
+  "created_at": "2026-09-15T11:34:48Z"
+}

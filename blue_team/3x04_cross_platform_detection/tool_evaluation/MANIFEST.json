@@ -1,0 +1,140 @@
+{
+  "generated_at": "2026-09-15T11:43:54Z",
+  "entries": [
+    {
+      "path": "brief/vendor_brief.md",
+      "size": 5278,
+      "sha256": "6a0bcd155db59ff94184e899fae403e8a7490174a808c6d033ab9f051566a2cd"
+    },
+    {
+      "path": "comparison/tradeoff_table.json",
+      "size": 972,
+      "sha256": "1526d2ed2470734573e2588a18ee863633c4a4160c8e765b2b44483c524edb77"
+    },
+    {
+      "path": "comparison/tradeoff_table.md",
+      "size": 390,
+      "sha256": "75664586c271dcba14acbcc0890c3430210be4c740f1ab319a3768951f646588"
+    },
+    {
+      "path": "comparison/workflow_comparison.json",
+      "size": 1602,
+      "sha256": "c843f9268bb4b0d1ae59c5236422452ea29f11333d297700ebc946b966873a64"
+    },
+    {
+      "path": "findings/anchor_cli.json",
+      "size": 2386,
+      "sha256": "84078d9c8def5a78a3a8920b422c1984a2b5c7281581c4abdd2341e7259af997"
+    },
+    {
+      "path": "findings/anchor_export.json",
+      "size": 3349,
+      "sha256": "fbd93eaf8623533009a5b1206f7599177e54116c8e161c230e82d16a6d1c7936"
+    },
+    {
+      "path": "findings/scenario_a_cli.json",
+      "size": 1151,
+      "sha256": "638266d20e92ea7fc988d35fe7bad81c391ab76e66aaeeea46836038c8b06115"
+    },
+    {
+      "path": "findings/scenario_a_export.json",
+      "size": 1462,
+      "sha256": "d170401903833a51d7a0863a65fe4369170932c71789d49ecccada793e7497b7"
+    },
+    {
+      "path": "findings/scenario_b_cli.json",
+      "size": 1310,
+      "sha256": "6dbff8405e49a6c169d4c895d463db8f081128fbb4c7e544d26c2fe221538beb"
+    },
+    {
+      "path": "findings/scenario_b_export.json",
+      "size": 1340,
+      "sha256": "f22768f5877cbed3ce2dc852b407ee553cee56bb6db96d9bb2c95c786ab05a57"
+    },
+    {
+      "path": "findings/scenario_c_cli.json",
+      "size": 1439,
+      "sha256": "186b9e4125851bde14fb75d0972a0aa5dc09267911172d334ac8433868cf10ee"
+    },
+    {
+      "path": "findings/scenario_c_export.json",
+      "size": 1460,
+      "sha256": "84bd7a408de7146c525ae6f9125e8840aad6a6224b63bec51e054923e21686d3"
+    },
+    {
+      "path": "playbook/tool_agnostic_playbook.md",
+      "size": 4864,
+      "sha256": "d9092266ae7c927d030a9f0eee19e8652a01c8f08c9f4662f9bb9b3f787d3c02"
+    },
+    {
+      "path": "runtime/0-tool_check.sh",
+      "size": 3907,
+      "sha256": "dbaf20296d07452f8270c01e1ad4023f8a39e897171d1d33a8be0a2649536f28"
+    },
+    {
+      "path": "runtime/1-wazuh_workspace.sh",
+      "size": 2989,
+      "sha256": "775f7d5f83a1e1d84c668f59f5bcc8d4f8e5a31b4c7560c544974ff292a2f0b3"
+    },
+    {
+      "path": "runtime/12-tradeoff_analysis.sh",
+      "size": 2486,
+      "sha256": "b3fc01b79720c07657637fe41250e0e7c94e0a7fbe1766d3eb5fb44da97a6700"
+    },
+    {
+      "path": "runtime/13-workflow_comparison.sh",
+      "size": 3135,
+      "sha256": "598c149fb4997e701f3efb017a23a1b6befc4fbf2c7b556ca015c63be68f7f34"
+    },
+    {
+      "path": "runtime/15-tool_evaluation_package.sh",
+      "size": 3415,
+      "sha256": "e79c2c93a438680874abe3b515d93f743e6bcb76c47ccfc58c6cf2ba78ca8d82"
+    },
+    {
+      "path": "runtime/2-cli_anchor.sh",
+      "size": 4044,
+      "sha256": "f33fe3a0afdecaa7e3289526566f6def9d8e1f5d4b85a9b0c5b03497e3a5939b"
+    },
+    {
+      "path": "runtime/3-export_anchor.sh",
+      "size": 3245,
+      "sha256": "e92e917bdcd504d385ba84be8c317a73c200210e47510a3afd56e82b72649449"
+    },
+    {
+      "path": "runtime/4-cli_scenario_a.sh",
+      "size": 4021,
+      "sha256": "d87fa5a87e797baaa94ffc10cfae26f097d1f21566b1592919a9b21a96b2d187"
+    },
+    {
+      "path": "runtime/5-cli_scenario_b.sh",
+      "size": 4368,
+      "sha256": "82a05434daac2026d5f403f9bca060c173f8d5e45bbe34b4e8061fc088abe413"
+    },
+    {
+      "path": "runtime/6-cli_scenario_c.sh",
+      "size": 4557,
+      "sha256": "a86aad2c2629a28278c17336beb8f6934d6b69f908125d6348c8cdbf154f0521"
+    },
+    {
+      "path": "runtime/7-export_scenario_a.sh",
+      "size": 4294,
+      "sha256": "8c906e4ddd270eda97a84c4bf905d8e0bc2d96fe1c693a9a0ce18a6db288e29a"
+    },
+    {
+      "path": "runtime/8-export_scenario_b.sh",
+      "size": 4551,
+      "sha256": "eab999548e57bc9e4129990a9b1abb8ae14318e17d2ee1caeac05ec18aa0cf16"
+    },
+    {
+      "path": "runtime/9-export_scenario_c.sh",
+      "size": 4364,
+      "sha256": "67244622143523c0272f0c95a8344987942e4a3e61649dfe8f27f7d947cb24f9"
+    },
+    {
+      "path": "workspace/workspace_init.json",
+      "size": 316,
+      "sha256": "e557909b6d1fdda5fbd1120925faea1a428ef48137d2557dc7243dae7a9a8ac1"
+    }
+  ]
+}
