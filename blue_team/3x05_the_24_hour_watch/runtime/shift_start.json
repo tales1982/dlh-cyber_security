@@ -1,0 +1,22 @@
+{
+  "shift_id": "SHIFT-20260918-0812",
+  "analyst_host": "ip-10-42-10-164.ec2.internal",
+  "started_at": "2026-09-18T08:12:46Z",
+  "tools": {
+    "jq": "1.6",
+    "python3": "3.10.12",
+    "yq": "4.44.1",
+    "sigma-cli": "3.0.2",
+    "sha256sum": "present"
+  },
+  "prior_project_bins": {
+    "pipeline": true,
+    "baseline": true,
+    "catalog": true,
+    "triage": true
+  },
+  "capstone_pack": "/home/student/evidence_pack_secondary",
+  "ioc_feed_count": 12,
+  "advisory_cluster_id": "HC-RED7",
+  "wazuh_exports_verified": true
+}
