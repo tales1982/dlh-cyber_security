@@ -3,14 +3,13 @@ id: 38218550-e772-4817-972e-cf9393cc2a7a
 status: experimental
 description: |
   Detects a successful logon (event_id 4624) or an explicit privileged-rights
-  logon (event_id 4672) using a network (LogonType 3) or remote interactive /
-  RDP (LogonType 10) session, occurring between 18:00 and 05:59 local time.
-  In a hospital, clinical staff shifts explain most off-hours activity on
-  clinical workstations, but a privileged or administrative logon in that
-  window - on a domain controller, an EHR application server, or a clinical
-  workstation with elevated rights - falls outside normal support staffing
-  and is a leading indicator of stolen or reused credentials (T1078) being
-  exercised while fewer analysts are watching the queue.
+  logon (event_id 4672) occurring between 18:00 and 05:59 local time. In a
+  hospital, clinical staff shifts explain most off-hours activity on clinical
+  workstations, but a privileged or administrative logon in that window - on
+  a domain controller, an EHR application server, or a clinical workstation
+  with elevated rights - falls outside normal support staffing and is a
+  leading indicator of stolen or reused credentials (T1078) being exercised
+  while fewer analysts are watching the queue.
 
   Runner extension: `hour_of_day` is not a literal field on any Windows
   Security event. It is computed by the runner (3-sigma_runner.sh) at
@@ -19,6 +18,15 @@ description: |
   equality/list/regex and cannot express a wrapping time range (18:00-05:59
   crosses midnight) against a raw timestamp field directly. The rule expresses
   that range as the explicit list of qualifying hours below.
+
+  Schema limitation discovered during the 3x05 capstone shift: the original
+  version of this rule also required LogonType 3/10, but the 3x00 pipeline's
+  normalized schema does not carry a LogonType field at all - it is dropped
+  during normalization along with the rest of the raw Windows Security event
+  payload. Requiring it silently zeroed out every match. The selection below
+  relies on event_id alone (still enough to identify a logon or a privileged-
+  rights assignment); recovering LogonType is tracked as a tuning
+  recommendation for the 3x00 pipeline, not solved here.
 references:
   - https://attack.mitre.org/techniques/T1078/
 author: MedDefense SOC
@@ -31,9 +39,6 @@ detection:
     event_id:
       - 4624
       - 4672
-    LogonType:
-      - '3'
-      - '10'
   offhours:
     hour_of_day:
       - 18

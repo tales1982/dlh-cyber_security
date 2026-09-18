@@ -24,30 +24,30 @@ jq -n --arg wstart "$WSTART" --arg wend "$WEND" '
         biz_succ: 0, biz_fail: 0, off_succ: 0, off_fail: 0,
         fail_by_ip_hour: {}
       };
-      ($e.canonical_label) as $label
+      ($e.canonical_label) as $lbl
       | ($e.hostname) as $host
       | ($e.user) as $user
       | ($e.timestamp | hour_of) as $h
       | ($h >= 6 and $h < 18) as $biz
       | ($e.timestamp[0:13]) as $hbucket
-      | (if $host != null and (["login_success","login_failure","logout","account_lockout","privilege_escalation"] | index($label)) then
-            .per_host[$host][$label] = ((.per_host[$host][$label] // 0) + 1)
+      | (if $host != null and (["login_success","login_failure","logout","account_lockout","privilege_escalation"] | index($lbl)) then
+            .per_host[$host][$lbl] = ((.per_host[$host][$lbl] // 0) + 1)
           else . end)
       | (if $user != null then
             .accounts[$user] = true
-            | (if $label == "login_success" then .per_user[$user].success = ((.per_user[$user].success // 0) + 1) else . end)
-            | (if $label == "login_failure" then .per_user[$user].failure = ((.per_user[$user].failure // 0) + 1) else . end)
+            | (if $lbl == "login_success" then .per_user[$user].success = ((.per_user[$user].success // 0) + 1) else . end)
+            | (if $lbl == "login_failure" then .per_user[$user].failure = ((.per_user[$user].failure // 0) + 1) else . end)
           else . end)
       | (if $biz then
            .biz_hours[$hbucket] = true
-           | (if $label == "login_success" then .biz_succ += 1 else . end)
-           | (if $label == "login_failure" then .biz_fail += 1 else . end)
+           | (if $lbl == "login_success" then .biz_succ += 1 else . end)
+           | (if $lbl == "login_failure" then .biz_fail += 1 else . end)
          else
            .off_hours[$hbucket] = true
-           | (if $label == "login_success" then .off_succ += 1 else . end)
-           | (if $label == "login_failure" then .off_fail += 1 else . end)
+           | (if $lbl == "login_success" then .off_succ += 1 else . end)
+           | (if $lbl == "login_failure" then .off_fail += 1 else . end)
          end)
-      | (if $label == "login_failure" and $e.src_ip != null then
+      | (if $lbl == "login_failure" and $e.src_ip != null then
            ($e.src_ip + "|" + $hbucket) as $key
            | .fail_by_ip_hour[$key] = ((.fail_by_ip_hour[$key] // 0) + 1)
          else . end)

@@ -63,7 +63,10 @@ with open(zones_file, "r", encoding="utf-8") as f:
 zone_networks = []
 for zone in zones_data.get("zones", []):
     zone_id = zone.get("zone_id")
-    for cidr in zone.get("cidrs", []):
+    cidrs = zone.get("cidrs")
+    if cidrs is None:
+        cidrs = [zone["cidr"]] if "cidr" in zone else []
+    for cidr in cidrs:
         try:
             zone_networks.append((ipaddress.ip_network(cidr), zone_id))
         except ValueError:

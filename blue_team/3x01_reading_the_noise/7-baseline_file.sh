@@ -20,10 +20,10 @@ jq -n --arg wstart "$WSTART" --arg wend "$WEND" '
     (
       {per_host: {}, totals: {}};
       ($e.hostname) as $host
-      | ($e.canonical_label) as $label
-      | .totals[$label] = ((.totals[$label] // 0) + 1)
+      | ($e.canonical_label) as $lbl
+      | .totals[$lbl] = ((.totals[$lbl] // 0) + 1)
       | (if $host != null then
-           .per_host[$host][$label] = ((.per_host[$host][$label] // 0) + 1)
+           .per_host[$host][$lbl] = ((.per_host[$host][$lbl] // 0) + 1)
          else . end)
     )
   | . as $r

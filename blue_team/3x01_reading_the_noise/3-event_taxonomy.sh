@@ -86,8 +86,8 @@ jq -c --slurpfile rules "$TAXONOMY_FILE" '
           ))
         ))
       | .[0].label // "unlabeled"
-    ) as $label
-  | $ev + {canonical_label: $label}
+    ) as $canonical_label
+  | $ev + {canonical_label: $canonical_label}
 ' "$DATA_FILE" > "$LABELED_FILE"
 
 rule_count=$(jq 'length' "$TAXONOMY_FILE")
