@@ -1,0 +1,48 @@
+[pipeline] stage 0 source_inventory  ...
+windows : 3 files  |   63.5 MB
+linux   : 3 files  |   15.7 MB
+network : 3 files  |   12.0 MB
+total   : 9 files  |   91.1 MB
+manifest written to source_inventory.json
+[pipeline] stage 2 windows_parse     ...
+reading security.json      ... 38496 records
+reading sysmon.json        ... 72832 records
+reading powershell.json    ...  9408 records
+appending student telemetry ...  1787 records
+windows_events.json: 122523 records
+[pipeline] stage 3 linux_parse       ...
+parsing auth.log     ...  24832 lines  ->  24832 records
+parsing syslog       ...  41736 lines  ->  41736 records
+parsing audit.log    ...  67368 lines  ->  67368 records (grouped)
+appending student telemetry ...   1400 records
+linux_events.json: written
+[pipeline] stage 5 normalize         ...
+windows_json     : normalized 122523  quarantined      0
+linux_text       : normalized 135336  quarantined      0
+total            : normalized 257859  quarantined      0
+normalized_events.json written
+quarantine.json  written
+[pipeline] stage 6 network_normalize ...
+firewall.csv         :   67368 records normalized
+suricata_eve.json    :    9976 records normalized
+pcap_summary.json    :    4096 records normalized
+appended to normalized_events.json
+network_events.json written
+[pipeline] stage 8 data_quality      ...
+malformed timestamps   :      0 detected       0 repaired       0 dropped
+duplicates             :     12 detected      12 removed
+hostname case          :      0 normalized
+encoding errors        :      0 detected       0 repaired
+suspected wrong tz      :      0 flagged
+cleaned_events.json    written
+cleaning_log.json      written
+[pipeline] stage 9 enrich            ...
+events processed    : 339287
+asset context added : 189079 (55.7%)
+src_zone resolved   : 79005 (23.3%)
+dst_zone resolved   : 57051 (16.8%)
+unknown hosts       : 150208
+enriched_events.json written
+[pipeline] stage 10 timeline         ...
+[pipeline] stage 11 source_stats     ...
+[pipeline] done: /home/student/bt/3x05/shift_pack/enriched

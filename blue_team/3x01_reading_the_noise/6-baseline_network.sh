@@ -20,10 +20,10 @@ jq -n --arg wstart "$WSTART" --arg wend "$WEND" '
     (
       {per_src_ip: {}, ports: {}, destinations: {}, alert_count: 0};
       ($e.src_ip) as $ip
-      | ($e.canonical_label) as $label
-      | (if $label == "network_alert" then .alert_count += 1 else . end)
+      | ($e.canonical_label) as $lbl
+      | (if $lbl == "network_alert" then .alert_count += 1 else . end)
       | (if $ip != null then
-           .per_src_ip[$ip][$label] = ((.per_src_ip[$ip][$label] // 0) + 1)
+           .per_src_ip[$ip][$lbl] = ((.per_src_ip[$ip][$lbl] // 0) + 1)
            | (if $e.dst_port != null then
                 .per_src_ip[$ip].known_dst_ports[($e.dst_port | tostring)] = true
                 | .ports[($e.dst_port | tostring)] = ((.ports[($e.dst_port | tostring)] // 0) + 1)

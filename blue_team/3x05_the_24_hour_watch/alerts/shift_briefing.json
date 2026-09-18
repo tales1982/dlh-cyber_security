@@ -1,0 +1,71 @@
+{
+  "cluster_id": "HC-RED7",
+  "cluster_tactics": [
+    "T1041",
+    "T1071.001",
+    "T1078.002",
+    "T1110.003",
+    "T1543.003"
+  ],
+  "ioc_count": 12,
+  "ioc_by_type": {
+    "ip": 5,
+    "domain": 2,
+    "hash": 1,
+    "account": 1,
+    "service_name": 2,
+    "port": 1
+  },
+  "ioc_values": [
+    "198.51.100.73",
+    "198.51.100.82",
+    "203.0.113.41",
+    "203.0.113.42",
+    "203.0.113.44",
+    "update.medinfo-portal.net",
+    "portal.healthsync-cdn.com",
+    "4a8e2c1f9d3b7e6a0c5f2d8b1e4a7c3f9d2b6e5a",
+    "MedSyncHelper",
+    "WinHealthAgent",
+    "med_svc_update",
+    "4444"
+  ],
+  "active_change_tickets": [
+    {
+      "ticket_id": "CHG-2026-0341",
+      "window_start": "2026-04-08T02:00:00Z",
+      "window_end": "2026-04-08T06:00:00Z",
+      "hosts": [
+        "rad-srv-02"
+      ],
+      "owner": "robert.kim",
+      "approved_activity": "disk expansion, service restart, rsync backup"
+    },
+    {
+      "ticket_id": "CHG-2026-0342",
+      "window_start": "2026-04-08T22:00:00Z",
+      "window_end": "2026-04-09T02:00:00Z",
+      "hosts": [
+        "bill-db-01"
+      ],
+      "owner": "sarah.park",
+      "approved_activity": "database schema update, pg_dump backup, application restart"
+    },
+    {
+      "ticket_id": "CHG-2026-0343",
+      "window_start": "2026-04-08T08:00:00Z",
+      "window_end": "2026-04-08T09:00:00Z",
+      "hosts": [
+        "srv-dc-01"
+      ],
+      "owner": "robert.kim",
+      "approved_activity": "GPO update, forced policy refresh"
+    }
+  ],
+  "prior_shift_open_items": [
+    "**rad-srv-02** — Unusual outbound HTTPS observed at 23:47Z to IP 198.51.100.73. Change ticket CHG-2026-0341 was active but the outbound traffic destination does not match the approved vendor update server. Left open — needs correlation with new shift data.",
+    "**bill-ws-09** — User bill_user_09 had 7 failed RDP auth attempts from 203.0.113.44 between 01:15Z and 01:22Z. Blocked by firewall after 7 attempts. Password spray pattern. No successful auth confirmed but monitor closely in next window."
+  ],
+  "baseline_hot_hosts": [],
+  "hosts_with_deviations": 0
+}

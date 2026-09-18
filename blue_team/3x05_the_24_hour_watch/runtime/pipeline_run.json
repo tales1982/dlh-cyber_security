@@ -1,0 +1,25 @@
+{
+  "pipeline_version": "unknown",
+  "started_at": "2026-09-18T08:36:56Z",
+  "ended_at": "2026-09-18T08:40:01Z",
+  "duration_seconds": 185,
+  "input_pack": "/home/student/evidence_pack_secondary",
+  "events_in": 339287,
+  "events_out": 339287,
+  "events_dropped": 12,
+  "source_counts": {
+    "firewall": 67368,
+    "linux_text": 135336,
+    "pcap": 4096,
+    "suricata": 9976,
+    "windows_json": 122511
+  },
+  "dirty_data_detected": [
+    {
+      "type": "duplicate_event_stream",
+      "count": 12,
+      "action": "removed"
+    }
+  ],
+  "exit_status": 0
+}
