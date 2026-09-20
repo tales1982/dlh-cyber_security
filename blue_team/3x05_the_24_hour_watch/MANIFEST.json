@@ -1,0 +1,202 @@
+{
+  "shift_id": "SHIFT-20260920-0656",
+  "analyst_host": "ip-10-42-175-199.ec2.internal",
+  "started_at": "2026-09-20T06:56:28Z",
+  "ended_at": "2026-09-20T10:10:44Z",
+  "duration_hours": 3.24,
+  "files": [
+    {
+      "path": "runtime/pipeline_run.log",
+      "sha256": "7d4afe2eb902c6401fe32b005e5f23040b260e795df4155c6a38c8d41d73afc3",
+      "size": 2037
+    },
+    {
+      "path": "runtime/baseline_run.json",
+      "sha256": "b7a603cc652324e923c5d907a2dcdb3ff4ad3969f4231fff367f8b6808d32cde",
+      "size": 227
+    },
+    {
+      "path": "runtime/pipeline_run.json",
+      "sha256": "217c42b3aa82a393912471f1ccd075348fb7847eb68c7755faacd0e3004861cb",
+      "size": 560
+    },
+    {
+      "path": "runtime/baseline_run.log",
+      "sha256": "0be4b6afcb538fa5348a4cba7d62141177fa563295e66a2c9eae461671369147",
+      "size": 2800
+    },
+    {
+      "path": "runtime/catalog_run.json",
+      "sha256": "b4b5176647ebbf0f84feeb15b63b116fde16828a55a7b731c9e7be8aececd968",
+      "size": 355
+    },
+    {
+      "path": "runtime/shift_start.json",
+      "sha256": "6c2390479afe5b5881bb77fdd28afb9add67121808a7dfdf633d77db96c7fe11",
+      "size": 534
+    },
+    {
+      "path": "reports/incident_A.md",
+      "sha256": "4cf99364d1f00ae00575acf67267ed79786b980457a99124f0690c027041313d",
+      "size": 1417
+    },
+    {
+      "path": "reports/incident_C.md",
+      "sha256": "cd3f87a33ad2a8e142cca16cfde3f2b3b15f775241b618afb3af8a0231ca86e6",
+      "size": 2004
+    },
+    {
+      "path": "reports/incident_B.md",
+      "sha256": "d5cc0c9bbd8488ef089f455195cde5e5b2a7658ce01939630f020c14824634e3",
+      "size": 1592
+    },
+    {
+      "path": "campaign/campaign_assessment.json",
+      "sha256": "6122db71a8c6233f1c9187fb45b22bfdc7b929091a1e3ee902c541b1603f9a7d",
+      "size": 689
+    },
+    {
+      "path": "alerts/shift_briefing.json",
+      "sha256": "7a3d89dd7238f4f50158a6d37feea29dfbc17309933fc1e0f77ba9e4c3aa977b",
+      "size": 2107
+    },
+    {
+      "path": "alerts/alert_queue.json",
+      "sha256": "c3d40cc4a998bd2ad08eba5e5b172c52ea9f078a94b3221492a4a7aa3b0902af",
+      "size": 267918
+    },
+    {
+      "path": "alerts/triage_log.jsonl",
+      "sha256": "ed5c9554d7b938fd8b06df542f1c5bdb94fafe09c3a53d1d43ef8d9a46c85f89",
+      "size": 461590
+    },
+    {
+      "path": "alerts/incidents.json",
+      "sha256": "706ecb676173be80b064cb27c85baf9653214fbc04b99c7dbaa367c2b9064e50",
+      "size": 151
+    },
+    {
+      "path": "enriched/network_events.json",
+      "sha256": "49cb4efae80efa0b44897c99a3a05ba9514b59842a82f1c76bf5490b57734e84",
+      "size": 38850122
+    },
+    {
+      "path": "enriched/baseline.json",
+      "sha256": "3dbca705c85184c24fcdb6c20341cadbb99be8c88991d853549602e5ae6a175d",
+      "size": 142
+    },
+    {
+      "path": "enriched/enriched_events.jsonl",
+      "sha256": "a246a24302343157aaf13e211ebc8ccd0b1f8614bfff9b7ce18effa64a047020",
+      "size": 211644889
+    },
+    {
+      "path": "enriched/timeline.jsonl",
+      "sha256": "2caeb53e94b10bfb7938db873d8f6089e8b79a3827a5e3d01272388225cf2135",
+      "size": 211644889
+    },
+    {
+      "path": "enriched/windows_events.json",
+      "sha256": "73c332b63c6e16e6f4cb733068f6802f730f5a543b730fa7dd9849706d4978a2",
+      "size": 64422142
+    },
+    {
+      "path": "enriched/event_schema.json",
+      "sha256": "f6eb564f8f4d58fadc844d9e396493c52f5bebcf653f79e942c8fddce9dc6e0c",
+      "size": 10391
+    },
+    {
+      "path": "enriched/baseline.json.summary",
+      "sha256": "f69a9f26fadcd13b4087d8643a0ae61d388e993f1bb7ddb04a835bbda02bef12",
+      "size": 127281
+    },
+    {
+      "path": "enriched/linux_events.json",
+      "sha256": "f7148893512286e63c33d9d0355a04b0cfc447b9ec4b5d8792705fc45b47e9d1",
+      "size": 57743998
+    },
+    {
+      "path": "enriched/source_stats.json",
+      "sha256": "8e6131188cea65e885db879bc52219b9c0758a4cd8b451b660532c170b106c5b",
+      "size": 110
+    },
+    {
+      "path": "enriched/source_inventory.json",
+      "sha256": "4e6ed31c95d508bb9aea2b2fa255d1257362a90f4b0d92e1fb7124f132de8e46",
+      "size": 2958
+    },
+    {
+      "path": "enriched/cleaning_log.json",
+      "sha256": "50fb52a6f74fe0161c630d7cbdc6868e0498d35c8c2b1e5ec257f605888b2ebd",
+      "size": 3350
+    },
+    {
+      "path": "enriched/cleaned_events.json",
+      "sha256": "34283e83e551fafb2448d5f54543fc81c98396ecfdbf965aa2952a8481ca5c32",
+      "size": 168004266
+    },
+    {
+      "path": "enriched/normalized_events.json",
+      "sha256": "2311f89298b1609a066f43b254079bb9113b30a5440b92ccc2be0c0b5ca1c2a9",
+      "size": 168010231
+    },
+    {
+      "path": "enriched/quarantine.json",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "path": "response/tuning_recommendations.json",
+      "sha256": "30fd5f58ccb8c358ac005706609ebc6b0486b7054bee2cb3ea1e4c240cfbf173",
+      "size": 3334
+    },
+    {
+      "path": "response/ioc_package.json",
+      "sha256": "16d647468677cd422edb9fe10506ecc8c53736e83bda805e6c7e064386008caa",
+      "size": 141
+    },
+    {
+      "path": "response/containment.json",
+      "sha256": "deb1da9dd8c0ca500bac6434128a5f9c068e1fef59f2ad384b88a589ac524cae",
+      "size": 99
+    },
+    {
+      "path": "investigations/incident_B.json",
+      "sha256": "852b4717cc822481a78afc9a7a38497be56f4e5c0843daa2bf9986e5780e72d0",
+      "size": 1153
+    },
+    {
+      "path": "investigations/incident_A.json",
+      "sha256": "97695be4643ecd00dba5c79e70bcc667f9c532ffbf3ce3e1bc63d0f4b93cb762",
+      "size": 843
+    },
+    {
+      "path": "investigations/incident_C_export.json",
+      "sha256": "7d68b56fe92a7f4d1909096c6afe2b6c158690f32bba0a1406133c4d0b5976d7",
+      "size": 1635
+    },
+    {
+      "path": "investigations/incident_C_cli.json",
+      "sha256": "98a66bab9b1c255303804ea7ab7520e9df1cbeba3b95043d1ee572fea8f81594",
+      "size": 1740
+    },
+    {
+      "path": "handoff/shift_handoff.md",
+      "sha256": "e46199d0552ff1ebb89e4142c16f99edc29fbffc5c434dad0003d45fe6310e48",
+      "size": 3422
+    }
+  ],
+  "artifact_counts": {
+    "runtime": 6,
+    "enriched": 14,
+    "alerts": 4,
+    "investigations": 4,
+    "campaign": 1,
+    "reports": 3,
+    "response": 3,
+    "handoff": 1
+  },
+  "incident_ids": [],
+  "campaign_linked": false,
+  "cluster_id": "unknown"
+}

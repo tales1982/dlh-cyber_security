@@ -1,0 +1,46 @@
+{
+  "shift_id": "SHIFT-20260920-0656",
+  "generated_at": "2026-09-20T09:30:00Z",
+  "recommendations": [
+    {
+      "rec_id": "TUNE-001",
+      "type": "new_rule",
+      "target": "detection_catalog",
+      "description": "Add a Sigma rule for new/unusual Windows service installation (event_id 7045), matching T1543.003 service-based persistence. No rule in the current 4-rule catalog covers this technique, and HC-RED7's TTP profile depends on it.",
+      "attack_technique": "T1543.003",
+      "evidence": "hc_red7_advisory.md Persistence row; zero matching events found in this shift's evidence, but the technique remains a catalog gap regardless."
+    },
+    {
+      "rec_id": "TUNE-002",
+      "type": "new_rule",
+      "target": "detection_catalog",
+      "description": "Add a Sigma rule for repeated outbound connections from one host to a single external destination at irregular multi-minute intervals (beacon detection), matching T1071.001. No rule in the current catalog covers C2 beaconing.",
+      "attack_technique": "T1071.001",
+      "evidence": "hc_red7_advisory.md C2 row; a systematic search of firewall.csv for 8-15 minute interval beacon pairs across the full 8-day pack found zero candidates."
+    },
+    {
+      "rec_id": "TUNE-003",
+      "type": "rule_tuning",
+      "target": "002_windows_offhours_privileged_logon.yml",
+      "description": "Restrict the off-hours logon rule to privileged/admin group membership instead of any event_id 4624/4672, to cut this shift's 1,014-alert noise floor to a triageable size. The rule's original LogonType selection was dropped this shift because the 3x00 pipeline does not carry that field; a purpose-built replacement filter (privileged group membership) should be tuned in rather than removed outright.",
+      "attack_technique": "T1078.002",
+      "evidence": "runtime/catalog_run.json: 1,014 alerts, 100% classified NOISE in alerts/triage_log.jsonl"
+    },
+    {
+      "rec_id": "TUNE-004",
+      "type": "data_quality",
+      "target": "3x00 pipeline (5-normalize.sh / 9-enrich.sh)",
+      "description": "Preserve the raw Windows LogonType field through normalization. It was silently dropped, which is what broke rule 002's original selection criteria this shift.",
+      "attack_technique": null,
+      "evidence": "3-sigma_runner.sh's compute_event_id() has to reverse-derive event_id from (event_category, action) because the raw field is gone; LogonType has no equivalent reverse-derivation path."
+    },
+    {
+      "rec_id": "TUNE-005",
+      "type": "content_alignment",
+      "target": "lab platform / capstone asset generation",
+      "description": "Re-generate hc_red7_advisory.md, change_tickets.json, and prior_shift_notes.md against this specific evidence_pack_secondary. As delivered, they name hosts (rad-srv-02, bill-ws-09, db-patient-01) and indicators (198.51.100.73/.82, MedSyncHelper, WinHealthAgent) that appear zero times anywhere in the actual pack. The Wazuh exports under wazuh_exports/ have the same issue — they query index meddefense-evidence-2026-03 (the 3x04 primary pack), not this capstone's data, and every hits_total is 0.",
+      "attack_technique": null,
+      "evidence": "Exhaustive grep across evidence_pack_secondary/ for every named indicator and hostname; wazuh_exports/*_search_results.json content"
+    }
+  ]
+}
