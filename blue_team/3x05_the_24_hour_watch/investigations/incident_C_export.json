@@ -1,0 +1,19 @@
+{
+  "finding_id": "shift-20260920-no-incident-c-export",
+  "incident_id": "INC-20260920-NONE",
+  "interface": "wazuh_export",
+  "investigation_start": "2026-09-20T09:22:00Z",
+  "investigation_end": "2026-09-20T09:22:00Z",
+  "time_to_first_answer_seconds": 0,
+  "actions": [
+    "jq '{incident_label, scenario, description, hits_total, query}' $WAZUH_EXPORTS/incident_C_search_results.json",
+    "jq . $WAZUH_EXPORTS/incident_A_search_results.json $WAZUH_EXPORTS/incident_B_search_results.json for cross-comparison",
+    "cat $WAZUH_EXPORTS/campaign_dashboard_summary.md"
+  ],
+  "event_refs": [],
+  "attack_techniques": [],
+  "hypothesis": "campaign_dashboard_summary.md and all three incident_*_search_results.json exports describe the 3x04 primary-pack scenarios (index meddefense-evidence-2026-03, hosts rad-srv-02/bill-ws-09/db-patient-01, March dates) rather than this shift's evidence_pack_secondary, so the Wazuh-export interface has no usable evidence for this capstone's actual incidents.",
+  "confidence": "low",
+  "ambiguity_notes": "Every hits_total in the three incident_*_search_results.json files is 0, and the campaign_dashboard_summary.md's Incident-IOC Matrix names hosts (rad-srv-02, bill-ws-09, db-patient-01) that do not exist in this capstone's 16-host inventory. The export-mode interface for this specific capstone instance appears to have been generated from the wrong evidence pack. Confirming this is a platform issue vs. student-fixable would need a fresh export re-generated against evidence_pack_secondary — outside what this shift's local tooling can produce.",
+  "created_at": "2026-09-20T09:22:00Z"
+}

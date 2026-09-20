@@ -1,0 +1,19 @@
+{
+  "finding_id": "shift-20260920-investigate-b",
+  "incident_id": "INC-NONE",
+  "interface": "cli",
+  "investigation_start": "2026-09-20T10:05:09Z",
+  "investigation_end": "2026-09-20T10:05:09Z",
+  "time_to_first_answer_seconds": 0,
+  "actions": [
+    "jq -c '[.incidents[] | select(.incident_id | test(\"-B$\"))][0]' /home/student/bt/3x05/shift_pack/alerts/incidents.json",
+    "not_applicable: no incident B was correlated this shift, so no change-ticket cross-reference was attempted"
+  ],
+  "event_refs": [],
+  "matches_ioc": [],
+  "attack_techniques": [],
+  "hypothesis": "No incident with a -B suffix exists in incidents.json this shift, so the change-ticket ambiguity case could not be evaluated.",
+  "confidence": "low",
+  "ambiguity_notes": "incident_count is 0 this shift; the ambiguous change-ticket scenario this task expects (a host covered by an approved window run by a possibly-unauthorized delegate) has no candidate alert to test. This script's ticket-matching logic is otherwise complete and will run against real host/window/owner fields the next time incidents.json contains a -B record.",
+  "created_at": "2026-09-20T10:05:09Z"
+}

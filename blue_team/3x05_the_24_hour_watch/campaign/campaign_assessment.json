@@ -1,0 +1,34 @@
+{
+  "incidents": [
+    "INC-NONE"
+  ],
+  "ioc_overlap_matrix": {
+    "A-B": 0,
+    "A-C": 0,
+    "B-C": 0
+  },
+  "tactic_overlap_matrix": {
+    "A-B": 0,
+    "A-C": 0,
+    "B-C": 0
+  },
+  "temporal_distance_minutes": {
+    "A-B": null,
+    "A-C": null,
+    "B-C": null
+  },
+  "ioc_feed_matches": {
+    "A": 0,
+    "B": 0,
+    "C": 0
+  },
+  "linked_pairs": [],
+  "campaign_linked": false,
+  "cluster_id": "unknown",
+  "confidence": "low",
+  "export_view_verdict": "campaign_linked=true cluster=HC-RED7 (export hits_total=0, queries a different pack than this shift's evidence — not corroborating)",
+  "supporting_counts": {
+    "shared_iocs_total": 0,
+    "shared_tactics_total": 0
+  }
+}

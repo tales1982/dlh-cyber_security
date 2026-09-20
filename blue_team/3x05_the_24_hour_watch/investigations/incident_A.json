@@ -1,0 +1,17 @@
+{
+  "finding_id": "shift-20260920-investigate-a",
+  "incident_id": "INC-NONE",
+  "interface": "cli",
+  "investigation_start": "2026-09-20T10:03:47Z",
+  "investigation_end": "2026-09-20T10:03:47Z",
+  "time_to_first_answer_seconds": 0,
+  "actions": [
+    "jq -c '[.incidents[] | select(.incident_id | test(\"-A$\"))][0]' /home/student/bt/3x05/shift_pack/alerts/incidents.json"
+  ],
+  "event_refs": [],
+  "attack_techniques": [],
+  "hypothesis": "No incident with an -A suffix exists in incidents.json this shift (incident_count is 0), so there is nothing to investigate.",
+  "confidence": "low",
+  "ambiguity_notes": "Task 6 correlated 0 TP alerts into 0 incidents this shift. This script logic is otherwise complete and will populate a real finding the next time incidents.json contains an -A record.",
+  "created_at": "2026-09-20T10:03:47Z"
+}
