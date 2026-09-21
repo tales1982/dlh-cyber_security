@@ -1,0 +1,52 @@
+title: Network Event Touching a Known HC-RED7 IOC Feed Indicator
+id: 7f3d9a12-4e6b-4c8a-9f1d-2b5e8c7a6d4f
+status: experimental
+description: |
+  Flags any event whose src_ip or dst_ip equals a network indicator from the
+  HC-RED7 IOC feed (ioc_feed.json). This is a deliberately blunt watchlist
+  rule, not a behavioral detection: it exists so that any event touching a
+  named threat-intel indicator surfaces for triage regardless of how weak
+  the surrounding signal is, on the principle that a confirmed IOC hit is
+  worth a human look even without a matching kill-chain pattern around it.
+
+  Written during the 3x05 capstone shift after a systematic search (SSH/RDP
+  brute-force burst detection, firewall.csv beacon-interval sweep, and a
+  direct grep of every raw evidence file) found none of the feed's 12
+  indicators behaviorally active in evidence_pack_secondary except 2 of the
+  3 listed brute-force-source IPs, each appearing once or twice as the
+  source of an isolated, low-severity Suricata policy/scan alert. Existing
+  catalog rules (001-004) do not check network fields against the IOC feed
+  at all, which is the gap this rule closes.
+references:
+  - https://attack.mitre.org/techniques/T1110/003/
+  - https://attack.mitre.org/techniques/T1071/001/
+author: MedDefense SOC (3x05 capstone shift)
+date: 2026-09-20
+logsource:
+  category: network
+detection:
+  selection_src:
+    src_ip:
+      - 198.51.100.73
+      - 198.51.100.82
+      - 203.0.113.41
+      - 203.0.113.42
+      - 203.0.113.44
+  selection_dst:
+    dst_ip:
+      - 198.51.100.73
+      - 198.51.100.82
+      - 203.0.113.41
+      - 203.0.113.42
+      - 203.0.113.44
+  condition: selection_src or selection_dst
+falsepositives:
+  - Any indicator in the feed that is also incidentally present in unrelated
+    background/scanner noise, since this rule does no behavioral filtering
+    at all — it is a watchlist hit, not a confirmed detection, by design
+level: medium
+tags:
+  - attack.credential_access
+  - attack.t1110.003
+  - attack.command_and_control
+  - attack.t1071.001
