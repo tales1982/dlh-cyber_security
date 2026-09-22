@@ -46,6 +46,30 @@ Avaliação do clique de Diane Marsh no E2 a partir do `WS-NURSE-04`: fatos conf
 
 Resultado: clique confirmado, impacto indeterminado. A suposição de trabalho é de possível exposição de credenciais.
 
+### 8 - 8-verdict_matrix.md
+
+Veredito final baseado em evidências para os 8 e-mails (classe inicial, classe final, confiança, evidência-chave, ação recomendada), onde a final difere da inicial, e uma avaliação de precisão da triagem.
+
+Resultado: E1 vira LEGITIMATE-WITH-ISSUE, E2/E5/E7 viram PHISHING-TARGETED, E3 vira PHISHING-OPPORTUNISTIC; a triagem inicial acertou 8/8 na decisão grosseira malicioso/legítimo/spam, mas não tinha como separar phishing direcionado de oportunista.
+
+### 9 - 9-campaign_thread.md
+
+Indicadores compartilhados, mapa de direcionamento, mapa de tempo e comparação com o HC3 para E2, E5 e E7, mais uma avaliação de atribuição que evita nomear um ator.
+
+Resultado: confiança MÉDIA de que E2/E5/E7 são uma única campanha coordenada e direcionada à MedDefense (14-16 de abril), combinando com os quatro traços do alerta do HC3. O E3 compartilha ferramentas, mas é avaliado como uma operação separada e mais genérica.
+
+### 11 - 11-ioc_extraction.md
+
+Tabela estruturada de IOC (33 entradas) cobrindo E2, E3, E5, E7, o anexo do E5 e os padrões do alerta do HC3, categorizada por fase de ataque, com uma análise de qualidade de IOC e um resumo pronto para o HC3.
+
+Resultado: 4 domínios, 4 IPs, 8 endereços de remetente e 6 URLs têm alta confiança e são seguros para bloquear; impressões digitais de PHPMailer/Message-ID/X-Priority e as notas de hospedagem/palavra-chave do HC3 são apenas contexto e causariam falsos positivos se bloqueadas isoladamente.
+
+### 13 - 13-phishing_investigation_report.md
+
+Relatório final de síntese para revisão do líder do SOC e compartilhamento com o HC3: resumo executivo, linha do tempo, veredito por e-mail, análise de campanha, avaliação do clique, resumo de IOC, lacunas de detecção/controle, e recomendações por fase (24h / 7 dias / 30 dias).
+
+Nota: a Seção 7 referencia ideias de detecção que o enunciado chama de "Tarefa 12"; esse arquivo não existe neste lote, então essas ideias são propostas diretamente no relatório, e não citadas a partir de um arquivo externo.
+
 ## Notas sobre o lote de evidências
 
 - A data e hora do clique (2026-04-14 15:02:33 CDT) fica cerca de 66 horas antes da coleta do lote (2026-04-17 09:15 CDT), não aproximadamente 36 horas citadas no briefing. As tarefas posteriores devem usar a marca de tempo do NTP do workstation como referência.
