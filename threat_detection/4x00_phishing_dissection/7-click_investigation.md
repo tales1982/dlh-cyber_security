@@ -1,10 +1,12 @@
-# Click Investigation — Diane Marsh / WS-NURSE-04
+## Click Investigation — Diane Marsh / WS-NURSE-04
 
 Assessment of Diane Marsh's reported click on the Email 2 link, and the evidence needed to decide whether a compromise occurred. This task uses the email evidence batch only. No Sysmon, Wazuh, Suricata, Windows Security, proxy, DNS or identity logs were searched. Every check under "Endpoint Checks To Perform" and "Account Checks To Perform" is a recommended follow-up that was not run, and the outcome is therefore undetermined. Domains, addresses and IPs are defanged or shown in code formatting; the E2 URL was not visited.
 
-## Confirmed Facts
+### Confirmed Facts
 
 Source for each fact is the evidence batch (E2 headers and body, the batch notes and the batch footer).
+
+In plain terms: **Diane Marsh** (`dmarsh@meddefense.com`), on **workstation** `WS-NURSE-04` (`10.10.2.15`), clicked the link inside **email** E2 (`noreply@meddefense-portal.com`, "ACTION REQUIRED: Portal re-verification needed within 24 hours") at **click timestamp** 2026-04-14 15:02:33 CDT. The **URL/domain** clicked was `hxxps://meddefense-portal[.]com/verify/staff?id=dmarsh&token=a8f3e2d1`, on the lookalike domain `meddefense-portal.com`, delivered from **related IP** `91[.]234[.]99[.]107`. These six items — user, workstation, email, URL/domain, click timestamp and related IP — are confirmed directly from the evidence batch; the table below cites the exact source for each one, and everything beyond the click itself is unknown (see Key Unknowns).
 
 | Fact | Value | Source |
 |---|---|---|
@@ -33,7 +35,7 @@ The click is about 66 hours before collection, not the roughly 36 hours in the c
 
 The user reported the click and the batch records the timestamp. How that timestamp was obtained (browser history, proxy log, or the user's recollection) is not stated.
 
-## Key Unknowns
+### Key Unknowns
 
 - Whether the page loaded at all, and what it showed (a login form, a redirect, a download, an error). The URL was never observed.
 - Whether Diane entered her username and password, and whether she approved any MFA prompt. The batch records a click, not a credential submission.
@@ -45,7 +47,7 @@ The user reported the click and the batch records the timestamp. How that timest
 - Whether any other MedDefense user received or clicked E2, or the other lookalike-domain emails. Only one recipient per email appears in the batch.
 - Whether any sign-in or mailbox activity for `dmarsh` has occurred since 15:02 CDT on 2026-04-14.
 
-## Risk Assessment
+### Risk Assessment
 
 A click on the link in a credential-harvesting email is serious even before any credential entry is confirmed.
 
@@ -58,7 +60,7 @@ A click on the link in a credential-harvesting email is serious even before any 
 
 Until the checks below are done, this is a confirmed click with unconfirmed impact. The P1-URGENT priority from triage remains.
 
-## Endpoint Checks To Perform
+### Endpoint Checks To Perform
 
 Recommended follow-up. None of these were searched in this task. Where logs are available, review the window from 2026-04-14 15:02:33 CDT forward, and a few minutes before it.
 
@@ -76,7 +78,7 @@ Recommended follow-up. None of these were searched in this task. Where logs are 
 | Endpoint protection | AV or EDR alerts and quarantine for the host | Detections tied to a browser or download after the click |
 | Browser extensions and permissions | Extension list, notification permissions | A newly installed extension, or push notifications allowed for the domain |
 
-## Account Checks To Perform
+### Account Checks To Perform
 
 Recommended follow-up. None of these were searched in this task. Review from 2026-04-14 15:02:33 CDT to the present.
 
@@ -93,7 +95,7 @@ Recommended follow-up. None of these were searched in this task. Review from 202
 | System access | EHR gateway, scheduling and VPN access logs for `dmarsh` | Access outside her shift or role, unusual patient-record lookups |
 | Other recipients | Mail gateway search for `meddefense-portal.com` and the other lookalike domains, proxy logs for the same domains | Other users who received or visited the pages |
 
-## Decision Matrix
+### Decision Matrix
 
 | Outcome | What the checks would show | Interpretation | Response |
 |---|---|---|---|
@@ -102,7 +104,7 @@ Recommended follow-up. None of these were searched in this task. Review from 202
 | Confirmed compromise | A successful sign-in from an unfamiliar source after the click, or a new inbox rule or forwarding, a changed MFA method, an OAuth grant, unauthorized EHR access, or malware or persistence on the workstation. | The account, the endpoint or both are under attacker control. | Declare an incident. Disable the account, isolate the workstation, preserve evidence, involve the privacy and compliance team if patient data may be involved, hunt for the same activity across the organization, and block the indicators. |
 | Undetermined (current state) | Only the evidence batch is available, with no endpoint or identity logs reviewed. | Impact can be neither confirmed nor ruled out. | Act as under "Possible credential exposure" until the checks return results. |
 
-## Recommended Containment
+### Recommended Containment
 
 Preserve evidence first where it costs little, then contain. These steps are safe and realistic for a clinical workstation.
 
@@ -124,7 +126,7 @@ Preserve evidence first where it costs little, then contain. These steps are saf
 9. Report the click to the incident lead and, if patient-data access is possible, to the privacy officer.
 10. Reinforce awareness for the staff who received the lures once containment is complete, and submit the indicators to HC3 as its alert suggests.
 
-## Conclusion
+### Conclusion
 
 The evidence confirms that Diane Marsh clicked the personalized E2 link from `WS-NURSE-04` (`10.10.2.15`) at 2026-04-14 15:02:33 CDT, about 14 minutes after delivery, and about 66 hours before the batch was collected. The link points to `meddefense-portal[.]com`, a lookalike domain served by a sender that failed SPF, DKIM and DMARC. The evidence does not show whether credentials were entered, whether MFA was approved or whether anything ran on the workstation, so compromise is neither confirmed nor excluded.
 

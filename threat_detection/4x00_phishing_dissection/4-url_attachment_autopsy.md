@@ -4,9 +4,12 @@ Safe investigation of the URLs, IP addresses and attachment indicators found in 
 
 ## Handling rules
 
+No command in this file was executed against the internet while producing this report. No suspicious domain or IP was contacted, browsed, pinged, resolved or scanned; every finding below comes only from the raw evidence batch. The commands are documented for an authorized analyst to run later from a controlled environment, not as steps taken here.
+
 - Values are defanged: `http` becomes `hxxp` and every `.` becomes `[.]`. Original values are kept in code formatting so they stay non-clickable and exactly as they appear in the evidence.
-- Run the commands from an isolated analysis host, never from a workstation with a browser session or corporate credentials.
-- Use passive sources first (WHOIS, DNS from a resolver, certificate transparency, existing VirusTotal or urlscan.io results). Active steps (`curl -I`, submitting a new urlscan.io scan) contact or expose the analyst to the attacker's server, so they need approval and isolated egress.
+- Treat every method below as something to run from an isolated analysis host or a vendor sandbox, never from a workstation with a browser session, mail client or corporate credentials, and never from the corporate network.
+- Prefer passive, read-only sources: WHOIS, DNS answers from a public resolver, certificate-transparency logs (crt.sh), and existing VirusTotal or urlscan.io results for the domain or IP. These query a third-party registry or database, not the attacker's own server.
+- Do not send any HTTP(S) request directly to the suspicious domains or IPs from analyst infrastructure, including a HEAD-only request such as `curl -I`. Even a HEAD request delivers a real connection, and possibly a tracking pixel, redirect or exploit, to attacker-controlled infrastructure, and it reveals the analyst's IP. If a live rendering of a page is genuinely needed, submit the bare domain to a sandboxed scanner (urlscan.io) and read its result there; do not connect to the site directly.
 - Do not request or submit the E2 URL with its `token` value. The token is per-recipient and lets the sender see who clicked. For any external lookup use the bare domain or the URL without the query string.
 - Set urlscan.io scans to `unlisted` or `private` so the submission does not advertise the investigation.
 - Do not open the E5 attachment on a desktop. The PDF was inspected only as base64 text inside the evidence (see Indicator 8).
@@ -63,8 +66,8 @@ Safe investigation of the URLs, IP addresses and attachment indicators found in 
   curl -s "https://crt.sh/?q=meddefense-portal.com&output=json"     # certificate first-seen dates
   curl -s -H "x-apikey: $VT_API_KEY" "https://www.virustotal.com/api/v3/domains/meddefense-portal.com"
   curl -s "https://urlscan.io/api/v1/search/?q=domain:meddefense-portal.com"   # existing scans only
-  # Active, only with approval and isolated egress, and never with the token:
-  curl -sI --max-time 10 https://meddefense-portal.com/
+  # Do not curl or browse this URL directly, and never with the token. For a
+  # live rendering, submit the bare domain as a new unlisted urlscan.io scan.
   ```
   Also search proxy, DNS and firewall logs for `meddefense-portal.com` and for requests to `/assets/logo.png`, to find every host that loaded the message or the page.
 - Finding: the URL is a personalized credential-harvest link on a lookalike domain, delivered by a sender that fails every authentication check. The domain is assessed as attacker-controlled infrastructure. What the page displays, and whether credentials were entered, is not in the evidence.
@@ -117,8 +120,8 @@ Safe investigation of the URLs, IP addresses and attachment indicators found in 
   curl -s "https://crt.sh/?q=outlook-protection.com&output=json"
   curl -s -H "x-apikey: $VT_API_KEY" "https://www.virustotal.com/api/v3/domains/outlook-protection.com"
   curl -s "https://urlscan.io/api/v1/search/?q=domain:outlook-protection.com"
-  # Active, only with approval and isolated egress:
-  curl -sI --max-time 10 https://outlook-protection.com/verify
+  # Do not curl or browse this URL directly. For a live rendering, submit the
+  # bare domain as a new unlisted urlscan.io scan.
   ```
   Search proxy and DNS logs for the domain to check whether anyone has visited it.
 - Finding: a brand-impersonation login lure on a domain that authenticates cleanly but is not Microsoft's. The lookup should confirm registration age and record ownership. Until then, the evidence classification stands.
@@ -189,8 +192,9 @@ Safe investigation of the URLs, IP addresses and attachment indicators found in 
   curl -s "https://crt.sh/?q=medequip-supplies.net&output=json"
   curl -s -H "x-apikey: $VT_API_KEY" "https://www.virustotal.com/api/v3/domains/medequip-supplies.net"
   curl -s "https://urlscan.io/api/v1/search/?q=domain:medequip-supplies.net"
-  # Active, only with approval and isolated egress, without the invoice id in the request:
-  curl -sI --max-time 10 https://medequip-supplies.net/
+  # Do not curl or browse this domain directly, and never with the invoice id
+  # in the request. For a live rendering, submit the bare domain as a new
+  # unlisted urlscan.io scan.
   ```
   Verify the vendor separately in the vendor master and by phone using a number MedDefense already holds, not the number in the email.
 - Finding: the URL is the payment step of an unverified invoice from a sender that fails authentication. It fits invoice fraud and possible payment-detail or credential capture.
@@ -289,8 +293,8 @@ Safe investigation of the URLs, IP addresses and attachment indicators found in 
   curl -s "https://crt.sh/?q=meddefense-benefits.org&output=json"
   curl -s -H "x-apikey: $VT_API_KEY" "https://www.virustotal.com/api/v3/domains/meddefense-benefits.org"
   curl -s "https://urlscan.io/api/v1/search/?q=domain:meddefense-benefits.org"
-  # Active, only with approval and isolated egress:
-  curl -sI --max-time 10 https://meddefense-benefits.org/enroll
+  # Do not curl or browse this URL directly. For a live rendering, submit the
+  # bare domain as a new unlisted urlscan.io scan.
   ```
   Confirm with the real HR team whether an enrollment window is open and which URL it uses.
 - Finding: a lookalike of the company's own brand used for an HR lure. The URL is the enrollment step of a message that fails all authentication.
