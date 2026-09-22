@@ -10,6 +10,7 @@ Nenhum comando deste arquivo foi executado contra a internet ao produzir este re
 - Trate cada método abaixo como algo a ser executado a partir de um host de análise isolado ou de um sandbox de fornecedor, nunca de um workstation com sessão de navegador, cliente de e-mail ou credenciais corporativas, e nunca a partir da rede corporativa.
 - Prefira fontes passivas e somente leitura: WHOIS, respostas de DNS de um resolvedor público, logs de transparência de certificados (crt.sh), e resultados já existentes do VirusTotal ou urlscan.io para o domínio ou IP. Essas consultas atingem um registro ou banco de dados de terceiros, não o próprio servidor do atacante.
 - Não envie nenhuma requisição HTTP(S) diretamente aos domínios ou IPs suspeitos a partir da infraestrutura do analista, incluindo uma requisição apenas HEAD como `curl -I`. Mesmo uma requisição HEAD entrega uma conexão real, e possivelmente um pixel de rastreamento, redirecionamento ou exploit, à infraestrutura controlada pelo atacante, e revela o IP do analista. Se uma renderização ao vivo da página for genuinamente necessária, envie o domínio puro a um scanner em sandbox (urlscan.io) e leia o resultado lá; não se conecte ao site diretamente.
+- Todo comando mostrado abaixo usa a forma desmascarada do domínio ou IP (`[.]` no lugar de `.`), então nenhum deles resolve, conecta ou executa como está escrito. Remascare o valor (troque `[.]` de volta para `.`) apenas dentro de um ambiente autorizado e isolado, imediatamente antes de executar o comando, e nunca em um workstation ou rede corporativa.
 - Não solicite nem envie a URL do E2 com o valor de `token`. O token é por destinatário e permite ao remetente ver quem clicou. Para qualquer consulta externa, use o domínio puro ou a URL sem a query string.
 - Configure as varreduras do urlscan.io como `unlisted` ou `private` para que o envio não divulgue a investigação.
 - Não abra o anexo do E5 em um desktop. O PDF foi inspecionado apenas como texto base64 dentro da evidência (ver Indicador 8).
@@ -58,19 +59,20 @@ Nenhum comando deste arquivo foi executado contra a internet ao produzir este re
   - O logo é uma imagem remota no mesmo domínio. Se o cliente de e-mail a carregou, a requisição chegou ao servidor do atacante no momento da renderização da mensagem.
 - Método de investigação seguro:
   ```
-  whois meddefense-portal.com                        # registrador, data de criação, titular
-  dig +short A meddefense-portal.com                 # IP do host web (pode diferir do host de e-mail)
-  dig +short NS meddefense-portal.com
-  dig +short TXT meddefense-portal.com               # registro SPF
-  dig +short TXT _dmarc.meddefense-portal.com
-  curl -s "https://crt.sh/?q=meddefense-portal.com&output=json"     # datas de primeiro avistamento do certificado
-  curl -s -H "x-apikey: $VT_API_KEY" "https://www.virustotal.com/api/v3/domains/meddefense-portal.com"
-  curl -s "https://urlscan.io/api/v1/search/?q=domain:meddefense-portal.com"   # apenas varreduras existentes
-  # Não faça curl nem navegue diretamente para esta URL, e nunca com o token.
+  # Desmascarado; remascare (remova o [.]) apenas em um ambiente autorizado e isolado.
+  whois meddefense-portal[.]com                        # registrador, data de criação, titular
+  dig +short A meddefense-portal[.]com                  # IP do host web (pode diferir do host de e-mail)
+  dig +short NS meddefense-portal[.]com
+  dig +short TXT meddefense-portal[.]com                # registro SPF
+  dig +short TXT _dmarc.meddefense-portal[.]com
+  curl -s "https://crt.sh/?q=meddefense-portal[.]com&output=json"     # datas de primeiro avistamento do certificado
+  curl -s -H "x-apikey: $VT_API_KEY" "https://www.virustotal.com/api/v3/domains/meddefense-portal[.]com"
+  curl -s "https://urlscan.io/api/v1/search/?q=domain:meddefense-portal[.]com"   # apenas varreduras existentes
+  # Não faça curl nem navegue diretamente para a URL real, e nunca com o token.
   # Para uma renderização ao vivo, envie o domínio puro como uma nova varredura
   # unlisted no urlscan.io.
   ```
-  Também pesquise logs de proxy, DNS e firewall por `meddefense-portal.com` e por requisições a `/assets/logo.png`, para encontrar todo host que carregou a mensagem ou a página.
+  Também pesquise logs de proxy, DNS e firewall por `meddefense-portal[.]com` e por requisições a `/assets/logo.png`, para encontrar todo host que carregou a mensagem ou a página.
 - Achado: a URL é um link personalizado de coleta de credenciais em um domínio parecido, entregue por um remetente que falha em toda verificação de autenticação. O domínio é avaliado como infraestrutura controlada pelo atacante. O que a página exibe, e se credenciais foram inseridas, não está na evidência.
 - Classificação de risco: CRITICAL
 
@@ -88,10 +90,11 @@ Nenhum comando deste arquivo foi executado contra a internet ao produzir este re
   - O IP não é compartilhado com nenhum outro e-mail no lote.
 - Método de investigação seguro:
   ```
-  whois 91.234.99.107                                # dono da rede, contato de abuso, data de alocação
-  dig -x 91.234.99.107 +short                        # DNS reverso, comparar com mail.meddefense-portal.com
-  curl -s -H "x-apikey: $VT_API_KEY" "https://www.virustotal.com/api/v3/ip_addresses/91.234.99.107"
-  curl -s "https://urlscan.io/api/v1/search/?q=ip:91.234.99.107"
+  # Desmascarado; remascare (remova o [.]) apenas em um ambiente autorizado e isolado.
+  whois 91[.]234[.]99[.]107                             # dono da rede, contato de abuso, data de alocação
+  dig -x 91[.]234[.]99[.]107 +short                     # DNS reverso, comparar com mail.meddefense-portal[.]com
+  curl -s -H "x-apikey: $VT_API_KEY" "https://www.virustotal.com/api/v3/ip_addresses/91[.]234[.]99[.]107"
+  curl -s "https://urlscan.io/api/v1/search/?q=ip:91[.]234[.]99[.]107"
   ```
   Pesquise logs do gateway de e-mail por outras mensagens deste IP, e logs de firewall ou proxy por qualquer conexão a ele.
 - Achado: o servidor de e-mail que entregou o e-mail de phishing com clique confirmado. Se o host web de `meddefense-portal.com` é a mesma máquina é desconhecido até que o DNS seja checado, então este IP não deve ser presumido como o destino do clique.
@@ -112,16 +115,17 @@ Nenhum comando deste arquivo foi executado contra a internet ao produzir este re
   - Nenhum clique neste link foi relatado.
 - Método de investigação seguro:
   ```
-  whois outlook-protection.com                       # data de criação: o HC3 descreve lookalikes com menos de 30 dias
-  dig +short A outlook-protection.com
-  dig +short MX outlook-protection.com
-  dig +short TXT outlook-protection.com
-  dig +short TXT _dmarc.outlook-protection.com
-  dig +short TXT default._domainkey.outlook-protection.com   # seletor DKIM da mensagem
-  curl -s "https://crt.sh/?q=outlook-protection.com&output=json"
-  curl -s -H "x-apikey: $VT_API_KEY" "https://www.virustotal.com/api/v3/domains/outlook-protection.com"
-  curl -s "https://urlscan.io/api/v1/search/?q=domain:outlook-protection.com"
-  # Não faça curl nem navegue diretamente para esta URL. Para uma renderização
+  # Desmascarado; remascare (remova o [.]) apenas em um ambiente autorizado e isolado.
+  whois outlook-protection[.]com                       # data de criação: o HC3 descreve lookalikes com menos de 30 dias
+  dig +short A outlook-protection[.]com
+  dig +short MX outlook-protection[.]com
+  dig +short TXT outlook-protection[.]com
+  dig +short TXT _dmarc.outlook-protection[.]com
+  dig +short TXT default._domainkey.outlook-protection[.]com   # seletor DKIM da mensagem
+  curl -s "https://crt.sh/?q=outlook-protection[.]com&output=json"
+  curl -s -H "x-apikey: $VT_API_KEY" "https://www.virustotal.com/api/v3/domains/outlook-protection[.]com"
+  curl -s "https://urlscan.io/api/v1/search/?q=domain:outlook-protection[.]com"
+  # Não faça curl nem navegue diretamente para a URL real. Para uma renderização
   # ao vivo, envie o domínio puro como uma nova varredura unlisted no urlscan.io.
   ```
   Pesquise logs de proxy e DNS pelo domínio para checar se alguém já o visitou.
@@ -142,10 +146,11 @@ Nenhum comando deste arquivo foi executado contra a internet ao produzir este re
   - O IP não é compartilhado com nenhum outro e-mail no lote.
 - Método de investigação seguro:
   ```
-  whois 51.38.42.17
-  dig -x 51.38.42.17 +short
-  curl -s -H "x-apikey: $VT_API_KEY" "https://www.virustotal.com/api/v3/ip_addresses/51.38.42.17"
-  curl -s "https://urlscan.io/api/v1/search/?q=ip:51.38.42.17"
+  # Desmascarado; remascare (remova o [.]) apenas em um ambiente autorizado e isolado.
+  whois 51[.]38[.]42[.]17
+  dig -x 51[.]38[.]42[.]17 +short
+  curl -s -H "x-apikey: $VT_API_KEY" "https://www.virustotal.com/api/v3/ip_addresses/51[.]38[.]42[.]17"
+  curl -s "https://urlscan.io/api/v1/search/?q=ip:51[.]38[.]42[.]17"
   ```
 - Achado: infraestrutura de envio da isca de personificação da Microsoft. Se outros domínios estão hospedados neste IP (um sinal comum de hospedagem compartilhada de atacante) precisa de checagens de DNS passivo ou urlscan.io.
 - Classificação de risco: HIGH
@@ -163,8 +168,9 @@ Nenhum comando deste arquivo foi executado contra a internet ao produzir este re
   - Nada na evidência confirma que algum login a partir deste IP realmente ocorreu.
 - Método de investigação seguro:
   ```
-  whois 41.203.72.188
-  curl -s -H "x-apikey: $VT_API_KEY" "https://www.virustotal.com/api/v3/ip_addresses/41.203.72.188"
+  # Desmascarado; remascare (remova o [.]) apenas em um ambiente autorizado e isolado.
+  whois 41[.]203[.]72[.]188
+  curl -s -H "x-apikey: $VT_API_KEY" "https://www.virustotal.com/api/v3/ip_addresses/41[.]203[.]72[.]188"
   ```
   Como verificação de acompanhamento, pesquise logs de login de identidade por este IP para `rmendez@meddefense.com` em 2026-04-15. Um resultado positivo sugeriria uma tentativa real e mudaria a avaliação; nenhum resultado é o esperado para um alerta fabricado.
 - Achado: um detalhe não verificável escolhido para criar medo, não infraestrutura do atacante. Não deve ser usado como entrada de lista de bloqueio apenas com base neste e-mail.
@@ -185,15 +191,16 @@ Nenhum comando deste arquivo foi executado contra a internet ao produzir este re
   - O e-mail oferece receber o pagamento "diretamente através do nosso portal de faturas", sem nenhum dado de remessa.
 - Método de investigação seguro:
   ```
-  whois medequip-supplies.net
-  dig +short A medequip-supplies.net
-  dig +short MX medequip-supplies.net
-  dig +short TXT medequip-supplies.net               # registro SPF; espera-se um final de soft-fail
-  dig +short TXT _dmarc.medequip-supplies.net
-  curl -s "https://crt.sh/?q=medequip-supplies.net&output=json"
-  curl -s -H "x-apikey: $VT_API_KEY" "https://www.virustotal.com/api/v3/domains/medequip-supplies.net"
-  curl -s "https://urlscan.io/api/v1/search/?q=domain:medequip-supplies.net"
-  # Não faça curl nem navegue diretamente para este domínio, e nunca com o id
+  # Desmascarado; remascare (remova o [.]) apenas em um ambiente autorizado e isolado.
+  whois medequip-supplies[.]net
+  dig +short A medequip-supplies[.]net
+  dig +short MX medequip-supplies[.]net
+  dig +short TXT medequip-supplies[.]net               # registro SPF; espera-se um final de soft-fail
+  dig +short TXT _dmarc.medequip-supplies[.]net
+  curl -s "https://crt.sh/?q=medequip-supplies[.]net&output=json"
+  curl -s -H "x-apikey: $VT_API_KEY" "https://www.virustotal.com/api/v3/domains/medequip-supplies[.]net"
+  curl -s "https://urlscan.io/api/v1/search/?q=domain:medequip-supplies[.]net"
+  # Não faça curl nem navegue diretamente para o domínio real, e nunca com o id
   # da fatura na requisição. Para uma renderização ao vivo, envie o domínio
   # puro como uma nova varredura unlisted no urlscan.io.
   ```
@@ -211,9 +218,10 @@ Nenhum comando deste arquivo foi executado contra a internet ao produzir este re
 - Evidência do e-mail:
   - Oferecida como fallback: "If the attached invoice is not viewable, please log in to retrieve a copy". Uma página de login para uma fatura que um cliente nunca pediu é uma etapa padrão de captura de credenciais.
   - Mesmo domínio e remetente do Indicador 6.
-- Método de investigação seguro: as mesmas consultas de domínio do Indicador 6, mais uma pesquisa no urlscan.io restrita a este caminho (`page.url:"medequip-supplies.net/portal/login"`) por resultados existentes.
+- Método de investigação seguro: as mesmas consultas de domínio do Indicador 6, mais uma pesquisa no urlscan.io restrita a este caminho (`page.url:"medequip-supplies[.]net/portal/login"`) por resultados existentes.
   ```
-  curl -s "https://urlscan.io/api/v1/search/?q=page.domain:medequip-supplies.net"
+  # Desmascarado; remascare (remova o [.]) apenas em um ambiente autorizado e isolado.
+  curl -s "https://urlscan.io/api/v1/search/?q=page.domain:medequip-supplies[.]net"
   ```
 - Achado: uma segunda rota para o mesmo domínio que leva a um prompt de credenciais. Mesmo que a fatura fosse ignorada, um leitor que não conseguisse abrir o PDF é enviado para cá.
 - Classificação de risco: HIGH
@@ -263,10 +271,11 @@ Nenhum comando deste arquivo foi executado contra a internet ao produzir este re
   - O IP não é compartilhado com nenhum outro e-mail no lote.
 - Método de investigação seguro:
   ```
-  whois 185.176.43.22
-  dig -x 185.176.43.22 +short
-  curl -s -H "x-apikey: $VT_API_KEY" "https://www.virustotal.com/api/v3/ip_addresses/185.176.43.22"
-  curl -s "https://urlscan.io/api/v1/search/?q=ip:185.176.43.22"
+  # Desmascarado; remascare (remova o [.]) apenas em um ambiente autorizado e isolado.
+  whois 185[.]176[.]43[.]22
+  dig -x 185[.]176[.]43[.]22 +short
+  curl -s -H "x-apikey: $VT_API_KEY" "https://www.virustotal.com/api/v3/ip_addresses/185[.]176[.]43[.]22"
+  curl -s "https://urlscan.io/api/v1/search/?q=ip:185[.]176[.]43[.]22"
   ```
 - Achado: infraestrutura de envio da isca de fatura. Sua relação com o host web de `medequip-supplies.net` é desconhecida até que o DNS seja checado.
 - Classificação de risco: HIGH
@@ -286,15 +295,16 @@ Nenhum comando deste arquivo foi executado contra a internet ao produzir este re
   - Nenhum clique neste link foi relatado.
 - Método de investigação seguro:
   ```
-  whois meddefense-benefits.org
-  dig +short A meddefense-benefits.org
-  dig +short MX meddefense-benefits.org
-  dig +short TXT meddefense-benefits.org
-  dig +short TXT _dmarc.meddefense-benefits.org
-  curl -s "https://crt.sh/?q=meddefense-benefits.org&output=json"
-  curl -s -H "x-apikey: $VT_API_KEY" "https://www.virustotal.com/api/v3/domains/meddefense-benefits.org"
-  curl -s "https://urlscan.io/api/v1/search/?q=domain:meddefense-benefits.org"
-  # Não faça curl nem navegue diretamente para esta URL. Para uma renderização
+  # Desmascarado; remascare (remova o [.]) apenas em um ambiente autorizado e isolado.
+  whois meddefense-benefits[.]org
+  dig +short A meddefense-benefits[.]org
+  dig +short MX meddefense-benefits[.]org
+  dig +short TXT meddefense-benefits[.]org
+  dig +short TXT _dmarc.meddefense-benefits[.]org
+  curl -s "https://crt.sh/?q=meddefense-benefits[.]org&output=json"
+  curl -s -H "x-apikey: $VT_API_KEY" "https://www.virustotal.com/api/v3/domains/meddefense-benefits[.]org"
+  curl -s "https://urlscan.io/api/v1/search/?q=domain:meddefense-benefits[.]org"
+  # Não faça curl nem navegue diretamente para a URL real. Para uma renderização
   # ao vivo, envie o domínio puro como uma nova varredura unlisted no urlscan.io.
   ```
   Confirme com a equipe real de RH se uma janela de inscrição estava aberta e qual URL ela usa.
@@ -315,10 +325,11 @@ Nenhum comando deste arquivo foi executado contra a internet ao produzir este re
   - O IP não é compartilhado com nenhum outro e-mail no lote.
 - Método de investigação seguro:
   ```
-  whois 164.90.218.73
-  dig -x 164.90.218.73 +short
-  curl -s -H "x-apikey: $VT_API_KEY" "https://www.virustotal.com/api/v3/ip_addresses/164.90.218.73"
-  curl -s "https://urlscan.io/api/v1/search/?q=ip:164.90.218.73"
+  # Desmascarado; remascare (remova o [.]) apenas em um ambiente autorizado e isolado.
+  whois 164[.]90[.]218[.]73
+  dig -x 164[.]90[.]218[.]73 +short
+  curl -s -H "x-apikey: $VT_API_KEY" "https://www.virustotal.com/api/v3/ip_addresses/164[.]90[.]218[.]73"
+  curl -s "https://urlscan.io/api/v1/search/?q=ip:164[.]90[.]218[.]73"
   ```
 - Achado: infraestrutura de envio da isca de RH. O alerta do HC3 (E8) descreve envio via PHPMailer a partir de hospedagem VPS de baixo custo; uma consulta WHOIS mostraria se este e os outros IPs de envio são faixas de provedores de hospedagem.
 - Classificação de risco: HIGH
@@ -339,12 +350,13 @@ Nenhum comando deste arquivo foi executado contra a internet ao produzir este re
   - A faixa `203.0.113.0/24` é reservada para documentação (RFC 5737, TEST-NET-3). Um WHOIS ou DNS reverso ao vivo não retornaria um operador real, e em uma rede de produção este endereço não seria roteável. O mesmo se aplica ao `198.51.100.42` da newsletter legítima (E1, TEST-NET-2), então partes do lote parecem sanitizadas.
 - Método de investigação seguro:
   ```
-  whois 203.0.113.228                                # espera-se resposta de faixa de documentação da IANA
-  dig -x 203.0.113.228 +short
-  whois canadian-pharma-discount.org
-  dig +short A bulk-mail-07.canadian-pharma-discount.org
-  dig +short TXT _dmarc.canadian-pharma-discount.org
-  curl -s "https://urlscan.io/api/v1/search/?q=domain:canadian-pharma-discount.org"
+  # Desmascarado; remascare (remova o [.]) apenas em um ambiente autorizado e isolado.
+  whois 203[.]0[.]113[.]228                            # espera-se resposta de faixa de documentação da IANA
+  dig -x 203[.]0[.]113[.]228 +short
+  whois canadian-pharma-discount[.]org
+  dig +short A bulk-mail-07.canadian-pharma-discount[.]org
+  dig +short TXT _dmarc.canadian-pharma-discount[.]org
+  curl -s "https://urlscan.io/api/v1/search/?q=domain:canadian-pharma-discount[.]org"
   ```
   Não busque a URL. Se as consultas ao vivo não retornarem nada útil, registre isso e apoie-se na evidência acima.
 - Achado: spam em massa comum, baixo risco para a organização além do incômodo. Nada na evidência liga este IP ou domínio a E2, E3, E5 ou E7. Está listado para que a lista de bloqueio o cubra, e para que não seja confundido com infraestrutura da campanha.
