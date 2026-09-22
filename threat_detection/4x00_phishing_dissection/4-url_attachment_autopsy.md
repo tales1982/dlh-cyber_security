@@ -1,16 +1,15 @@
 # URL and Attachment Autopsy
 
-Safe investigation of the URLs, IP addresses and attachment indicators found in the four suspicious emails (E2, E3, E5, E7), plus the spam indicator `203.0.113.228` from E6. Every value was taken from the raw email evidence batch. No link was visited, no attachment was opened or rendered, and no live DNS, WHOIS or reputation lookup was run for this report. The commands listed under each indicator are the methods an analyst would use; they were not executed here, and the findings rest on the evidence file.
+Safe investigation of the URLs, IP addresses and attachment indicators found in the four suspicious emails (E2, E3, E5, E7), plus the spam indicator `203.0.113.228` from E6. Every value was taken from the raw email evidence batch. No link was visited, no attachment was opened or rendered, and no live DNS, WHOIS or reputation lookup was run for this report. Investigation methods are described in prose below, naming the tool or service an analyst would use; no runnable command line targets any suspicious domain or IP, so nothing in this file can be copy-pasted and pointed at attacker infrastructure by accident. The findings rest on the evidence file alone.
 
 ## Handling rules
 
-No command in this file was executed against the internet while producing this report. No suspicious domain or IP was contacted, browsed, pinged, resolved or scanned; every finding below comes only from the raw evidence batch. The commands are documented for an authorized analyst to run later from a controlled environment, not as steps taken here.
+No command was executed against the internet while producing this report. No suspicious domain or IP was contacted, browsed, pinged, resolved or scanned; every finding below comes only from the raw evidence batch. Investigation methods are named, not scripted, so an authorized analyst still has to build the exact query themselves, from a controlled environment, before running anything.
 
 - Values are defanged: `http` becomes `hxxp` and every `.` becomes `[.]`. Original values are kept in code formatting so they stay non-clickable and exactly as they appear in the evidence.
-- Treat every method below as something to run from an isolated analysis host or a vendor sandbox, never from a workstation with a browser session, mail client or corporate credentials, and never from the corporate network.
-- Prefer passive, read-only sources: WHOIS, DNS answers from a public resolver, certificate-transparency logs (crt.sh), and existing VirusTotal or urlscan.io results for the domain or IP. These query a third-party registry or database, not the attacker's own server.
-- Do not send any HTTP(S) request directly to the suspicious domains or IPs from analyst infrastructure, including a HEAD-only request such as `curl -I`. Even a HEAD request delivers a real connection, and possibly a tracking pixel, redirect or exploit, to attacker-controlled infrastructure, and it reveals the analyst's IP. If a live rendering of a page is genuinely needed, submit the bare domain to a sandboxed scanner (urlscan.io) and read its result there; do not connect to the site directly.
-- Every command shown below uses the defanged form of the domain or IP (`[.]` instead of `.`), so none of them resolve, connect or run as printed. Re-fang the value (swap `[.]` back to `.`) only inside an authorized, isolated environment, immediately before running the command, and never on a corporate workstation or network.
+- Any follow-up lookup belongs on an isolated analysis host or a vendor sandbox, never on a workstation with a browser session, mail client or corporate credentials, and never on the corporate network.
+- Prefer passive, read-only sources: a WHOIS registry lookup, a DNS answer from a public resolver, certificate-transparency logs (crt.sh), and existing VirusTotal or urlscan.io results for the domain or IP. These query a third-party registry or database, not the attacker's own server.
+- Never send an HTTP(S) request straight to a suspicious domain or IP, not even a HEAD-only request (`curl -I`). Even a HEAD request delivers a real connection, and possibly a tracking pixel, redirect or exploit, to attacker-controlled infrastructure, and it reveals the analyst's IP. If a live rendering of a page is genuinely needed, submit the bare domain to a sandboxed scanner (urlscan.io) and read the result there, instead of connecting to the site.
 - Do not request or submit the E2 URL with its `token` value. The token is per-recipient and lets the sender see who clicked. For any external lookup use the bare domain or the URL without the query string.
 - Set urlscan.io scans to `unlisted` or `private` so the submission does not advertise the investigation.
 - Do not open the E5 attachment on a desktop. The PDF was inspected only as base64 text inside the evidence (see Indicator 8).
@@ -57,21 +56,7 @@ No command in this file was executed against the internet while producing this r
   - Mail was sent with SPF `fail`, no DKIM and DMARC `fail` from `91.234.99.107`.
   - Diane Marsh's click on this link is recorded at 2026-04-14 15:02:33 CDT (see `7-click_investigation.md`).
   - The logo is a remote image on the same domain. If the mail client loaded it, the request reached the attacker's server when the message was rendered.
-- Safe investigation method:
-  ```
-  # Defanged; re-fang (drop the [.]) only in an authorized, isolated environment.
-  whois meddefense-portal[.]com                        # registrar, creation date, registrant
-  dig +short A meddefense-portal[.]com                  # web host IP (may differ from the mail host)
-  dig +short NS meddefense-portal[.]com
-  dig +short TXT meddefense-portal[.]com                # SPF record
-  dig +short TXT _dmarc.meddefense-portal[.]com
-  curl -s "https://crt.sh/?q=meddefense-portal[.]com&output=json"     # certificate first-seen dates
-  curl -s -H "x-apikey: $VT_API_KEY" "https://www.virustotal.com/api/v3/domains/meddefense-portal[.]com"
-  curl -s "https://urlscan.io/api/v1/search/?q=domain:meddefense-portal[.]com"   # existing scans only
-  # Do not curl or browse the live URL directly, and never with the token. For a
-  # live rendering, submit the bare domain as a new unlisted urlscan.io scan.
-  ```
-  Also search proxy, DNS and firewall logs for `meddefense-portal[.]com` and for requests to `/assets/logo.png`, to find every host that loaded the message or the page.
+- Safe investigation method: look up the domain's registrar and creation date with a WHOIS registry query, and its current DNS answers — the `A` record for the web host, the `NS` records, and the `TXT`/SPF and `_dmarc` TXT records — with `dig` or `nslookup`, all from an isolated host. Check certificate-transparency logs (crt.sh) for when a certificate was first issued to the domain, which approximates its registration age. Query VirusTotal and urlscan.io for existing reputation data and prior scans of the domain; if none exist and a live snapshot is genuinely needed, submit only the bare domain — never the full URL with Diane Marsh's token — as a new unlisted urlscan.io scan, rather than connecting to it directly with `curl` or a browser. Also search proxy, DNS and firewall logs for the domain and for requests to its `/assets/logo.png` path, to find every host that loaded the message or the page.
 - Finding: the URL is a personalized credential-harvest link on a lookalike domain, delivered by a sender that fails every authentication check. The domain is assessed as attacker-controlled infrastructure. What the page displays, and whether credentials were entered, is not in the evidence.
 - Risk rating: CRITICAL
 
@@ -87,15 +72,7 @@ No command in this file was executed against the internet while producing this r
   - SPF `fail`: the IP is not authorized for `meddefense-portal.com`.
   - The sender identifies the host as `mail.meddefense-portal.com`, running PHPMailer 6.6.0.
   - The IP is not shared with any other email in the batch.
-- Safe investigation method:
-  ```
-  # Defanged; re-fang (drop the [.]) only in an authorized, isolated environment.
-  whois 91[.]234[.]99[.]107                             # network owner, abuse contact, allocation date
-  dig -x 91[.]234[.]99[.]107 +short                     # reverse DNS, compare with mail.meddefense-portal[.]com
-  curl -s -H "x-apikey: $VT_API_KEY" "https://www.virustotal.com/api/v3/ip_addresses/91[.]234[.]99[.]107"
-  curl -s "https://urlscan.io/api/v1/search/?q=ip:91[.]234[.]99[.]107"
-  ```
-  Search mail-gateway logs for other messages from this IP, and firewall or proxy logs for any connection to it.
+- Safe investigation method: run a WHOIS lookup on the IP for its network owner, abuse contact and allocation date, and a reverse-DNS lookup (`dig -x`) to compare the result against the hostname the sender claimed. Query VirusTotal and urlscan.io for existing reputation data tied to the IP. Search mail-gateway logs for other messages from this IP, and firewall or proxy logs for any connection to it.
 - Finding: the mail server that delivered the confirmed-click phishing email. Whether the web host for `meddefense-portal.com` is the same machine is unknown until DNS is checked, so this IP should not be assumed to be the click destination.
 - Risk rating: HIGH
 
@@ -112,22 +89,7 @@ No command in this file was executed against the internet while producing this r
   - SPF, DKIM and DMARC all pass, but only for `outlook-protection.com` (see `2-authentication_analysis.md`).
   - The URL has no per-user token, so the same link would serve every recipient.
   - No click on this link has been reported.
-- Safe investigation method:
-  ```
-  # Defanged; re-fang (drop the [.]) only in an authorized, isolated environment.
-  whois outlook-protection[.]com                       # creation date: HC3 describes lookalikes under 30 days old
-  dig +short A outlook-protection[.]com
-  dig +short MX outlook-protection[.]com
-  dig +short TXT outlook-protection[.]com
-  dig +short TXT _dmarc.outlook-protection[.]com
-  dig +short TXT default._domainkey.outlook-protection[.]com   # DKIM selector from the message
-  curl -s "https://crt.sh/?q=outlook-protection[.]com&output=json"
-  curl -s -H "x-apikey: $VT_API_KEY" "https://www.virustotal.com/api/v3/domains/outlook-protection[.]com"
-  curl -s "https://urlscan.io/api/v1/search/?q=domain:outlook-protection[.]com"
-  # Do not curl or browse the live URL directly. For a live rendering, submit
-  # the bare domain as a new unlisted urlscan.io scan.
-  ```
-  Search proxy and DNS logs for the domain to check whether anyone has visited it.
+- Safe investigation method: run the same WHOIS and DNS checks as Indicator 1 (`A`, `MX`, `TXT`/SPF, `_dmarc`, and the DKIM selector named in the message's `DKIM-Signature` header), plus certificate-transparency, VirusTotal and urlscan.io lookups for the domain. HC3's alert describes lookalike domains registered less than 30 days old, so the WHOIS creation date is the single most useful data point here. Do not curl or browse the live `/verify` page directly; use a sandboxed urlscan.io submission of the bare domain if a live snapshot is needed. Search proxy and DNS logs for the domain to check whether anyone in the organization has visited it.
 - Finding: a brand-impersonation login lure on a domain that authenticates cleanly but is not Microsoft's. The lookup should confirm registration age and record ownership. Until then, the evidence classification stands.
 - Risk rating: HIGH
 
@@ -143,14 +105,7 @@ No command in this file was executed against the internet while producing this r
   - SPF `pass`: the IP is listed for `outlook-protection.com`, which shows the domain owner and the IP operator are connected. It does not make the sender Microsoft.
   - Mail was generated by a PHPMailer process on a host named `wp-admin.outlook-protection.com`.
   - The IP is not shared with any other email in the batch.
-- Safe investigation method:
-  ```
-  # Defanged; re-fang (drop the [.]) only in an authorized, isolated environment.
-  whois 51[.]38[.]42[.]17
-  dig -x 51[.]38[.]42[.]17 +short
-  curl -s -H "x-apikey: $VT_API_KEY" "https://www.virustotal.com/api/v3/ip_addresses/51[.]38[.]42[.]17"
-  curl -s "https://urlscan.io/api/v1/search/?q=ip:51[.]38[.]42[.]17"
-  ```
+- Safe investigation method: run WHOIS and reverse-DNS lookups on the IP, and query VirusTotal and urlscan.io for existing reputation data tied to it. A passive-DNS or urlscan.io check for other domains hosted on the same IP would show whether it is shared attacker infrastructure, a common trait of budget VPS hosting.
 - Finding: sending infrastructure for the Microsoft-impersonation lure. Whether other domains are hosted on this IP (a common sign of shared attacker hosting) needs passive-DNS or urlscan.io checks.
 - Risk rating: HIGH
 
@@ -165,13 +120,7 @@ No command in this file was executed against the internet while producing this r
   - It appears only in the body, as the alleged source of an unrecognized sign-in, together with an "unknown Windows device" and a time of 10:47 AM UTC on April 15, 2026.
   - It does not appear in any `Received:` header, so it is not part of the sending path.
   - Nothing in the evidence confirms that any sign-in from this IP happened.
-- Safe investigation method:
-  ```
-  # Defanged; re-fang (drop the [.]) only in an authorized, isolated environment.
-  whois 41[.]203[.]72[.]188
-  curl -s -H "x-apikey: $VT_API_KEY" "https://www.virustotal.com/api/v3/ip_addresses/41[.]203[.]72[.]188"
-  ```
-  As a follow-up check, search identity sign-in logs for this IP for `rmendez@meddefense.com` on 2026-04-15. A hit would suggest a real attempt and change the assessment; no hit is the expected result for a fabricated alert.
+- Safe investigation method: run a WHOIS lookup on the IP and query VirusTotal for existing reputation data. As a follow-up check, search identity sign-in logs for this IP against `rmendez@meddefense.com` on 2026-04-15. A hit would suggest a real attempt and change the assessment; no hit is the expected result for a fabricated alert.
 - Finding: an unverifiable detail chosen to create fear, not attacker infrastructure. It should not be used as a block-list entry on the strength of this email alone.
 - Risk rating: LOW
 
@@ -188,22 +137,7 @@ No command in this file was executed against the internet while producing this r
   - Sender authentication: SPF `softfail`, DKIM `none`, DMARC `fail`.
   - The Accounts Payable recipient says the invoice looks wrong and the vendor is unverified.
   - The email offers to take payment "directly through our invoice portal", not through any remittance details.
-- Safe investigation method:
-  ```
-  # Defanged; re-fang (drop the [.]) only in an authorized, isolated environment.
-  whois medequip-supplies[.]net
-  dig +short A medequip-supplies[.]net
-  dig +short MX medequip-supplies[.]net
-  dig +short TXT medequip-supplies[.]net               # SPF record; expect a soft-fail ending
-  dig +short TXT _dmarc.medequip-supplies[.]net
-  curl -s "https://crt.sh/?q=medequip-supplies[.]net&output=json"
-  curl -s -H "x-apikey: $VT_API_KEY" "https://www.virustotal.com/api/v3/domains/medequip-supplies[.]net"
-  curl -s "https://urlscan.io/api/v1/search/?q=domain:medequip-supplies[.]net"
-  # Do not curl or browse the live domain directly, and never with the invoice
-  # id in the request. For a live rendering, submit the bare domain as a new
-  # unlisted urlscan.io scan.
-  ```
-  Verify the vendor separately in the vendor master and by phone using a number MedDefense already holds, not the number in the email.
+- Safe investigation method: run the same WHOIS, DNS (`A`, `MX`, `TXT`/SPF — expect a soft-fail ending — and `_dmarc`), certificate-transparency, VirusTotal and urlscan.io checks as Indicator 1. Do not curl or browse the live domain directly, and never include the invoice id in any request; use a sandboxed urlscan.io submission of the bare domain if a live snapshot is needed. Verify the vendor separately in the vendor master and by phone, using a number MedDefense already holds rather than the one in the email.
 - Finding: the URL is the payment step of an unverified invoice from a sender that fails authentication. It fits invoice fraud and possible payment-detail or credential capture.
 - Risk rating: HIGH
 
@@ -217,11 +151,7 @@ No command in this file was executed against the internet while producing this r
 - Evidence from email:
   - Offered as a fallback: "If the attached invoice is not viewable, please log in to retrieve a copy". A login page for an invoice a customer never asked for is a standard credential-capture step.
   - Same domain and sender as Indicator 6.
-- Safe investigation method: same domain lookups as Indicator 6, plus a urlscan.io search restricted to this path (`page.url:"medequip-supplies[.]net/portal/login"`) for existing results.
-  ```
-  # Defanged; re-fang (drop the [.]) only in an authorized, isolated environment.
-  curl -s "https://urlscan.io/api/v1/search/?q=page.domain:medequip-supplies[.]net"
-  ```
+- Safe investigation method: the same domain lookups as Indicator 6, plus a urlscan.io search restricted to the `/portal/login` path for existing results, without submitting a new scan of this specific path.
 - Finding: a second route to the same domain that leads to a credential prompt. Even if the invoice were ignored, a reader who could not open the PDF is sent here.
 - Risk rating: HIGH
 
@@ -239,20 +169,7 @@ No command in this file was executed against the internet while producing this r
   - No `/JavaScript`, `/OpenAction`, `/Launch` or embedded-file keyword appears in the decoded text. The file is short (622 bytes as reproduced) and incomplete: objects 7 (font) and 9 (page content) are referenced but absent, and there is no cross-reference table or trailer. A missing keyword in an incomplete reproduction does not show the original is harmless.
   - After the last object there is an extra text string starting `xxxSHA-256:` followed by 62 hexadecimal characters in a regular ascending pattern. A SHA-256 has 64 characters and a file cannot contain its own hash, so this is unverified text and not a usable indicator.
   - SHA-256 of the decoded stream as reproduced in the batch: `49558e1500b82d6758379f44ce6104442ec3a5cc08912737db5584640f4b9cad`. It may differ from the original file if the batch was normalized.
-- Safe investigation method:
-  ```
-  # Extract without opening, on an isolated analysis VM only
-  ripmime -i E5.eml -d ./out
-  sha256sum ./out/INV-2026-04891.pdf
-  file ./out/INV-2026-04891.pdf
-  exiftool ./out/INV-2026-04891.pdf                  # Producer, CreationDate
-  pdfid.py ./out/INV-2026-04891.pdf                  # /JS /JavaScript /OpenAction /Launch /URI counts
-  pdf-parser.py --search URI ./out/INV-2026-04891.pdf
-  strings -a ./out/INV-2026-04891.pdf | grep -i -E 'http|uri|javascript'
-  # Reputation by hash, no file upload needed
-  curl -s -H "x-apikey: $VT_API_KEY" "https://www.virustotal.com/api/v3/files/<sha256>"
-  ```
-  Never double-click or preview the file. Search the mail gateway and endpoints for this filename and hash.
+- Safe investigation method: on an isolated analysis VM only, extract the attachment from the `.eml` without opening it (a MIME-extraction tool such as ripmime does this), then work only from the extracted copy — compute its SHA-256 hash and file type, read its embedded metadata (Producer, CreationDate) with a tool such as exiftool, and check it for active-content indicators (JavaScript, OpenAction, Launch and URI counts) with a static PDF analysis tool such as pdfid or pdf-parser, or by searching its raw strings for `http`, `uri` and `javascript`. Query VirusTotal for the computed hash, which needs no file upload. Never double-click or preview the file itself. Search the mail gateway and endpoints for this filename and hash.
 - Finding: an on-demand-generated invoice PDF whose only visible function is to carry the payment link, with an unverified embedded hash string. It reinforces the invoice pretext and gives a third click path to the same domain. It also matters for filtering: URLs inside attachments are inspected less often than URLs in message bodies.
 - Risk rating: HIGH
 
@@ -268,14 +185,7 @@ No command in this file was executed against the internet while producing this r
   - SPF `softfail` for `medequip-supplies.net`.
   - Mail was generated by a PHPMailer process on a host named `billing-svc.medequip-supplies.net`.
   - The IP is not shared with any other email in the batch.
-- Safe investigation method:
-  ```
-  # Defanged; re-fang (drop the [.]) only in an authorized, isolated environment.
-  whois 185[.]176[.]43[.]22
-  dig -x 185[.]176[.]43[.]22 +short
-  curl -s -H "x-apikey: $VT_API_KEY" "https://www.virustotal.com/api/v3/ip_addresses/185[.]176[.]43[.]22"
-  curl -s "https://urlscan.io/api/v1/search/?q=ip:185[.]176[.]43[.]22"
-  ```
+- Safe investigation method: run WHOIS and reverse-DNS lookups on the IP, and query VirusTotal and urlscan.io for existing reputation data tied to it.
 - Finding: sending infrastructure for the invoice lure. Its relationship to the web host for `medequip-supplies.net` is unknown until DNS is checked.
 - Risk rating: HIGH
 
@@ -292,21 +202,7 @@ No command in this file was executed against the internet while producing this r
   - SPF `fail`, DKIM `none`, DMARC `fail`.
   - The recipient, in Billing, says she never signed up for anything, and the email tells people who already enrolled to "still verify on the portal".
   - No click on this link has been reported.
-- Safe investigation method:
-  ```
-  # Defanged; re-fang (drop the [.]) only in an authorized, isolated environment.
-  whois meddefense-benefits[.]org
-  dig +short A meddefense-benefits[.]org
-  dig +short MX meddefense-benefits[.]org
-  dig +short TXT meddefense-benefits[.]org
-  dig +short TXT _dmarc.meddefense-benefits[.]org
-  curl -s "https://crt.sh/?q=meddefense-benefits[.]org&output=json"
-  curl -s -H "x-apikey: $VT_API_KEY" "https://www.virustotal.com/api/v3/domains/meddefense-benefits[.]org"
-  curl -s "https://urlscan.io/api/v1/search/?q=domain:meddefense-benefits[.]org"
-  # Do not curl or browse the live URL directly. For a live rendering, submit
-  # the bare domain as a new unlisted urlscan.io scan.
-  ```
-  Confirm with the real HR team whether an enrollment window is open and which URL it uses.
+- Safe investigation method: run the same WHOIS, DNS, certificate-transparency, VirusTotal and urlscan.io checks as Indicator 1. Do not curl or browse the live URL directly; use a sandboxed urlscan.io submission of the bare domain if a live snapshot is needed. Confirm with the real HR team whether an enrollment window was open in this period and which URL it uses.
 - Finding: a lookalike of the company's own brand used for an HR lure. The URL is the enrollment step of a message that fails all authentication.
 - Risk rating: HIGH
 
@@ -322,14 +218,7 @@ No command in this file was executed against the internet while producing this r
   - SPF `fail`: not authorized for `meddefense-benefits.org`.
   - Mail was generated by a PHPMailer process on a host named `wp-portal.meddefense-benefits.org`.
   - The IP is not shared with any other email in the batch.
-- Safe investigation method:
-  ```
-  # Defanged; re-fang (drop the [.]) only in an authorized, isolated environment.
-  whois 164[.]90[.]218[.]73
-  dig -x 164[.]90[.]218[.]73 +short
-  curl -s -H "x-apikey: $VT_API_KEY" "https://www.virustotal.com/api/v3/ip_addresses/164[.]90[.]218[.]73"
-  curl -s "https://urlscan.io/api/v1/search/?q=ip:164[.]90[.]218[.]73"
-  ```
+- Safe investigation method: run WHOIS and reverse-DNS lookups on the IP, and query VirusTotal and urlscan.io for existing reputation data. HC3's alert (E8) describes PHPMailer-based sending from budget VPS hosting, so the WHOIS network owner would show whether this and the other sending IPs sit in a hosting-provider range.
 - Finding: sending infrastructure for the HR lure. HC3's alert (E8) describes PHPMailer-based sending from budget VPS hosting; a WHOIS lookup would show whether this and the other sending IPs are hosting-provider ranges.
 - Risk rating: HIGH
 
@@ -347,17 +236,7 @@ No command in this file was executed against the internet while producing this r
   - SPF `softfail`, DKIM `none`, DMARC `fail` with `action=quarantine`. The mailer is `XPedia Bulk Mailer 4.2`.
   - No MedDefense impersonation, no credential request, no attachment.
   - The range `203.0.113.0/24` is reserved for documentation (RFC 5737, TEST-NET-3). A live WHOIS or reverse-DNS lookup would return no real operator, and on a production network this address would not be routable. The same applies to the legitimate newsletter's `198.51.100.42` (E1, TEST-NET-2), so parts of the batch look sanitized.
-- Safe investigation method:
-  ```
-  # Defanged; re-fang (drop the [.]) only in an authorized, isolated environment.
-  whois 203[.]0[.]113[.]228                            # expect an IANA documentation-range answer
-  dig -x 203[.]0[.]113[.]228 +short
-  whois canadian-pharma-discount[.]org
-  dig +short A bulk-mail-07.canadian-pharma-discount[.]org
-  dig +short TXT _dmarc.canadian-pharma-discount[.]org
-  curl -s "https://urlscan.io/api/v1/search/?q=domain:canadian-pharma-discount[.]org"
-  ```
-  Do not fetch the URL. If the live lookups return nothing useful, record that and rely on the evidence above.
+- Safe investigation method: a WHOIS or reverse-DNS lookup on the IP would be expected to return an IANA documentation-range answer rather than a real operator, given the TEST-NET-3 status noted above. A WHOIS lookup on the sender domain, its DNS/SPF/`_dmarc` records, and a urlscan.io search are the remaining passive checks. Do not fetch the URL. If live lookups return nothing useful, record that and rely on the evidence above.
 - Finding: ordinary bulk spam, low risk to the organization beyond nuisance. Nothing in the evidence links this IP or domain to E2, E3, E5 or E7. It is listed so the block list covers it, and so it is not mistaken for campaign infrastructure.
 - Risk rating: LOW
 
