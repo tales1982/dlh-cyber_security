@@ -1,0 +1,38 @@
+{
+  "capture_file": "normal_baseline_clinical.pcap",
+  "capture_duration_seconds": 1798.08,
+  "total_packets": 2842,
+  "protocol_distribution_packets": {
+    "tcp": 1742,
+    "udp": 1100,
+    "icmp": 0,
+    "other": 0
+  },
+  "application_breakdown_packets": {
+    "https": 800,
+    "dns": 1040,
+    "kerberos": 360,
+    "ldap": 0,
+    "agent": 360,
+    "ntp": 60,
+    "printing": 126,
+    "smb": 96,
+    "other": 0
+  },
+  "dns": {
+    "total_queries": 520,
+    "queries_per_minute": 17.4,
+    "txt_query_count": 7,
+    "txt_query_percent": 1.3
+  },
+  "packet_volume_per_5min_window": {
+    "min_frames": 372,
+    "max_frames": 615
+  },
+  "known_good_sni": ["api.github.com", "login.microsoftonline.com", "outlook.office365.com", "windows.com", "www.bing.com"],
+  "known_bad_checked": {
+    "91.234.99.107": "not observed",
+    "154.118.42.89": "not observed",
+    "data-sync.meddefense-portal.com": "not observed"
+  }
+}
