@@ -1,0 +1,490 @@
+================================================================================
+MEDDEFENSE HEALTH SYSTEMS â€” EMAIL EVIDENCE BATCH
+Collected by: Mike Torres (Network Engineer)
+Date collected: 2026-04-17 09:15 CDT
+Sources:
+  - 6 emails reported via helpdesk by end users between 2026-04-14 and 2026-04-16
+  - 2 emails pulled from Proofpoint quarantine (same window)
+Format: Full raw SMTP source, headers intact, no redaction.
+Notes from Mike:
+  - E2 is the one Diane Marsh (WS-NURSE-04) says she clicked ~36 hours ago.
+  - Linda Patterson in Billing says she never signed up for anything (E7).
+  - Angela Rivera in AP says the invoice looks wrong (E5).
+  - E1 and E6 look like spam but please verify.
+  - E4 came from inside our tenant (internal). E8 is from HC3.
+================================================================================
+
+
+=== BEGIN EMAIL 1 ===
+Return-Path: <newsletter@healthcare-education-weekly.com>
+Received: from mx01.meddefense.com ([10.10.1.20])
+    by inbound-relay.meddefense.com with ESMTP id 5D8C4E2F
+    for <jmoore@meddefense.com>; Mon, 14 Apr 2026 07:22:14 -0500
+Received: from mail-out.healthcare-education-weekly.com ([198.51.100.42])
+    by mx01.meddefense.com with ESMTPS (TLS1.3:ECDHE-RSA-AES256-GCM-SHA384)
+    id 3C91A7B4 for <jmoore@meddefense.com>;
+    Mon, 14 Apr 2026 07:22:13 -0500
+Received: from newsletter-svc01 (localhost [127.0.0.1])
+    by mail-out.healthcare-education-weekly.com (Postfix)
+    with ESMTP id 8F3D4E1A; Mon, 14 Apr 2026 07:22:10 -0500
+Authentication-Results: mx01.meddefense.com;
+    spf=pass (sender IP is 198.51.100.42) smtp.mailfrom=healthcare-education-weekly.com;
+    dkim=pass header.d=healthcare-education-weekly.com header.s=mail01;
+    dmarc=pass action=none header.from=healthcare-education-weekly.com
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=healthcare-education-weekly.com;
+    s=mail01; t=1744632130; bh=k8VgR4r3X4KvQP8fqg1zVmXJKjE2R5tF3lN9bH7wCqI=;
+    h=From:To:Subject:Date:MIME-Version:Content-Type;
+    b=Xkd4j29aSlRmT7qVZwX8cA6bL1nY5oP3iHdE0fG4cS2vU8jMbR7tW1yKxN5pQc...
+From: "Healthcare Education Weekly" <newsletter@healthcare-education-weekly.com>
+To: "Jennifer Moore" <jmoore@meddefense.com>
+Subject: Your April newsletter: Medication reconciliation best practices
+Date: Mon, 14 Apr 2026 07:22:10 -0500
+Message-ID: <20260414072210.8F3D4E1A@healthcare-education-weekly.com>
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="----=_NextPart_000_0001_01DAE123"
+List-Unsubscribe: <mailto:unsubscribe@healthcare-education-weekly.com>,
+    <https://healthcare-education-weekly.com/unsubscribe?id=jmoore@meddefense.com>
+List-Unsubscribe-Post: List-Unsubscribe=One-Click
+Precedence: bulk
+X-Mailer: MailChimp Mailer v12.4
+X-MC-User: c3f8b1a4e7
+X-Priority: 3
+
+------=_NextPart_000_0001_01DAE123
+Content-Type: text/plain; charset="utf-8"
+
+Healthcare Education Weekly â€” April 2026 Edition
+
+Hello Jennifer,
+
+In this month's issue:
+- Five best practices for medication reconciliation during admission
+- Updated CDC guidance on hand hygiene in outpatient settings
+- Upcoming CME webinar: Managing difficult family conversations
+
+Read the full articles at https://healthcare-education-weekly.com/april-2026
+
+You are receiving this because you subscribed on 2024-08-11.
+Unsubscribe: https://healthcare-education-weekly.com/unsubscribe?id=jmoore@meddefense.com
+
+Healthcare Education Weekly, 1200 Medical Way, Suite 400, Columbus OH 43215
+------=_NextPart_000_0001_01DAE123--
+
+=== END EMAIL 1 ===
+
+
+=== BEGIN EMAIL 2 ===
+Return-Path: <noreply@meddefense-portal.com>
+Received: from mx01.meddefense.com ([10.10.1.20])
+    by inbound-relay.meddefense.com with ESMTP id 7F8D3C9B
+    for <dmarsh@meddefense.com>; Mon, 14 Apr 2026 14:47:52 -0500
+Received: from mail.meddefense-portal.com ([91.234.99.107])
+    by mx01.meddefense.com with ESMTP
+    id 6E4A1B23 for <dmarsh@meddefense.com>;
+    Mon, 14 Apr 2026 14:47:51 -0500
+Received: from localhost (localhost [127.0.0.1])
+    by mail.meddefense-portal.com (PHPMailer 6.6.0)
+    id PHP-5D7E2F4A; Mon, 14 Apr 2026 19:47:48 +0000
+Authentication-Results: mx01.meddefense.com;
+    spf=fail (sender IP 91.234.99.107 not authorized for meddefense-portal.com) smtp.mailfrom=meddefense-portal.com;
+    dkim=none (message not signed) header.d=none;
+    dmarc=fail action=none header.from=meddefense-portal.com
+From: "MedDefense IT Security" <noreply@meddefense-portal.com>
+Reply-To: <no-reply@meddefense-portal.com>
+To: <dmarsh@meddefense.com>
+Subject: ACTION REQUIRED: Portal re-verification needed within 24 hours
+Date: Mon, 14 Apr 2026 19:47:48 +0000
+Message-ID: <PHP-5D7E2F4A@meddefense-portal.com>
+MIME-Version: 1.0
+Content-Type: text/html; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+X-Mailer: PHPMailer 6.6.0 (https://github.com/PHPMailer/PHPMailer)
+X-Priority: 1 (Highest)
+X-MSMail-Priority: High
+Importance: High
+
+<html>
+<body style="font-family: Arial, sans-serif;">
+<div style="max-width: 600px; margin: auto;">
+<img src="https://meddefense-portal.com/assets/logo.png" alt="MedDefense" width="180">
+<h2 style="color: #0a4d8c;">Portal Access Verification Required</h2>
+<p>Dear Diane Marsh,</p>
+<p><strong>Your MedDefense staff portal access requires immediate re-verification
+due to a security policy update rolled out this weekend.</strong></p>
+<p>If you do not verify within <strong>24 hours</strong>, your access will be
+suspended and you will be locked out of the scheduling system, the EHR gateway,
+and shift swap requests.</p>
+<p><a href="https://meddefense-portal.com/verify/staff?id=dmarsh&amp;token=a8f3e2d1"
+   style="background:#0a4d8c;color:#fff;padding:12px 24px;text-decoration:none;
+          border-radius:4px;display:inline-block;">
+   VERIFY MY ACCESS NOW</a></p>
+<p>This is an automated message. Do not reply.</p>
+<p style="color:#888;font-size:11px;">
+MedDefense Health Systems IT Security<br>
+Ticket #: INC-2026-04-14-7741<br>
+This message and any attachments are confidential.
+</p>
+</div>
+</body>
+</html>
+
+=== END EMAIL 2 ===
+
+
+=== BEGIN EMAIL 3 ===
+Return-Path: <security@outlook-protection.com>
+Received: from mx01.meddefense.com ([10.10.1.20])
+    by inbound-relay.meddefense.com with ESMTP id 8A2B4E7C
+    for <rmendez@meddefense.com>; Tue, 15 Apr 2026 09:13:44 -0500
+Received: from mail.outlook-protection.com ([51.38.42.17])
+    by mx01.meddefense.com with ESMTPS (TLS1.2:ECDHE-RSA-AES128-GCM-SHA256)
+    id 5D7A2B1C for <rmendez@meddefense.com>;
+    Tue, 15 Apr 2026 09:13:43 -0500
+Received: from wp-admin.outlook-protection.com (localhost [127.0.0.1])
+    by mail.outlook-protection.com (PHPMailer 6.6.0)
+    id PHP-9F2D7E1B; Tue, 15 Apr 2026 14:13:40 +0000
+Authentication-Results: mx01.meddefense.com;
+    spf=pass (sender IP 51.38.42.17 authorized for outlook-protection.com) smtp.mailfrom=outlook-protection.com;
+    dkim=pass header.d=outlook-protection.com header.s=default;
+    dmarc=pass action=none header.from=outlook-protection.com
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=outlook-protection.com;
+    s=default; t=1744726420; bh=Jg7K3nX9sVqW8pRtY2bE4oM1cL5uH6iQ0dF3kN7wPsA=;
+    h=From:To:Subject:Date;
+    b=TrustMeIHaveAValidSignatureFromOutlookProtectionDotCom7A2D4F1E...
+From: "Microsoft Account Protection" <security@outlook-protection.com>
+Reply-To: <no-reply@outlook-protection.com>
+To: "Rafael Mendez" <rmendez@meddefense.com>
+Subject: Unusual sign-in activity detected on your Microsoft 365 account
+Date: Tue, 15 Apr 2026 14:13:40 +0000
+Message-ID: <PHP-9F2D7E1B@outlook-protection.com>
+MIME-Version: 1.0
+Content-Type: text/html; charset="utf-8"
+X-Mailer: PHPMailer 6.6.0 (https://github.com/PHPMailer/PHPMailer)
+X-Priority: 1 (Highest)
+
+<html>
+<body style="font-family: 'Segoe UI', Arial, sans-serif;">
+<div style="max-width:640px;margin:auto;border:1px solid #d2d2d2;padding:20px;">
+<img src="https://outlook-protection.com/img/ms_logo.png" alt="Microsoft" width="108">
+<h2>Unusual sign-in activity</h2>
+<p>Hi Rafael,</p>
+<p>We detected a sign-in attempt from an unrecognized device for your Microsoft
+account (<strong>rmendez@meddefense.com</strong>).</p>
+<table style="margin:16px 0;">
+<tr><td>Location:</td><td>Lagos, Nigeria (approximate)</td></tr>
+<tr><td>IP address:</td><td>41.203.72.188</td></tr>
+<tr><td>Device:</td><td>Unknown Windows device</td></tr>
+<tr><td>Time:</td><td>April 15, 2026 at 10:47 AM UTC</td></tr>
+</table>
+<p>If this was not you, your account may have been compromised. Please verify
+your account immediately:</p>
+<p><a href="https://outlook-protection.com/verify"
+   style="background:#0078d4;color:#fff;padding:10px 28px;text-decoration:none;
+          font-weight:bold;">Verify account</a></p>
+<p>If you do not recognize this activity and do not verify within 48 hours,
+your account will be locked to protect your information.</p>
+<p style="color:#888;font-size:11px;">
+&copy; 2026 Microsoft Corporation. All rights reserved.<br>
+One Microsoft Way, Redmond, WA 98052
+</p>
+</div>
+</body>
+</html>
+
+=== END EMAIL 3 ===
+
+
+=== BEGIN EMAIL 4 ===
+Return-Path: <it-announcements@meddefense.com>
+Received: from mx01.meddefense.com ([10.10.1.20])
+    by inbound-relay.meddefense.com with ESMTP id 4C9E2B7F
+    for <staff-clinical@meddefense.com>; Tue, 15 Apr 2026 10:00:12 -0500
+Received: from exchange-hub.meddefense.local ([10.10.1.15])
+    by mx01.meddefense.com with ESMTP
+    id 2D7A3F9B for <staff-clinical@meddefense.com>;
+    Tue, 15 Apr 2026 10:00:11 -0500
+Authentication-Results: mx01.meddefense.com;
+    spf=pass (sender IP 10.10.1.15 is internal) smtp.mailfrom=meddefense.com;
+    dkim=pass header.d=meddefense.com header.s=selector1;
+    dmarc=pass action=none header.from=meddefense.com
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=meddefense.com;
+    s=selector1; t=1744729211; bh=LegitInternalDKIMHash42891472918749128fNp3k=;
+    h=From:To:Subject:Date;
+    b=InternalExchangeSignatureValid8372918472918472918472918472918...
+From: "MedDefense IT Announcements" <it-announcements@meddefense.com>
+To: "Clinical Staff" <staff-clinical@meddefense.com>
+Subject: Reminder: Quarterly password change window opens April 20
+Date: Tue, 15 Apr 2026 10:00:10 -0500
+Message-ID: <20260415100010.2D7A3F9B@meddefense.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+X-Mailer: Microsoft Exchange Server 2019
+X-Priority: 3
+List-ID: <staff-clinical.meddefense.com>
+
+Hello clinical team,
+
+Quick reminder: the quarterly password change window opens on Monday, April 20,
+and closes on Friday, April 24. Please change your MedDefense domain password
+during that window using the normal self-service portal on the intranet at
+portal.meddefense.local/password.
+
+If you have any trouble, ping the helpdesk on x4400 or file a ticket at
+helpdesk.meddefense.local.
+
+Reminder: IT will never email you a link to change your password. The portal
+is only accessible from inside the MedDefense network or via VPN.
+
+Thanks,
+James Chen
+SOC Lead, MedDefense Health Systems
+x4401
+
+=== END EMAIL 4 ===
+
+
+=== BEGIN EMAIL 5 ===
+Return-Path: <invoices@medequip-supplies.net>
+Received: from mx01.meddefense.com ([10.10.1.20])
+    by inbound-relay.meddefense.com with ESMTP id 6B3E7A2C
+    for <arivera@meddefense.com>; Wed, 16 Apr 2026 11:28:39 -0500
+Received: from mail.medequip-supplies.net ([185.176.43.22])
+    by mx01.meddefense.com with ESMTP
+    id 1E4F2B8D for <arivera@meddefense.com>;
+    Wed, 16 Apr 2026 11:28:37 -0500
+Received: from billing-svc.medequip-supplies.net (localhost [127.0.0.1])
+    by mail.medequip-supplies.net (PHPMailer 6.6.0)
+    id PHP-7C2D4E1A; Wed, 16 Apr 2026 16:28:35 +0000
+Authentication-Results: mx01.meddefense.com;
+    spf=softfail (sender IP 185.176.43.22 is softfail for medequip-supplies.net) smtp.mailfrom=medequip-supplies.net;
+    dkim=none (message not signed) header.d=none;
+    dmarc=fail action=none header.from=medequip-supplies.net
+From: "MedEquip Supplies Billing" <invoices@medequip-supplies.net>
+Reply-To: <billing@medequip-supplies.net>
+To: "Angela Rivera" <arivera@meddefense.com>
+Subject: Invoice INV-2026-04891 â€” Payment required within 7 days
+Date: Wed, 16 Apr 2026 16:28:35 +0000
+Message-ID: <PHP-7C2D4E1A@medequip-supplies.net>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="----=_Part_INV_4891"
+X-Mailer: PHPMailer 6.6.0 (https://github.com/PHPMailer/PHPMailer)
+X-Priority: 1 (Highest)
+
+------=_Part_INV_4891
+Content-Type: text/html; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+
+<html>
+<body style="font-family: Arial;">
+<p>Dear Accounts Payable,</p>
+<p>Please find attached invoice <strong>INV-2026-04891</strong> for medical
+supplies delivered to MedDefense Health Systems on April 9, 2026.</p>
+<p><strong>Amount due: USD 24,716.38</strong><br>
+<strong>Due date: April 23, 2026 (7 days)</strong></p>
+<p>Payment can be made directly through our invoice portal:
+<a href="https://medequip-supplies.net/invoices/pay?id=INV-2026-04891">
+https://medequip-supplies.net/invoices/pay?id=INV-2026-04891</a></p>
+<p>If the attached invoice is not viewable, please log in to retrieve a copy at
+<a href="https://medequip-supplies.net/portal/login">
+https://medequip-supplies.net/portal/login</a>.</p>
+<p>Failure to remit payment by the due date may result in suspension of future
+deliveries and a 2% late fee.</p>
+<p>Regards,<br>
+MedEquip Supplies Billing Department<br>
+1-800-MED-EQUIP</p>
+</body>
+</html>
+
+------=_Part_INV_4891
+Content-Type: application/pdf; name="INV-2026-04891.pdf"
+Content-Disposition: attachment; filename="INV-2026-04891.pdf"
+Content-Transfer-Encoding: base64
+
+JVBERi0xLjQKJeLjz9MKMiAwIG9iago8PC9Qcm9kdWNlciAod2todG1sdG9wZGYgMC4xMi42KS9D
+cmVhdGlvbkRhdGUgKEQ6MjAyNjA0MTYxNjI4MzQrMDAnMDAnKS9Nb2REYXRlIChEOjIwMjYwNDE2
+MTYyODM0KzAwJzAwJyk+PgplbmRvYmoKMSAwIG9iago8PC9UeXBlIC9DYXRhbG9nL1BhZ2VzIDMg
+MCBSPj4KZW5kb2JqCjMgMCBvYmoKPDwvVHlwZSAvUGFnZXMvS2lkcyBbNSAwIFJdL0NvdW50IDE+
+PgplbmRvYmoKNSAwIG9iago8PC9UeXBlIC9QYWdlL1BhcmVudCAzIDAgUi9SZXNvdXJjZXMgPDwv
+QW5ub3RzIFsxMCAwIFJdIC9Gb250IDw8L0YxIDcgMCBSPj4+Pi9Db250ZW50cyA5IDAgUi9NZWRp
+YUJveCBbMCAwIDU5NSA4NDJdPj4KZW5kb2JqCjEwIDAgb2JqCjw8L1R5cGUvQW5ub3QvU3VidHlw
+ZS9MaW5rL0JvcmRlclswIDAgMF0vUmVjdFsxNzUgMTg1IDQ1MCAyMDVdL0EgPDwvVHlwZS9BY3Rp
+b24vUy9VUkkvVVJJIChodHRwczovL21lZGVxdWlwLXN1cHBsaWVzLm5ldC9pbnZvaWNlcy9wYXk/
+aWQ9SU5WLTIwMjYtMDQ4OTEpPj4+PgplbmRvYmoKCnh4eFNIQS0yNTY6IDJmNGE2YzhlMGIxZDNm
+NWE3YzllMWIzZDVmN2E5YzFlM2I1ZDdmOWExYzNlNWI3ZDlmMWEzYzVlN2I5ZDFmeHh4Cg==
+------=_Part_INV_4891--
+
+=== END EMAIL 5 ===
+
+
+=== BEGIN EMAIL 6 ===
+Return-Path: <deals@canadian-pharma-discount.org>
+Received: from mx01.meddefense.com ([10.10.1.20])
+    by inbound-relay.meddefense.com with ESMTP id 2A8D4C7E
+    for <pwhite@meddefense.com>; Wed, 16 Apr 2026 13:04:22 -0500
+Received: from bulk-mail-07.canadian-pharma-discount.org ([203.0.113.228])
+    by mx01.meddefense.com with ESMTP
+    id 4E7B2A9D for <pwhite@meddefense.com>;
+    Wed, 16 Apr 2026 13:04:20 -0500
+Authentication-Results: mx01.meddefense.com;
+    spf=softfail smtp.mailfrom=canadian-pharma-discount.org;
+    dkim=none;
+    dmarc=fail action=quarantine header.from=canadian-pharma-discount.org
+From: "Canadian Pharma Discounts" <deals@canadian-pharma-discount.org>
+To: <pwhite@meddefense.com>
+Subject: 90% OFF Viagra, Cialis, Xanax â€” No prescription needed!!!
+Date: Wed, 16 Apr 2026 13:04:18 -0500
+Message-ID: <20260416130418.4E7B2A9D@canadian-pharma-discount.org>
+MIME-Version: 1.0
+Content-Type: text/html; charset="utf-8"
+X-Spam-Score: 9.8
+X-Spam-Status: Yes, score=9.8 tagged_above=5.0 required=5.0 tests=[BODY_8BITS,
+    DRUGS_ERECTILE, HTML_MESSAGE, NORMAL_HTTP_TO_IP, NUMERIC_HTTP_ADDR]
+X-Mailer: XPedia Bulk Mailer 4.2
+
+<html><body>
+<h1 style="color:red;">CANADIAN PHARMACY -- BIGGEST DISCOUNTS OF THE YEAR!!!</h1>
+<p>VIAGRA $0.89 per pill / CIALIS $1.09 per pill / XANAX $1.89 per pill</p>
+<p>NO PRESCRIPTION REQUIRED!  DISCREET PACKAGING!  WORLDWIDE SHIPPING!</p>
+<p><a href="http://203.0.113.228/shop?ref=pwhite">CLICK HERE TO BUY NOW</a></p>
+<p>Unsubscribe? Reply STOP.</p>
+</body></html>
+
+=== END EMAIL 6 ===
+
+
+=== BEGIN EMAIL 7 ===
+Return-Path: <hr-notifications@meddefense-benefits.org>
+Received: from mx01.meddefense.com ([10.10.1.20])
+    by inbound-relay.meddefense.com with ESMTP id 3C8E4A7B
+    for <lpatterson@meddefense.com>; Thu, 16 Apr 2026 15:22:07 -0500
+Received: from mail.meddefense-benefits.org ([164.90.218.73])
+    by mx01.meddefense.com with ESMTP
+    id 7D2F4B9A for <lpatterson@meddefense.com>;
+    Thu, 16 Apr 2026 15:22:05 -0500
+Received: from wp-portal.meddefense-benefits.org (localhost [127.0.0.1])
+    by mail.meddefense-benefits.org (PHPMailer 6.6.0)
+    id PHP-2E4A7B1C; Thu, 16 Apr 2026 20:22:02 +0000
+Authentication-Results: mx01.meddefense.com;
+    spf=fail (sender IP 164.90.218.73 not authorized for meddefense-benefits.org) smtp.mailfrom=meddefense-benefits.org;
+    dkim=none (message not signed) header.d=none;
+    dmarc=fail action=none header.from=meddefense-benefits.org
+From: "MedDefense HR Benefits" <hr-notifications@meddefense-benefits.org>
+Reply-To: <no-reply@meddefense-benefits.org>
+To: "Linda Patterson" <lpatterson@meddefense.com>
+Subject: Open Enrollment closes TOMORROW â€” action required
+Date: Thu, 16 Apr 2026 20:22:02 +0000
+Message-ID: <PHP-2E4A7B1C@meddefense-benefits.org>
+MIME-Version: 1.0
+Content-Type: text/html; charset="utf-8"
+X-Mailer: PHPMailer 6.6.0 (https://github.com/PHPMailer/PHPMailer)
+X-Priority: 1 (Highest)
+
+<html>
+<body style="font-family: Arial, sans-serif;">
+<div style="max-width:600px;margin:auto;background:#f4f7fb;padding:24px;">
+<h2 style="color:#b40000;">FINAL NOTICE: Open Enrollment closes tomorrow</h2>
+<p>Linda,</p>
+<p>Our records show you have not yet completed your 2026 benefits re-enrollment.
+<strong>Open Enrollment closes at midnight tomorrow, April 17, 2026.</strong></p>
+<p>If you do not re-enroll by the deadline, your current coverage will lapse
+and you will be defaulted to a basic plan until the next open enrollment in
+November 2026.</p>
+<p>Please complete your enrollment now:</p>
+<p><a href="https://meddefense-benefits.org/enroll"
+   style="background:#0a4d8c;color:#fff;padding:12px 24px;text-decoration:none;
+          font-weight:bold;">COMPLETE ENROLLMENT</a></p>
+<p>If you believe you have already enrolled, please still verify on the portal
+to confirm your election.</p>
+<p style="color:#888;font-size:11px;">
+MedDefense Health Systems â€” Human Resources Benefits Administration<br>
+This message was sent to lpatterson@meddefense.com.
+</p>
+</div>
+</body>
+</html>
+
+=== END EMAIL 7 ===
+
+
+=== BEGIN EMAIL 8 ===
+Return-Path: <HC3@hhs.gov>
+Received: from mx01.meddefense.com ([10.10.1.20])
+    by inbound-relay.meddefense.com with ESMTP id 9F3A2B7D
+    for <soc-alerts@meddefense.com>; Thu, 16 Apr 2026 08:47:02 -0500
+Received: from mail.hhs.gov ([134.174.47.82])
+    by mx01.meddefense.com with ESMTPS (TLS1.3:ECDHE-RSA-AES256-GCM-SHA384)
+    id 5C8E4A2B for <soc-alerts@meddefense.com>;
+    Thu, 16 Apr 2026 08:47:01 -0500
+Authentication-Results: mx01.meddefense.com;
+    spf=pass (sender IP 134.174.47.82 authorized for hhs.gov) smtp.mailfrom=hhs.gov;
+    dkim=pass header.d=hhs.gov header.s=hhs2026;
+    dmarc=pass action=none header.from=hhs.gov
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=hhs.gov;
+    s=hhs2026; t=1744814821; bh=Hhs3XyGvLmP9rTkJcQwNzA8bV4uI2dFsE5nY7oRqH1=;
+    h=From:To:Subject:Date:Message-ID;
+    b=HHSOfficialSignatureVerifiedFromHhsGovDomain7201938471029384710...
+From: "HC3 Sector Alerts" <HC3@hhs.gov>
+To: "MedDefense SOC" <soc-alerts@meddefense.com>
+Subject: [HC3 ALERT â€” TLP:CLEAR] Active phishing campaign targeting regional healthcare
+Date: Thu, 16 Apr 2026 08:47:01 -0500
+Message-ID: <HC3-20260416-0847@hhs.gov>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+X-Mailer: HHS Secure Mail Gateway
+X-Priority: 2 (High)
+X-TLP: CLEAR
+X-HC3-Advisory-Reference: HC3-2026-PRELIM-001
+
+To: Healthcare SOC distribution list
+From: HHS Health Sector Cybersecurity Coordination Center (HC3)
+Date: April 16, 2026
+TLP: CLEAR
+
+PRELIMINARY ALERT â€” ACTIVE PHISHING CAMPAIGN TARGETING HEALTHCARE SECTOR
+
+HC3 has received reports from multiple healthcare organizations across the
+Midwest region of a coordinated phishing campaign that appears to use look-
+alike domains impersonating patient portals, pharmacy benefit managers, and
+internal HR communications.
+
+Observed patterns (not yet IOC-confirmed, hence TLP:CLEAR):
+
+  - Newly-registered .com/.net/.org domains (registration age less than 30 days)
+    using "portal", "benefits", "supplies", or "login" in the hostname
+  - Emails sent from PHPMailer-based sending infrastructure on budget VPS
+    hosting (Hostinger, DigitalOcean pricing tier)
+  - Urgency-based social engineering: 24-48 hour deadlines, account lockout
+    threats, open-enrollment cutoffs
+  - Targeted-by-role: clinical staff, billing staff, and HR recipients each
+    receive role-appropriate lures
+
+No malware has been confirmed in the phishing emails themselves. Early reports
+indicate credential harvesting as the primary objective, with possible Stage 2
+deployment once credentials are validated.
+
+Recommended actions:
+
+  1. Review recent inbound mail for newly-registered lookalike domains.
+  2. If affected, submit IOCs via the HC3 portal. Your submission will
+     contribute to a forthcoming named-campaign advisory.
+  3. Reinforce user awareness for urgency-based pretexts.
+
+HC3 will publish a formal advisory with IOCs once sufficient organizations
+have reported. Please coordinate via your ISAC liaison.
+
+--
+HC3 Sector Alerts
+Health Sector Cybersecurity Coordination Center
+U.S. Department of Health and Human Services
+HC3@hhs.gov  |  https://www.hhs.gov/hc3
+
+=== END EMAIL 8 ===
+
+================================================================================
+END OF BATCH
+Total emails: 8
+Collection window: 2026-04-14 07:22 CDT â†’ 2026-04-16 15:22 CDT (~57 hours)
+User who clicked: Diane Marsh (dmarsh@meddefense.com, WS-NURSE-04, 10.10.2.15)
+Email that was clicked: E2
+Click timestamp (per workstation NTP): 2026-04-14 15:02:33 CDT
+================================================================================
