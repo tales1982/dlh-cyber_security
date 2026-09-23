@@ -38,15 +38,15 @@ field extraction (`-Y`, `-T fields -e ...`), documented inline in each script
 for reproducibility, and cross-checked against `normal_baseline_clinical.pcap`
 where a normal/abnormal comparison was meaningful. Per-script breakdown:
 
-| Script | PCAP | Purpose |
-|---|---|---|
-| [0-baseline_analysis.sh](0-baseline_analysis.sh) | normal_baseline_clinical.pcap | Establishes normal traffic patterns |
-| [1-phishing_click.sh](1-phishing_click.sh) | phishing_click.pcap | Confirms the phishing session and post-click behavior |
-| [3-dns_tunnel.sh](3-dns_tunnel.sh) | dns_exfil.pcap | Classifies and decodes the DNS tunnel |
-| [4-lateral_movement.sh](4-lateral_movement.sh) | lateral_movement.pcap | Reconstructs RDP/SMB lateral movement |
-| [5-vpn_pivot.sh](5-vpn_pivot.sh) | full_timeline.pcap | Identifies the external VPN pivot and geolocates it |
-| [6-kill_chain.sh](6-kill_chain.sh) | (synthesis) | Builds the master 7-phase timeline from all of the above |
-| [8-evidence_crosscheck.sh](8-evidence_crosscheck.sh) | (synthesis) | Classifies evidentiary strength per phase |
+| Script                                              | PCAP                          | Purpose                                                  |
+| --------------------------------------------------- | ----------------------------- | -------------------------------------------------------- |
+| [0-baseline_analysis.sh](0-baseline_analysis.sh)     | normal_baseline_clinical.pcap | Establishes normal traffic patterns                      |
+| [1-phishing_click.sh](1-phishing_click.sh)           | phishing_click.pcap           | Confirms the phishing session and post-click behavior    |
+| [3-dns_tunnel.sh](3-dns_tunnel.sh)                   | dns_exfil.pcap                | Classifies and decodes the DNS tunnel                    |
+| [4-lateral_movement.sh](4-lateral_movement.sh)       | lateral_movement.pcap         | Reconstructs RDP/SMB lateral movement                    |
+| [5-vpn_pivot.sh](5-vpn_pivot.sh)                     | full_timeline.pcap            | Identifies the external VPN pivot and geolocates it      |
+| [6-kill_chain.sh](6-kill_chain.sh)                   | (synthesis)                   | Builds the master 7-phase timeline from all of the above |
+| [8-evidence_crosscheck.sh](8-evidence_crosscheck.sh) | (synthesis)                   | Classifies evidentiary strength per phase                |
 
 No conclusion in this report or its underlying scripts asserts data not
 directly observable in these captures; where decoding or inference was
@@ -55,15 +55,15 @@ script's own `[*]` caveat lines).
 
 ## 4. Findings by Attack Phase
 
-| # | Phase | Timestamp (PCAP-native) | Evidence | ATT&CK |
-|---|---|---|---|---|
-| 1 | Initial Access (Phishing) | 2026-04-14 14:47 | 4x00 email headers only — no PCAP | T1566.002 |
-| 2 | Credential Harvesting | 2026-04-14 17:02:33–17:03:20 | phishing_click.pcap: DNS + TLS ClientHello to meddefense-portal.com (91.234.99.107) | T1566.002, T1056.003 |
-| 3 | C2 Beaconing | 2026-04-15 04:00:12–05:55:08 | c2_beaconing.pcap: 24 sessions to 91.234.99.107, ~300s interval | T1071.001 |
-| 4 | External VPN Pivot | 2026-04-15 15:45:22 (~48 min) | full_timeline.pcap: 154.118.42.89 → 10.10.0.1:443, decoded `AUTH:user=dmarsh,pass=***,2fa=none` | T1133, T1078.002 |
-| 5 | Lateral Movement (RDP) | 2026-04-15 16:30:12.445 | lateral_movement.pcap: WS-NURSE-04 → billing-srv-01, RDP/NLA, `dmarsh` in payload | T1021.001 |
-| 6 | Discovery / Enumeration (SMB) | 2026-04-15 16:35:22–16:40:33 | lateral_movement.pcap: mixed success/denied/refused across 5 internal targets | T1135, T1021.002, T1083 |
-| 7 | Exfiltration (DNS Tunneling) | 2026-04-16 00:15:02–00:44:56 | dns_exfil.pcap: 120 anomalous TXT queries, Base32/Base64-decoded sample payloads | T1048.003 |
+| # | Phase                         | Timestamp (PCAP-native)       | Evidence                                                                                          | ATT&CK                  |
+| - | ----------------------------- | ----------------------------- | ------------------------------------------------------------------------------------------------- | ----------------------- |
+| 1 | Initial Access (Phishing)     | 2026-04-14 14:47              | 4x00 email headers only — no PCAP                                                                | T1566.002               |
+| 2 | Credential Harvesting         | 2026-04-14 17:02:33–17:03:20 | phishing_click.pcap: DNS + TLS ClientHello to meddefense-portal.com (91.234.99.107)               | T1566.002, T1056.003    |
+| 3 | C2 Beaconing                  | 2026-04-15 04:00:12–05:55:08 | c2_beaconing.pcap: 24 sessions to 91.234.99.107, ~300s interval                                   | T1071.001               |
+| 4 | External VPN Pivot            | 2026-04-15 15:45:22 (~48 min) | full_timeline.pcap: 154.118.42.89 → 10.10.0.1:443, decoded `AUTH:user=dmarsh,pass=***,2fa=none` | T1133, T1078.002        |
+| 5 | Lateral Movement (RDP)        | 2026-04-15 16:30:12.445       | lateral_movement.pcap: WS-NURSE-04 → billing-srv-01, RDP/NLA, `dmarsh` in payload               | T1021.001               |
+| 6 | Discovery / Enumeration (SMB) | 2026-04-15 16:35:22–16:40:33 | lateral_movement.pcap: mixed success/denied/refused across 5 internal targets                     | T1135, T1021.002, T1083 |
+| 7 | Exfiltration (DNS Tunneling)  | 2026-04-16 00:15:02–00:44:56 | dns_exfil.pcap: 120 anomalous TXT queries, Base32/Base64-decoded sample payloads                  | T1048.003               |
 
 Full narrative detail for each phase is in
 [6-kill_chain.sh](6-kill_chain.sh)'s output. Note the Phase 7 window
@@ -74,16 +74,16 @@ dataset.
 
 ## 5. Network-Level IOC Table
 
-| Indicator | Type | Role | First Observed |
-|---|---|---|---|
-| meddefense-portal.com | Domain | Phishing/credential-harvesting site | 2026-04-14 17:02:33 |
-| 91.234.99.107 | IPv4 | Phishing site + C2 destination | 2026-04-14 17:02:33 |
-| data-sync.meddefense-portal[.]com | Domain | DNS tunnel exfiltration channel | 2026-04-16 00:15:02 |
-| 154.118.42.89 | IPv4 | External VPN pivot source (NG, AS37340, Spectranet) | 2026-04-15 15:45:22 |
-| dmarsh | Account | Compromised domain account, used VPN + RDP | 2026-04-15 15:45:22 |
-| 10.10.2.15 (WS-NURSE-04) | Host | Initial lateral-movement source | 2026-04-15 16:30:12 |
-| 10.10.1.10 (billing-srv-01) | Host | Lateral-movement target, SMB enumeration source | 2026-04-15 16:30:12 |
-| 10.10.1.60 (NAS-01) | Host | Confirmed SMB access target | 2026-04-15 16:38:xx |
+| Indicator                         | Type    | Role                                                | First Observed      |
+| --------------------------------- | ------- | --------------------------------------------------- | ------------------- |
+| meddefense-portal.com             | Domain  | Phishing/credential-harvesting site                 | 2026-04-14 17:02:33 |
+| 91.234.99.107                     | IPv4    | Phishing site + C2 destination                      | 2026-04-14 17:02:33 |
+| data-sync.meddefense-portal[.]com | Domain  | DNS tunnel exfiltration channel                     | 2026-04-16 00:15:02 |
+| 154.118.42.89                     | IPv4    | External VPN pivot source (NG, AS37340, Spectranet) | 2026-04-15 15:45:22 |
+| dmarsh                            | Account | Compromised domain account, used VPN + RDP          | 2026-04-15 15:45:22 |
+| 10.10.2.15 (WS-NURSE-04)          | Host    | Initial lateral-movement source                     | 2026-04-15 16:30:12 |
+| 10.10.1.10 (billing-srv-01)       | Host    | Lateral-movement target, SMB enumeration source     | 2026-04-15 16:30:12 |
+| 10.10.1.60 (NAS-01)               | Host    | Confirmed SMB access target                         | 2026-04-15 16:38:xx |
 
 IOC continuity with 4x00: `meddefense-portal.com` and `91.234.99.107` are the
 same indicators identified in the email-based investigation; this capture
@@ -108,14 +108,14 @@ the email.
 
 ## 7. Detection Gap Analysis
 
-| Phase | Gap |
-|---|---|
-| 1. Initial Access | No mail-gateway or endpoint telemetry in scope — the click itself is invisible to network capture by design. |
-| 2. Credential Harvesting | TLS encryption means the harvested content itself was never observable; only that a session matching the phishing domain occurred. |
-| 3. C2 Beaconing | Beaconing was visible but nothing in this evidence set indicates it triggered any alert — no IDS/NDS alert log was provided. |
-| 4. VPN Pivot | No MFA challenge is visible; if the real VPN gateway logs no MFA prompt either, that is the actual control gap, not just a visibility gap. |
-| 6. SMB Enumeration | Packet count was used as a proxy for SMB success/failure; a real environment should have host-level SMB audit logging instead of inferring outcomes from packet shape. |
-| 7. Exfiltration | 120 queries over ~30 minutes at a regular interval produced no visible automated response in this dataset — indicates a DNS anomaly detector was not in place or not alerting. |
+| Phase                    | Gap                                                                                                                                                                           |
+| ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1. Initial Access        | No mail-gateway or endpoint telemetry in scope — the click itself is invisible to network capture by design.                                                                   |
+| 2. Credential Harvesting | TLS encryption means the harvested content itself was never observable; only that a session matching the phishing domain occurred.                                            |
+| 3. C2 Beaconing          | Beaconing was visible but nothing in this evidence set indicates it triggered any alert — no IDS/NDS alert log was provided.                                                   |
+| 4. VPN Pivot             | No MFA challenge is visible; if the real VPN gateway logs no MFA prompt either, that is the actual control gap, not just a visibility gap.                                    |
+| 6. SMB Enumeration       | Packet count was used as a proxy for SMB success/failure; a real environment should have host-level SMB audit logging instead of inferring outcomes from packet shape.        |
+| 7. Exfiltration          | 120 queries over ~30 minutes at a regular interval produced no visible automated response in this dataset — indicates a DNS anomaly detector was not in place or not alerting. |
 
 ## 8. Detection Rules Recommended
 
@@ -155,16 +155,16 @@ the email.
 
 ## 10. Evidence Chain
 
-| Evidence | Source File | Referenced In |
-|---|---|---|
-| Email headers, IOCs | 4x00_phishing_dissection | Section 4, Phase 1 |
-| Phishing session (DNS/TLS) | phishing_click.pcap | [1-phishing_click.sh](1-phishing_click.sh) |
-| C2 beacon sessions | c2_beaconing.pcap | [6-kill_chain.sh](6-kill_chain.sh) |
-| VPN pivot + decoded auth markers | full_timeline.pcap | [5-vpn_pivot.sh](5-vpn_pivot.sh) |
-| RDP + SMB lateral movement | lateral_movement.pcap | [4-lateral_movement.sh](4-lateral_movement.sh) |
-| DNS tunnel queries/responses | dns_exfil.pcap | [3-dns_tunnel.sh](3-dns_tunnel.sh) |
-| Normal-traffic baseline | normal_baseline_clinical.pcap / baseline_clinical.json | [0-baseline_analysis.sh](0-baseline_analysis.sh) |
-| Per-phase evidentiary strength | (synthesis) | [8-evidence_crosscheck.sh](8-evidence_crosscheck.sh) |
+| Evidence                         | Source File                                            | Referenced In                                       |
+| -------------------------------- | ------------------------------------------------------ | --------------------------------------------------- |
+| Email headers, IOCs              | 4x00_phishing_dissection                               | Section 4, Phase 1                                  |
+| Phishing session (DNS/TLS)       | phishing_click.pcap                                    | [1-phishing_click.sh](1-phishing_click.sh)           |
+| C2 beacon sessions               | c2_beaconing.pcap                                      | [6-kill_chain.sh](6-kill_chain.sh)                   |
+| VPN pivot + decoded auth markers | full_timeline.pcap                                     | [5-vpn_pivot.sh](5-vpn_pivot.sh)                     |
+| RDP + SMB lateral movement       | lateral_movement.pcap                                  | [4-lateral_movement.sh](4-lateral_movement.sh)       |
+| DNS tunnel queries/responses     | dns_exfil.pcap                                         | [3-dns_tunnel.sh](3-dns_tunnel.sh)                   |
+| Normal-traffic baseline          | normal_baseline_clinical.pcap / baseline_clinical.json | [0-baseline_analysis.sh](0-baseline_analysis.sh)     |
+| Per-phase evidentiary strength   | (synthesis)                                            | [8-evidence_crosscheck.sh](8-evidence_crosscheck.sh) |
 
 Each script above prints, inline, the exact `tshark` filter used to produce
 its findings, so every figure in this report can be independently
