@@ -2,7 +2,7 @@
 set -euo pipefail
 
 if [ $# -lt 1 ]; then
-	echo "Nessesario um argumento .pcap"
+	echo "A .pcap argument is required."
 	exit 1
 fi
 
