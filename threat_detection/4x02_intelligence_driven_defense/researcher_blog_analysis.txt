@@ -1,0 +1,241 @@
+================================================================================
+  BLOG POST: "The Phishing Kit Behind The HEALTHBANE Campaign:
+              A Technical Walkthrough"
+================================================================================
+  URL:           https://pseudo-infosec-research.example/2026/04/healthbane/
+  Author:        Marcus Weller (@mwresearch)
+  Published:     2026-04-24 14:22 UTC (one day before the HC3 advisory)
+  TLP:           N/A (public blog post, no TLP header)
+  Platform:      Personal research blog, self-hosted
+  Archive:       web.archive.org snapshot captured 2026-04-24 15:01 UTC
+================================================================================
+
+TL;DR
+-----
+
+Over the past two weeks I have been tracking a phishing operation targeting
+US healthcare organizations.  I obtained a copy of the phishing kit by
+opening a lure in a sandbox and extracting the server-side PHP from a
+misconfigured infrastructure endpoint.  This post walks through the kit,
+the operator's infrastructure choices, and -- based on tooling overlap with
+campaigns I have documented since 2024 -- what I assess to be the likely
+threat actor.  Attribution is MEDIUM confidence and based entirely on
+infrastructure and tooling fingerprint.  I am publishing this ahead of
+government advisories because several healthcare partners have asked me
+to share what I know.
+
+Attribution caveat: I am a solo researcher.  I do not have visibility
+into victim telemetry.  Everything in the attribution section is
+open-source-derived.  Treat it accordingly.
+
+
+1.  HOW I FOUND THE KIT
+-----------------------
+
+On 2026-04-18 a contact at a Midwest hospital forwarded me a phishing
+email.  The URL was:
+
+    https://meddefense-portal.com/verify/staff?id=<REDACTED>&token=a8f3e2d1
+
+I visited the URL from an isolated analysis VM.  The landing page was a
+MedDefense-themed credential form, but the page also referenced a static
+asset path (/kit/static/) that resolved to a directory listing.  The
+operator had forgotten to disable autoindex.  From that directory I was
+able to walk up one level and recover the entire kit: index.php, form
+handlers, config.php, and a TXT file that appears to be the operator's
+install log.
+
+The kit was still live at time of writing but was taken down around
+2026-04-22.
+
+
+2.  KIT STRUCTURE
+-----------------
+
+The kit is a PHP-based single-page credential harvester:
+
+    index.php            Landing page (customized per target org)
+    handlers/post.php    Accepts POSTed form data, writes to logs/creds.log
+                         and forwards via PHPMailer to an attacker-controlled
+                         mailbox hosted on outlook-protection.com.
+    static/              Static assets (JS, CSS, logos) spoofing each
+                         target brand.
+    config.php           Central config. Relevant values:
+
+        MAILER_VERSION = "PHPMailer 6.6.0"
+        SMTP_HOST      = "smtp.<harvester-domain>"
+        TARGET_LOG     = "/var/www/kit/logs/creds.log"
+        OPS_CONTACT    = "ops@healthbane-c2.net"      <-- !!
+        EXFIL_ENDPOINT = "https://healthbane-c2.net/api/ingest"
+
+That single reference to `healthbane-c2.net` is what bridges Stage 1 and
+Stage 2/3 infrastructure from my perspective.  Until I saw that config
+file, Stage 1 domains (meddefense-portal.com et al.) could plausibly have
+been a separate operator.
+
+Logos and text in static/ are pulled from the real target websites,
+suggesting the operator uses a per-target templating script -- not manual
+customization.  That is a quality indicator: mass production.
+
+
+3.  INFRASTRUCTURE FINGERPRINT
+-------------------------------
+
+Domains I have linked to this operation with HIGH confidence (confirmed
+same kit + same config.php structure):
+
+    meddefense-portal.com           (91.234.99.107, Hostinger)
+    medequip-supplies.net           (185.176.43.22, Hostinger)
+    outlook-protection.com          (51.38.42.17,   OVH)
+    healthbane-c2.net               (51.38.42.191,  OVH)
+    portal-secure-meddefense.com    (92.118.232.14, Hostinger)   <-- NEW
+
+Portal-secure-meddefense.com was not yet active at time of the emails I
+have copies of, but it has the same kit staged on it and I expect it
+to be rotated in once the current domains are burned.
+
+Additional domains I have linked with MEDIUM confidence (same infra
+fingerprint, no kit access):
+
+    meddefense-benefits.org         (164.90.218.73, DigitalOcean)
+
+Hosts I have linked with LOW confidence (based on unique operator
+artifacts such as VPS image reuse):
+
+    167.71.222.30                   (DigitalOcean)
+
+
+4.  TOOLING
+-----------
+
+The kit consistently uses:
+
+    * PHPMailer 6.6.0   for outbound SMTP (hardcoded X-Mailer header)
+    * wkhtmltopdf 0.12.6  for PDF lure generation (producer metadata)
+    * Let's Encrypt certificates issued 1-7 days before first use
+    * Namecheap registrar for all phishing-LP domains
+    * Njalla registrar for operator domains (healthbane-c2.net)
+
+The wkhtmltopdf version string is distinctive -- I have flagged this as
+a high-fidelity operational signature.  0.12.6 is not the latest (0.12.7
+was released 2023) but it is the version that ships with many cheap
+"PDF generation as a service" containers, and this operator is re-using
+one.
+
+I pulled three sample PDFs from the kit's static/ directory.  All three
+had the wkhtmltopdf 0.12.6 producer field and embedded URLs pointing to
+one of the HEALTHBANE-affiliated domains.
+
+
+5.  INDICATORS I AM PUBLISHING
+------------------------------
+
+5.1  Domains (5)
+
+    meddefense-portal.com           HIGH  confirmed kit
+    medequip-supplies.net           HIGH  confirmed kit
+    outlook-protection.com          HIGH  confirmed kit (exfil route)
+    healthbane-c2.net               HIGH  config.php reference
+    portal-secure-meddefense.com    MED   staged kit, not yet live
+
+5.2  IPs (3)
+
+    91.234.99.107                   HIGH  confirmed kit IP
+    51.38.42.191                    HIGH  C2 IP from config.php
+    167.71.222.30                   LOW   operator-overlap hypothesis
+
+5.3  Hashes (SHA-256) (4)
+
+    a1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456
+      -> observed in a related macro document I pulled from a partner
+
+    c7d6e5f4a3b291827364554637281900a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6
+      -> a PowerShell exfiltrator I extracted from the kit's tools/ dir
+
+    ffaabbccdd0011223344556677889900aabbccddeeff00112233445566778899
+      -> the phishing kit ZIP itself (kit_v2_healthbane.zip), MEDIUM
+         because I do not know if it is operator-signed or shipped by
+         a kit vendor
+
+    2f4a6c8e0b1d3f5a7c9e1b3d5f7a9c1e3b5d7f9a1c3e5b7d9f1a3c5e7b9d1f
+      -> invoice lure PDF pulled from the kit's templates/ dir
+
+5.4  URLs (2)
+
+    https://meddefense-portal.com/verify/staff?id=<user>&token=<8hex>
+    https://healthbane-c2.net/api/ingest
+
+
+6.  ATTRIBUTION (MEDIUM CONFIDENCE)
+-----------------------------------
+
+This is where I depart from what HC3 will publish.  My assessment:
+
+The kit fingerprint (PHPMailer 6.6.0 + Njalla registration of operator
+domains + config.php structure with `EXFIL_ENDPOINT` / `OPS_CONTACT`
+keys) matches three previous campaigns I documented in 2024 and 2025:
+
+  * 2024-07  "RXBRIDGE" campaign against US pharmacies
+  * 2024-11  "CLAIMBRIDGE" campaign against insurance processors
+  * 2025-09  "MEDNEXUS" campaign against hospital billing vendors
+
+All three used the same kit structure with only target-branding changes.
+Domains were registered at Namecheap with DigitalOcean/Hostinger/OVH
+hosting.  Operator domains used Njalla.  Exfil endpoints followed the
+pattern `<word>-c2.net`.
+
+I track this operator privately as APT-MEDAGENT.  I do not know if this
+is a named group internally at any commercial vendor.  I have seen one
+commercial feed (Acme) use the label "VITALSCORE" for overlapping
+activity.  I have no visibility into whether Acme's VITALSCORE
+corresponds 1:1 with my APT-MEDAGENT.
+
+Confidence: MEDIUM, based entirely on tooling + infrastructure overlap.
+NOT based on telemetry, signals intelligence, or insider reporting.
+
+Note on the commercial label VITALSCORE:
+    The Acme commercial feed uses this label for what is clearly the
+    same operational activity.  However, Acme's clustering model
+    incorporates ML-based similarity on low-evidence indicators and
+    generates false positives.  I would treat the VITALSCORE label as
+    an operator ALIAS but would not over-weight their additional
+    indicators that lack corroboration.
+
+
+7.  DEFENSIVE NOTES
+-------------------
+
+If you are defending a healthcare organization, the highest-value
+detections for this operator are operational pattern based:
+
+    (1)  Newly registered domains at Namecheap with healthcare keywords
+         combined in compound form (`meddefense-*`, `*-portal`,
+         `*-benefits`, `med*-supplies`).
+
+    (2)  PHPMailer 6.6.0 in inbound email X-Mailer headers, combined
+         with SPF failure.  This is a high-fidelity single-string
+         indicator for this operator.
+
+    (3)  DNS queries for `*-c2.net` lookalikes at the zone level.
+
+Indicator-based blocking (domains/IPs) will work for about one week.
+Operational-pattern detections will survive rotation.
+
+
+8.  DISCLOSURE AND ETHICS
+-------------------------
+
+I notified HC3 on 2026-04-22 with the kit contents and the indicators
+above.  HC3 acknowledged and asked me to delay publication by 72 hours
+so they could finalize their advisory.  I agreed and published this
+post on 2026-04-24 after their team confirmed my delay had been helpful.
+
+I am not sharing the kit source code publicly.  Healthcare defenders
+who need kit artifacts for YARA signature development can contact me
+directly through the channels listed on my About page.
+
+--  Marcus Weller, 2026-04-24
+
+================================================================================
+END OF BLOG POST
+================================================================================

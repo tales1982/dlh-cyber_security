@@ -1,0 +1,30 @@
+Return-Path: <hr-notifications@meddefense-benefits.org>
+Received: from mail.example.test (164.90.218.73) by mx.meddefense.com; Tue, 14 Apr 2026 15:22:11 +0000
+Authentication-Results: mx.meddefense.com; spf=fail; dkim=none; dmarc=fail action=none
+Date: Tue, 14 Apr 2026 15:22:11 +0000
+From: MedDefense HR Benefits <hr-notifications@meddefense-benefits.org>
+To: lpatterson@meddefense.com
+Subject: FINAL NOTICE: Annual benefits enrollment closes today
+Message-ID: <316778610783.abc@meddefense-benefits.org>
+X-Mailer: PHPMailer-6.6.0 (custom build)
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary=BOUNDARY-MedDef-2026
+X-Priority: 1
+
+--BOUNDARY-MedDef-2026
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+Please verify your account at https://meddefense-benefits.org/enroll
+
+--BOUNDARY-MedDef-2026
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+<html><body>
+<p>Dear colleague,</p>
+<p>Please <a href="https://meddefense-benefits.org/enroll">verify your staff account</a> to avoid interruption.</p>
+<p>IT Department</p>
+</body></html>
+
+--BOUNDARY-MedDef-2026--

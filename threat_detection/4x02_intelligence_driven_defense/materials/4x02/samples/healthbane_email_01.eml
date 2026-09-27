@@ -1,0 +1,30 @@
+Return-Path: <noreply@meddefense-portal.com>
+Received: from mail.example.test (91.234.99.107) by mx.meddefense.com; Tue, 14 Apr 2026 15:22:11 +0000
+Authentication-Results: mx.meddefense.com; spf=fail smtp.mailfrom=meddefense-portal.com; dkim=none; dmarcfail action=none
+Date: Tue, 14 Apr 2026 15:22:11 +0000
+From: MedDefense IT Security <noreply@meddefense-portal.com>
+To: dmarsh@meddefense.com
+Subject: URGENT: Action required on your staff portal account
+Message-ID: <395448271925.abc@meddefense-portal.com>
+X-Mailer: PHPMailer 6.6.0 (https://github.com/PHPMailer/PHPMailer)
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary=BOUNDARY-MedDef-2026
+X-Priority: 1
+
+--BOUNDARY-MedDef-2026
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+Please verify your account at https://meddefense-portal.com/verify/staff?id=dmarsh&token=a8f3e2d1
+
+--BOUNDARY-MedDef-2026
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+<html><body>
+<p>Dear colleague,</p>
+<p>Please <a href="https://meddefense-portal.com/verify/staff?id=dmarsh&token=a8f3e2d1">verify your staff account</a> to avoid interruption.</p>
+<p>IT Department</p>
+</body></html>
+
+--BOUNDARY-MedDef-2026--

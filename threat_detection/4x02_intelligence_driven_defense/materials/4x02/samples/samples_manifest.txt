@@ -1,0 +1,25 @@
+Module 4 / Project 4x02  --  Sample file manifest
+Seed: 20260425
+
+MATCH expectations for YARA grader:
+  phishing_sample.pdf       -> HEALTHBANE_Phishing_PDF: TRUE POSITIVE
+  healthbane_lure_02.pdf    -> HEALTHBANE_Phishing_PDF: TRUE POSITIVE
+  clean_invoice.pdf         -> HEALTHBANE_Phishing_PDF: TRUE NEGATIVE
+  benign_invoice.pdf        -> HEALTHBANE_Phishing_PDF: TRUE NEGATIVE
+  healthbane_email_01.eml   -> HEALTHBANE_Email_Headers: TRUE POSITIVE
+  healthbane_email_02.eml   -> HEALTHBANE_Email_Headers: TRUE POSITIVE
+  healthbane_email_03.eml   -> HEALTHBANE_Email_Headers: FALSE NEGATIVE
+                                (student task 11 must identify the reason
+                                 and propose a fix)
+  benign_newsletter.eml     -> HEALTHBANE_Email_Headers: TRUE NEGATIVE
+
+File                             Bytes  SHA-256                                                         
+--------------------------------------------------------------------------------------------------------------
+phishing_sample.pdf               1402  ffb3045176d0302c7f8143ab0c03ddcd5830ce897f96f07cbc83f5518a95381a
+healthbane_lure_02.pdf            1393  7131010194a95a939268c55af0fb1412f002e8d2525988a0d7f2846de98cd20e
+clean_invoice.pdf                 1180  88cb1ffa1364fad0fc72d7f98d55f7f5bd91d5024a9bcf33b1384ccc15a5ffbb
+benign_invoice.pdf                1182  208d02e9c8ffe43d9ee7ed59e6177eec693e5c84c930416a0269936464c4a87b
+healthbane_email_01.eml           1223  07436edafb3eb5da805bd9b438e5a7df1a1dc9edf92d89625123cc25bdcd3f4a
+healthbane_email_02.eml           1188  2221707deb060f635deaaac17bf1087573c8259b3257e09bf0efc5ab8923f582
+healthbane_email_03.eml           1133  8cc809a56a896658d9b7640f9470f627ce09fdcb43bee755db6feee4babd63af
+benign_newsletter.eml             1220  c42c263278f2d3bba4f36a9edd592dbe8b9b180dc770393e80c229cd3b3f95f0

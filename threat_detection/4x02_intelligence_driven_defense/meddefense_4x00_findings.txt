@@ -1,0 +1,184 @@
+================================================================================
+  MEDDEFENSE HEALTH SYSTEMS -- INTERNAL INVESTIGATION SUMMARY
+  Project 4x00 -- Phishing Dissection -- Final Report Extract
+================================================================================
+  Report ID:         MD-2026-IR-0414-001
+  Investigation:     Phishing campaign against MedDefense staff
+  Lead analyst:      [student] (Blue Team)
+  Reviewed by:       James Chen (SOC Lead)
+  Approved by:       Dr. Patricia Morales (CISO)
+  Date:              2026-04-16
+  Classification:    INTERNAL  (TLP not applicable - not for external share)
+  Distribution:      MedDefense SOC, CISO, HC3 (indicator-only extract)
+================================================================================
+
+SCOPE
+-----
+
+Between 2026-04-14 and 2026-04-16, MedDefense received a cluster of 8
+inbound emails flagged for review.  Three of those emails were determined
+to be part of a coordinated phishing campaign.  One nurse (Diane Marsh,
+WS-NURSE-04, 10.10.2.15) clicked the link in Email 2 at 2026-04-14
+15:02:33 UTC and is assessed to have submitted credentials at 15:02:58.
+
+The 4x00 investigation included:
+  - Header analysis of all 8 emails
+  - URL and domain investigation for the three phishing emails
+  - Authentication header verification (SPF, DKIM, DMARC)
+  - WHOIS and passive DNS lookups on campaign domains
+  - User impact determination (which accounts potentially exposed)
+  - Detection rule development for deployment into Wazuh (rules 100080-100082)
+  - Indicator extraction for HC3 submission
+
+The 4x00 investigation did NOT include:
+  - Network packet analysis (performed in 4x01)
+  - Endpoint forensics on WS-NURSE-04 (performed in 4x01)
+  - Follow-on authentication event correlation (performed in 4x01)
+
+Verdict at close of 4x00:  "LIKELY CREDENTIAL EXPOSURE, NO CONFIRMED
+                            EXPLOITATION AT TIME OF REPORT"
+
+
+KEY FINDINGS
+------------
+
+F1.  Three emails (E2, E5, E7) share a PHPMailer 6.6.0 X-Mailer header,
+     Namecheap-registered lookalike domains, SPF failure (hard fail or
+     softfail), DKIM absent, DMARC fail.  The operational pattern is
+     consistent across all three.
+
+F2.  The lookalike domains were registered 4-10 days before the first
+     email:
+       meddefense-portal.com       registered 2026-04-09
+       medequip-supplies.net       registered 2026-04-08
+       meddefense-benefits.org     registered 2026-04-10
+
+F3.  One email (E3) uses a different technique: a fully-authenticated
+     domain (outlook-protection.com) that passes SPF/DKIM/DMARC but
+     impersonates Microsoft visually.  The authentication passes because
+     the attacker correctly configured DNS for their own lookalike
+     domain.  This is a higher-sophistication variant.
+
+F4.  Three MedDefense employees received phishing emails:
+       dmarsh    (nurse, Westside Clinic)       CLICKED E2
+       arivera   (accounts payable)             did NOT click E5
+       lpatterson (billing)                     did NOT click E7
+
+F5.  Credential submission by dmarsh is LIKELY based on:
+       - SIEM connection log showing 47-second HTTPS session
+       - No concurrent Sysmon Event 11 (no file download)
+       - User reported "entered password" after incident disclosure
+     but is NOT CONFIRMED via packet evidence as of 4x00 close.
+
+F6.  No immediate post-compromise authentication event observed in the
+     dmarsh account on any MedDefense system within the 4x00 window
+     (2026-04-14 15:02 through 2026-04-16 16:00).
+
+
+INDICATORS OF COMPROMISE
+------------------------
+
+MedDefense is contributing the following 11 indicators to HC3 for
+inclusion in the sector advisory.  All HIGH confidence unless noted.
+
+Domains (3):
+    meddefense-portal.com                       Stage 1   HIGH
+    medequip-supplies.net                       Stage 1   HIGH
+    meddefense-benefits.org                     Stage 1   HIGH
+
+IPs (3):
+    91.234.99.107                               Stage 1   HIGH
+    185.176.43.22                               Stage 1   HIGH
+    164.90.218.73                               Stage 1   HIGH
+
+Hashes (1):
+    2f4a6c8e0b1d3f5a7c9e1b3d5f7a9c1e3b5d7f9a1c3e5b7d9f1a3c5e7b9d1f
+      -> INV-2026-04891.pdf (lure attachment)   Stage 1   MEDIUM
+
+URLs (1):
+    https://meddefense-portal.com/verify/staff?id=dmarsh&token=a8f3e2d1
+                                                Stage 1   HIGH
+
+Email addresses (3):
+    noreply@meddefense-portal.com               Stage 1   HIGH
+    invoices@medequip-supplies.net              Stage 1   HIGH
+    hr-notifications@meddefense-benefits.org    Stage 1   HIGH
+
+
+ATT&CK TECHNIQUES OBSERVED
+--------------------------
+
+From 4x00 direct evidence:
+
+    T1566.002   Spearphishing Link                     HIGH
+    T1204.001   User Execution: Malicious Link         HIGH (dmarsh)
+    T1056.003   Input Capture: Web Portal Capture      HIGH (form POST)
+    T1583.001   Acquire Infrastructure: Domains        HIGH
+    T1585.002   Establish Accounts: Email              HIGH
+    T1608.005   Stage Capabilities: Link Target        HIGH
+
+7 OBSERVED techniques.  No Stage 2/3 activity observed at MedDefense.
+
+
+DETECTION RULES DEPLOYED (Wazuh)
+--------------------------------
+
+    100080   Alert on inbound email from listed campaign domains
+             (uses CDB list healthbane_domains populated from
+             the 3 campaign domains above)
+             Severity: level 10
+
+    100081   Alert on outbound HTTP(S) to listed campaign domains
+             (for proxy logs and EDR-observed connections)
+             Severity: level 12
+
+    100082   Alert on authentication event for dmarsh from a source
+             IP outside MedDefense networks within 30 days
+             Severity: level 14
+
+
+OUTSTANDING QUESTIONS AT CLOSE OF 4x00
+--------------------------------------
+
+Q1.  Was credential submission actually performed by dmarsh?
+     -> Requires packet analysis.  Scheduled for 4x01.
+
+Q2.  Did the attacker attempt login with dmarsh's credentials?
+     -> No observation as of 2026-04-16.  Monitoring continues via
+        rule 100082.
+
+Q3.  Is the campaign broader than the three emails we caught?
+     -> Likely.  HC3 submission pending.  Will reassess when sector
+        intelligence is available.
+
+Q4.  Are any Stage 2 artifacts (malicious attachments) present on
+     MedDefense endpoints?
+     -> Mass EDR scan performed 2026-04-16.  No matching hash found.
+
+Q5.  What detection gaps does this campaign reveal?
+     -> IOC-based detection deployed (rules above).  Behavioral
+        detection for phishing patterns not yet implemented.  To be
+        addressed in next intel-driven review.
+
+
+HANDOFF TO 4x01 AND 4x02
+------------------------
+
+4x01 should:
+  - Analyze packet captures covering 2026-04-14 through 2026-04-16
+    to confirm or deny credential submission and identify any
+    follow-on network activity.
+
+4x02 should:
+  - Correlate these indicators with sector-level intelligence when
+    HC3 publishes its advisory.
+  - Assess the three commercial/open-source feeds now tracking
+    healthcare phishing activity.
+  - Develop behavioral detection (YARA, Wazuh behavioral rules)
+    that survives infrastructure rotation.
+  - Produce a prioritized detection gap closure plan.
+
+
+================================================================================
+END OF REPORT                 MD-2026-IR-0414-001                INTERNAL
+================================================================================
