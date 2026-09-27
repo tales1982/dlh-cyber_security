@@ -1,0 +1,30 @@
+Return-Path: <newsletter@healthcareedweekly.org>
+Received: from mail.example.test (198.51.100.42) by mx.meddefense.com; Tue, 14 Apr 2026 15:22:11 +0000
+Authentication-Results: mx.meddefense.com; spf=pass; dkim=pass; dmarc=pass
+Date: Tue, 14 Apr 2026 15:22:11 +0000
+From: Healthcare Education Weekly <newsletter@healthcareedweekly.org>
+To: soc-alerts@meddefense.com
+Subject: Healthcare Education Weekly - issue 84
+Message-ID: <61828846524.abc@healthcareedweekly.org>
+X-Mailer: MailChimp Mailer v12.4
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary=BOUNDARY-MedDef-2026
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=healthcareedweekly.org; s=selector1; h=from:to:subject:date; bh=f00dbaaaa=; b=b00b/b00b=
+
+--BOUNDARY-MedDef-2026
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+Please verify your account at https://healthcareedweekly.org/issue/84
+
+--BOUNDARY-MedDef-2026
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+<html><body>
+<p>Dear colleague,</p>
+<p>Please <a href="https://healthcareedweekly.org/issue/84">verify your staff account</a> to avoid interruption.</p>
+<p>IT Department</p>
+</body></html>
+
+--BOUNDARY-MedDef-2026--

@@ -1,0 +1,61 @@
+{
+  "name": "HEALTHBANE Campaign - Observed vs Inferred",
+  "versions": {
+    "attack": "15",
+    "navigator": "4.9.1",
+    "layer": "4.5"
+  },
+  "domain": "enterprise-attack",
+  "description": "HEALTHBANE campaign ATT&CK mapping from 4x02 intelligence intake. Red (score 100) = OBSERVED, direct evidence in at least one source. Amber (score 50) = INFERRED, analytical hypothesis or explicitly source-flagged as likely-but-unconfirmed. See 7-attack_navigator.md for full evidence citations.",
+  "filters": {
+    "platforms": ["Windows"]
+  },
+  "sorting": 0,
+  "layout": {
+    "layout": "side",
+    "aggregateFunction": "average",
+    "showID": true,
+    "showName": true,
+    "showAggregateScores": false,
+    "countUnscored": false
+  },
+  "hideDisabled": false,
+  "techniques": [
+    {"techniqueID": "T1589.002", "tactic": "reconnaissance", "score": 100, "color": "#e60d0d", "comment": "OBSERVED (HC3): attacker held target employee email addresses across >=14 healthcare orgs, evidenced by the spearphishing operation itself.", "enabled": true, "metadata": [], "showSubtechniques": false},
+    {"techniqueID": "T1583.001", "tactic": "resource-development", "score": 100, "color": "#e60d0d", "comment": "OBSERVED (HC3, MedDefense, Researcher): Namecheap lookalike domains registered 4-10 days pre-use; exact registration dates confirmed for 3 domains.", "enabled": true, "metadata": [], "showSubtechniques": false},
+    {"techniqueID": "T1585.002", "tactic": "resource-development", "score": 100, "color": "#e60d0d", "comment": "OBSERVED (HC3, Researcher): attacker mailbox ops@healthbane-c2.net found directly in kit config.php.", "enabled": true, "metadata": [], "showSubtechniques": false},
+    {"techniqueID": "T1587.001", "tactic": "resource-development", "score": 100, "color": "#e60d0d", "comment": "OBSERVED (HC3, Researcher): Stage 2 executable svchost_update.exe and PowerShell exfiltrator sync_healthdata.ps1 attributed to this operator's toolset.", "enabled": true, "metadata": [], "showSubtechniques": false},
+    {"techniqueID": "T1608.005", "tactic": "resource-development", "score": 100, "color": "#e60d0d", "comment": "OBSERVED (HC3, MedDefense, Researcher): kit staged on portal-secure-meddefense.com ahead of activation, confirmed via direct researcher access.", "enabled": true, "metadata": [], "showSubtechniques": false},
+    {"techniqueID": "T1566.002", "tactic": "initial-access", "score": 100, "color": "#e60d0d", "comment": "OBSERVED (HC3, MedDefense, Researcher): primary Stage 1 vector, 100% of 6 HC3-visible orgs; MedDefense emails E2/E5/E7.", "enabled": true, "metadata": [], "showSubtechniques": false},
+    {"techniqueID": "T1566.001", "tactic": "initial-access", "score": 100, "color": "#e60d0d", "comment": "OBSERVED (HC3): Stage 2 .docm macro document sent from a compromised account.", "enabled": true, "metadata": [], "showSubtechniques": false},
+    {"techniqueID": "T1204.001", "tactic": "execution", "score": 100, "color": "#e60d0d", "comment": "OBSERVED (HC3, MedDefense): dmarsh clicked the Stage 1 link at 2026-04-14 15:02:33 UTC.", "enabled": true, "metadata": [], "showSubtechniques": false},
+    {"techniqueID": "T1204.002", "tactic": "execution", "score": 100, "color": "#e60d0d", "comment": "OBSERVED (HC3): macro-enabled .docm required user action to enable content.", "enabled": true, "metadata": [], "showSubtechniques": false},
+    {"techniqueID": "T1059.005", "tactic": "execution", "score": 100, "color": "#e60d0d", "comment": "OBSERVED (HC3): VBA macro in HEALTHBANE_S2_invoice.docm drops the Stage 2 executable.", "enabled": true, "metadata": [], "showSubtechniques": false},
+    {"techniqueID": "T1059.001", "tactic": "execution", "score": 100, "color": "#e60d0d", "comment": "OBSERVED (HC3, Researcher): sync_healthdata.ps1 extracted directly from the kit's tools/ directory.", "enabled": true, "metadata": [], "showSubtechniques": false},
+    {"techniqueID": "T1053.005", "tactic": "persistence", "score": 100, "color": "#e60d0d", "comment": "OBSERVED (HC3): scheduled task named 'HealthSync Update Service'.", "enabled": true, "metadata": [], "showSubtechniques": false},
+    {"techniqueID": "T1547.001", "tactic": "persistence", "score": 100, "color": "#e60d0d", "comment": "OBSERVED (HC3): Registry Run-key addition confirmed alongside the scheduled task.", "enabled": true, "metadata": [], "showSubtechniques": false},
+    {"techniqueID": "T1078", "tactic": "persistence", "score": 50, "color": "#ffc000", "comment": "INFERRED: HC3 explicitly assesses this as LIKELY (Stage 1 creds reused to authenticate to victim cloud email) but excludes it from its own formal OBSERVED table pending confirmation.", "enabled": true, "metadata": [], "showSubtechniques": false},
+    {"techniqueID": "T1036", "tactic": "defense-evasion", "score": 50, "color": "#ffc000", "comment": "INFERRED: svchost_update.exe filename mimics legitimate svchost.exe naming; no process-tree or code-signing evidence available in any source to confirm masquerading intent.", "enabled": true, "metadata": [], "showSubtechniques": false},
+    {"techniqueID": "T1056.003", "tactic": "credential-access", "score": 100, "color": "#e60d0d", "comment": "OBSERVED (HC3, MedDefense): HTML form POST capture via kit handlers/post.php; MedDefense SIEM shows a 47-second HTTPS session consistent with submission.", "enabled": true, "metadata": [], "showSubtechniques": false},
+    {"techniqueID": "T1021", "tactic": "lateral-movement", "score": 50, "color": "#ffc000", "comment": "INFERRED: same HC3 caveat as T1078 -- assessed LIKELY but explicitly excluded from HC3's formal OBSERVED table pending confirmation. No source specifies the remote-service protocol involved.", "enabled": true, "metadata": [], "showSubtechniques": false},
+    {"techniqueID": "T1071.004", "tactic": "command-and-control", "score": 100, "color": "#e60d0d", "comment": "OBSERVED (HC3): Stage 3 DNS TXT tunneling to data-sync.healthbane-c2.net, confirmed via packet capture at 2 orgs.", "enabled": true, "metadata": [], "showSubtechniques": false},
+    {"techniqueID": "T1071.001", "tactic": "command-and-control", "score": 100, "color": "#e60d0d", "comment": "OBSERVED (HC3): Stage 2 payload download over HTTPS from healthbane-c2.net.", "enabled": true, "metadata": [], "showSubtechniques": false},
+    {"techniqueID": "T1132.001", "tactic": "command-and-control", "score": 100, "color": "#e60d0d", "comment": "OBSERVED (HC3 narrative, not in HC3's own formatted table): base32-encoded query labels, base64-encoded TXT response command strings, packet-capture-based HIGH confidence.", "enabled": true, "metadata": [], "showSubtechniques": false},
+    {"techniqueID": "T1048.003", "tactic": "exfiltration", "score": 100, "color": "#e60d0d", "comment": "OBSERVED (HC3): DNS tunneling exfiltration channel, per HC3's formal table.", "enabled": true, "metadata": [], "showSubtechniques": false},
+    {"techniqueID": "T1041", "tactic": "exfiltration", "score": 100, "color": "#e60d0d", "comment": "OBSERVED (HC3): same DNS channel also carries C2 command responses, per HC3's formal table.", "enabled": true, "metadata": [], "showSubtechniques": false}
+  ],
+  "gradient": {
+    "colors": ["#8ec843", "#ffc000", "#e60d0d"],
+    "minValue": 0,
+    "maxValue": 100
+  },
+  "legendItems": [
+    {"label": "OBSERVED (score 100) - direct evidence in at least one source", "color": "#e60d0d"},
+    {"label": "INFERRED (score 50) - analytical hypothesis or source-flagged as likely, unconfirmed", "color": "#ffc000"}
+  ],
+  "metadata": [],
+  "showTacticRowBackground": true,
+  "tacticRowBackground": "#dddddd",
+  "selectTechniquesAcrossTactics": true,
+  "selectSubtechniquesWithParent": false
+}

@@ -1,0 +1,48 @@
+%PDF-1.4
+%‚„œ”
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Count 1 /Kids [3 0 R] >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 5 0 R >> >> /Contents 4 0 R /Annots [ 7 0 R 8 0 R ] >>
+endobj
+4 0 obj
+<< /Length 189 >>
+stream
+BT /F1 14 Tf 72 720 Td (MedDefense Staff Portal - Action Required) Tj ET
+BT /F1 11 Tf 72 700 Td (Staff portal access verification required) Tj ET
+BT /F1 10 Tf 72 680 Td (Page 1 of 1) Tj ET
+
+endstream
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+6 0 obj
+<< /Producer (wkhtmltopdf 0.12.6) /Creator (MedDefense Portal Generator) /Title (MedDefense Staff Portal - Action Required) /Author (MedDefense Mock) /CreationDate (D:20260414120000Z) >>
+endobj
+7 0 obj
+<< /Type /Annot /Subtype /Link /Rect [72 640 540 660] /Border [0 0 0] /A << /Type /Action /S /URI /URI (https://meddefense-portal.com/verify/staff?id=dmarsh&token=a8f3e2d1) >> >>
+endobj
+8 0 obj
+<< /Type /Annot /Subtype /Link /Rect [72 640 540 660] /Border [0 0 0] /A << /Type /Action /S /URI /URI (https://meddefense-portal.com/portal/login) >> >>
+endobj
+xref
+0 9
+0000000000 65535 f 
+0000000015 00000 n 
+0000000064 00000 n 
+0000000121 00000 n 
+0000000271 00000 n 
+0000000511 00000 n 
+0000000581 00000 n 
+0000000783 00000 n 
+0000000977 00000 n 
+trailer
+<< /Size 9 /Root 1 0 R /Info 6 0 R >>
+startxref
+1146
+%%EOF

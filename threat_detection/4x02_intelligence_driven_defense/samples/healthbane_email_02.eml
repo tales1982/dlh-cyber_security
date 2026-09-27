@@ -1,0 +1,30 @@
+Return-Path: <invoices@medequip-supplies.net>
+Received: from mail.example.test (185.176.43.22) by mx.meddefense.com; Tue, 14 Apr 2026 15:22:11 +0000
+Authentication-Results: mx.meddefense.com; spf=softfail; dkim=none; dmarc=fail action=none
+Date: Tue, 14 Apr 2026 15:22:11 +0000
+From: MedEquip Accounts Team <invoices@medequip-supplies.net>
+To: arivera@meddefense.com
+Subject: URGENT: Overdue invoice INV-2026-04891 for medical supplies
+Message-ID: <857430252686.abc@medequip-supplies.net>
+X-Mailer: PHPMailer 6.6.0 (https://github.com/PHPMailer/PHPMailer)
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary=BOUNDARY-MedDef-2026
+X-Priority: 1
+
+--BOUNDARY-MedDef-2026
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+Please verify your account at https://medequip-supplies.net/invoices/pay?id=INV-2026-04891
+
+--BOUNDARY-MedDef-2026
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+<html><body>
+<p>Dear colleague,</p>
+<p>Please <a href="https://medequip-supplies.net/invoices/pay?id=INV-2026-04891">verify your staff account</a> to avoid interruption.</p>
+<p>IT Department</p>
+</body></html>
+
+--BOUNDARY-MedDef-2026--

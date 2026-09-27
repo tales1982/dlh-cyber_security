@@ -1,0 +1,277 @@
+================================================================================
+  HHS HC3 SECTOR THREAT ADVISORY
+================================================================================
+  Document ID:            HC3-2026-HEALTHBANE-001
+  Advisory title:         HEALTHBANE Campaign - Multi-Stage Attacks Against
+                          US Healthcare Providers
+  Classification:         TLP:CLEAR  (unrestricted distribution)
+  Originator:             Health Sector Cybersecurity Coordination Center
+                          (HC3), HHS Office of the Chief Information Officer
+  Prepared by:            HC3 Threat Intelligence Branch
+  Publication date:       2026-04-25
+  Supersedes:             None (first publication)
+  Next update:            2026-05-09  (or on significant new development)
+  Related advisories:     HC3-2026-BROKER-003 (partial infrastructure overlap)
+  POC:                    HC3@hhs.gov
+================================================================================
+
+EXECUTIVE SUMMARY
+-----------------
+
+HC3 is tracking a coordinated, multi-stage campaign -- designated HEALTHBANE
+-- that has targeted at least 14 US healthcare organizations in the Midwest
+ISAC region since 2026-04-14.  HC3 has direct or partner visibility on 6 of
+those organizations.  At two of the 6, the campaign progressed through all
+three observed stages (credential harvesting, malware delivery, data
+exfiltration).  HC3 assesses with MODERATE CONFIDENCE that the operator is
+a financially motivated mid-tier cybercrime actor.  Attribution to a named
+group has NOT been confirmed; commercial tracking names circulating in
+industry channels are noted but not endorsed by HC3.
+
+The campaign's initial vector is spear-phishing email from lookalike
+healthcare-themed domains, typically registered within 14 days of first
+email activity.  Compromised credentials are used for lateral movement and
+for delivery of a Stage 2 macro-enabled document that drops a Windows
+executable.  In the two compromised environments HC3 has analyzed, Stage 3
+exfiltrates patient and insurance records via DNS TXT-record tunneling to
+attacker-controlled infrastructure.
+
+This advisory is distributed TLP:CLEAR to the healthcare sector.  Recipients
+are authorized and encouraged to share broadly.
+
+
+1.  CAMPAIGN OVERVIEW
+=====================
+
+1.1  Campaign designation
+    HEALTHBANE (HC3 designation, 2026-04-25).  No overlap with previously
+    designated HC3 campaigns.  HC3 has not adopted the "VITALSCORE" label
+    used by one commercial CTI provider.
+
+1.2  First reported activity
+    2026-04-14 (earliest phishing email observed at a HC3 partner
+    organization in the Midwest ISAC region).
+
+1.3  Geographic scope
+    US healthcare providers.  Strongest targeting signal in Midwest ISAC
+    region.  Two organizations outside Midwest received phishing but no
+    confirmed follow-on activity.
+
+1.4  Sector scope
+    Observed: hospital systems, outpatient clinics, medical billing
+    services, regional insurance administrators.  Not observed: medical
+    device manufacturers, pharmacies, public health departments.
+
+1.5  Attribution
+    Attribution is UNCONFIRMED.  Infrastructure fingerprints (Namecheap
+    registrar + Hostinger/DigitalOcean/OVH hosting + PHPMailer 6.6.0
+    sender) are consistent with a mid-tier cybercrime operator but do not
+    match a previously named group with high confidence.
+
+
+2.  OBSERVED STAGES
+===================
+
+Stage 1 - Credential Harvesting
+--------------------------------
+Observed at: all 6 HC3-visible organizations (100%)
+Timeframe:   2026-04-14 through 2026-04-16 (primary window)
+Method:      Spear-phishing emails from lookalike domains registered
+             between 2026-04-05 and 2026-04-10.  Emails impersonated
+             healthcare-adjacent senders (staff portal, insurance,
+             HR benefits).  Landing pages collected username and
+             password via a PHPMailer-served HTML form.  Credentials
+             were posted to attacker-controlled VPS infrastructure.
+
+Stage 2 - Malware Delivery via Macro Document
+---------------------------------------------
+Observed at: 2 of 6 HC3-visible organizations (33%)
+Timeframe:   2026-04-16 through 2026-04-22
+Method:      Stage 1 credentials used to authenticate to cloud email
+             accounts.  Attacker sent follow-up emails from the
+             compromised account to colleagues.  Follow-up email
+             contained a .docm attachment (HEALTHBANE_S2_invoice.docm).
+             The macro pulled a Windows executable (svchost_update.exe)
+             from a secondary C2 domain.  The executable established
+             persistence via a scheduled task named "HealthSync Update
+             Service" and a Registry Run key.
+
+Stage 3 - Data Exfiltration via DNS Tunneling
+----------------------------------------------
+Observed at: 2 of 6 HC3-visible organizations (33%)
+Timeframe:   2026-04-23 through 2026-04-26
+Method:      The RAT deployed in Stage 2 exfiltrated patient records
+             and insurance claims data by encoding them in base32
+             subdomain labels of DNS TXT-record queries to
+             data-sync.healthbane-c2.net.  Observed query interval:
+             10-15 seconds.  Observed label length: 44-60 characters.
+             C2 responses also use TXT records containing base64-
+             encoded command strings.
+
+
+3.  INDICATORS OF COMPROMISE
+============================
+
+HC3 is publishing 23 indicators TLP:CLEAR.  Indicators are derived from the
+6 HC3-visible organizations.  Confidence levels are HC3's own assessment.
+
+3.1  Domains (8)
+    meddefense-portal.com               Stage 1    HIGH confidence
+    medequip-supplies.net               Stage 1    HIGH confidence
+    meddefense-benefits.org             Stage 1    HIGH confidence
+    outlook-protection.com              Stage 1    HIGH confidence
+    portal-secure-meddefense.com        Stage 1    MEDIUM confidence
+    healthbane-c2.net                   Stage 2/3  HIGH confidence
+    data-sync.healthbane-c2.net         Stage 3    HIGH confidence
+    update-healthbane.net               Stage 2    MEDIUM confidence
+
+3.2  IPs (6)
+    91.234.99.107                       Stage 1    HIGH
+    185.176.43.22                       Stage 1    HIGH
+    164.90.218.73                       Stage 1    HIGH
+    51.38.42.17                         Stage 1    HIGH
+    51.38.42.191                        Stage 2/3  HIGH
+    45.77.218.9                         Stage 2    MEDIUM
+
+3.3  File hashes (SHA-256) (5)
+    a1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456
+      -> HEALTHBANE_S2_invoice.docm               Stage 2    HIGH
+    b9c8a7d6e5f4321098765432109876543210fedcba9876543210fedcba987654
+      -> svchost_update.exe                       Stage 2    HIGH
+    c7d6e5f4a3b291827364554637281900a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6
+      -> sync_healthdata.ps1                      Stage 2    HIGH
+    2f4a6c8e0b1d3f5a7c9e1b3d5f7a9c1e3b5d7f9a1c3e5b7d9f1a3c5e7b9d1f
+      -> INV-2026-04891.pdf (Stage 1 lure)        Stage 1    MEDIUM
+    dd5efb6d1ab4c67890abcdef1234567890abcdef1234567890abcdef12345678
+      -> dropper variant (one partner)            Stage 2    MEDIUM
+
+3.4  URLs (4)
+    https://meddefense-portal.com/verify/staff?id=<user>&token=<8hex>
+      -> Stage 1 credential capture endpoint      HIGH
+    https://medequip-supplies.net/invoices/pay?id=INV-<YYYY-NNNNN>
+      -> Stage 1 credential capture endpoint      HIGH
+    https://meddefense-benefits.org/enroll
+      -> Stage 1 credential capture endpoint      HIGH
+    https://healthbane-c2.net/update/svchost_update.exe
+      -> Stage 2 second-stage download URL        HIGH
+
+
+4.  TTPs (MITRE ATT&CK v15)
+===========================
+
+HC3 mapping, OBSERVED only (direct evidence in at least one visible org):
+
+    Reconnaissance          T1589.002  Gather Victim Identity: Email
+    Resource Development    T1583.001  Acquire Infrastructure: Domains
+                            T1585.002  Establish Accounts: Email
+                            T1587.001  Develop Capabilities: Malware
+                            T1608.005  Link Target
+    Initial Access          T1566.002  Spearphishing Link
+                            T1566.001  Spearphishing Attachment (Stage 2)
+    Execution               T1204.001  User Execution: Malicious Link
+                            T1204.002  User Execution: Malicious File
+                            T1059.005  VBA (macro)
+                            T1059.001  PowerShell
+    Persistence             T1053.005  Scheduled Task
+                            T1547.001  Registry Run Keys
+    Credential Access       T1056.003  Web Portal Capture
+    Command and Control     T1071.004  DNS
+                            T1071.001  Web Protocols
+    Exfiltration            T1048.003  Exfiltration Over Unencrypted Non-C2
+                            T1041      Exfiltration Over C2 Channel
+
+Total OBSERVED techniques: 18.  HC3 assesses additional techniques (Valid
+Accounts T1078, Remote Services T1021) as LIKELY but does not include them
+in this table pending confirmation.
+
+
+5.  DETECTION AND MITIGATION
+============================
+
+5.1  Email gateway
+    - Block inbound mail from the 8 domains in section 3.1.
+    - Strengthen DMARC enforcement (require alignment, not p=none).
+    - Flag emails from newly registered domains (< 30 days) for
+      manual review or warning banners.
+
+5.2  Network
+    - Block outbound connections to the 6 IPs in section 3.2.
+    - Sinkhole or block DNS resolution for the 8 domains.
+    - Deploy DNS query-length anomaly detection (alert when subdomain
+      label > 40 characters with base32/base64 character sets).
+
+5.3  Endpoint
+    - Deploy the 5 file hashes in section 3.3 as EDR/AV blocklist.
+    - Disable Office macros by default; require attestation for
+      macro-enabled documents from external senders.
+    - Alert on scheduled task creation with name containing "Sync",
+      "Update" or "Service" by non-administrative users.
+    - Alert on Registry Run-key additions outside installer context.
+
+5.4  Identity
+    - Require MFA on all VPN and remote-access entry points.
+    - Enable geographic anomaly detection for successful authentication
+      events (alert on logins from countries where the user has no
+      prior history).
+
+5.5  Threat hunting
+    - Hunt for scheduled tasks named "HealthSync Update Service" or
+      similar variants on all Windows endpoints.
+    - Hunt for PowerShell execution with base64-encoded payloads >
+      1024 characters.
+    - Hunt for DNS queries to *.healthbane-c2.net and *.meddefense-
+      portal.com (primary and subdomain levels).
+
+
+6.  SOURCING AND CONFIDENCE
+===========================
+
+Sources contributing to this advisory:
+    - 6 HC3 partner organizations providing full telemetry
+    - HC3 sensor deployment at 2 regional healthcare ISAOs
+    - Open-source corroboration from abuse.ch URLhaus entries
+
+Confidence on the campaign designation:   HIGH
+Confidence on Stage 1 activity:           HIGH (direct observation)
+Confidence on Stage 2 activity:           HIGH (sandbox + 2 orgs)
+Confidence on Stage 3 activity:           HIGH (packet captures from
+                                                2 compromised orgs)
+Confidence on attribution:                LOW (no high-confidence
+                                               attribution to any
+                                               named actor)
+
+
+7.  REPORTING AND COORDINATION
+==============================
+
+7.1  If your organization identifies HEALTHBANE activity:
+     - Preserve logs (email gateway, DNS, EDR, proxy) for 90 days.
+     - Report to HC3 via HC3@hhs.gov with the subject line
+       "HEALTHBANE-YYYYMMDD".
+     - Include: organization type, estimated timeframe, indicators
+       observed, stage reached, current containment status.
+     - HC3 will not attribute the report externally without your
+       written authorization.
+
+7.2  If your organization has intelligence that contradicts or
+     extends this advisory:
+     - Same reporting channel with subject line
+       "HEALTHBANE-INTEL-YYYYMMDD".
+     - HC3 will integrate confirmed new intelligence into the next
+       version of this advisory.
+
+
+8.  REFERENCES
+==============
+
+    [1]  MITRE ATT&CK Framework v15 (April 2026).
+         https://attack.mitre.org/
+    [2]  abuse.ch URLhaus entries for *.healthbane-c2.net
+         (queried 2026-04-24).
+    [3]  HHS OCR Healthcare Breach Notification guidance.
+    [4]  HC3 Sector Alert AA26-114A (April 2026 - operational
+         security recommendations for US healthcare).
+
+================================================================================
+END OF ADVISORY        HC3-2026-HEALTHBANE-001        TLP:CLEAR
+================================================================================
