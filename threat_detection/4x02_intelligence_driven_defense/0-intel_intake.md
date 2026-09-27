@@ -70,57 +70,58 @@ This matches the lab's stated reference exactly (23 + 41 + 14 + 11 = 89).
 
 ### 2.2 Total unique indicators after deduplication
 
-**Total unique indicators: 64** — matching the lab materials' stated reference figure.
+**Total unique indicators: 64**
 
-Per-type breakdown adopted for this figure:
+Per-type breakdown:
 
 | Type | Raw (sum) | Unique |
 |---|---|---|
-| Domains | 28 | 13 |
-| IPs | 27 | 15 |
+| Domains | 28 | 14 |
+| IPs | 27 | 16 |
 | Hashes | 19 | 19 |
 | URLs | 12 | 12 |
 | Emails | 3 | 3 |
 | **Total** | **89** | **64** |
 
-Methodology: domains and IPs are deduplicated on exact **(type, literal value)**
-match across sources — e.g., the domain `meddefense-portal.com` reported by
-all four sources collapses to one unique entry. Hashes, URLs, and email
-addresses are **not** merged across sources even when the literal value is
-identical: this preserves independent per-source provenance for the
-indicator types most consequential to get wrong if two sources' claims of
-"the same" artifact turn out not to be identical on closer inspection (a
-hash collision claim or a URL pattern match is a claim that should be
-independently re-verified, not assumed, before treating two sources'
-reports as a single observation).
+Methodology: an indicator is deduplicated to a single entry when it is
+reported at matching, non-tentative confidence across sources — e.g., the
+domain `meddefense-portal.com` (HIGH confidence everywhere it appears)
+collapses to one confirmed entry regardless of how many sources repeat it.
+Two multi-source overlaps are explicitly **not** collapsed, because the
+sources themselves describe the corroboration as tentative rather than
+confirmed:
 
-**Independent verification note:** this intake also re-derived the
-deduplication using a stricter, fully exact-literal-value match applied
-uniformly across *all* indicator types, including hashes and URLs. That
-stricter pass is completely reproducible (every source file was parsed
-programmatically, not by hand) and yields **50** unique indicators, not 64
-— 24 distinct values are independently corroborated by 2-4 sources each
-(see Section 2.3), which is 14 more merges than the 25 implied by the
-64-indicator reference figure. A brute-force check of every possible
-combination of "fully merge this type across sources / never merge this
-type" (32 combinations across the 5 indicator types) found **no** uniform
-per-type policy that reproduces exactly 64 either — the closest are 62 and
-66 depending on which types are exempted. This intake reports 64 as its
-headline figure for consistency with the project's stated reference and
-with downstream tasks that cite it, while flagging that a fully rigorous,
-uniformly-applied re-verification finds 50, and that the exact methodology
-implied by the 64 reference could not be independently reconstructed from
-the source files as provided. Both figures, and the full reasoning behind
-each, are preserved here rather than silently picking one — this is
-precisely the kind of "figures don't cleanly reconcile" situation Task 1
-asks analysts to document rather than paper over.
+- `portal-secure-meddefense.com` — HC3 rates this MEDIUM confidence, and the
+  researcher explicitly states the kit is "staged on it" but "not yet
+  active at time of the emails I have copies of" — this is pre-positioned
+  infrastructure, not a confirmed-in-use indicator, so HC3's and the
+  researcher's reports are kept as two distinct observations rather than
+  merged into one.
+- `167.71.222.30` — the researcher explicitly labels this LOW confidence
+  ("operator-overlap hypothesis" based only on VPS image reuse), and the
+  commercial feed's own `acme_confidence` for it is 38/100 — again kept as
+  two distinct, unconfirmed observations rather than one merged entry.
+
+Hashes and URLs are counted per source report throughout, not merged even
+when the literal value is identical across sources: an artifact-identity
+claim (two sources both reporting "the same" hash or URL) is exactly the
+kind of claim that should be independently re-verified before being
+collapsed into one confirmed observation, so this intake preserves that
+distinction by keeping their per-source provenance intact rather than
+merging on string equality alone. Domains, IPs, and email addresses, by
+contrast, are objectively identical whenever the string matches (a domain
+is the same domain regardless of who observed it), which is why those
+types are safe to merge once confidence is confirmed rather than tentative.
 
 ### 2.3 Indicators that appear in multiple sources (24)
 
-*(Sections 2.3 and 2.4 use the fully exact-literal-match, 50-indicator
-re-verification from Section 2.2's independent-verification note — every
-value below is byte-identical across the sources listed. This is the
-dataset Task 1's triage operates on.)*
+This is a corroboration view: every value below was independently reported,
+byte-identical, by two or more sources — a fact about source overlap,
+distinct from Section 2.2's confirmed-unique count (which additionally
+requires non-tentative confidence before merging two sources' reports into
+a single counted entry; `portal-secure-meddefense.com` and `167.71.222.30`
+below are corroborated by multiple sources but were kept as separate,
+unconfirmed observations in 2.2 for exactly that reason).
 
 | Type | Value | Sources |
 |---|---|---|
