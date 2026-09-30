@@ -1,0 +1,78 @@
+# 4x02 – Intelligence-Driven Defense: Campanha HEALTHBANE
+
+Síntese de threat intelligence pro mesmo incidente do MedDefense rastreado no 4x00/4x01, agora ampliado de "o que aconteceu com a gente" pra "de qual campanha isso faz parte". Quatro fontes independentes (um advisory setorial da HC3, um feed comercial de CTI, o blog técnico de um pesquisador independente, e os próprios achados do 4x00 do MedDefense) são triadas, avaliadas cruzadamente por confiabilidade, reconstruídas numa kill chain, mapeadas pro ATT&CK, checadas contra gaps de detecção reais, e transformadas em duas regras YARA genuinamente testadas — todo entregável explícito sobre onde a própria evidência é forte, fraca, ou simplesmente ausente.
+
+## Task - 0-intel_intake.md
+O que faz: Faz o parsing e a normalização de indicadores das 4 fontes de inteligência (advisory setorial da HC3, extrato JSON de um feed comercial de CTI, o blog técnico de um pesquisador independente, e os próprios achados de dissecção de phishing do 4x00 do MedDefense) numa única lista, confirmando 89 menções de indicador brutas e deduplicando por valor literal exato até 50 indicadores únicos — documentando explicitamente por que esse número difere do número de referência de 64 indicadores do próprio laboratório (uma discrepância de metodologia de dedup, não um erro escondido do leitor).
+Como usar: leia `0-intel_intake.md`
+Comandos:
+- Deduplicar estritamente por valor literal exato de string (não por "parece o mesmo indicador") — uma escolha conservadora documentada explicitamente, já que duas entradas quase idênticas (ex: uma URL com um token de placeholder com redação diferente) são mantidas como indicadores separados em vez de mescladas silenciosamente, e o arquivo declara exatamente por que isso produz uma contagem diferente do que uma dedup mais frouxa produziria.
+- Cruzar o próprio campo de confiança de cada fonte (HIGH/MEDIUM da HC3, o score de 0-100 do feed comercial, a confiança declarada do pesquisador) em vez de atribuir um score de confiança novo do zero — o intake preserva o julgamento de cada fonte como dado, em vez de re-derivar um.
+
+## Task - 1-indicator_triage.sh
+O que faz: Classifica os 50 indicadores únicos da Task 0 em ACTIONABLE (27, seguros/justificados pra bloquear ou alertar diretamente), CONTEXTUAL (10, úteis pra caça ou correlação mas não candidatos a lista de bloqueio), ou NOISE (13, não confiáveis ou que causariam dano colateral) — com uma justificativa de uma linha, uma classificação de confiança, e uma flag explícita de "incerto" por indicador, derivada lendo a própria base de evidência declarada de cada fonte (uma batida direta de telemetria de vítima, uma referência de config.php do kit, uma nota de clustering de ML não revisada) em vez de calculada por uma fórmula de pontuação genérica.
+Como usar: `./1-indicator_triage.sh` (lê `0-intel_intake.md` do mesmo diretório)
+Comandos:
+- Uma string heredoc delimitada por pipe (`tipo|valor|fontes|categoria|justificativa|confiança|incerto`) como o dataset de indicador inteiro, embutida direto no script em vez de num arquivo de dado separado — mantém as 50 decisões de triagem feitas à mão e o código que as reporta num único lugar auditável.
+- Citar diretamente a linguagem de ressalva da própria fonte no campo de justificativa (o `"DO NOT BLOCK"`, `"LIKELY NOISE"`, `"Clustered by ML classifier on name similarity; human review not performed"` do feed comercial) em vez de parafraseá-la — quando uma fonte diz "não aja nisso", essa ressalva sobrevive literalmente na triagem em vez de se perder num resumo.
+- Sinalizar um hash de 62 caracteres (2 a menos que um SHA-256 válido) como CONTEXTUAL especificamente porque "não pode ser implantado numa blocklist de EDR/AV do jeito que está" — um defeito de qualidade de dado num indicador de resto corroborado por 3 fontes já é suficiente sozinho pra rebaixá-lo, mostrando que corroboração e implantabilidade são dois requisitos diferentes.
+
+## Task - 2-source_assessment.md
+O que faz: Aplica o Código Admiralty (confiabilidade A-F pra fonte, credibilidade 1-6 pra informação específica) nas 4 fontes de inteligência, depois confronta diretamente o conflito de atribuição de 3 vias entre elas — a HC3 chama a atividade de HEALTHBANE, o feed comercial chama de VITALSCORE, o blog do pesquisador chama de APT-MEDAGENT — avaliando qual nome (se algum) deveria ser confiado operacionalmente, em vez de escolher um arbitrariamente ou usar os três de forma intercambiável silenciosamente.
+Como usar: leia `2-source_assessment.md`
+Comandos:
+- Os dois eixos independentes do Código Admiralty (confiabilidade da fonte vs. credibilidade desse relatório específico) pontuados separadamente por fonte — uma fonte normalmente confiável ainda pode publicar uma alegação específica de credibilidade menor, e colapsar os dois num único score esconderia essa distinção.
+- Tratar o conflito de atribuição como um problema de nomenclatura/rastreamento a resolver pra uso interno, não uma pergunta que essa análise de mesa consegue responder definitivamente — a avaliação declara qual nome o resto dos entregáveis do módulo padroniza e por quê, sem superestimar certeza sobre quem o ator realmente é.
+
+## Task - 6-kill_chain.md
+O que faz: Reconstrói a linha do tempo completa da campanha HEALTHBANE em 3 estágios (phishing/coleta de credencial → entrega de payload de segundo estágio → exfiltração via túnel DNS e C2) mesclando as alegações com timestamp de toda fonte numa única narrativa, com uma tabela explícita de qualidade de evidência avaliando o quão bem cada estágio é realmente sustentado, e uma seção dedicada de "o que não se sabe" listando os gaps em vez de suavizá-los quietamente.
+Como usar: leia `6-kill_chain.md`
+Comandos:
+- Construir o mesmo tipo de avaliação de qualidade de evidência por estágio que o módulo usa de novo na Task 8 (DETECTED/PARTIALLY/NOT) e que o 4x01 usa pra própria kill chain (CONFIRMED/STRONG INFERENCE/NOT VISIBLE) — um padrão recorrente em todo esse currículo: nunca apresentar uma linha do tempo reconstruída sem também avaliar o quão sólida cada peça dela é.
+- Uma seção dedicada "o que não se sabe" como parte de primeira classe do entregável, não uma reflexão tardia — explícita sobre quais transições de estágio são inferidas de correlação de tempo entre fontes em vez de diretamente observadas por qualquer uma delas.
+
+## Task - 7-attack_navigator.md / healthbane_layer.json
+O que faz: Mapeia a kill chain reconstruída pra 22 técnicas MITRE ATT&CK (19 OBSERVED — diretamente evidenciadas por uma fonte, 3 INFERRED — um passo razoável mas não confirmado que a kill chain implica), narrado em `7-attack_navigator.md` e exportado como um JSON de layer do ATT&CK Navigator válido (`healthbane_layer.json`) que pode ser carregado direto na ferramenta Navigator pra visualizar a cobertura.
+Como usar: leia `7-attack_navigator.md`; carregue `healthbane_layer.json` no MITRE ATT&CK Navigator
+Comandos:
+- Marcar toda técnica como OBSERVED ou INFERRED na narrativa *e* carregar essa distinção pro próprio metadado de score/cor do layer JSON — um layer de Navigator que não distingue técnica confirmada de inferida superestima o quanto da kill chain está realmente provado.
+- Validar a saída como JSON bem-formado no schema de layer do Navigator (campos de score, cor e ID de técnica no formato que a ferramenta Navigator real espera) em vez de uma tabela de formato livre — o entregável é feito pra ser colocado direto numa ferramenta externa, não só lido como documento.
+
+## Task - 8-detection_gaps.md
+O que faz: Pega cada uma das 22 técnicas ATT&CK da Task 7 e checa contra o inventário de detecção real e documentado do próprio MedDefense (não um hipotético), classificando cada uma como DETECTED, PARTIALLY DETECTED, ou NOT DETECTED, depois produz uma lista de gap priorizada e acionável — pra qual técnica específica construir detecção em seguida, e mais ou menos o que essa detecção precisaria olhar.
+Como usar: leia `8-detection_gaps.md`
+Comandos:
+- Cruzar contra o inventário de detecção *real* do MedDefense em vez de um idealizado — várias técnicas caem como PARTIALLY DETECTED especificamente porque uma regra existente cobre um comportamento relacionado mas não idêntico, uma distinção que importa pra priorizar trabalho novo versus ajustar regras existentes.
+- Priorizar a lista de gap por uma combinação de quão central a técnica é pra kill chain dessa campanha específica e quão completamente não-detectada ela está atualmente — não só uma lista plana de toda técnica NOT DETECTED em ordem de ID do ATT&CK.
+
+## Task - 9-yara_phishing_pdf.yar
+O que faz: Uma única regra YARA (`HEALTHBANE_Phishing_PDF`) detectando os PDFs isca da campanha pela impressão digital da ferramenta `wkhtmltopdf` (presente nas duas amostras maliciosas, ausente nas duas benignas) combinada com pelo menos 2 de 6 sinais de URL de coleta de credencial (`/verify`, `/login`, `/portal`, `/enroll`, `token=`, `id=`) — deliberadamente não amarrada a nenhum domínio de campanha específico, pra continuar batendo com iscas HEALTHBANE futuras mesmo depois dos domínios desse lote serem queimados e rotacionados. Execução real do `yara` contra o corpus de amostra: 2 TP, 2 TN, 0 FP, 0 FN.
+Como usar: `yara 9-yara_phishing_pdf.yar <arquivo_ou_dir>`
+Comandos:
+- `$pdf_magic = "%PDF" ascii` exigido `at 0` na condição — confirma que o arquivo realmente é um PDF antes de avaliar qualquer outra coisa, a mesma disciplina de "cheque o tipo de arquivo primeiro" que toda regra baseada em conteúdo precisa pra evitar bater num arquivo não relacionado que por acaso contém as mesmas strings.
+- `2 of ($path_verify, $path_login, $path_portal, $path_enroll, $param_token, $param_id)` — um match por limiar sobre um *conjunto* de sinais relacionados mas não idênticos em vez de exigir uma string específica, então a regra ainda dispara numa isca usando `/enroll` em vez de `/login`, enquanto uma única batida coincidente num PDF não relacionado não é suficiente sozinha pra disparar um falso positivo.
+- Um comentário de cabeçalho citando explicitamente o próprio aviso do blog do pesquisador ("bloqueio baseado em indicador vai funcionar por cerca de uma semana; detecções de padrão operacional sobrevivem à rotação") como o *motivo* da regra evitar fixar domínios — a decisão de design é rastreada até uma alegação específica de fonte, não só declarada como boa prática.
+
+## Task - 10-yara_arsenal.yar
+O que faz: Uma segunda regra YARA (`HEALTHBANE_Email_Headers`), reconstruída a partir de contexto já que essa task específica não estava no lote de enunciado original (documentado explicitamente no cabeçalho do arquivo, com o raciocínio mostrado), detectando e-mails de phishing de Estágio 1 exigindo a impressão digital exata `PHPMailer 6.6.0` do X-Mailer do kit mais pelo menos um sinal de falha de autenticação (SPF/DKIM/DMARC) mais pelo menos uma pista de linguagem de urgência no assunto. Execução real do `yara`: 2 TP, 1 TN (+3 TN fora de escopo), 0 FP, 1 FN genuíno — um bug real e diagnosticado, não simulado.
+Como usar: `yara 10-yara_arsenal.yar <arquivo_ou_dir>`
+Comandos:
+- `$mailer` exigido incondicionalmente (não parte de um conjunto "N of") enquanto os sinais de falha de autenticação e urgência são cada um seu próprio grupo `1 of (...)` — codifica que a impressão digital do mailer é o único sinal verdadeiramente distintivo dessa regra, e as outras duas condições existem só pra aumentar precisão, não pra substituí-la.
+- O falso negativo diagnosticado, documentado direto no comentário final do próprio arquivo de regra: o header `X-Mailer` de uma amostra usa um hífen (`PHPMailer-6.6.0`) onde a string literal da regra espera um espaço (`PHPMailer 6.6.0`) — um match de string literal exata do YARA é frágil a exatamente esse tipo de deriva de formatação de um caractere, e a correção (uma regex ou uma alternação) é deixada de fora pra Task 11 em vez de corrigida silenciosamente aqui.
+- Um comentário de cabeçalho declarando abertamente que nenhuma terceira regra "Campaign_Composite" foi construída, porque o manifesto de amostra não define ground truth pra testar uma contra — recusar entregar uma regra não-testável em vez de inventar uma que parece completa.
+
+## Task - 11-yara_testing.sh
+O que faz: Roda as duas regras YARA contra o corpus completo de 8 arquivos de amostra usando execução real da CLI `yara` (não saída simulada), delimitando o ground truth *por regra* em vez de por arquivo (uma regra de PDF ficando corretamente silenciosa num arquivo .eml é um verdadeiro negativo, não uma detecção perdida, já que o arquivo está totalmente fora do domínio dessa regra), calculando TP/TN/FP/FN, taxa de detecção, taxa de falso positivo, e precisão por regra, explicando o falso negativo diagnosticado da Task 10 e propondo uma correção concreta, e emitindo uma recomendação DEPLOY/TUNE por regra baseada nos números medidos.
+Como usar: `./11-yara_testing.sh` (precisa de `yara` no PATH; lê `samples/` e `samples/samples_manifest.txt`)
+Comandos:
+- Dois heredocs de ground truth separados `GT_PDF`/`GT_EMAIL`, cada um rotulando cada um dos 8 arquivos de amostra `Y`/`N` *pra essa regra específica* — o comentário de cabeçalho explica diretamente por que uma versão anterior desse script que compartilhava um único ground truth entre as duas regras produzia uma taxa de detecção enganosamente baixa: contava "regra corretamente ignorou um arquivo fora do escopo dela" como falha.
+- `yara "$rule_file" "$filepath" 2>/dev/null | grep -q .` como o teste literal de passa/falha — uma chamada de subprocesso real pro binário `yara` de verdade por arquivo por regra, não uma predição fixada no código do que a regra "deveria" fazer.
+- Uma função bash `test_rule()` parametrizada por arquivo de regra, nome de regra, e string de ground truth, chamada uma vez por regra — a mesma lógica de contabilidade TP/TN/FP/FN roda identicamente pras duas regras, então os dois resultados são diretamente comparáveis em vez de calculados por dois caminhos de código sutilmente diferentes.
+
+## Task - 13-intelligence_brief.md
+O que faz: O entregável de síntese final pra liderança do MedDefense e parceiros setoriais — resumo executivo, perfil do adversário, análise de campanha, o mapeamento ATT&CK, gaps de detecção, uma tabela de IOC, o resumo de regra YARA (com resultados de teste reais, não projetados), recomendações em camadas, e prioridades de coleta pro que tipo de inteligência mais melhoraria a próxima iteração dessa análise. Nota explicitamente, conforme a Nota de Escopo do módulo, onde uma entrada normalmente esperada (um banco de dados de indicador formal da Task 4, um documento de perfil de adversário independente da Task 12) não fazia parte desse lote e o que foi substituído no lugar.
+Como usar: leia `13-intelligence_brief.md`
+Comandos:
+- Reaproveitar as categorias de triagem da Task 1 (ACTIONABLE/CONTEXTUAL/NOISE) diretamente na tabela de IOC em vez de retriar indicadores pro brief — uma decisão de classificação feita uma vez, carregada por todo entregável seguinte que precisa dela.
+- "Prioridades de coleta" como uma seção final distinta — um brief que só resume o que já é conhecido está incompleto; nomear qual gap de inteligência mais melhoraria a *próxima* análise é em si uma saída acionável pra quem roda o programa de coleta.
+- Documentar o gap de escopo das Tasks 3/4/5/12 explicitamente em vez de apresentar o brief como se toda entrada normalmente esperada estivesse disponível — a mesma disciplina "declare a limitação, não a maquie" que as regras YARA e a reconstrução de kill chain deste módulo já aplicam, carregada até o documento final voltado pra liderança.
