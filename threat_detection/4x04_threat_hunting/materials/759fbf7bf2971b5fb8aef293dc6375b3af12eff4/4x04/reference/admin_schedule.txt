@@ -1,0 +1,176 @@
+================================================================================
+  MEDDEFENSE HEALTH SYSTEMS -- IT ADMINISTRATION MAINTENANCE SCHEDULE
+================================================================================
+  Document ID:       IT-OPS-SCHED-2026-Q2
+  Owner:             Robert Kim (IT Administrator)
+  Reviewed by:       Sarah Park (IT Director)
+  Effective date:    2026-04-01  (Q2 2026)
+  Next review:       2026-07-01  (end of quarter)
+  Classification:    INTERNAL
+  Distribution:      IT Operations, SOC (for baselining)
+================================================================================
+
+
+PURPOSE
+-------
+
+This schedule documents Robert Kim's recurring administrative maintenance
+windows and the tools he is authorized to use during each window.  The
+schedule is the authoritative baseline for SOC threat hunting: any
+administrative tool execution outside these windows is anomalous and
+requires investigation.
+
+
+PRIMARY ADMINISTRATOR
+---------------------
+
+Name:                  Robert Kim
+Domain account:        MEDDEFENSE\robert.kim
+Workstation:           WS-ADMIN-01 (10.10.9.10)
+Failover workstation:  WS-ADMIN-02 (10.10.9.11) -- failover only,
+                       activated by Sarah Park in writing.  Last
+                       activation: 2026-03-14 (see IT ops quarterly
+                       review).
+Work hours:            Monday - Friday, 08:00 - 18:00 Central Time
+                       (CDT during DST, CST otherwise)
+Lunch:                 Typically 12:00 - 13:00, reduced activity
+Overtime policy:       Scheduled overtime only, requires Sarah Park
+                       approval in writing.  No approved overtime
+                       during the current quarter.  Robert has not
+                       worked outside 08:00-18:00 in Q2 2026.
+
+
+RECURRING MAINTENANCE WINDOWS
+-----------------------------
+
+WINDOW 1 -- Tuesday Software Deployment
+  Day:                 Every Tuesday
+  Time:                09:00 - 12:00 CDT
+  Source host:         WS-ADMIN-01
+  User account:        MEDDEFENSE\robert.kim (named account)
+  Tools authorized:    PsExec.exe (for remote installer execution)
+                       cmd.exe (local administrative shell)
+                       Robocopy (for deploying software packages)
+  Target hosts:        Server segment (10.10.20.0/24) -- typically
+                       SRV-FILE-01, SRV-PATCH-01, occasionally
+                       SRV-HEALTH-DB, SRV-INS-DB for agent updates
+  Typical volume:      4-6 PsExec executions per session
+  Documented purpose:  Weekly software deployment to servers
+                       (application updates, management agents,
+                       monitoring tools)
+
+
+WINDOW 2 -- Thursday Patch Management
+  Day:                 Every Thursday
+  Time:                14:00 - 17:00 CDT
+  Source host:         WS-ADMIN-01
+  User account:        MEDDEFENSE\robert.kim
+  Tools authorized:    PsExec.exe (for patch verification commands)
+                       Enter-PSSession (PowerShell Remoting)
+                       Invoke-Command (PowerShell Remoting)
+                       sconfig.vbs (via PSRemoting)
+  Target hosts:        All servers in 10.10.20.0/24
+  Typical volume:      4-6 PsExec + 3-4 PSRemoting sessions
+  Documented purpose:  Windows patch management, verification of
+                       WSUS-distributed updates, reboot scheduling
+
+
+WINDOW 3 -- Daily Inventory Scan
+  Day:                 Monday - Friday (5 days per week)
+  Time:                08:30 - 09:00 CDT (morning) and optionally
+                       16:00 - 16:30 CDT (afternoon spot check)
+  Source host:         WS-ADMIN-01
+  User account:        MEDDEFENSE\robert.kim
+  Tools authorized:    wmic /node:... (inventory queries)
+                       Invoke-WmiMethod (PowerShell variant)
+  Target hosts:        All servers in 10.10.20.0/24
+  Typical volume:      5-8 WMI queries per scan
+  Documented purpose:  Collect software inventory for change
+                       management, verify installed package versions,
+                       detect configuration drift
+
+
+WINDOW 4 -- Friday End-of-Week Verification
+  Day:                 Every Friday
+  Time:                15:00 - 17:00 CDT
+  Source host:         WS-ADMIN-01
+  User account:        MEDDEFENSE\robert.kim
+  Tools authorized:    Enter-PSSession (PowerShell Remoting)
+                       cmd.exe (via PSRemoting)
+                       Get-Service (remote status checks)
+  Target hosts:        All servers in 10.10.20.0/24
+  Typical volume:      4-6 PSRemoting sessions
+  Documented purpose:  Weekly verification that all services are
+                       healthy before weekend, spot-check of event
+                       logs for anomalies, cleanup of temporary
+                       admin artifacts
+
+
+WHAT ROBERT KIM DOES NOT DO
+---------------------------
+
+The following activities are NEVER part of Robert Kim's documented
+maintenance schedule.  If any of these appear in SIEM data attributed
+to robert.kim or originating from WS-ADMIN-01, they require
+immediate investigation:
+
+  -  Administrative activity outside 08:00-18:00 CDT on weekdays.
+     Robert does not perform scheduled overtime.  Unscheduled
+     after-hours work is authorized only for declared incident
+     response, which is logged separately in the IR ticketing
+     system.
+
+  -  Administrative activity on Saturday or Sunday.  MedDefense IT
+     operations do not run a weekend shift.  Emergency weekend work
+     requires an on-call rotation (Robert is primary) and must be
+     paired with an entry in the on-call log.  No weekend entries
+     exist for Q2 2026.
+
+  -  Use of service accounts (svc_*) for interactive logon from
+     any workstation.  Robert uses his named domain account for
+     all administrative work.  Service accounts are automated.
+
+  -  Administrative tool execution originating from any workstation
+     other than WS-ADMIN-01 (or WS-ADMIN-02 during an authorized
+     failover).  Robert does not administer from user workstations.
+
+  -  Use of non-Sysinternals PsExec variants, non-signed WMI tools,
+     or unsigned PowerShell script blocks.  Robert uses standard
+     Microsoft-signed tooling exclusively.
+
+  -  File drops or execution of tools in C:\Users\Public\,
+     C:\Windows\Temp\ or C:\ProgramData\ in the course of
+     administration.  Robert works from C:\Tools\ and
+     C:\Scripts\ on WS-ADMIN-01.
+
+
+RECENT SCHEDULE EXCEPTIONS
+--------------------------
+
+No scheduled or approved exceptions for the 14-day hunt window
+(2026-05-04 through 2026-05-18).  Robert was on routine duty for
+every business day in this period, with no declared incidents, no
+approved weekend work and no cross-coverage assignments.
+
+
+ON-CALL LOG (14-day hunt window)
+--------------------------------
+
+Primary on-call:       Robert Kim  (all days)
+Backup on-call:        Mike Torres (networking emergencies only)
+Incidents raised:      None  (excluding the HEALTHBANE hunt itself,
+                       which was initiated 2026-05-18 based on
+                       HC3-2026-HEALTHBANE-004)
+
+
+SIGNED OFF
+----------
+
+  Sarah Park            IT Director            2026-04-01
+  Robert Kim            IT Administrator       2026-04-01
+  James Chen            SOC Lead (reviewed)    2026-04-02
+
+
+================================================================================
+END OF MAINTENANCE SCHEDULE
+================================================================================

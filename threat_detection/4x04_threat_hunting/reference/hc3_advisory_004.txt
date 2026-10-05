@@ -1,0 +1,384 @@
+================================================================================
+  HHS HC3 SECTOR THREAT ADVISORY
+================================================================================
+  Document ID:            HC3-2026-HEALTHBANE-004
+  Advisory title:         HEALTHBANE Stage 4 -- Living Off The Land Lateral
+                          Movement Using Legitimate Windows Administration
+                          Tools
+  Classification:         TLP:AMBER  (restricted distribution, healthcare
+                          sector and designated CTI partners only)
+  Originator:             Health Sector Cybersecurity Coordination Center
+                          (HC3), HHS Office of the Chief Information Officer
+  Prepared by:            HC3 Threat Intelligence Branch, Forensic Analysis
+                          Team
+  Publication date:       2026-05-18
+  Supersedes:             None (first publication of Stage 4 analysis)
+  Previous HEALTHBANE:    HC3-2026-HEALTHBANE-001 (2026-04-25) campaign
+                          overview
+                          HC3-2026-HEALTHBANE-002 (2026-05-02) dropper IOC
+                          update
+                          HC3-2026-HEALTHBANE-003 (2026-05-09) DNS exfil
+                          pattern update
+  Next update:            On significant new development
+  POC:                    HC3@hhs.gov -- Ref HEALTHBANE-004
+================================================================================
+
+
+EXECUTIVE SUMMARY
+-----------------
+
+HC3 has confirmed the existence of a fourth, previously unreported stage of
+the HEALTHBANE campaign.  Forensic recovery at two healthcare organizations
+(designated VICTIM-A and VICTIM-B in this advisory) that were fully
+compromised in late April and early May 2026 has revealed extensive
+lateral movement activity that occurred BEFORE, DURING and AFTER the three
+stages previously described in HEALTHBANE-001.
+
+Stage 4 is distinguished from the earlier stages by a fundamental change
+in tradecraft: it uses no custom malware, no proprietary tools, and no
+attacker-controlled network infrastructure.  Stage 4 is conducted entirely
+with Windows administrative binaries already present on every enterprise
+endpoint.  This technique class is commonly referred to as "Living Off The
+Land" or LOLBin usage.
+
+Because Stage 4 relies on legitimate tooling, file-based detection (YARA,
+hash matching) is structurally incapable of identifying it.  Network-based
+detection (domain reputation, IP blocklists) is equally incapable because
+the lateral movement traffic stays entirely inside the victim's network.
+Detection of Stage 4 REQUIRES behavioral analysis of command execution
+CONTEXT: source host, user identity, target host, time of day, and
+deviation from a documented administrative baseline.
+
+HC3 assesses with HIGH CONFIDENCE that any organization with an active
+HEALTHBANE Stage 1 exposure (credential harvesting phishing) is potentially
+exposed to Stage 4 regardless of whether Stages 2 or 3 were detected.
+Stage 4 can operate independently of the malware delivery chain if the
+attacker has any initial credential foothold.
+
+Healthcare organizations that detected Stage 1 phishing but saw no
+subsequent Stage 2/3 indicators should NOT conclude they are safe.  HC3
+specifically recommends a 14-day retrospective threat hunt for the Stage 4
+indicators described in this advisory.
+
+
+STAGE 4 TACTICS, TECHNIQUES AND PROCEDURES
+-------------------------------------------
+
+The following TTP profile was reconstructed from VICTIM-A and VICTIM-B
+forensic evidence.  TTPs are presented in the order typically observed
+during a Stage 4 operation.  Not every victim exhibits every TTP; the
+ordering and selection appear to be adjusted based on the target
+environment.
+
+-- TTP 4.1: Credential Access via LSASS Memory --
+
+  MITRE ATT&CK:   T1003.001 (OS Credential Dumping: LSASS Memory)
+  Tooling:        Non-standard credential access utility dropped to a
+                  writable temporary directory.  Observed paths:
+                      C:\Windows\Temp\debug_tool.exe
+                      C:\Users\Public\Downloads\dbghelp_upd.exe
+                      C:\ProgramData\msdia\sidebar.exe
+                  All observed binaries are small (<500 KB), unsigned,
+                  and exhibit identical functional behavior: open a
+                  handle to the LSASS process (lsass.exe) with
+                  PROCESS_VM_READ (0x0010) and PROCESS_QUERY_INFORMATION
+                  (0x0400) access rights, walk the lsasrv.dll memory
+                  structures, and write extracted credential material
+                  to a sibling file with a .dat or .bin extension.
+  Timing:         Observed between 01:00 and 04:00 local time in both
+                  victims.  Execution is manual, not scheduled.  Single-
+                  shot on first visit, repeated approximately once per
+                  week if credentials rotate.
+  Indicators:     Sysmon Event ID 10 (ProcessAccess) with:
+                      TargetImage = lsass.exe
+                      GrantedAccess containing 0x0010 or 0x1010
+                      SourceImage NOT IN the standard process set
+                          (csrss.exe, services.exe, svchost.exe,
+                           MsMpEng.exe, WmiPrvSE.exe, wininit.exe)
+
+
+-- TTP 4.2: Lateral Movement via SMB and PsExec --
+
+  MITRE ATT&CK:   T1021.002 (Remote Services: SMB/Windows Admin Shares)
+  Tooling:        Sysinternals PsExec.exe (Microsoft-signed, legitimate
+                  administrative binary).  Dropped to a writable
+                  location on the pivot host.  Observed paths:
+                      C:\Users\Public\psexec.exe
+                      C:\Windows\Temp\PsExec64.exe
+                  Command pattern:
+                      PsExec.exe \\TARGET -s cmd.exe
+                      PsExec.exe \\TARGET -s -d powershell.exe
+                      PsExec.exe \\TARGET -s -i powershell.exe
+                  The -s flag elevates to NT AUTHORITY\SYSTEM on the
+                  target using the provided credential.  The -d flag
+                  detaches (non-interactive).
+  Timing:         Observed exclusively between 01:00 and 05:00 local
+                  time.  Repeated nightly during active operations,
+                  typically 3-5 consecutive nights with one-to-two
+                  night dormant intervals.
+  Distinguishing: Legitimate IT administrators also use PsExec for
+                  patch deployment.  The distinguishing feature is
+                  the SOURCE HOST: legitimate use originates from a
+                  documented administrative workstation; attacker use
+                  originates from a compromised non-admin workstation
+                  (VICTIM-A pivot was a records/billing workstation;
+                  VICTIM-B pivot was a clinical workstation).
+
+
+-- TTP 4.3: Remote Process Creation via WMI --
+
+  MITRE ATT&CK:   T1047 (Windows Management Instrumentation)
+  Tooling:        wmic.exe (built-in) invoked as:
+                      wmic /node:TARGET process call create "cmd.exe /c ..."
+                      wmic /node:TARGET /user:DOMAIN\svc_account process ...
+                  Also observed:
+                      Invoke-WmiMethod from PowerShell with remote node
+                  On the target, the receiving process is wmiprvse.exe
+                  which spawns cmd.exe or powershell.exe depending on
+                  the requested command.
+  Purpose:        Used for reconnaissance and command execution on hosts
+                  where PsExec was blocked or unstable.  Observed
+                  enumerating directory listings, service states, and
+                  local user accounts on database servers.
+  Timing:         Same off-hours window as TTP 4.2, typically within
+                  30 minutes of a PsExec session targeting the same
+                  host.
+  Distinguishing: wmiprvse.exe spawning cmd.exe or powershell.exe on a
+                  database or domain controller is inherently suspicious
+                  and has no legitimate baseline in the observed victim
+                  environments.
+
+
+-- TTP 4.4: Interactive Remote Access via PSRemoting --
+
+  MITRE ATT&CK:   T1021.006 (Remote Services: Windows Remote Management)
+  Tooling:        Built-in WinRM with PowerShell cmdlets:
+                      Enter-PSSession -ComputerName TARGET
+                      New-PSSession -ComputerName TARGET
+                      Invoke-Command -ComputerName TARGET -ScriptBlock {...}
+                  On the target, the receiving process is wsmprovhost.exe
+                  which hosts the remote PowerShell runspace.
+  Purpose:        Used to stage the exfiltration script and to execute
+                  database queries interactively on the target.
+                  Copy-Item (-ToSession) observed transferring files TO
+                  database servers within 5 minutes of session
+                  establishment.
+  Timing:         Same off-hours pattern.  Interactive sessions are
+                  shorter (<10 minutes) than PsExec command bursts.
+  Distinguishing: Legitimate administrators also use PSRemoting for
+                  patch management.  The distinguishing feature is,
+                  again, the source host (non-admin workstation) and
+                  the subsequent file transfer operation.
+
+
+-- TTP 4.5: Valid Accounts (Service Account Abuse) --
+
+  MITRE ATT&CK:   T1078.002 (Valid Accounts: Domain Accounts)
+                  T1550.002 (Use Alternate Authentication Material:
+                             Pass the Hash)
+  Credential:     Domain-level service accounts with read or read/write
+                  privileges on the database servers.  In both victim
+                  environments the abused account was a service
+                  principal used for legitimate health-record
+                  synchronization jobs.  Observed names (sanitized):
+                      svc_healthsync
+                      svc_hlthsync
+                      svc_emr_sync
+  Abuse pattern:  The service account is authenticated interactively
+                  from a workstation to the target server (Logon Type
+                  3 - Network - with NTLM).  Legitimate service account
+                  authentication originates from the server that runs
+                  the service; interactive authentication from a
+                  workstation is always anomalous.
+  Indicator:      Windows Event ID 4624 with TargetUserName matching
+                  a documented service account and WorkstationName
+                  matching a workstation naming pattern (WS-*).
+
+
+-- TTP 4.6: Persistence via Scheduled Task --
+
+  MITRE ATT&CK:   T1053.005 (Scheduled Task/Job: Scheduled Task)
+  Mechanism:      A scheduled task is registered on the pivot host to
+                  survive user logoff and system reboot.  Observed
+                  task names:
+                      "HealthSync Update Service"
+                      "MedRecords Cache Rebuild"
+                      "Windows Health Monitor"
+  Trigger:        DailyTrigger with StartBoundary in the early morning
+                  window (01:45-02:30 range).
+  Action:         powershell.exe -ExecutionPolicy Bypass -WindowStyle
+                  Hidden -EncodedCommand <base64>.  The encoded block
+                  decodes to a loader that either contacts the C2
+                  channel or executes the next operational step.
+  Indicator:      Windows Event ID 4698 (Task Created) or Sysmon
+                  Event ID 12/13 on registry keys:
+                      HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\
+                      Schedule\TaskCache\Tasks\{GUID}
+
+
+-- TTP 4.7: Data Staging (observed at VICTIM-A only) --
+
+  MITRE ATT&CK:   T1074.001 (Data Staged: Local Data Staging)
+                  T1560.001 (Archive Collected Data: Archive via Utility)
+                  T1005 (Data from Local System)
+  Behavior:       On VICTIM-A the attacker pulled database query results
+                  from the compromised database server back to the pivot
+                  workstation, compressed the results using built-in
+                  Windows utilities (tar.exe on Windows 10+), and
+                  stored the archives in a world-readable directory
+                  (C:\Users\Public\...) prior to exfiltration.
+  Archive        14-20 MB per archive.  Observed 2-3 archives created
+  sizing:         over 48-72 hours before staging directory cleanup.
+  Cleanup:        Staged archives deleted approximately 12-24 hours
+                  before the next scheduled operation.
+  Note:           VICTIM-A forensics recovered the deleted archives
+                  from unallocated disk space.  VICTIM-B did NOT
+                  progress to staging -- operation was contained during
+                  reconnaissance phase.
+
+
+-- TTP 4.8: Defense Evasion (observed at VICTIM-A only) --
+
+  MITRE ATT&CK:   T1070.001 (Indicator Removal: Clear Windows Event
+                             Log)
+  Behavior:       Selective deletion of small ranges within the Windows
+                  Security log corresponding to the attacker's logon
+                  events.  Not a full log clear -- the attacker did not
+                  want to trigger a "Log Cleared" (Event ID 1102) alert.
+                  Instead, individual event records were targeted for
+                  overwrite, leaving a small temporal gap in the
+                  security log that is visible only on careful
+                  inspection.
+  Indicator:      Gaps of 5-15 minutes in the Security.evtx record
+                  sequence during the attacker's active window.  No
+                  Event 1102.  Requires offline $MFT and raw log
+                  inspection to detect.
+
+
+OPERATIONAL PATTERN
+-------------------
+
+Across both victim environments, Stage 4 followed a consistent operational
+pattern:
+
+  Night 1:    Credential dump on pivot host.  No lateral movement.
+              Duration 10-30 minutes.
+
+  Night 2:    First lateral movement session.  PsExec to first target
+              server (typically the primary record database), followed
+              by WMI reconnaissance, followed by PSRemoting with file
+              staging.  Duration 30-60 minutes.
+
+  Night 3:    Dormant.  No observed activity.
+
+  Night 4:    Second lateral movement session.  Same pattern, different
+              target (secondary database or file server).
+
+  Night 5:    Persistence installation (scheduled task).
+
+  Night 6-7:  Dormant.
+
+  Night 8:    Credential refresh (second LSASS dump) and third lateral
+              movement session, often targeting the domain controller.
+              At VICTIM-A, this is when data staging began.
+
+  Night 9+:   Data staging (where operationally successful).
+
+The attacker operates in bursts separated by dormant periods.  This
+pattern defeats simple frequency-based anomaly detection: a single night
+of activity looks like a single administrator working late; the pattern
+only emerges across 7-10 days.
+
+
+RECOMMENDATIONS FOR HEALTHCARE ORGANIZATIONS
+---------------------------------------------
+
+  R1  Conduct an immediate 14-day retrospective threat hunt for the
+      Stage 4 indicators described above.  Priority hunt targets:
+          - PsExec execution from any host OTHER THAN the documented
+            administrative workstation, OR during off-hours from any
+            host.
+          - wmiprvse.exe spawning cmd.exe or powershell.exe on database
+            or domain controller hosts.
+          - Interactive (logon type 3, NTLM) authentication of
+            documented service accounts from workstation hosts.
+          - Creation of scheduled tasks whose action is encoded
+            PowerShell (-EncodedCommand or -enc).
+
+  R2  Document and publish an authoritative administrative baseline:
+          - Which accounts are authorized to perform administrative
+            actions
+          - Which source hosts those accounts may use
+          - Which target hosts they may touch
+          - What hours they operate
+      Every administrative action outside this baseline is, by
+      definition, a candidate Stage 4 indicator and must be
+      investigated.
+
+  R3  Implement Sysmon deployment with a configuration that logs at
+      minimum Event IDs 1 (ProcessCreate), 10 (ProcessAccess) and 12-
+      13 (RegistryEvent).  The default Windows Security Audit
+      configuration is insufficient to detect TTP 4.1 and TTP 4.6.
+
+  R4  Rotate credentials for all service accounts that have database
+      server access, and enforce the constraint that service accounts
+      may authenticate ONLY from their documented service host.
+
+  R5  If Stage 4 indicators are found, assume the attacker may have
+      persisted via additional mechanisms not described in this
+      advisory.  Full incident response with memory capture, disk
+      imaging and firewall session log preservation is required.
+
+
+ATTRIBUTION NOTES
+-----------------
+
+Attribution remains UNCONFIRMED.  The TTP profile is internally
+consistent across the HEALTHBANE Stages 1-4 observed to date and is
+consistent with a single actor, but HC3 has not associated this actor
+with a named group.  Infrastructure overlap with HC3-2026-BROKER-003 is
+limited to shared hosting providers (Hostinger, OVH) and does not
+indicate operational overlap.
+
+Commercial CTI vendors circulating names for this cluster are noted
+but not endorsed:
+  -  "Midnight Cardinal"  (one commercial vendor)
+  -  "HB-01"              (another commercial vendor)
+
+Attribution confidence level: LOW.  Operational TTP profile confidence:
+HIGH.
+
+
+INDICATORS OF COMPROMISE
+------------------------
+
+Network indicators (Stage 4 specific -- Stages 1-3 IOCs in prior
+advisories):
+
+  -- No external network IOCs.  Stage 4 activity is entirely internal.
+     The infrastructure IOCs from HEALTHBANE-001 through -003 remain
+     valid for Stages 1-3.
+
+Host indicators:
+
+  File artifacts (sanitized - paths and names will vary):
+      *\Temp\debug_tool.exe           (cred access)
+      *\Downloads\dbghelp_upd.exe     (cred access variant)
+      *\ProgramData\msdia\sidebar.exe (cred access variant)
+      *\Public\psexec.exe             (dropped Sysinternals)
+      *\staging_export_*.zip          (staging archives)
+      *\query_results.csv             (database pull)
+
+  Scheduled task name patterns (regex):
+      (?i)healthsync|medrecords|healthmonitor|emr.*cache
+
+  Service account usage anomaly (any service account whose name
+  begins with svc_ and which appears in Event 4624 from a host
+  matching ^WS-).
+
+
+END OF ADVISORY
+===============
+HC3@hhs.gov
+Distribution: Healthcare sector CISOs, designated CTI partners,
+H-ISAC members.  TLP:AMBER applies.

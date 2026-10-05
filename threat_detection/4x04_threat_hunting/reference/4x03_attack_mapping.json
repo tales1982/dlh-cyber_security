@@ -1,0 +1,304 @@
+{
+  "name": "HEALTHBANE - MedDefense Coverage (post-4x03)",
+  "version": "4.5",
+  "domain": "enterprise-attack",
+  "description": "HEALTHBANE campaign ATT&CK coverage after completion of project 4x03 (malware triage). Combines intelligence-derived mappings from 4x02 with malware-confirmed techniques from 4x03 analysis of the dropper, RAT and exfiltrator. Source of truth for hunt-time gap analysis in 4x04.",
+  "versions": {
+    "attack": "14",
+    "navigator": "4.9",
+    "layer": "4.5"
+  },
+  "filters": {
+    "platforms": ["Windows"]
+  },
+  "sorting": 3,
+  "layout": {
+    "layout": "flat",
+    "aggregateFunction": "average",
+    "showID": true,
+    "showName": true,
+    "showAggregateScores": true,
+    "countUnscored": false
+  },
+  "hideDisabled": false,
+  "legendItems": [
+    {"label": "OBSERVED (direct evidence from MedDefense telemetry)", "color": "#c40000"},
+    {"label": "INFERRED (advisory-mapped technique, not yet confirmed at MedDefense)", "color": "#ffcf00"},
+    {"label": "NOT COVERED / NOT MAPPED (technique in threat model, no visibility)", "color": "#8a8a8a"}
+  ],
+  "metadata": [
+    {"name": "campaign", "value": "HEALTHBANE"},
+    {"name": "organization", "value": "MedDefense Health Systems"},
+    {"name": "assembled_from", "value": "4x02 intel brief + 4x03 malware triage"},
+    {"name": "coverage_summary", "value": "16 OBSERVED / 3 INFERRED / 10 NOT COVERED = 55% OBSERVED, 66% MAPPED"},
+    {"name": "threat_model_size", "value": "29 techniques attributed to HEALTHBANE across all known victims"},
+    {"name": "analyst", "value": "[student] - reviewed by James Chen"},
+    {"name": "approved", "value": "Dr. Patricia Morales, 2026-05-02"},
+    {"name": "next_action", "value": "Close the Stage 4 gap via proactive hunt (project 4x04)"}
+  ],
+  "techniques": [
+    {
+      "techniqueID": "T1566.001",
+      "tactic": "initial-access",
+      "score": 3,
+      "color": "#c40000",
+      "comment": "OBSERVED - 4x00 phishing dissection. 3 emails confirmed (meddefense-portal, outlook-protection, meddefense-benefits). Diane Marsh click 2026-04-14.",
+      "enabled": true,
+      "metadata": [
+        {"name": "evidence", "value": "4x00 report MD-2026-IR-0414-001"},
+        {"name": "confidence", "value": "HIGH"},
+        {"name": "ioc_source", "value": "email headers, SPF/DKIM failures"}
+      ]
+    },
+    {
+      "techniqueID": "T1204.002",
+      "tactic": "execution",
+      "score": 3,
+      "color": "#c40000",
+      "comment": "OBSERVED - 4x03 dropper analysis. HEALTHBANE_S2_invoice.docm requires user-enable-macros click.",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1059.001",
+      "tactic": "execution",
+      "score": 3,
+      "color": "#c40000",
+      "comment": "OBSERVED - 4x03 exfiltrator sync_healthdata.ps1 is PowerShell.",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1059.005",
+      "tactic": "execution",
+      "score": 3,
+      "color": "#c40000",
+      "comment": "OBSERVED - 4x03 dropper uses VBA macro (AutoOpen and Document_Open handlers).",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1547.001",
+      "tactic": "persistence",
+      "score": 3,
+      "color": "#c40000",
+      "comment": "OBSERVED - 4x03 RAT references HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\HealthSync in sandbox report.",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1071.001",
+      "tactic": "command-and-control",
+      "score": 3,
+      "color": "#c40000",
+      "comment": "OBSERVED - 4x01 + 4x03. HTTPS beaconing to healthbane-c2.net:443 every ~5 min.",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1071.004",
+      "tactic": "command-and-control",
+      "score": 3,
+      "color": "#c40000",
+      "comment": "OBSERVED - 4x03 exfiltrator constructs DNS TXT queries to data-sync.healthbane-c2.net for data exfil (Stage 3 at partner orgs).",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1573.001",
+      "tactic": "command-and-control",
+      "score": 3,
+      "color": "#c40000",
+      "comment": "OBSERVED - 4x03 RAT implements RC4-like stream cipher for C2 payload wrapping before TLS (defense in depth against proxy inspection).",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1027",
+      "tactic": "defense-evasion",
+      "score": 3,
+      "color": "#c40000",
+      "comment": "OBSERVED - 4x03 dropper base64+XOR-obfuscated VBA payload; exfiltrator script uses encoded command invocations.",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1027.010",
+      "tactic": "defense-evasion",
+      "score": 3,
+      "color": "#c40000",
+      "comment": "OBSERVED - 4x03 exfiltrator uses -EncodedCommand PowerShell invocation form.",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1140",
+      "tactic": "defense-evasion",
+      "score": 3,
+      "color": "#c40000",
+      "comment": "OBSERVED - 4x03 dropper decodes embedded payload at runtime (chr()+XOR chain).",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1105",
+      "tactic": "command-and-control",
+      "score": 3,
+      "color": "#c40000",
+      "comment": "OBSERVED - 4x03 dropper downloads svchost_update.exe from healthbane-c2.net/update/.",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1041",
+      "tactic": "exfiltration",
+      "score": 2,
+      "color": "#ffcf00",
+      "comment": "INFERRED - 4x03 exfiltrator has C2-upload code path. Not observed against MedDefense (Stage 3 did not execute here).",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1048.003",
+      "tactic": "exfiltration",
+      "score": 2,
+      "color": "#ffcf00",
+      "comment": "INFERRED - DNS exfiltration capability present in exfiltrator code. Not observed at MedDefense.",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1005",
+      "tactic": "collection",
+      "score": 2,
+      "color": "#ffcf00",
+      "comment": "INFERRED - exfiltrator targets database file patterns and SELECT query outputs. Not observed at MedDefense in 4x03.",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1583.001",
+      "tactic": "resource-development",
+      "score": 3,
+      "color": "#c40000",
+      "comment": "OBSERVED (attacker-side) - 4x00 WHOIS analysis confirmed newly registered lookalike domains.",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1566.002",
+      "tactic": "initial-access",
+      "score": 3,
+      "color": "#c40000",
+      "comment": "OBSERVED - 4x00 classified 3 of 8 emails as spearphishing link.",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1021.002",
+      "tactic": "lateral-movement",
+      "score": 0,
+      "color": "#8a8a8a",
+      "comment": "NOT COVERED - PsExec/SMB admin shares. No detection, no observed evidence at MedDefense, not described in Stage 1-3 analysis. Listed as campaign-possible in HC3-2026-HEALTHBANE-001 but unconfirmed.",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1021.006",
+      "tactic": "lateral-movement",
+      "score": 0,
+      "color": "#8a8a8a",
+      "comment": "NOT COVERED - WinRM / PowerShell Remoting. No detection, no observed evidence.",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1047",
+      "tactic": "execution",
+      "score": 0,
+      "color": "#8a8a8a",
+      "comment": "NOT COVERED - WMI remote execution. No detection, no observed evidence.",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1003.001",
+      "tactic": "credential-access",
+      "score": 0,
+      "color": "#8a8a8a",
+      "comment": "NOT COVERED - LSASS memory dumping. Could not be confirmed by the 4x03 malware triage - the captured samples do not touch LSASS. Hypothesis for Stage 4.",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1078",
+      "tactic": "defense-evasion",
+      "score": 2,
+      "color": "#ffcf00",
+      "comment": "INFERRED - Valid Accounts usage likely (stolen phishing credentials used for follow-on). Not yet confirmed beyond dmarsh credentials in 4x00.",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1078.002",
+      "tactic": "defense-evasion",
+      "score": 0,
+      "color": "#8a8a8a",
+      "comment": "NOT COVERED - Domain service account abuse. Hypothesis only.",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1550.002",
+      "tactic": "lateral-movement",
+      "score": 0,
+      "color": "#8a8a8a",
+      "comment": "NOT COVERED - Pass-the-Hash. No detection, no observed evidence.",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1053.005",
+      "tactic": "persistence",
+      "score": 0,
+      "color": "#8a8a8a",
+      "comment": "NOT COVERED - Scheduled Task persistence. Not described in Stages 1-3, not in 4x03 samples.",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1074.001",
+      "tactic": "collection",
+      "score": 0,
+      "color": "#8a8a8a",
+      "comment": "NOT COVERED - Local Data Staging. Advisory mentions in Stage 3 at partner orgs but not in 4x03 samples observed at MedDefense.",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1560.001",
+      "tactic": "collection",
+      "score": 0,
+      "color": "#8a8a8a",
+      "comment": "NOT COVERED - Archive via Utility. Not in captured samples.",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1070.001",
+      "tactic": "defense-evasion",
+      "score": 0,
+      "color": "#8a8a8a",
+      "comment": "NOT COVERED - Clear Windows Event Logs. No detection, no evidence.",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1112",
+      "tactic": "defense-evasion",
+      "score": 2,
+      "color": "#ffcf00",
+      "comment": "INFERRED - 4x03 sandbox shows Run-key registry write. Full scope of registry modification not mapped.",
+      "enabled": true
+    }
+  ],
+  "gradient": {
+    "colors": ["#ffffff", "#ffcf00", "#c40000"],
+    "minValue": 0,
+    "maxValue": 3
+  },
+  "showTacticRowBackground": false,
+  "selectTechniquesAcrossTactics": true,
+  "selectSubtechniquesWithParent": false,
+  "technique_count_summary": {
+    "total_in_threat_model": 29,
+    "observed": 16,
+    "inferred": 3,
+    "not_covered": 10,
+    "percent_observed": 55,
+    "percent_mapped": 66
+  },
+  "hunt_priorities_for_4x04": [
+    "T1003.001  LSASS memory dumping (credential access)",
+    "T1021.002  SMB/PsExec (lateral movement)",
+    "T1021.006  WinRM/PSRemoting (lateral movement)",
+    "T1047      WMI remote execution (lateral movement)",
+    "T1078.002  Service account abuse (valid accounts)",
+    "T1550.002  Pass-the-Hash (alternate auth material)",
+    "T1053.005  Scheduled Task persistence",
+    "T1070.001  Event log clearing"
+  ]
+}
