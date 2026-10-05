@@ -1,0 +1,217 @@
+================================================================================
+  MEDDEFENSE HEALTH SYSTEMS -- NETWORK TOPOLOGY AND HOST INVENTORY
+================================================================================
+  Document ID:       NET-TOPO-2026-05
+  Revision:          12  (maintained by Mike Torres, Network Engineer)
+  Effective date:    2026-05-01  (pre-dates hunt window)
+  Next review:       Quarterly or on significant change
+  Classification:    INTERNAL
+  Distribution:      SOC, IT Operations, Incident Response
+================================================================================
+
+
+PURPOSE
+-------
+
+This document describes the MedDefense Health Systems network layout,
+VLAN segmentation, authorized user-to-host assignments, and server roles.
+It is the authoritative reference for administrative baseline
+construction.  Every threat hunting activity that requires "who is
+authorized to access what" must cite this document.
+
+
+NETWORK SEGMENTATION
+--------------------
+
+  Segment          CIDR             Purpose                          VLAN
+  -------          ----             -------                          ----
+  Perimeter        10.10.0.0/24     Edge and infrastructure          1
+  Logging/SOC      10.10.1.0/24     SIEM, detection, monitoring      10
+  Clinical-North   10.10.2.0/24     Nurse/clinician workstations     20
+                                    (Westside Clinic, Floor 2)
+  Records          10.10.3.0/24     Medical records department        30
+  Billing/AP       10.10.4.0/24     Billing and accounts payable     40
+  IT Operations    10.10.9.0/24     IT administration                50
+  Servers          10.10.20.0/24    Domain, file, databases          100
+  Guest            10.10.50.0/24    Visitor Wi-Fi (isolated)         200
+
+Inter-VLAN traffic passes through FortiGate-EDGE (10.10.0.1).  Default
+policy is ALLOW between internal segments for specified protocols
+(SMB-445, WinRM-5985/5986, DNS-53, AD-88/389/445) with full session
+logging enabled on the server segment (10.10.20.0/24).
+
+
+PERIMETER
+---------
+
+  Host               IP            Role                     Operating System
+  FortiGate-EDGE     10.10.0.1     Perimeter firewall       FortiOS 7.4
+  SW-CORE-01         10.10.0.2     Core switch              Cisco IOS
+  SW-EDGE-01         10.10.0.10    Edge switch (floor 1)    Cisco IOS
+  SW-EDGE-02         10.10.0.11    Edge switch (floor 2)    Cisco IOS
+  SW-EDGE-03         10.10.0.12    Edge switch (servers)    Cisco IOS
+
+
+LOGGING AND SOC
+---------------
+
+  Host               IP            Role                     OS
+  log-srv-01         10.10.1.10    Wazuh manager + Suricata Ubuntu 22.04
+  log-srv-02         10.10.1.11    Wazuh indexer            Ubuntu 22.04
+  siem-console-01    10.10.1.20    SOC analyst console      Ubuntu 22.04
+  soc-nas-01         10.10.1.30    Evidence storage         Synology
+
+
+CLINICAL-NORTH (VLAN 20)
+------------------------
+
+  Host               IP            Authorized User(s)              OS
+  WS-NURSE-01        10.10.2.11    nurse01 floor 2                 Win10
+  WS-NURSE-02        10.10.2.12    nurse02 floor 2                 Win10
+  WS-NURSE-03        10.10.2.13    nurse03 floor 2                 Win10
+  WS-NURSE-04        10.10.2.15    Diane Marsh (dmarsh)            Win10
+                                   Westside Clinic nurse
+                                   [4x00 - phishing click
+                                    2026-04-14 15:02:33 CDT]
+  WS-NURSE-05        10.10.2.16    nurse05 floor 2                 Win10
+  WS-NURSE-06        10.10.2.17    nurse06 floor 2                 Win10
+  WS-DOC-01          10.10.2.30    Dr. Kapoor                      Win10
+  WS-DOC-02          10.10.2.31    Dr. Flores                      Win10
+
+
+RECORDS (VLAN 30)
+-----------------
+
+  Host               IP            Authorized User(s)              OS
+  WS-RECV-01         10.10.3.19    records01 (day shift)           Win10
+  WS-RECV-02         10.10.3.20    records02 (day shift)           Win10
+  WS-RECV-03         10.10.3.21    records03 (day shift)           Win10
+                                   -- SHARED workstation,
+                                   standard records intake
+                                   console
+  WS-RECV-04         10.10.3.22    records04 (evening shift)       Win10
+
+
+BILLING/AP (VLAN 40)
+--------------------
+
+  Host               IP            Authorized User(s)              OS
+  WS-BILL-01         10.10.4.30    Billing clerk 1                 Win10
+  WS-BILL-02         10.10.4.33    Linda Patterson (lpatterson)    Win10
+  WS-BILL-03         10.10.4.34    Billing clerk 3                 Win10
+  WS-AP-01           10.10.4.40    AP clerk 1                      Win10
+  WS-AP-07           10.10.4.41    Angela Rivera (arivera)         Win10
+
+
+IT OPERATIONS (VLAN 50)
+-----------------------
+
+  Host               IP            Authorized User(s)              OS
+  WS-ADMIN-01        10.10.9.10    Robert Kim (robert.kim)         Win10
+                                   -- SOLE IT administration
+                                   workstation.  All privileged
+                                   administrative operations
+                                   against the server segment
+                                   MUST originate here.
+  WS-ADMIN-02        10.10.9.11    Robert Kim (failover only)      Win10
+                                   -- NOT used for routine
+                                   administration.  Activated
+                                   only when WS-ADMIN-01 is
+                                   under patching or hardware
+                                   service.  Last logon:
+                                   2026-03-14 (cited in IT ops
+                                   quarterly review).
+  WS-HELPDESK-01     10.10.9.20    Help desk user                  Win10
+                                   (ticket handling, not admin)
+  WS-HELPDESK-02     10.10.9.21    Help desk user                  Win10
+
+
+SERVERS (VLAN 100)
+------------------
+
+  Host               IP            Role                             OS
+  SRV-DC-01          10.10.20.5    Domain controller               Win Srv 2019
+                                   (meddefense.local)
+                                   Holds: AD DS, DNS, NTP
+                                   Data sensitivity: CRITICAL
+                                   (auth material, Kerberos)
+  SRV-DC-02          10.10.20.6    DC replica                       Win Srv 2019
+                                   (standby, no logins routed)
+  SRV-HEALTH-DB      10.10.20.15   Patient health records DB       Win Srv 2019
+                                   MS-SQL 2019.
+                                   Service: health_sync (runs
+                                   as svc_healthsync)
+                                   Data sensitivity: CRITICAL
+                                   (PHI, HIPAA-protected)
+  SRV-INS-DB         10.10.20.25   Insurance claims DB             Win Srv 2019
+                                   MS-SQL 2019.
+                                   Service: ins_sync (runs as
+                                   svc_insurance)
+                                   Data sensitivity: HIGH
+                                   (PII + financial)
+  SRV-FILE-01        10.10.20.50   File server (shares)            Win Srv 2019
+                                   Service: backup agent (runs
+                                   as svc_backup)
+                                   Data sensitivity: MEDIUM
+                                   (departmental shares)
+  SRV-PATCH-01       10.10.20.60   WSUS / patch repository         Win Srv 2019
+                                   Service: patch deployment
+                                   (runs as svc_patchdeploy)
+                                   Data sensitivity: LOW
+  SRV-AV-01          10.10.20.70   Defender management             Win Srv 2019
+  SRV-BACKUP-01      10.10.20.80   Veeam backup server             Win Srv 2019
+
+
+GUEST (VLAN 200)
+----------------
+
+  Guest Wi-Fi.  Segregated from all internal segments by firewall.
+  Not relevant to this hunt.
+
+
+ADMINISTRATIVE AUTHORIZATION MATRIX
+------------------------------------
+
+The following is the ONLY legitimate administrative flow in the
+MedDefense environment.  Any administrative-tool execution that does
+NOT match this matrix is, by definition, anomalous and requires
+investigation.
+
+  Source host       User account           Target hosts (servers)
+  WS-ADMIN-01       MEDDEFENSE\robert.kim  SRV-DC-01, SRV-DC-02,
+                                           SRV-HEALTH-DB, SRV-INS-DB,
+                                           SRV-FILE-01, SRV-PATCH-01,
+                                           SRV-AV-01, SRV-BACKUP-01
+  WS-ADMIN-02       MEDDEFENSE\robert.kim  (failover only; see note)
+
+No other workstation is authorized to initiate:
+  - PsExec (psexec.exe, PsExec64.exe)
+  - WMIC remote process creation (wmic /node:... process call create)
+  - PowerShell Remoting (Enter-PSSession, Invoke-Command -ComputerName)
+  - Remote scheduled task creation (schtasks /S)
+  - Remote service creation (sc \\host create)
+
+Service accounts (svc_*) are NEVER authorized to logon interactively
+from a workstation host.  See reference/service_accounts.txt for the
+complete service account authorization matrix.
+
+
+KNOWN MAINTENANCE WINDOWS
+-------------------------
+
+Robert Kim's documented maintenance windows are published in
+reference/admin_schedule.txt.  Any administrative tool usage OUTSIDE
+those windows, even from WS-ADMIN-01 by robert.kim, is a candidate
+indicator and must be investigated.
+
+
+EMERGENCY CONTACT
+-----------------
+
+Network issues:        Mike Torres (Network Engineer), ext. 7421
+IT admin issues:       Robert Kim, ext. 7414
+Security escalation:   James Chen (SOC Lead), ext. 9401
+
+================================================================================
+END OF NETWORK TOPOLOGY DOCUMENT
+================================================================================
