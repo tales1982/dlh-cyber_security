@@ -1,0 +1,60 @@
+<!-- HEALTHBANE Stage 4 hunt-derived detection rules (4x04 Task 13) -->
+<!-- Draft rules only; no live Wazuh deployment performed. -->
+
+<group name="healthbane,stage4,lolbin,">
+
+  <rule id="100100" level="12">
+    <if_group>sysmon_event1</if_group>
+    <field name="win.eventdata.image" type="pcre2">(?i)psexec</field>
+    <field name="win.eventdata.commandLine" type="pcre2" negate="yes">(?i)^.{0,2000}$</field>
+    <options>no_full_log</options>
+    <description>PsExec execution detected -- verify source host and time against admin_schedule.txt baseline (WS-ADMIN-01, Mon-Fri 08:00-18:00 CDT)</description>
+    <mitre><id>T1021.002</id></mitre>
+  </rule>
+
+  <rule id="100101" level="14">
+    <if_group>sysmon_event_10</if_group>
+    <field name="win.eventdata.targetImage" type="pcre2">(?i)lsass\.exe$</field>
+    <field name="win.eventdata.sourceImage" type="pcre2" negate="yes">(?i)\\(csrss|services|svchost|MsMpEng|WmiPrvSE|wininit)\.exe$</field>
+    <options>no_full_log</options>
+    <description>LSASS memory access from a process outside the standard allowlist -- consistent with credential dumping</description>
+    <mitre><id>T1003.001</id></mitre>
+  </rule>
+
+  <rule id="100102" level="15">
+    <if_group>authentication_success</if_group>
+    <field name="win.eventdata.targetUserName" type="pcre2">(?i)^svc_</field>
+    <field name="win.eventdata.workstationName" type="pcre2">(?i)^WS-</field>
+    <options>no_full_log</options>
+    <description>Service account authenticated from a workstation host -- violates every entry in the service account authorization matrix (reference/service_accounts.txt)</description>
+    <mitre><id>T1078.002</id></mitre>
+  </rule>
+
+  <rule id="100103" level="13">
+    <if_group>sysmon_event1</if_group>
+    <field name="win.eventdata.parentImage" type="pcre2">(?i)WmiPrvSE\.exe$</field>
+    <field name="win.eventdata.image" type="pcre2">(?i)\\(cmd|powershell)\.exe$</field>
+    <options>no_full_log</options>
+    <description>WmiPrvSE.exe spawned a command shell -- per HC3-2026-HEALTHBANE-004, no legitimate baseline for this behavior exists in the MedDefense environment</description>
+    <mitre><id>T1047</id></mitre>
+  </rule>
+
+  <rule id="100104" level="13">
+    <if_group>sysmon_event1</if_group>
+    <field name="win.eventdata.parentImage" type="pcre2">(?i)wsmprovhost\.exe$</field>
+    <field name="win.eventdata.commandLine" type="pcre2">(?i)copy-item</field>
+    <options>no_full_log</options>
+    <description>File transfer (Copy-Item) observed inside a PSRemoting session landing on this host -- consistent with HC3 TTP 4.4 staging behavior</description>
+    <mitre><id>T1021.006</id></mitre>
+  </rule>
+
+  <rule id="100105" level="10">
+    <if_group>authentication_success</if_group>
+    <field name="win.eventdata.targetUserName" type="pcre2">(?i)^svc_</field>
+    <field name="win.eventdata.authenticationPackageName">NTLM</field>
+    <options>no_full_log</options>
+    <description>Service account authenticated via NTLM instead of the documented Kerberos-only policy -- consistent with (not proof of) pass-the-hash-style credential use</description>
+    <mitre><id>T1550.002</id></mitre>
+  </rule>
+
+</group>

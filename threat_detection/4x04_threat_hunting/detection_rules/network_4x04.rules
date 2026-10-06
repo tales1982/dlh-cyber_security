@@ -1,0 +1,11 @@
+# HEALTHBANE Stage 4 hunt-derived network detection rule (4x04 Task 13)
+# Draft only -- no live Suricata/network sensor deployment performed.
+
+alert tcp any any -> $SERVER_SEGMENT 445 (\
+  msg:"SMB lateral movement - PsExec service installation pattern from non-admin host"; \
+  flow:to_server,established; \
+  content:"|ff|SMB"; depth:8; \
+  content:"PSEXESVC"; nocase; distance:0; \
+  reference:url,hc3.hhs.gov/HEALTHBANE-004; \
+  classtype:attempted-admin; \
+  sid:9000030; rev:1;)
