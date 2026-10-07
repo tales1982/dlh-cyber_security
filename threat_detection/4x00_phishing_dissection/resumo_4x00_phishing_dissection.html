@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Resumo 4x00 - Phishing Dissection</title>
+<style>
+  @page { size: A4; margin: 16mm 16mm 18mm 16mm; }
+  body { font-family: "Segoe UI", "DejaVu Sans", Arial, sans-serif; font-size: 10.5pt; line-height: 1.5; color: #1f2933; margin: 0; }
+  header { border-bottom: 3px solid #1d4e89; padding-bottom: 8px; margin-bottom: 14px; }
+  .modulo { font-size: 9pt; letter-spacing: .08em; text-transform: uppercase; color: #1d4e89; font-weight: 700; }
+  h1 { font-size: 20pt; margin: 2px 0 4px; color: #102a43; }
+  .sub { color: #52606d; margin: 0; }
+  h2 { font-size: 13pt; color: #1d4e89; margin: 18px 0 6px; border-bottom: 1px solid #d9e2ec; padding-bottom: 3px; }
+  .box { background: #f0f4f8; border-left: 4px solid #1d4e89; padding: 8px 12px; margin: 8px 0; break-inside: avoid; }
+  .task { border: 1px solid #d9e2ec; border-left: 4px solid #2f80c3; border-radius: 4px; padding: 7px 11px; margin: 8px 0; break-inside: avoid; }
+  .task h3 { font-size: 11pt; margin: 0 0 3px; color: #102a43; }
+  .task p { margin: 2px 0; }
+  .rot { font-weight: 700; color: #334e68; }
+  ul { margin: 4px 0 4px 18px; padding: 0; }
+  li { margin: 2px 0; }
+  footer { margin-top: 16px; font-size: 8.5pt; color: #829ab1; border-top: 1px solid #d9e2ec; padding-top: 5px; }
+</style>
+</head>
+<body>
+<header>
+  <div class="modulo">Threat Detection · Módulo 4x00</div>
+  <h1>Phishing Dissection</h1>
+  <p class="sub">Resumo do módulo: o que estudamos, o que cada exercício pedia e o que era para aprender</p>
+</header>
+
+<h2>Contexto</h2>
+<p>O hospital fictício MedDefense Health Systems recebeu oito e-mails suspeitos entre 14 e 16 de abril de 2026. Uma enfermeira, Diane Marsh, clicou em um dos links. O módulo coloca você no papel do analista de SOC que precisa separar o que é legítimo do que é ataque, descobrir se os e-mails maliciosos fazem parte de uma mesma campanha e decidir se a usuária foi comprometida — tudo sem abrir links ou anexos, só lendo cabeçalhos, resultados de autenticação e evidências.</p>
+
+<div class="box"><span class="rot">Objetivo de aprendizado:</span> aprender a investigar phishing de forma segura e baseada em evidência — ler cabeçalhos SMTP, interpretar SPF/DKIM/DMARC, reconhecer engenharia social, extrair indicadores (IOCs) sem tocar neles, ligar vários e-mails a uma mesma campanha e transformar tudo isso num relatório útil para o time e para parceiros do setor.</div>
+
+<h2>O que cada exercício pedia</h2>
+
+<div class="task"><h3>0 · Triagem inicial</h3>
+<p><span class="rot">Pedido:</span> uma primeira passada nos 8 e-mails, classificando cada um (legítimo, suspeito, spam) com prioridade e evidência.</p>
+<p><span class="rot">Para que servia:</span> treinar a triagem rápida, a primeira coisa que um SOC faz ao receber vários alertas. O e-mail clicado (E2) já entra como prioridade máxima.</p></div>
+
+<div class="task"><h3>1 · Análise de cabeçalhos</h3>
+<p><span class="rot">Pedido:</span> ler a cadeia de cabeçalhos dos 4 e-mails suspeitos: remetente visível, Return-Path, IP de envio, programa de envio (X-Mailer), formato do Message-ID.</p>
+<p><span class="rot">Para que servia:</span> aprender que o remetente que aparece na tela pode ser falso, mas a infraestrutura de envio deixa rastros. Os quatro usavam a mesma ferramenta (PHPMailer 6.6.0), e essa "impressão digital" foi o que os ligou.</p></div>
+
+<div class="task"><h3>2 · Autenticação (SPF, DKIM, DMARC)</h3>
+<p><span class="rot">Pedido:</span> interpretar os três resultados de autenticação dos 8 e-mails e dar um veredito para cada um.</p>
+<p><span class="rot">Para que servia:</span> entender o que cada mecanismo prova e o que não prova. A lição principal: um domínio falso parecido com o real pode passar em tudo, porque ele autentica a si mesmo. Autenticação sozinha não basta.</p></div>
+
+<div class="task"><h3>3 · Engenharia social</h3>
+<p><span class="rot">Pedido:</span> identificar as alavancas psicológicas, o pretexto, a ação pedida e o nível de direcionamento de cada e-mail malicioso.</p>
+<p><span class="rot">Para que servia:</span> aprender a ler o ataque do ponto de vista humano: urgência, consequência e um link para um domínio parecido. Também separar ataque direcionado de ataque genérico.</p></div>
+
+<div class="task"><h3>4 · Autópsia de URLs e anexos</h3>
+<p><span class="rot">Pedido:</span> listar URLs, IPs e anexos de forma "desarmada" (defanged) e explicar como investigá-los com segurança.</p>
+<p><span class="rot">Para que servia:</span> praticar a regra de ouro: nunca abrir o link nem o anexo na própria máquina. O PDF da fatura, por exemplo, foi analisado só por metadados.</p></div>
+
+<div class="task"><h3>7 · Investigação do clique</h3>
+<p><span class="rot">Pedido:</span> avaliar o clique da Diane Marsh: o que é fato, o que é desconhecido, quais verificações fazer e como conter.</p>
+<p><span class="rot">Para que servia:</span> aprender a decidir sob incerteza. O clique foi confirmado, mas o impacto não; por isso a decisão foi tratar como possível vazamento de credencial.</p></div>
+
+<div class="task"><h3>8 · Matriz de veredito</h3>
+<p><span class="rot">Pedido:</span> dar o veredito final de cada e-mail e comparar com a triagem inicial.</p>
+<p><span class="rot">Para que servia:</span> mostrar como a análise refina a primeira impressão. A triagem acertou o básico, mas não conseguia separar phishing direcionado de oportunista.</p></div>
+
+<div class="task"><h3>9 · Fio da campanha</h3>
+<p><span class="rot">Pedido:</span> cruzar indicadores, alvos e horários dos e-mails e comparar com o alerta do HC3 (órgão de saúde dos EUA).</p>
+<p><span class="rot">Para que servia:</span> aprender a ligar eventos isolados a uma campanha coordenada, com nível de confiança declarado, sem afirmar quem é o atacante.</p></div>
+
+<div class="task"><h3>11 · Extração de IOCs</h3>
+<p><span class="rot">Pedido:</span> uma tabela estruturada com 33 indicadores, por fase do ataque, separando os seguros de bloquear dos que servem só de contexto.</p>
+<p><span class="rot">Para que servia:</span> entender que nem todo indicador pode virar bloqueio: alguns causariam falsos positivos e só servem para correlação.</p></div>
+
+<div class="task"><h3>13 · Relatório final</h3>
+<p><span class="rot">Pedido:</span> juntar tudo num relatório para o líder do SOC e para o HC3: resumo executivo, linha do tempo, vereditos, campanha, clique, IOCs, lacunas e recomendações em 24h, 7 dias e 30 dias.</p>
+<p><span class="rot">Para que servia:</span> praticar a comunicação: transformar uma investigação técnica em algo que gestores e parceiros consigam usar.</p></div>
+
+<h2>O que ficou de lição</h2>
+<ul>
+  <li>Toda conclusão precisa citar uma evidência específica.</li>
+  <li>Segurança do analista vem primeiro: nada de clicar ou abrir anexo.</li>
+  <li>SPF/DKIM/DMARC ajudam, mas não detectam domínios parecidos que se autenticam.</li>
+  <li>A ferramenta do atacante (o "como") liga e-mails melhor do que IPs e domínios, que mudam.</li>
+  <li>Inconsistências nos dados (horários, datas) devem ser anotadas, não escondidas.</li>
+</ul>
+
+<footer>dlh-cyber_security · threat_detection/4x00_phishing_dissection</footer>
+</body>
+</html>

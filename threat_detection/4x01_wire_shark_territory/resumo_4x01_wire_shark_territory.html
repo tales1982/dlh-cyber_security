@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Resumo 4x01 - Wire Shark Territory</title>
+<style>
+  @page { size: A4; margin: 16mm 16mm 18mm 16mm; }
+  body { font-family: "Segoe UI", "DejaVu Sans", Arial, sans-serif; font-size: 10.5pt; line-height: 1.5; color: #1f2933; margin: 0; }
+  header { border-bottom: 3px solid #1d4e89; padding-bottom: 8px; margin-bottom: 14px; }
+  .modulo { font-size: 9pt; letter-spacing: .08em; text-transform: uppercase; color: #1d4e89; font-weight: 700; }
+  h1 { font-size: 20pt; margin: 2px 0 4px; color: #102a43; }
+  .sub { color: #52606d; margin: 0; }
+  h2 { font-size: 13pt; color: #1d4e89; margin: 18px 0 6px; border-bottom: 1px solid #d9e2ec; padding-bottom: 3px; }
+  .box { background: #f0f4f8; border-left: 4px solid #1d4e89; padding: 8px 12px; margin: 8px 0; break-inside: avoid; }
+  .task { border: 1px solid #d9e2ec; border-left: 4px solid #2f80c3; border-radius: 4px; padding: 7px 11px; margin: 8px 0; break-inside: avoid; }
+  .task h3 { font-size: 11pt; margin: 0 0 3px; color: #102a43; }
+  .task p { margin: 2px 0; }
+  .rot { font-weight: 700; color: #334e68; }
+  ul { margin: 4px 0 4px 18px; padding: 0; }
+  li { margin: 2px 0; }
+  footer { margin-top: 16px; font-size: 8.5pt; color: #829ab1; border-top: 1px solid #d9e2ec; padding-top: 5px; }
+</style>
+</head>
+<body>
+<header>
+  <div class="modulo">Threat Detection · Módulo 4x01</div>
+  <h1>Wire Shark Territory</h1>
+  <p class="sub">Resumo do módulo: o que estudamos, o que cada exercício pedia e o que era para aprender</p>
+</header>
+
+<h2>Contexto</h2>
+<p>É a continuação do 4x00. O mesmo incidente do MedDefense, mas agora investigado pelo tráfego de rede (capturas de pacotes .pcap) em vez dos e-mails. Seguimos o atacante passo a passo: o clique no phishing, o canal de comando e controle (C2), a entrada por VPN, o movimento lateral até os servidores e a saída de dados escondida dentro de consultas DNS.</p>
+
+<div class="box"><span class="rot">Objetivo de aprendizado:</span> aprender forense de rede: definir o que é tráfego "normal", reconhecer padrões de ataque nos pacotes (clique, beaconing, túnel DNS, RDP/SMB lateral, VPN suspeita), montar a linha do tempo do ataque, propor regras de detecção e, principalmente, saber o que um pcap consegue provar e o que ele não consegue.</div>
+
+<h2>O que cada exercício pedia</h2>
+
+<div class="task"><h3>0 · Baseline do tráfego normal</h3>
+<p><span class="rot">Pedido:</span> perfilar o segmento clínico: protocolos, aplicações, quem mais fala, DNS, duração de conexões, TLS e volume ao longo do tempo, salvando tudo como referência.</p>
+<p><span class="rot">Para que servia:</span> aprender que só dá para achar o anormal depois de saber o que é normal. Os exercícios seguintes comparam contra essa base.</p></div>
+
+<div class="task"><h3>1 · O clique no phishing</h3>
+<p><span class="rot">Pedido:</span> reconstruir, pacote por pacote, o momento do clique: a consulta DNS ao domínio falso, a conexão TCP e o início do TLS.</p>
+<p><span class="rot">Para que servia:</span> ligar a evidência de e-mail (4x00) à evidência de rede, e aprender a tirar conclusões só de metadados (tamanho dos pacotes) deixando claro que é inferência.</p></div>
+
+<div class="task"><h3>3 · Túnel DNS</h3>
+<p><span class="rot">Pedido:</span> confirmar e caracterizar a exfiltração por DNS a partir de um servidor de faturamento: tipo de registro, intervalo, tamanho e codificação dos subdomínios, tentativa de decodificar e estimativa de bytes roubados.</p>
+<p><span class="rot">Para que servia:</span> entender como dados saem escondidos em consultas DNS (Base32 nos subdomínios) e como estimar o volume roubado, sem inventar resultado quando a decodificação falha.</p></div>
+
+<div class="task"><h3>4 · Movimento lateral</h3>
+<p><span class="rot">Pedido:</span> rastrear o atacante da estação clínica até os servidores via RDP e SMB, classificando cada tentativa como sucesso, negada ou recusada.</p>
+<p><span class="rot">Para que servia:</span> aprender a ler tentativas de acesso pelos pacotes (quantidade, quem responde com reset) e a mapear cada passo para técnicas do MITRE ATT&amp;CK.</p></div>
+
+<div class="task"><h3>5 · Pivô via VPN</h3>
+<p><span class="rot">Pedido:</span> identificar a sessão de VPN externa usada pelo atacante, consultar a origem do IP e correlacionar com o primeiro RDP.</p>
+<p><span class="rot">Para que servia:</span> aprender a correlacionar eventos pelo tempo e a escrever uma seção de limitações: o que vale só para esse laboratório não funcionaria com tráfego criptografado real.</p></div>
+
+<div class="task"><h3>6 · Kill chain</h3>
+<p><span class="rot">Pedido:</span> juntar todos os achados numa linha do tempo de 7 fases, com tempo total de permanência do atacante e os pontos de pivô.</p>
+<p><span class="rot">Para que servia:</span> enxergar o ataque inteiro, não só peças soltas, e avaliar quanto de cada fase é realmente visível nos pacotes.</p></div>
+
+<div class="task"><h3>7 · Regras de detecção</h3>
+<p><span class="rot">Pedido:</span> propor 6 regras (beaconing, DNS anômalo, VPN geográfica, RDP entre funções, túnel DNS, TLS para domínio parecido), cada uma com lógica, fonte de dados, teste e falsos positivos esperados.</p>
+<p><span class="rot">Para que servia:</span> transformar investigação em prevenção, e aprender que toda regra precisa dizer de onde vêm os dados e que ruído ela vai gerar.</p></div>
+
+<div class="task"><h3>8 · Checagem cruzada de evidência</h3>
+<p><span class="rot">Pedido:</span> reavaliar cada fase com uma régua mais rígida: confirmado, inferência forte ou não visível, com um score de visibilidade.</p>
+<p><span class="rot">Para que servia:</span> praticar honestidade de evidência. A lição central: pacotes mostram o que foi enviado e quando; logs mostram o que o sistema decidiu. Uma investigação real precisa dos dois.</p></div>
+
+<div class="task"><h3>11 · Relatório de forense de rede</h3>
+<p><span class="rot">Pedido:</span> um relatório final juntando todos os achados, cruzado com o relatório de e-mail do 4x00.</p>
+<p><span class="rot">Para que servia:</span> mostrar que os dois módulos investigam o mesmo incidente com dois tipos de evidência, o que fortalece as conclusões.</p></div>
+
+<h2>O que ficou de lição</h2>
+<ul>
+  <li>Sem baseline, não existe "anormal".</li>
+  <li>Metadados (tamanho, tempo, frequência) revelam muito mesmo com tráfego criptografado.</li>
+  <li>Beaconing em intervalo regular e subdomínios longos codificados são sinais fortes de C2 e exfiltração.</li>
+  <li>Nunca inventar um achado que a captura não sustenta: lacuna honesta é melhor que história bonita.</li>
+  <li>Rede e logs se complementam; nenhum dos dois prova tudo sozinho.</li>
+</ul>
+
+<footer>dlh-cyber_security · threat_detection/4x01_wire_shark_territory</footer>
+</body>
+</html>
