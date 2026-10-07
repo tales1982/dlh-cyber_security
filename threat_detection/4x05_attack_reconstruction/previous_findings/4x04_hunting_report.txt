@@ -1,0 +1,350 @@
+================================================================================
+  4x04 -- PROACTIVE THREAT HUNT : INVESTIGATION SUMMARY
+  HEALTHBANE Stage 4 Lateral Movement and Credential Access
+================================================================================
+  Original investigation:  Project 4x04 (Week 15-16)
+  Hunt window:             2026-05-04 through 2026-05-18 (14 days)
+  Hunt initiated:           2026-05-18 09:00 CDT
+                            (triggered by HHS HC3 advisory
+                             HC3-2026-HEALTHBANE-004 issued
+                             2026-05-17 describing Stage 4
+                             observed at peer organizations)
+  Lead analyst:            [student] - reviewed by James Chen
+  IR escalation issued:    2026-05-18 17:30 CDT for WS-RECV-03
+  Approver:                Dr. Patricia Morales (CISO)
+  This consolidated summary prepared:  2026-05-18
+================================================================================
+
+PURPOSE OF THIS DOCUMENT
+------------------------
+This summary documents the 4x04 hypothesis-driven hunt for HEALTHBANE
+Stage 4 activity in MedDefense SIEM data spanning the previous 14
+days.  It is the direct trigger for the 4x05 incident response /
+attack reconstruction.
+
+The hunt operated on a single SIEM dataset (Wazuh alerts JSONL +
+raw Sysmon JSONL), supplemented by Robert Kim's normal-activity
+baseline (admin maintenance schedule) and the service-account
+authorization matrix.
+
+The hunt did NOT have access to: live memory, current disk
+contents, firewall session logs.  Those data sources are the
+4x05 evidence inputs that the hunt expected the IR team to
+collect after isolation.
+
+
+HUNT HYPOTHESES
+---------------
+
+H1.  PsExec usage from a non-administrative source host.
+     Rationale: Stage 4 in HC3-004 describes PsExec lateral
+     movement from compromised user workstations.  Robert Kim
+     uses PsExec from WS-ADMIN-01 only; any other source is
+     anomalous.
+
+H2.  WMI remote execution from a non-administrative host
+     (parent process wmiprvse.exe).
+     Rationale: same advisory, alternative LOLBin path.
+
+H3.  PowerShell Remoting (Enter-PSSession / Invoke-Command)
+     from a non-administrative host.
+     Rationale: same advisory, third LOLBin path.
+
+H4.  LSASS process access (Sysmon EID 10) from a non-system,
+     non-EDR process.
+     Rationale: HC3-004 describes credential theft via LSASS
+     dumping prior to Stage 4 service-account abuse.
+
+H5.  Service account (svc_*) authentication from a workstation
+     source (WorkstationName starting with WS-) or with
+     LogonType in (2, 10, 11), or with NTLM authentication
+     package.
+     Rationale: per service-account matrix, all six MedDefense
+     service accounts are server-bound and Kerberos-only;
+     workstation source / interactive logon / NTLM is by
+     definition unauthorized.
+
+
+HUNT QUERIES AND RESULTS
+========================
+
+H1 - PsExec from non-admin source
+---------------------------------
+Query (jq pseudocode against wazuh_raw_sysmon_14d.json):
+  rule.id == "61603"
+  AND data.win.eventdata.image MATCHES "(?i)\\\\PsExec(64)?\\.exe$"
+  AND agent.name DOES NOT MATCH "^WS-ADMIN-"
+
+Total matches:           6
+Source host:             WS-RECV-03 (10.10.3.21) -- SOLE source
+Target hosts (per cmdline /node:... or destination of follow-on
+network connection):
+  SRV-HEALTH-DB    3 events
+  SRV-INS-DB       2 events
+  SRV-DC-01        1 event
+User context:            MEDDEFENSE\records03 (as logged-in user
+                         on WS-RECV-03)
+Credential PASSED via PsExec (-u flag):  svc_healthsync
+                         (this is the credential being passed
+                         to the target host; the local user
+                         on WS-RECV-03 was records03)
+Timing:                  All 6 events occur 02:00-03:30 CDT
+                         (offhours by Robert Kim's schedule)
+Authorized?              NO -- per the service-account matrix,
+                         svc_healthsync may not be invoked from
+                         any workstation, and per Robert Kim's
+                         maintenance schedule, no admin tooling
+                         runs from WS-RECV-03 ever.
+
+H1 RESULT: CONFIRMED Stage 4 activity. 6/6 events anomalous.
+
+H2 - WMI from non-admin source
+------------------------------
+Query: Sysmon EID 1 with parentImage matching wmiprvse.exe AND
+       agent.name not matching WS-ADMIN.
+
+Total matches:           5
+Source host:             WS-RECV-03 -- SOLE source
+Targets:                 SRV-HEALTH-DB (3), SRV-INS-DB (2)
+Commands:                Mostly cmd.exe spawned for "dir
+                         \\target\C$\Windows\Temp\" reconnaissance
+                         and "sc query" service enumeration
+Timing:                  Same off-hours window as H1
+User:                    records03
+
+H2 RESULT: CONFIRMED Stage 4 activity. 5/5 events anomalous.
+
+H3 - PSRemoting from non-admin source
+-------------------------------------
+Query: Sysmon EID 1 with image matching wsmprovhost.exe OR
+       commandLine matching Enter-PSSession / Invoke-Command,
+       agent.name not matching WS-ADMIN.
+
+Total matches:           4
+Source host:             WS-RECV-03 -- SOLE source
+Targets:                 SRV-HEALTH-DB (2), SRV-INS-DB (1),
+                         SRV-DC-01 (1)
+Activity on target:      Get-ChildItem in patient-record paths
+                         on SRV-HEALTH-DB, Copy-Item of
+                         sync_healthdata.ps1 -> stage1.ps1 on
+                         SRV-HEALTH-DB, Get-ADUser enumeration
+                         on SRV-DC-01 (read-only AD recon).
+
+H3 RESULT: CONFIRMED Stage 4 activity. 4/4 events anomalous.
+
+H4 - LSASS access by non-system process
+---------------------------------------
+Query: Sysmon EID 10, sourceImage NOT in legitimate set
+       (lsass.exe, MsMpEng.exe, svchost.exe under SYSTEM,
+       services.exe).
+
+Total matches:           2
+Source process:          C:\Windows\Temp\debug_tool.exe
+Source host:             WS-RECV-03 -- SOLE source
+Target process:          C:\Windows\System32\lsass.exe (PID 648)
+GrantedAccess:           0x1010 (PROCESS_VM_READ |
+                                  PROCESS_QUERY_LIMITED_INFORMATION)
+Source user:             MEDDEFENSE\records03
+Timestamps:              2026-05-05 03:22 CDT  (08:22 UTC)
+                         2026-05-12 02:45 CDT  (07:45 UTC)
+File output:             C:\Windows\Temp\out.dat (Sysmon EID 11)
+
+H4 RESULT: CONFIRMED credential dump. 2 sessions, 7 days apart.
+The second dump may indicate the attacker re-acquired credentials
+after a rotation event (or after suspecting their original
+credential was revoked).
+
+H5 - Service-account auth from workstation / interactive / NTLM
+---------------------------------------------------------------
+Query: Windows event 4624, targetUserName matching ^svc_,
+       AND (workstationName matching ^WS- OR logonType in
+       {2,10,11} OR authenticationPackageName == "NTLM").
+
+Total matches:           6 unauthorized auth events
+TargetUserName:          svc_healthsync (5 events)
+                         svc_healthsync (1 event on SRV-DC-01 as
+                         target, paired with H3 PSRemoting)
+WorkstationName:         WS-RECV-03 (all 6)
+LogonType:               3 (Network)
+AuthenticationPackage:   NTLM (all 6) -- VIOLATES RULE 3 of the
+                         service-account matrix (svc_* must use
+                         Kerberos)
+Targets:                 SRV-HEALTH-DB (3), SRV-INS-DB (2),
+                         SRV-DC-01 (1)
+Timestamps:              All within the H1 / H2 / H3 sessions
+                         (within seconds of the corresponding
+                         tool invocation)
+
+H5 RESULT: CONFIRMED service-account abuse. The NTLM
+authentication on a Kerberos-only account is consistent with
+pass-the-hash (T1550.002).  The hunt cannot prove pass-the-hash
+without LSASS dump correlation, BUT H4 provided that
+correlation: debug_tool.exe dumped LSASS approximately 23 hours
+before the first lateral movement event, and again before the
+second wave.  This is the canonical pass-the-hash chain.
+
+
+CHRONOLOGICAL SUMMARY (HUNT-OBSERVED)
+=====================================
+
+2026-05-05  03:22 CDT  Credential dump #1 (debug_tool.exe -> LSASS
+                       -> out.dat) on WS-RECV-03.
+2026-05-06  02:12 CDT  PsExec session #1: WS-RECV-03 -> SRV-HEALTH-DB
+                       (svc_healthsync via NTLM, off-hours).
+                       Subsequent activity: WMI dir/sc query,
+                       Enter-PSSession, Copy-Item of exfiltrator.
+2026-05-09  03:40 CDT  PsExec session #2: WS-RECV-03 -> SRV-INS-DB
+                       (svc_healthsync via NTLM).  WMI + PSRemoting
+                       follow-on.
+2026-05-12  02:45 CDT  Credential dump #2 (re-dump of LSASS).
+2026-05-13  01:56 CDT  PsExec session #3: WS-RECV-03 -> SRV-DC-01
+                       (svc_healthsync via NTLM).  PSRemoting +
+                       Get-ADUser enumeration.
+
+(All times above are in CDT; UTC is +5h during DST.)
+
+
+BEHAVIORAL ANOMALIES vs ROBERT KIM BASELINE
+===========================================
+
+The 4x04 baseline (`baseline/robert_kim_activity.json`) characterized
+Robert Kim's recurring admin maintenance over the same 14-day window:
+
+  Robert's PsExec count:        44 events
+  Anomalous PsExec count:        6 events  (NEVER overlap with
+                                            Robert's source host or
+                                            timing)
+  Robert's WMI count:           31 events
+  Anomalous WMI count:           5 events
+  Robert's PSRemoting count:    18 events
+  Anomalous PSRemoting count:    4 events
+
+Differences:
+  Source:    Robert from WS-ADMIN-01 only.  Anomalies from WS-RECV-03.
+  User:      Robert as MEDDEFENSE\robert.kim.  Anomalies as
+             records03 (running tool) but PASSING svc_healthsync
+             credential.
+  Time:      Robert during 09:00-17:00 CDT business hours on
+             scheduled days.  Anomalies at 01:00-04:00 CDT
+             (overnight).
+  Auth:      Robert uses Kerberos to all targets.  Anomalies use
+             NTLM exclusively.
+  Tools:     Robert uses Microsoft-signed PsExec (PsExec.exe),
+             Sysinternals build.  Anomalies use PsExec64.exe with
+             a different signature thumbprint (still the
+             Sysinternals binary but the 64-bit variant; Robert
+             always uses the 32-bit alias).
+
+
+REMAINING GAPS AT END OF 4x04
+==============================
+
+  Persistence:     The hunt did not query for scheduled-task
+                   creation events (no schtasks.exe parent in the
+                   hunt scope, and Sysmon was not configured to
+                   capture event IDs 4698 or 4702).  Open
+                   hypothesis for IR memory / disk forensics.
+
+  Data staging:    No file-creation events were queried in
+                   C:\Users\Public\* or C:\Windows\Temp\ on
+                   WS-RECV-03.  Open hypothesis for IR disk
+                   forensics.
+
+  Anti-forensics:  No queries for log gaps or wevtutil cl events.
+                   Open hypothesis for IR.
+
+  Secondary C2:    The hunt did not have firewall session logs to
+                   correlate against.  HC3-004 mentions a
+                   "secondary C2 channel on a non-standard port"
+                   that may have been deployed during Stage 4 at
+                   peer victims.  Hunt could not search for it
+                   (no port-level visibility from Wazuh agents
+                   beyond DNS).  Open hypothesis for IR firewall
+                   analysis.
+
+  SRV-HEALTH-DB
+  data interaction: The hunt confirmed access to SRV-HEALTH-DB
+                   but could not confirm whether SQL queries
+                   actually returned patient records (Wazuh
+                   does not log SQL statements unless SQL Server
+                   audit is enabled, which it is not at the
+                   time of the hunt).  Open hypothesis for IR
+                   disk forensics on the database server (out of
+                   scope for 4x04 -- 4x05 IR scope is WS-RECV-03
+                   only, so this question may remain partially
+                   unresolved).
+
+
+DETECTION RULES DEPLOYED AFTER 4x04
+-----------------------------------
+  [R1]  wlb_ntlm_offhours: alert when target_user matches ^svc_
+        AND auth_package = NTLM AND time-of-day not in business
+        hours.
+  [R2]  wlb_psexec_nonadmin_source: alert when image matches
+        psexec.*.exe AND source host not in admin-PAW set.
+  [R3]  wlb_lsass_nonsystem: alert when Sysmon EID 10 sourceImage
+        not in known-good set AND grantedAccess includes 0x10.
+  [R4]  wlb_svc_workstation: alert when 4624 with target_user
+        ^svc_ AND workstation_name matches ^WS-.
+
+These rules are now feeding 4x05 IR triage.
+
+
+ATT&CK MAPPING (CONTRIBUTION OF 4x04)
+-------------------------------------
+Upgraded from NOT COVERED to OBSERVED:
+  T1003.001  LSASS Memory                      (debug_tool.exe)
+  T1021.002  SMB / Windows Admin Shares        (PsExec)
+  T1021.006  PowerShell Remoting               (Enter-PSSession)
+  T1047      WMI                               (wmiprvse.exe)
+  T1078.002  Domain Account                    (svc_healthsync)
+  T1550.002  Pass-the-Hash                     (NTLM on Kerberos
+                                                 service account)
+
+Coverage moves from 55% to 80% (16/29 to 23/29).
+
+
+HUNT REPORT RECOMMENDATIONS (TRIGGER FOR 4x05)
+==============================================
+
+  R1.  IMMEDIATE: Isolate WS-RECV-03.  Capture volatile memory
+       BEFORE shutdown.  Image disk before re-imaging the host.
+  R2.  IMMEDIATE: Rotate svc_healthsync credentials.  Audit
+       SRV-HEALTH-DB for unauthorized SELECT activity.
+  R3.  IMMEDIATE: Pull 14 days of firewall session logs for the
+       WS-RECV-03 segment.
+  R4.  IMMEDIATE: Pull 14 days of authentication logs for any
+       svc_* account from any source.
+  R5.  Within 48h: Reconstruct the full attack chain integrating
+       hunt findings with IR evidence and prior project outputs
+       (4x00, 4x01, 4x02, 4x03).  This is project 4x05.
+
+R1-R3 were initiated 2026-05-15.  WS-RECV-03 was isolated at
+13:42 CDT.  Memory was captured at 14:18 CDT and disk imaging
+completed at 19:45 CDT.  Firewall logs were exported by Mike
+Torres on 2026-05-16 at 09:00 CDT.
+
+R5 is now in progress (this is the 4x05 reconstruction).
+
+
+NOTES FOR 4x05 RECONSTRUCTION
+-----------------------------
+  - 4x04 is authoritative for the lateral-movement and
+    credential-access timeline at the host-event level.  Its
+    timestamps come from Sysmon and 4624 events on WS-RECV-03,
+    which are HIGH-reliability primary sources.
+  - 4x04 found exactly 21 anomalous events (6 PsExec + 5 WMI +
+    4 PSRemoting + 2 LSASS + 6 service-account auths -- with
+    overlap, the unique attack-chain events number ~ 17).  These
+    are the 4x04 contribution to the unified timeline.
+  - The hunt deliberately did NOT touch persistence, data staging,
+    or anti-forensics.  Any techniques in those categories that
+    appear in 4x05 evidence are NEW relative to 4x04 and should
+    be marked accordingly in the final ATT&CK layer.
+  - WS-RECV-03 is the SINGLE pivot host across all 21 anomalous
+    events.  No other workstation showed any Stage 4 activity in
+    the hunt window.  This focuses the IR scope tightly on a
+    single host -- a luxury most real-world hunts do not have.
+================================================================================
+END OF SUMMARY
+================================================================================

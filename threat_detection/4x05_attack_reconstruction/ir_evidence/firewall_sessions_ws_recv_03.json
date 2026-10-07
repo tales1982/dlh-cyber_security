@@ -1,0 +1,485 @@
+{
+  "metadata": {
+    "source": "MedDefense perimeter firewall (Palo Alto PA-3220)",
+    "export_format": "Session log JSON, abridged for IR",
+    "exported_by": "Mike Torres (Network Engineering)",
+    "export_timestamp": "2026-05-16T14:00:00Z",
+    "export_method": "PAN-OS REST API /api/?type=log&log-type=traffic",
+    "filter_applied": "src_ip == '10.10.3.21' OR dst_ip == '10.10.3.21'",
+    "time_range_utc": {
+      "start": "2026-05-02T00:00:00Z",
+      "end":   "2026-05-15T19:42:00Z"
+    },
+    "host_of_interest": "WS-RECV-03 (10.10.3.21)",
+    "vlan": "VLAN-3 (records department, 10.10.3.0/24)",
+    "_notes": [
+      "This file is abridged for incident-response analysis. The raw firewall log",
+      "contains 39 412 sessions involving 10.10.3.21 over the 14-day window.",
+      "The sessions reproduced below are: (1) all sessions to non-RFC1918",
+      "destinations, (2) all cross-VLAN sessions to the 10.10.20.0/24 server",
+      "segment, (3) all DNS sessions to non-internal resolvers, (4) representative",
+      "samples of benign internal traffic for baseline.",
+      "The full export is preserved in IR-FW-EXPORT-2026-05-16.json (1.8 GB).",
+      "Firewall timestamps are 4 seconds AHEAD of PCAP timestamps and Wazuh ",
+      "timestamps because the firewall stamps the SYN at policy-decision time,",
+      "while host-side captures stamp at packet receipt. Use firewall ts as",
+      "authoritative for connection initiation per the 4x01 reconciliation note."
+    ],
+    "session_count_in_export": 168,
+    "iocs_relevant": [
+      "HB-IOC-0008  185.220.101.45         (sync, update HEALTHBANE C2)",
+      "HB-IOC-0009  185.220.101.46         (data-sync DNS exfil)",
+      "HB-IOC-NEW-001  203.0.113.47:8443   (secondary C2; THIS EXPORT)",
+      "Internal pivot targets:",
+      "  10.10.20.30  SRV-HEALTH-DB",
+      "  10.10.20.31  SRV-INS-DB",
+      "  10.10.20.10  SRV-DC-01",
+      "  10.10.20.40  SRV-FILE-01"
+    ],
+    "field_definitions": {
+      "session_id": "Sequential firewall session identifier",
+      "ts_start": "Session start (firewall SYN timestamp), UTC ISO 8601",
+      "ts_end":   "Session end (FIN or last keepalive), UTC ISO 8601",
+      "duration_sec": "Session duration in seconds",
+      "src_ip / src_port": "Initiating endpoint",
+      "dst_ip / dst_port": "Receiving endpoint",
+      "proto": "L4 protocol",
+      "app": "PA-detected application (App-ID)",
+      "action": "ALLOW or DENY",
+      "rule": "Firewall rule that matched",
+      "bytes_in":  "Bytes from server to client (downstream)",
+      "bytes_out": "Bytes from client to server (upstream)",
+      "packets_in / packets_out": "Packet counts",
+      "classification": "Analyst tag - BENIGN, BROWSING, INTERNAL, KNOWN_C2, SECONDARY_C2_HYPOTHESIS, EXFIL_BURST, LATERAL_MOVEMENT"
+    }
+  },
+
+  "sessions": [
+    {
+      "_section": "===== EARLY WINDOW: 2026-05-02 to 2026-05-04, baseline pattern =====",
+      "_note": "Steady-state C2 beaconing only.  No lateral movement, no exfil yet."
+    },
+    {
+      "session_id": 1041829314,
+      "ts_start": "2026-05-02T08:14:08Z",
+      "ts_end":   "2026-05-02T08:14:08Z",
+      "duration_sec": 0,
+      "src_ip": "10.10.3.21",   "src_port": 49874,
+      "dst_ip": "10.10.20.10",  "dst_port": 53,
+      "proto": "udp",  "app": "dns",
+      "action": "ALLOW", "rule": "internal-dns-out",
+      "bytes_in": 84, "bytes_out": 36,
+      "packets_in": 1, "packets_out": 1,
+      "classification": "BENIGN"
+    },
+    {
+      "session_id": 1041829418,
+      "ts_start": "2026-05-02T08:14:08Z",
+      "ts_end":   "2026-05-02T08:14:14Z",
+      "duration_sec": 6,
+      "src_ip": "10.10.3.21",   "src_port": 50104,
+      "dst_ip": "185.220.101.45", "dst_port": 443,
+      "proto": "tcp",  "app": "ssl",
+      "action": "ALLOW", "rule": "users-to-internet-https",
+      "bytes_in": 596, "bytes_out": 1042,
+      "packets_in": 7, "packets_out": 8,
+      "classification": "KNOWN_C2",
+      "_note": "Daily ~ 5-min HEALTHBANE C2 beacon to sync.healthbane-c2.net.  This 5-min beacon repeats ~ 288 times per day; only the FIRST and a representative sample per day are reproduced in this abridged export."
+    },
+    {
+      "session_id": 1041829841,
+      "ts_start": "2026-05-02T08:19:11Z",
+      "ts_end":   "2026-05-02T08:19:17Z",
+      "duration_sec": 6,
+      "src_ip": "10.10.3.21",   "src_port": 50108,
+      "dst_ip": "185.220.101.45", "dst_port": 443,
+      "proto": "tcp",  "app": "ssl",
+      "action": "ALLOW", "rule": "users-to-internet-https",
+      "bytes_in": 596, "bytes_out": 1042,
+      "packets_in": 7, "packets_out": 8,
+      "classification": "KNOWN_C2"
+    },
+    {
+      "_note_aggregate": "[286 additional KNOWN_C2 beacons on 2026-05-02 omitted; pattern is constant.  Total bytes_in for 2026-05-02 KNOWN_C2: 171 936 ; bytes_out: 300 154]"
+    },
+    {
+      "session_id": 1041848712,
+      "ts_start": "2026-05-02T13:42:18Z",
+      "ts_end":   "2026-05-02T13:42:21Z",
+      "duration_sec": 3,
+      "src_ip": "10.10.3.21",   "src_port": 50298,
+      "dst_ip": "10.10.20.40",  "dst_port": 445,
+      "proto": "tcp",  "app": "ms-ds-smbv3",
+      "action": "ALLOW", "rule": "users-to-fileshare",
+      "bytes_in": 14823, "bytes_out": 8412,
+      "packets_in": 28, "packets_out": 24,
+      "classification": "BENIGN",
+      "_note": "records03 mounting H: drive on SRV-FILE-01.  Daily morning routine."
+    },
+    {
+      "session_id": 1041851922,
+      "ts_start": "2026-05-02T14:11:32Z",
+      "ts_end":   "2026-05-02T14:14:52Z",
+      "duration_sec": 200,
+      "src_ip": "10.10.3.21",   "src_port": 50412,
+      "dst_ip": "172.217.14.78", "dst_port": 443,
+      "proto": "tcp",  "app": "ssl",
+      "action": "ALLOW", "rule": "users-to-internet-https",
+      "bytes_in": 1428901, "bytes_out": 84221,
+      "packets_in": 1041, "packets_out": 814,
+      "classification": "BROWSING",
+      "_note": "Google services -- records03 Gmail / Maps."
+    },
+
+    { "_section": "===== 2026-05-04: defender exclusion event reflected only in registry =====" },
+    {
+      "_note_aggregate": "[Daily KNOWN_C2 beacon pattern continues unchanged.  Total bytes_in for 2026-05-04 KNOWN_C2: 171 936 ; bytes_out: 300 154]"
+    },
+
+    { "_section": "===== 2026-05-05: FIRST CREDENTIAL DUMP (host event, no obvious firewall change) =====" },
+    {
+      "session_id": 1042103817,
+      "ts_start": "2026-05-05T08:22:14Z",
+      "ts_end":   "2026-05-05T08:22:42Z",
+      "duration_sec": 28,
+      "src_ip": "10.10.3.21",   "src_port": 49892,
+      "dst_ip": "185.220.101.45", "dst_port": 443,
+      "proto": "tcp",  "app": "ssl",
+      "action": "ALLOW", "rule": "users-to-internet-https",
+      "bytes_in": 1428, "bytes_out": 24814,
+      "packets_in": 14, "packets_out": 22,
+      "classification": "KNOWN_C2",
+      "_note": "Beacon size INCREASED -- the typical beacon is 596/1042 bytes, this one is 1428/24814.  The 24 KB outbound is consistent with the dumped LSASS file out.dat being uploaded to the C2 (out.dat was 23 MB total; this 24 KB upload is the FIRST chunk -- additional chunks follow over the next 12 hours, see aggregate below).  This is the FIRST direct firewall evidence of credential theft exfil."
+    },
+    {
+      "_note_aggregate": "[Between 2026-05-05T08:22 and 2026-05-05T20:00, KNOWN_C2 sessions show approximately 80 elevated-bytes sessions, summing to 23 884 219 bytes outbound -- consistent with the full LSASS dump (out.dat ~ 23 MB).  This is exfil of the credential-dump output.  Beacon cadence remains 5-minute but bytes_out per session climbed from 1 KB to 200 KB+ during this window.]"
+    },
+
+    { "_section": "===== 2026-05-06: FIRST LATERAL MOVEMENT TO SRV-HEALTH-DB =====" },
+    {
+      "session_id": 1042208417,
+      "ts_start": "2026-05-06T07:11:46Z",
+      "ts_end":   "2026-05-06T07:42:18Z",
+      "duration_sec": 1832,
+      "src_ip": "10.10.3.21",   "src_port": 50118,
+      "dst_ip": "10.10.20.30",  "dst_port": 445,
+      "proto": "tcp",  "app": "ms-ds-smbv3",
+      "action": "ALLOW", "rule": "users-to-server-segment",
+      "bytes_in": 218401, "bytes_out": 484122,
+      "packets_in": 1841, "packets_out": 2014,
+      "classification": "LATERAL_MOVEMENT",
+      "_note": "FIRST PsExec session WS-RECV-03 -> SRV-HEALTH-DB.  Cross-VLAN.  PsExec uses SMB on 445 to drop the service binary and pipe the IO.  This is the firewall evidence of the 4x04 H1 finding (which had no firewall visibility).  Anomaly: records03 has no business reason to access SRV-HEALTH-DB directly -- normal records03 access is through the EHR application via 8443, not direct SMB."
+    },
+    {
+      "session_id": 1042208622,
+      "ts_start": "2026-05-06T07:13:11Z",
+      "ts_end":   "2026-05-06T07:13:18Z",
+      "duration_sec": 7,
+      "src_ip": "10.10.3.21",   "src_port": 50122,
+      "dst_ip": "10.10.20.30",  "dst_port": 135,
+      "proto": "tcp",  "app": "msrpc",
+      "action": "ALLOW", "rule": "users-to-server-segment",
+      "bytes_in": 612, "bytes_out": 482,
+      "packets_in": 5, "packets_out": 4,
+      "classification": "LATERAL_MOVEMENT",
+      "_note": "RPC mapper for WMI request (the wmiprvse spawn observed in 4x04 H2)."
+    },
+    {
+      "session_id": 1042208712,
+      "ts_start": "2026-05-06T07:13:18Z",
+      "ts_end":   "2026-05-06T07:14:42Z",
+      "duration_sec": 84,
+      "src_ip": "10.10.3.21",   "src_port": 50124,
+      "dst_ip": "10.10.20.30",  "dst_port": 49664,
+      "proto": "tcp",  "app": "msrpc",
+      "action": "ALLOW", "rule": "users-to-server-segment",
+      "bytes_in": 41028, "bytes_out": 12814,
+      "packets_in": 88, "packets_out": 64,
+      "classification": "LATERAL_MOVEMENT",
+      "_note": "WMI dynamic-port channel (DCOM endpoint).  This is the WMIC dir / sc query enumeration (4x04 H2)."
+    },
+
+    { "_section": "===== 2026-05-07: SCHEDULED TASK CREATED + SECONDARY C2 FIRST CONNECTION =====" },
+    {
+      "session_id": 1042319281,
+      "ts_start": "2026-05-07T06:48:11Z",
+      "ts_end":   "2026-05-07T06:48:24Z",
+      "duration_sec": 13,
+      "src_ip": "10.10.3.21",   "src_port": 50299,
+      "dst_ip": "203.0.113.47", "dst_port": 8443,
+      "proto": "tcp",  "app": "ssl",
+      "action": "ALLOW", "rule": "users-to-internet-https",
+      "bytes_in": 482, "bytes_out": 1218,
+      "packets_in": 5, "packets_out": 6,
+      "classification": "SECONDARY_C2_HYPOTHESIS",
+      "_note": "FIRST CONNECTION TO 203.0.113.47:8443.  This IP was NOT in any prior IOC.  It is on a Hetzner allocation (DE), not the LeaseWeb infrastructure used by 185.220.101.45.  No DNS query preceded this connection -- the IP was either hardcoded or delivered via the active 185.220.101.45 C2 in the prior 30 minutes.  The 8443 port is non-standard.  The connection profile (small upload, idle, then daily-ish reconnects) matches the 'secondary C2 channel on a non-standard port' description in HC3-2026-HEALTHBANE-004."
+    },
+    {
+      "session_id": 1042321819,
+      "ts_start": "2026-05-07T06:48:24Z",
+      "ts_end":   "2026-05-07T07:00:48Z",
+      "duration_sec": 744,
+      "src_ip": "10.10.3.21",   "src_port": 50299,
+      "dst_ip": "203.0.113.47", "dst_port": 8443,
+      "proto": "tcp",  "app": "ssl",
+      "action": "ALLOW", "rule": "users-to-internet-https",
+      "bytes_in": 8412, "bytes_out": 4218,
+      "packets_in": 24, "packets_out": 18,
+      "classification": "SECONDARY_C2_HYPOTHESIS",
+      "_note": "Continuation of the secondary C2 connection.  Bytes_in:bytes_out ratio is ~ 2:1 (downstream-heavy), consistent with a control channel receiving operator commands rather than a data exfil channel.  Connection went idle around 07:00:48 (last keepalive)."
+    },
+
+    { "_section": "===== 2026-05-08: FIRST EXFIL BURST (HEALTH_RECORDS) =====" },
+    {
+      "session_id": 1042418419,
+      "ts_start": "2026-05-08T07:00:08Z",
+      "ts_end":   "2026-05-08T07:00:18Z",
+      "duration_sec": 10,
+      "src_ip": "10.10.3.21",   "src_port": 50412,
+      "dst_ip": "185.220.101.45", "dst_port": 443,
+      "proto": "tcp",  "app": "ssl",
+      "action": "ALLOW", "rule": "users-to-internet-https",
+      "bytes_in": 1024, "bytes_out": 2148,
+      "packets_in": 8, "packets_out": 8,
+      "classification": "KNOWN_C2",
+      "_note": "Scheduled task 02:00 CDT trigger (07:00 UTC).  This beacon is the kick-off for the day's exfiltrator run."
+    },
+    {
+      "session_id": 1042419081,
+      "ts_start": "2026-05-08T07:38:14Z",
+      "ts_end":   "2026-05-08T07:42:48Z",
+      "duration_sec": 274,
+      "src_ip": "10.10.3.21",   "src_port": 50428,
+      "dst_ip": "185.220.101.45", "dst_port": 443,
+      "proto": "tcp",  "app": "ssl",
+      "action": "ALLOW", "rule": "users-to-internet-https",
+      "bytes_in": 4218, "bytes_out": 14219484,
+      "packets_in": 84, "packets_out": 9714,
+      "classification": "EXFIL_BURST",
+      "_note": "EXFIL BURST #1: 14.2 MB outbound to HEALTHBANE C2.  Size matches staging_export_001.zip exactly (14 219 484 bytes per disk_forensics_report.txt D1).  Transmitted at 02:38 CDT 2026-05-08, ~ 3 minutes after the staging archive was created (and immediately deleted on completion).  This is DIRECT NETWORK EVIDENCE of exfiltration of the 47 138-record patient table."
+    },
+    {
+      "_note_aggregate": "[Day 2026-05-08 also saw normal records03 traffic during business hours: ~ 184 sessions to internet (browsing), ~ 41 sessions to SRV-FILE-01 (file work), ~ 18 sessions to SRV-MAIL-01 (Outlook).  All BENIGN; not reproduced individually.]"
+    },
+
+    { "_section": "===== 2026-05-09: SECOND LATERAL MOVEMENT (TO SRV-INS-DB) + EVENT-LOG CLEAR =====" },
+    {
+      "session_id": 1042514812,
+      "ts_start": "2026-05-09T07:46:18Z",
+      "ts_end":   "2026-05-09T08:14:42Z",
+      "duration_sec": 1704,
+      "src_ip": "10.10.3.21",   "src_port": 50621,
+      "dst_ip": "10.10.20.31",  "dst_port": 445,
+      "proto": "tcp",  "app": "ms-ds-smbv3",
+      "action": "ALLOW", "rule": "users-to-server-segment",
+      "bytes_in": 184123, "bytes_out": 412842,
+      "packets_in": 1521, "packets_out": 1814,
+      "classification": "LATERAL_MOVEMENT",
+      "_note": "SECOND PsExec session WS-RECV-03 -> SRV-INS-DB.  Insurance database.  records03 has zero business reason to access this segment.  This is the firewall evidence corresponding to 4x04 H1's second event."
+    },
+    {
+      "session_id": 1042521089,
+      "ts_start": "2026-05-09T08:00:00Z",
+      "ts_end":   "2026-05-09T08:00:00Z",
+      "duration_sec": 0,
+      "src_ip": "10.10.3.21",   "src_port": 0,
+      "dst_ip": "10.10.20.10",  "dst_port": 0,
+      "proto": "icmp",  "app": "icmp",
+      "action": "DENY", "rule": "deny-icmp-broadcast",
+      "bytes_in": 0, "bytes_out": 64,
+      "packets_in": 0, "packets_out": 1,
+      "classification": "BENIGN",
+      "_note": "ICMP gracenote -- not significant.  Reproduced because the very next entry shows the LOG GAP."
+    },
+    {
+      "_section_inline": "===== EVENT-LOG GAP from 08:00:00Z to 08:12:02Z (12 minutes) =====",
+      "_note": "There is a 12-minute window where firewall sessions are CONTINUING to be logged (the firewall's logging is not affected by host-side wevtutil cl), but the host's Windows Security event log was cleared (per disk_forensics_report.txt Section 6, Security.evtx was deleted-and-recreated at 03:01:42 CDT = 08:01:42 UTC).  The discrepancy between firewall ts and host ts is the 4-second skew (firewall runs ~ 4s ahead).  Sessions continue to be reported below."
+    },
+    {
+      "session_id": 1042521144,
+      "ts_start": "2026-05-09T08:01:42Z",
+      "ts_end":   "2026-05-09T08:01:48Z",
+      "duration_sec": 6,
+      "src_ip": "10.10.3.21",   "src_port": 50689,
+      "dst_ip": "185.220.101.45", "dst_port": 443,
+      "proto": "tcp",  "app": "ssl",
+      "action": "ALLOW", "rule": "users-to-internet-https",
+      "bytes_in": 184, "bytes_out": 824,
+      "packets_in": 4, "packets_out": 4,
+      "classification": "KNOWN_C2",
+      "_note": "Notification beacon -- short upload after the log clear.  Possibly status / completion message back to C2."
+    },
+
+    { "_section": "===== 2026-05-11: SECOND EXFIL BURST (INSURANCE_DB) =====" },
+    {
+      "session_id": 1042714823,
+      "ts_start": "2026-05-11T08:17:18Z",
+      "ts_end":   "2026-05-11T08:21:08Z",
+      "duration_sec": 230,
+      "src_ip": "10.10.3.21",   "src_port": 50814,
+      "dst_ip": "185.220.101.45", "dst_port": 443,
+      "proto": "tcp",  "app": "ssl",
+      "action": "ALLOW", "rule": "users-to-internet-https",
+      "bytes_in": 3914, "bytes_out": 11802944,
+      "packets_in": 71, "packets_out": 8108,
+      "classification": "EXFIL_BURST",
+      "_note": "EXFIL BURST #2: 11.8 MB outbound to HEALTHBANE C2.  Size matches staging_export_002.zip exactly (11 802 944 bytes per disk_forensics_report.txt D2).  Transmitted at 03:17 CDT 2026-05-11, ~ 2 minutes after archive creation.  This is DIRECT NETWORK EVIDENCE of exfiltration of the 51 002-record insurance policy table."
+    },
+
+    { "_section": "===== 2026-05-12: SECOND CREDENTIAL DUMP =====" },
+    {
+      "_note_aggregate": "[2026-05-12 firewall sessions: ~ 80 KNOWN_C2 sessions show elevated bytes_out (~ 23 MB cumulative) consistent with second LSASS dump exfil to C2.  Pattern matches 2026-05-05 closely.]"
+    },
+
+    { "_section": "===== 2026-05-13: THIRD LATERAL MOVEMENT (TO SRV-DC-01) + AD ENUMERATION EXFIL =====" },
+    {
+      "session_id": 1042914821,
+      "ts_start": "2026-05-13T07:08:58Z",
+      "ts_end":   "2026-05-13T07:42:11Z",
+      "duration_sec": 1993,
+      "src_ip": "10.10.3.21",   "src_port": 51014,
+      "dst_ip": "10.10.20.10",  "dst_port": 445,
+      "proto": "tcp",  "app": "ms-ds-smbv3",
+      "action": "ALLOW", "rule": "users-to-server-segment",
+      "bytes_in": 412082, "bytes_out": 184419,
+      "packets_in": 2814, "packets_out": 1422,
+      "classification": "LATERAL_MOVEMENT",
+      "_note": "THIRD PsExec session WS-RECV-03 -> SRV-DC-01.  Domain Controller.  records03 cannot legitimately interact with the DC at the SMB layer.  Higher bytes_in than bytes_out is consistent with the AD enumeration (Get-ADUser) export from 4x04 H3."
+    },
+    {
+      "session_id": 1042918714,
+      "ts_start": "2026-05-13T07:34:14Z",
+      "ts_end":   "2026-05-13T07:36:11Z",
+      "duration_sec": 117,
+      "src_ip": "10.10.3.21",   "src_port": 51081,
+      "dst_ip": "185.220.101.45", "dst_port": 443,
+      "proto": "tcp",  "app": "ssl",
+      "action": "ALLOW", "rule": "users-to-internet-https",
+      "bytes_in": 2148, "bytes_out": 8419232,
+      "packets_in": 41, "packets_out": 5814,
+      "classification": "EXFIL_BURST",
+      "_note": "EXFIL BURST #3: 8.4 MB outbound.  Matches query_results.csv (disk D3, AD enumeration export, 8 419 232 bytes).  Transmitted at 02:34 CDT 2026-05-13.  Smaller than D1 / D2 because AD-user records are smaller than patient records."
+    },
+
+    { "_section": "===== 2026-05-13 to 2026-05-14: ATTACKER QUIESCENT (only beacons + secondary C2 keepalives) =====" },
+
+    { "_section": "===== 2026-05-15: LAST EXFIL ATTEMPT BEFORE ISOLATION =====" },
+    {
+      "session_id": 1043118419,
+      "ts_start": "2026-05-15T07:00:14Z",
+      "ts_end":   "2026-05-15T07:00:48Z",
+      "duration_sec": 34,
+      "src_ip": "10.10.3.21",   "src_port": 51212,
+      "dst_ip": "185.220.101.45", "dst_port": 443,
+      "proto": "tcp",  "app": "ssl",
+      "action": "ALLOW", "rule": "users-to-internet-https",
+      "bytes_in": 824, "bytes_out": 4218,
+      "packets_in": 14, "packets_out": 18,
+      "classification": "KNOWN_C2",
+      "_note": "Scheduled task 02:00 CDT trigger.  Exfiltrator ran but received an EMPTY query response from the C2 config (the C2 config returned no useful query that day -- attacker may have been preparing to wind down).  No exfil burst followed."
+    },
+    {
+      "session_id": 1043122814,
+      "ts_start": "2026-05-15T18:42:00Z",
+      "ts_end":   "2026-05-15T18:42:00Z",
+      "duration_sec": 0,
+      "src_ip": "10.10.3.21",   "src_port": 51298,
+      "dst_ip": "185.220.101.45", "dst_port": 443,
+      "proto": "tcp",  "app": "ssl",
+      "action": "DENY", "rule": "ws-recv-03-isolated",
+      "bytes_in": 0, "bytes_out": 0,
+      "packets_in": 0, "packets_out": 1,
+      "classification": "KNOWN_C2",
+      "_note": "13:42 CDT 2026-05-15:  WS-RECV-03 isolated by IR.  Outbound traffic to the C2 begins to be DENIED.  The RAT continues to attempt beacons at the 5-min interval, all blocked by the isolation rule."
+    },
+    {
+      "_note_aggregate": "[Between 18:42:00Z and 19:42:00Z (the export cutoff), 12 additional beacon attempts to 185.220.101.45 are recorded, all DENY.  No further successful traffic from 10.10.3.21 to any external destination.]"
+    }
+  ],
+
+  "summary": {
+    "total_sessions_in_window": 39412,
+    "session_count_this_export": 168,
+    "_note": "168 sessions reproduced; the rest are aggregated by classification below.",
+
+    "by_classification": {
+      "KNOWN_C2": {
+        "session_count": 3958,
+        "total_bytes_in": 2403841,
+        "total_bytes_out_excluding_exfil_bursts": 4124819,
+        "total_bytes_out_including_exfil_bursts": 80967579,
+        "destinations": ["185.220.101.45:443"],
+        "first_seen_in_window": "2026-05-02T08:14:08Z",
+        "last_seen_in_window":  "2026-05-15T18:42:00Z (last allowed)",
+        "after_isolation": "12 deny-actions",
+        "interval_observed": "300 +/- 10 seconds (5-minute jittered)",
+        "ja3_observed": "72a589da586844d7f0818ce684948eea",
+        "matches_4x01_fingerprint": true
+      },
+      "SECONDARY_C2_HYPOTHESIS": {
+        "session_count": 14,
+        "total_bytes_in": 28412,
+        "total_bytes_out": 14218,
+        "destinations": ["203.0.113.47:8443"],
+        "first_seen_in_window": "2026-05-07T06:48:11Z",
+        "last_seen_in_window":  "2026-05-15T07:14:18Z",
+        "interval_observed": "approximately daily, off-hours (06:00-09:00 UTC = 01:00-04:00 CDT)",
+        "_note": "FIRST seen on the day the scheduled task was registered.  Pattern is too low-volume to be a primary C2 -- consistent with a STANDBY / FALLBACK channel.  HC3-2026-HEALTHBANE-004 advisory describes this same pattern at peer victims.  CONFIDENCE: PROBABLE."
+      },
+      "EXFIL_BURST": {
+        "session_count": 3,
+        "total_bytes_out": 34441660,
+        "_note": "Three discrete bursts: 14.2 MB on 2026-05-08, 11.8 MB on 2026-05-11, 8.4 MB on 2026-05-13.  Bytes match disk-forensic deleted archives D1/D2/D3 to the byte.  These are the highest-confidence individual exfil events in the entire campaign.  Smaller cumulative LSASS-dump exfil over 2026-05-05 and 2026-05-12 is included in the KNOWN_C2 cumulative bytes_out above (~ 46 MB across the two cred-dump days).",
+        "by_burst": [
+          {
+            "ts_utc": "2026-05-08T07:38:14Z",
+            "bytes_out": 14219484,
+            "matches_disk_artifact": "staging_export_001.zip (47138 patient records)"
+          },
+          {
+            "ts_utc": "2026-05-11T08:17:18Z",
+            "bytes_out": 11802944,
+            "matches_disk_artifact": "staging_export_002.zip (51002 insurance records)"
+          },
+          {
+            "ts_utc": "2026-05-13T07:34:14Z",
+            "bytes_out": 8419232,
+            "matches_disk_artifact": "query_results.csv (1184 AD records)"
+          }
+        ]
+      },
+      "LATERAL_MOVEMENT": {
+        "session_count": 47,
+        "destinations": ["10.10.20.30 (SRV-HEALTH-DB)",
+                         "10.10.20.31 (SRV-INS-DB)",
+                         "10.10.20.10 (SRV-DC-01)"],
+        "ports_observed": [445, 135, 49664, 49665, 5985],
+        "_note": "Cross-VLAN.  records03 has NO BUSINESS REASON to access the 10.10.20.0/24 server segment from the 10.10.3.0/24 records-VLAN.  Existing firewall rule users-to-server-segment is overly permissive -- the IR recommendations should include tightening this rule to deny WS-* sources to SRV-* destinations except for explicit application ports."
+      },
+      "BENIGN":   { "session_count": 22841, "_note": "Internal SMB/file/print/mail."  },
+      "BROWSING": { "session_count": 12509, "_note": "records03 normal web use."        }
+    },
+
+    "key_findings_for_4x05_reconstruction": [
+      "F1.  HEALTHBANE C2 to 185.220.101.45:443 is CONTINUOUS through the entire 14-day window (3958 beacons over 13.5 days = ~ 5-min interval).  Persistence is unbroken.",
+      "F2.  Secondary C2 to 203.0.113.47:8443 was FIRST established on 2026-05-07T06:48Z, which is the same day the scheduled task was registered (06:47:33Z).  The two events are 38 seconds apart -- the scheduled task creation is the trigger event for the secondary C2 setup.  This was a DELIBERATE redundancy operation by the attacker.",
+      "F3.  Exfiltration bytes are TIGHTLY CORRELATED with the disk-recovered staging archives.  The byte counts match exactly.  This is the strongest cross-evidence correlation in the entire investigation.",
+      "F4.  Cross-VLAN sessions to 10.10.20.0/24 from 10.10.3.21 (records03) are present on 6 distinct days (5/6, 5/9, 5/13 explicit; smaller follow-on sessions on other days).  Each cross-VLAN session sits exactly within the off-hours 02:00-04:00 CDT window.  None overlap with Robert Kim's WS-ADMIN-01 baseline.",
+      "F5.  HIPAA breach impact assessment based on firewall data: 47 138 + 51 002 = 98 140 patient + insurance records confirmed exfiltrated.  AD enumeration of 1184 records adds reconnaissance evidence but those are not patient records.  The 98 140-record figure is the basis for breach notification."
+    ],
+
+    "iocs_added_by_firewall_analysis": [
+      {
+        "id": "HB-IOC-NEW-006",
+        "type": "ipv4_port_pair",
+        "value": "203.0.113.47:8443",
+        "category": "secondary_c2",
+        "first_seen": "2026-05-07T06:48:11Z",
+        "confidence": "PROBABLE",
+        "supporting_evidence": ["memory netscan ESTABLISHED",
+                                 "firewall 14 sessions over 9 days",
+                                 "HC3-2026-HEALTHBANE-004 advisory pattern match"]
+      }
+    ]
+  }
+}

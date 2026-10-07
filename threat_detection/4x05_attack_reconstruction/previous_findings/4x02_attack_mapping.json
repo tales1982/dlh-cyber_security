@@ -1,0 +1,290 @@
+{
+  "name": "HEALTHBANE - MedDefense Coverage (post-4x02)",
+  "version": "4.2",
+  "domain": "enterprise-attack",
+  "description": "HEALTHBANE campaign ATT&CK coverage at the conclusion of project 4x02 (intelligence and threat-actor analysis). Combines IOCs from 4x00 phishing dissection, behavior from 4x01 network forensics, and HEALTHBANE attribution from HHS HC3 advisories 001-002, plus commercial threat-intel feeds. This layer represents what was KNOWN before the 4x03 malware triage and BEFORE direct on-host telemetry from the 4x04 hunt.",
+  "versions": {
+    "attack": "14",
+    "navigator": "4.9",
+    "layer": "4.2"
+  },
+  "filters": {
+    "platforms": ["Windows"]
+  },
+  "sorting": 3,
+  "layout": {
+    "layout": "flat",
+    "aggregateFunction": "average",
+    "showID": true,
+    "showName": true,
+    "showAggregateScores": true,
+    "countUnscored": false
+  },
+  "hideDisabled": false,
+  "legendItems": [
+    {"label": "OBSERVED (direct evidence at MedDefense)", "color": "#c40000"},
+    {"label": "INFERRED (advisory-mapped technique, not yet confirmed at MedDefense)", "color": "#ffcf00"},
+    {"label": "NOT COVERED / NOT MAPPED", "color": "#8a8a8a"}
+  ],
+  "metadata": [
+    {"name": "campaign", "value": "HEALTHBANE"},
+    {"name": "organization", "value": "MedDefense Health Systems"},
+    {"name": "assembled_from", "value": "4x00 + 4x01 + HC3-2026-HEALTHBANE-001/002 + commercial intel"},
+    {"name": "coverage_summary", "value": "11 OBSERVED / 5 INFERRED / 13 NOT COVERED = 38% OBSERVED, 55% MAPPED"},
+    {"name": "threat_model_size", "value": "29 techniques attributed to HEALTHBANE across all known victims"},
+    {"name": "analyst", "value": "[student] - reviewed by James Chen"},
+    {"name": "approved", "value": "Dr. Patricia Morales, 2026-04-21"},
+    {"name": "next_action", "value": "Malware triage in 4x03 to confirm Stage 2-3 techniques"},
+    {"name": "note", "value": "This is the post-4x02 baseline. It is intentionally INCOMPLETE relative to the post-4x04 baseline; the gap between 4x02 (38%) and 4x04 (80%) is the value added by malware triage and proactive hunting."}
+  ],
+  "techniques": [
+    {
+      "techniqueID": "T1566.001",
+      "tactic": "initial-access",
+      "score": 3,
+      "color": "#c40000",
+      "comment": "OBSERVED - 4x00 phishing dissection.",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1566.002",
+      "tactic": "initial-access",
+      "score": 3,
+      "color": "#c40000",
+      "comment": "OBSERVED - 4x00.",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1583.001",
+      "tactic": "resource-development",
+      "score": 3,
+      "color": "#c40000",
+      "comment": "OBSERVED (attacker-side) - 4x00 WHOIS.",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1078",
+      "tactic": "defense-evasion",
+      "score": 3,
+      "color": "#c40000",
+      "comment": "OBSERVED - 4x00 (dmarsh credential capture).",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1071.001",
+      "tactic": "command-and-control",
+      "score": 3,
+      "color": "#c40000",
+      "comment": "OBSERVED - 4x01 (HTTPS beacon to sync.healthbane-c2.net).",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1573.001",
+      "tactic": "command-and-control",
+      "score": 3,
+      "color": "#c40000",
+      "comment": "OBSERVED - 4x01 (TLS + RC4 wrap inferred from constant-size beacon body).",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1071.004",
+      "tactic": "command-and-control",
+      "score": 3,
+      "color": "#c40000",
+      "comment": "OBSERVED - 4x01 (DNS test pings to data-sync.healthbane-c2.net).",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1105",
+      "tactic": "command-and-control",
+      "score": 3,
+      "color": "#c40000",
+      "comment": "OBSERVED - 4x01 (svchost_update.exe download from update.healthbane-c2.net).",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1204.002",
+      "tactic": "execution",
+      "score": 2,
+      "color": "#ffcf00",
+      "comment": "INFERRED - HC3 advisory describes .docm dropper requiring user enable-macros click. Sample not yet triaged at MedDefense (4x03 to confirm).",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1059.005",
+      "tactic": "execution",
+      "score": 2,
+      "color": "#ffcf00",
+      "comment": "INFERRED - HC3 advisory mentions VBA macro execution.",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1059.001",
+      "tactic": "execution",
+      "score": 2,
+      "color": "#ffcf00",
+      "comment": "INFERRED - Commercial intel feed reports PowerShell exfiltration script. Not yet observed at MedDefense.",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1547.001",
+      "tactic": "persistence",
+      "score": 2,
+      "color": "#ffcf00",
+      "comment": "INFERRED - HC3-002 references Run-key persistence in HEALTHBANE samples at other victims.",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1027",
+      "tactic": "defense-evasion",
+      "score": 2,
+      "color": "#ffcf00",
+      "comment": "INFERRED - HC3 advisory describes obfuscated payloads. Not yet sample-confirmed at MedDefense.",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1140",
+      "tactic": "defense-evasion",
+      "score": 0,
+      "color": "#8a8a8a",
+      "comment": "NOT COVERED - Deobfuscation routine. Will be confirmed in 4x03 dropper analysis.",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1027.010",
+      "tactic": "defense-evasion",
+      "score": 0,
+      "color": "#8a8a8a",
+      "comment": "NOT COVERED - Command obfuscation. Will be confirmed in 4x03 exfiltrator analysis.",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1041",
+      "tactic": "exfiltration",
+      "score": 2,
+      "color": "#ffcf00",
+      "comment": "INFERRED - HC3 advisory.  Commercial intel reports C2 upload of staged data at other victims.",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1048.003",
+      "tactic": "exfiltration",
+      "score": 2,
+      "color": "#ffcf00",
+      "comment": "INFERRED - HC3-002 mentions DNS exfiltration channel.",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1005",
+      "tactic": "collection",
+      "score": 0,
+      "color": "#8a8a8a",
+      "comment": "NOT COVERED - Database targeting suspected from advisory but no MedDefense evidence.",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1003.001",
+      "tactic": "credential-access",
+      "score": 0,
+      "color": "#8a8a8a",
+      "comment": "NOT COVERED - LSASS dumping listed in HC3 advisory at OTHER victims. No MedDefense evidence.",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1021.002",
+      "tactic": "lateral-movement",
+      "score": 0,
+      "color": "#8a8a8a",
+      "comment": "NOT COVERED - PsExec/SMB. Listed campaign-possible in HC3, not yet observed at MedDefense.",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1021.006",
+      "tactic": "lateral-movement",
+      "score": 0,
+      "color": "#8a8a8a",
+      "comment": "NOT COVERED - WinRM/PSRemoting. Listed campaign-possible.",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1047",
+      "tactic": "lateral-movement",
+      "score": 0,
+      "color": "#8a8a8a",
+      "comment": "NOT COVERED - WMI remote execution. Listed campaign-possible.",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1078.002",
+      "tactic": "defense-evasion",
+      "score": 0,
+      "color": "#8a8a8a",
+      "comment": "NOT COVERED - Domain service-account abuse hypothesis only.",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1550.002",
+      "tactic": "lateral-movement",
+      "score": 0,
+      "color": "#8a8a8a",
+      "comment": "NOT COVERED - Pass-the-Hash hypothesis only.",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1112",
+      "tactic": "defense-evasion",
+      "score": 0,
+      "color": "#8a8a8a",
+      "comment": "NOT COVERED - Registry modification listed in advisory.",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1053.005",
+      "tactic": "persistence",
+      "score": 0,
+      "color": "#8a8a8a",
+      "comment": "NOT COVERED - Scheduled Task. Not described in HC3-001/002 but listed in commercial feed Q1 report.",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1074.001",
+      "tactic": "collection",
+      "score": 0,
+      "color": "#8a8a8a",
+      "comment": "NOT COVERED - Local Data Staging. Listed in HC3-002 at partner orgs.",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1560.001",
+      "tactic": "collection",
+      "score": 0,
+      "color": "#8a8a8a",
+      "comment": "NOT COVERED - Archive via Utility (Compress-Archive). Listed in commercial feed.",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1070.001",
+      "tactic": "defense-evasion",
+      "score": 0,
+      "color": "#8a8a8a",
+      "comment": "NOT COVERED - Clear Windows Event Logs. Listed in HC3-002.",
+      "enabled": true
+    }
+  ],
+  "gradient": {
+    "colors": ["#ffffff", "#ffcf00", "#c40000"],
+    "minValue": 0,
+    "maxValue": 3
+  },
+  "showTacticRowBackground": false,
+  "selectTechniquesAcrossTactics": true,
+  "selectSubtechniquesWithParent": false,
+  "technique_count_summary": {
+    "total_in_threat_model": 29,
+    "observed": 11,
+    "inferred": 5,
+    "not_covered": 13,
+    "percent_observed": 38,
+    "percent_mapped": 55
+  }
+}

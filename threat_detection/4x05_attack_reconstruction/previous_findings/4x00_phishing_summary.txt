@@ -1,0 +1,238 @@
+================================================================================
+  4x00 -- PHISHING DISSECTION : INVESTIGATION SUMMARY
+  HEALTHBANE Email Campaign Against MedDefense Health Systems
+================================================================================
+  Original investigation:  Project 4x00 (Week 11)
+  Investigation period:    2026-04-14 through 2026-04-21
+  Lead analyst:            [student] - reviewed by James Chen
+  Approver:                Dr. Patricia Morales (CISO)
+  Source IR ticket:        MD-2026-IR-0414-001
+  This consolidated summary prepared:  2026-05-18
+================================================================================
+
+PURPOSE OF THIS DOCUMENT
+------------------------
+This file is a consolidated reference summary of the 4x00 phishing
+dissection.  It is NOT the original report.  The original triage notes,
+header parses, sandboxed URL output and per-email worksheets remain
+in the 4x00 evidence package.  This summary extracts the findings that
+the 4x05 reconstruction will need to cross-reference: campaign
+classification, IOCs, credential exposure, detection rules deployed,
+and evidence reliability assessment.
+
+CAMPAIGN CLASSIFICATION
+-----------------------
+  Campaign name:           HEALTHBANE  (assigned by HHS HC3 in
+                           advisory HC3-2026-HEALTHBANE-001)
+  Campaign type:           Targeted credential harvesting + malware
+                           delivery, healthcare-sector focus
+  Operator profile:        Financially motivated, English-language
+                           lures, US-mid-Atlantic-time activity
+                           pattern, infrastructure leased through
+                           known bulletproof reseller (LeaseWeb DE,
+                           ASN 60781)
+  First MedDefense contact: 2026-04-14 (mail-batch arrival)
+  Lure variants observed:  3 distinct families
+                             (a) MedDefense portal password reset
+                             (b) HR benefits enrollment expiry
+                             (c) Microsoft mailbox quota
+  Total emails analyzed:   8
+  Emails confirmed malicious:  3
+  Emails benign / false-positive:  5  (legitimate vendor mail
+                                       reported by cautious users)
+
+THE THREE CONFIRMED MALICIOUS EMAILS
+------------------------------------
+
+[E1]  Subject:  "Action required: update your MedDefense portal
+                  password before 2026-04-15"
+      Sender:   no-reply@meddefense-portal.com  (lookalike domain)
+      Spoof:    Display name "MedDefense IT" -- not the legitimate
+                no-reply@meddefense.local internal sender
+      Recipients: 14 MedDefense addresses (clinical + records)
+      Body:     HTML + tracking pixel.  Single CTA link to
+                  https://meddefense-portal.com/login.aspx
+      Header analysis:
+        Return-Path:   bounce@meddefense-portal.com
+        SPF:           hardfail (sender IP not in SPF for portal)
+        DKIM:          missing (no signature)
+        DMARC:         fail (no alignment)
+        Received:      Originating IP 91.219.236.117 (Russia, VPS)
+                       6 hops, last MTA at LeaseWeb DE
+      Sandbox:  https://meddefense-portal.com/login.aspx renders
+                an Office 365 credential-harvesting form.  POST goes
+                to /collect.php on same host.  TLS cert: Let's Encrypt
+                issued 2026-04-12 (matches WHOIS registration date).
+
+[E2]  Subject:  "Final notice: HR benefits enrollment closes today"
+      Sender:   benefits@meddefense-benefits.com  (lookalike)
+      Recipients: 9 MedDefense addresses (mostly clinical)
+      Body:     PDF attachment with embedded link
+                  https://meddefense-benefits.com/enroll
+      Header analysis:
+        SPF:           hardfail
+        DKIM:          missing
+        DMARC:         fail
+        Received:      Originating IP 45.142.214.108 (DE, same VPS
+                       provider as E1)
+      Sandbox:  Identical credential capture page styled with
+                MedDefense branding lifted from the public website.
+
+[E3]  Subject:  "Your Microsoft 365 mailbox is over quota"
+      Sender:   no-reply@outlook-protection.com  (generic Microsoft
+                impersonation)
+      Recipients: 22 MedDefense addresses
+      Body:     CTA "Verify your account"
+      Header analysis:
+        SPF:           hardfail
+        DKIM:          missing
+        DMARC:         fail
+      Sandbox:  Generic Microsoft credential phishing page.  Lower
+                campaign confidence (the same pattern appears in
+                many unrelated campaigns) but timing and recipient
+                set match HEALTHBANE.
+
+KEY USER EVENT : DIANE MARSH CLICK
+----------------------------------
+At 2026-04-14T13:18:05Z (08:18 CDT), Diane Marsh on WS-RECV-03
+(records department, account dmarsh) opened email E1 and clicked
+the credential link.  Browser history confirmed the resolution to
+meddefense-portal.com/login.aspx.  At 13:18:42Z she submitted her
+domain credentials.  PCAP from 4x01 captured the POST.
+
+Post-click user behavior:
+  - Diane noticed the page did not match the internal portal
+    (different colors) and reported it to the helpdesk at 13:35Z.
+  - Robert Kim rotated dmarsh's password at 13:20Z (within 2 minutes
+    of her report routing through internal IM, before the formal
+    helpdesk ticket was filed).
+  - dmarsh's session was force-revoked in Azure AD at 13:22Z.
+
+This 17-minute window between credential capture and rotation is the
+operational gap exploited by HEALTHBANE.  The attacker had ~17 minutes
+to use the dmarsh credential before AD rotated it.  4x01 will show
+that the attacker did not act on dmarsh directly inside that window
+(no logon-as-dmarsh observed at MedDefense after the rotation), but
+4x04 evidence suggests the attacker pivoted to a different credential
+acquisition path (LSASS dump on the already-compromised WS-RECV-03
+host).
+
+EXTRACTED IOCS (full set produced for SIEM ingestion)
+-----------------------------------------------------
+  Domains (lookalike):
+    meddefense-portal.com
+    meddefense-benefits.com
+    outlook-protection.com
+
+  URLs (credential capture):
+    https://meddefense-portal.com/login.aspx
+    https://meddefense-portal.com/collect.php
+    https://meddefense-benefits.com/enroll
+
+  Sender IPs (originating MTA):
+    91.219.236.117    (E1, RU VPS)
+    45.142.214.108    (E2, DE VPS)
+
+  Sender display names:
+    "MedDefense IT" (no-reply@meddefense-portal.com)
+    "Benefits Team" (benefits@meddefense-benefits.com)
+
+  Compromised account:
+    dmarsh (Diane Marsh, WS-RECV-03 primary user)
+
+DETECTION RULES DEPLOYED
+------------------------
+After 4x00 the following rules entered production:
+
+  [R1]  Mail gateway: hold-and-quarantine on any inbound mail with
+        SPF hardfail + DKIM missing + sender domain registered
+        within previous 30 days (matches HEALTHBANE delivery
+        pattern).
+  [R2]  Wazuh custom rule 100080: alert on any DNS query or HTTP
+        request to meddefense-portal.com / meddefense-benefits.com
+        / outlook-protection.com from any internal host.
+  [R3]  Wazuh custom rule 100081: alert on any URL click in
+        Microsoft Defender for Office 365 click-trail telemetry
+        targeting the same domain set.
+
+These three rules generated the persistent low-volume background
+of HEALTHBANE alerts that was visible throughout the 4x04 hunt
+window (rule 100080 fires several times per day across many
+workstations -- all from cached browser tabs, RSS readers, etc.,
+not from active credential submission).
+
+CREDENTIAL EXPOSURE ASSESSMENT
+------------------------------
+  Confirmed exposed:    dmarsh (Diane Marsh)
+                        Reason: direct evidence of submission to
+                        attacker-controlled URL
+                        Mitigation: AD password rotated 13:20Z,
+                        all sessions revoked
+  Possibly exposed:     Up to 7 other recipients of E1/E2/E3 who
+                        could not confirm whether they clicked.
+                        4x00 advised AD password reset for all 45
+                        recipients out of caution; this was completed
+                        2026-04-15.
+  NOT exposed:          Service accounts (svc_*) -- these are not
+                        in Azure AD and could not have been phished.
+                        4x04 finding that svc_healthsync was abused
+                        is a separate compromise vector (LSASS dump
+                        on WS-RECV-03), not a phishing outcome.
+
+EVIDENCE RELIABILITY
+--------------------
+  Email headers:        HIGH (raw SMTP capture)
+  Sandbox renders:      HIGH (controlled render of phishing pages)
+  Click attribution to dmarsh:  HIGH (browser history + user report
+                        + Azure AD session telemetry triangulate)
+  Other-recipient click status:  LOW (dependent on user self-report)
+
+OPEN QUESTIONS HANDED TO 4x01
+-----------------------------
+  Q1.  Was the dmarsh credential used by the attacker before
+       rotation, and to authenticate to what ?
+  Q2.  Did the credential-harvesting POST succeed (i.e., were her
+       credentials transmitted in cleartext to the attacker) or
+       did it fail TLS, JS, etc. ?
+  Q3.  Were any of the malicious URLs reachable from any other
+       MedDefense host besides WS-RECV-03 ?
+
+(4x01 answered Q1 and Q2.  Q3 remained open until 4x04 confirmed
+that other workstations did query the C2 root domain
+healthbane-c2.net, indicating that the malware Stage 2 succeeded
+on hosts beyond WS-RECV-03 -- but the credential-capture URLs
+themselves were only hit from WS-RECV-03.)
+
+ATT&CK MAPPING (CONTRIBUTION OF 4x00)
+-------------------------------------
+  T1566.001  Spearphishing Link        OBSERVED
+  T1566.002  Spearphishing via Service OBSERVED  (E3 used a
+                                                  generic webmail
+                                                  redirect chain)
+  T1583.001  Acquire Domain (lookalike) OBSERVED (attacker side)
+  T1078      Valid Accounts             OBSERVED (dmarsh)
+
+NOTES FOR 4x05 RECONSTRUCTION
+-----------------------------
+  - The 4x00 evidence is the temporal anchor for the start of the
+    HEALTHBANE attack against MedDefense.  Use 2026-04-14T13:18:42Z
+    as the credential-submission timestamp and 13:20Z as the
+    rotation timestamp.
+  - dmarsh credentials were rotated in 17 minutes; the attacker
+    therefore did NOT establish persistence using dmarsh's credential
+    after Stage 1.  The fact that WS-RECV-03 became a long-term
+    pivot host is explained by Stage 2 (RAT delivery via Stage 1
+    payload) and Stage 4 (LSASS dump for service credential), not
+    by ongoing dmarsh credential reuse.
+  - The 4x00 sandbox confirmed credential capture but did NOT
+    capture any post-credential redirect or follow-on payload
+    delivery from the harvest page.  If the attacker delivered the
+    Stage 2 dropper through the same harvest interaction, that
+    delivery is invisible in 4x00 evidence (sandbox rendered the
+    form and submitted dummy credentials, did not follow the post-
+    submit chain).  The 4x03 dropper sample was recovered from a
+    different vector: a follow-up email with .docm attachment sent
+    to the same recipient pool 24h after the harvest emails.
+================================================================================
+END OF SUMMARY
+================================================================================

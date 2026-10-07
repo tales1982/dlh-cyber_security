@@ -1,0 +1,387 @@
+================================================================================
+  MEDDEFENSE HEALTH SYSTEMS -- ASSET INVENTORY AND DATA SENSITIVITY MATRIX
+================================================================================
+  Document ID:       AST-INV-2026-Q2
+  Owner:             Sarah Park (IT Director) and Dr. Patricia Morales (CISO)
+  Reviewed by:       Robert Kim (IT Administrator), James Chen (SOC Lead)
+  Effective date:    2026-04-01
+  Next review:       2026-07-01
+  Classification:    INTERNAL  (handle as Confidential when discussing
+                     specific data sets stored on listed assets)
+  Distribution:      IT Operations, SOC, Compliance, Risk Committee
+================================================================================
+
+
+PURPOSE
+-------
+
+This inventory is the authoritative mapping of MedDefense assets to
+the data they store or have privileged access to.  It is the reference
+document used for:
+
+  -  Risk assessment and asset prioritization (Module 1 risk register)
+  -  Hardening scope decisions (Module 2 baseline)
+  -  Detection-rule prioritization (Module 3 SIEM)
+  -  Incident-response impact analysis (Modules 4 and 5)
+  -  HIPAA breach notification scoping when an asset is compromised
+
+The inventory does NOT enumerate workstations one by one (workstation
+data is generally local-only and ephemeral).  Workstations are
+classified by department because their privileges and the data their
+users handle differ by role.
+
+
+DATA SENSITIVITY CLASSIFICATION
+-------------------------------
+
+  CRITICAL    Protected Health Information (PHI) under HIPAA.
+              Exposure triggers mandatory breach notification under
+              45 CFR Part 164 Subpart D when affecting > 500
+              individuals, or HHS Wall of Shame at any volume after
+              risk assessment.
+
+  HIGH        Personally Identifiable Information (PII), financial
+              data subject to PCI-DSS or contract obligations, or
+              authentication material whose exposure would enable
+              compromise of CRITICAL assets.
+
+  MEDIUM      Internal operational data, business documents, or
+              reference data whose exposure would harm the
+              organization but does not trigger regulatory
+              notification.
+
+  LOW         Public-facing or transient data, default workstation
+              caches, no regulated content under MedDefense data
+              handling policy.
+
+
+SERVER ASSET INVENTORY
+======================
+
+--- SRV-DC-01 ---
+
+  Hostname:          SRV-DC-01.meddefense.local
+  IP:                10.10.20.10
+  VLAN:              VLAN-20  (server segment)
+  Role:              Primary Active Directory Domain Controller
+                     Authoritative DNS for meddefense.local
+  Operating system:  Windows Server 2022 Datacenter
+  Owner:             Robert Kim
+  Data sensitivity:  HIGH
+  Data stored:       Active Directory NTDS.dit (domain authentication
+                       material -- password hashes, Kerberos tickets,
+                       computer account secrets, service principal
+                       names for every domain account including
+                       svc_healthsync)
+                     DNS zone data (internal naming, server roles)
+                     Group Policy Objects (security configuration of
+                       every domain member)
+  PHI on this host:  NO  (no clinical record content)
+  Compromise impact: CATASTROPHIC.  Domain controller compromise gives
+                     the attacker every credential in the domain.
+                     Full AD recovery (including password reset for
+                     every account, KRBTGT double-rotation, gMSA
+                     rotation) becomes mandatory and would require
+                     6-8h of clinical-system disruption.
+
+--- SRV-DC-02 ---
+
+  Hostname:          SRV-DC-02.meddefense.local
+  IP:                10.10.20.11
+  VLAN:              VLAN-20
+  Role:              Secondary Active Directory Domain Controller
+                     (DR/replica for SRV-DC-01)
+  Operating system:  Windows Server 2022 Datacenter
+  Owner:             Robert Kim
+  Data sensitivity:  HIGH  (mirror of SRV-DC-01)
+  Compromise impact: Same as SRV-DC-01.
+
+--- SRV-HEALTH-DB ---
+
+  Hostname:          SRV-HEALTH-DB.meddefense.local
+  IP:                10.10.20.15
+  VLAN:              VLAN-20
+  Role:              Patient health records database
+                     (production EHR backend)
+  Operating system:  Windows Server 2019 Standard
+                     SQL Server 2019 Enterprise
+  Owner:             Sarah Park (IT Director),
+                     Dr. Morales (data steward / HIPAA Privacy Officer)
+  Data sensitivity:  CRITICAL  (PHI)
+  Data stored:       Database: health_records  (SQL Server)
+                       Tables: patients (~ 47 000 active patient
+                         records), encounters, medications, lab_results,
+                         clinical_notes, allergies, immunizations,
+                         insurance_links, billing_links
+                     Database: health_meta
+                       Tables: provider_directory, code_sets,
+                         reference_diagnoses
+                     Database file paths:
+                       D:\SQLData\health_records.mdf  (~ 220 GB)
+                       E:\SQLLogs\health_records.ldf
+                       D:\SQLData\health_meta.mdf
+  Field-level PHI:   patients.first_name, patients.last_name,
+                     patients.dob, patients.ssn (encrypted at rest
+                     since 2025-Q4 hardening), patients.address,
+                     patients.phone, encounters.diagnosis_codes,
+                     clinical_notes.*, lab_results.*, medications.*
+  Records at risk:   ~ 47 000 patient identities with associated PHI.
+                     A full table dump of patients + encounters +
+                     clinical_notes would constitute a notifiable
+                     breach event under 45 CFR 164.402.
+  Authorized users:  svc_healthsync (service, see service-account
+                       matrix), DBA_health (named DBA accounts via
+                       Windows Authentication)
+  Compromise impact: HIGHEST priority for response.  Direct PHI
+                     exposure.  HIPAA notification timeline begins
+                     at the moment unauthorized access is confirmed.
+
+--- SRV-INS-DB ---
+
+  Hostname:          SRV-INS-DB.meddefense.local
+  IP:                10.10.20.25
+  VLAN:              VLAN-20
+  Role:              Insurance claims and billing database
+  Operating system:  Windows Server 2019 Standard
+                     SQL Server 2019 Standard
+  Owner:             Sarah Park, Finance Director
+  Data sensitivity:  HIGH  (PII + financial; some PHI through claims)
+  Data stored:       Database: claims
+                       Tables: claims_header, claims_line, payers,
+                         policies, members, member_demographics
+                     Database: billing
+                       Tables: invoices, payments, ar_aging,
+                         financial_journal
+                     Cross-link: claims.member_id -> health_records.
+                       patients.patient_id  (claims contain CPT/ICD-10
+                       codes that are PHI when associated with a name)
+  PHI on this host:  YES  (limited but real:  ICD-10 diagnosis codes
+                     + member identity = PHI under HIPAA's broad
+                     definition)
+  Records at risk:   ~ 51 000 member identities with diagnosis-coded
+                     claims (overlap with SRV-HEALTH-DB patient set)
+  Authorized users:  svc_insurance, DBA_billing
+  Compromise impact: HIGH.  Claims data joined with patient data is
+                     PHI.  Exposure triggers same breach assessment
+                     as SRV-HEALTH-DB but with smaller record set.
+
+--- SRV-FILE-01 ---
+
+  Hostname:          SRV-FILE-01.meddefense.local
+  IP:                10.10.20.30
+  VLAN:              VLAN-20
+  Role:              Departmental file server
+  Operating system:  Windows Server 2019 Standard
+  Owner:             Robert Kim
+  Data sensitivity:  MEDIUM  (mixed)
+  Data stored:       \shared\hr   -> employee benefit forms (PII for
+                       MedDefense employees, ~ 320 records)
+                     \shared\finance  -> internal budget documents
+                     \shared\reference_tables  -> SQL reference data
+                       (read-only by svc_healthsync, svc_insurance)
+                     \shared\policies  -> internal policy documents
+                     \shared\imaging  -> radiology image cache
+                       (PHI -- linked to patient identifiers)
+  PHI on this host:  YES, in \shared\imaging only
+  Records at risk:   Employee PII for ~ 320 people.  Patient imaging
+                     records for ~ 8 400 patients (not the full
+                     EHR cohort).
+  Compromise impact: MEDIUM-HIGH.  Imaging share is a notifiable
+                     PHI source.  Employee PII triggers state PII
+                     notification but not HIPAA.
+
+--- SRV-BACKUP-01 ---
+
+  Hostname:          SRV-BACKUP-01.meddefense.local
+  IP:                10.10.20.80
+  VLAN:              VLAN-20
+  Role:              Veeam backup repository
+  Operating system:  Windows Server 2022 Standard
+  Owner:             Robert Kim
+  Data sensitivity:  CRITICAL  (contains backups of all production
+                     servers including SRV-HEALTH-DB)
+  Data stored:       Veeam backup chain for every production server.
+                     Includes encrypted backup files.  Veeam encryption
+                     keys held in the password manager (offline).
+  PHI on this host:  YES (encrypted at rest within Veeam .vbk files)
+  Compromise impact: CATASTROPHIC if encryption keys are also
+                     compromised; HIGH if attacker can delete
+                     backups (would compromise recovery).
+
+--- SRV-PATCH-01 ---
+
+  Hostname:          SRV-PATCH-01.meddefense.local
+  IP:                10.10.20.60
+  VLAN:              VLAN-20
+  Role:              WSUS / patch deployment
+  Operating system:  Windows Server 2019 Standard
+  Owner:             Robert Kim
+  Data sensitivity:  HIGH  (push privilege to all domain members)
+  Data stored:       WSUS update repository (no PHI)
+  Compromise impact: HIGH.  Compromise of SRV-PATCH-01 enables
+                     supply-chain push of malicious patches to every
+                     domain-joined host.  Treat as Tier 1 asset.
+
+--- SRV-AV-01 ---
+
+  Hostname:          SRV-AV-01.meddefense.local
+  IP:                10.10.20.70
+  VLAN:              VLAN-20
+  Role:              Microsoft Defender for Endpoint orchestration
+  Operating system:  Windows Server 2022 Standard
+  Owner:             James Chen
+  Data sensitivity:  HIGH  (push privilege to all endpoints)
+  Compromise impact: HIGH.  Compromise allows the attacker to disable
+                     EDR globally.  Defender tamper-protection is
+                     enabled but does not protect against
+                     server-side admin actions.
+
+
+WORKSTATION INVENTORY (BY DEPARTMENT)
+=====================================
+
+--- VLAN-2:  Clinical workstations  (10.10.2.0/24) ---
+
+  Hosts:             WS-NURSE-01 .. WS-NURSE-08 (10.10.2.11-18)
+                     WS-DOC-01 .. WS-DOC-04     (10.10.2.30-33)
+  Users:             nurse01..nurse08, kapoor, patel, ito, ortega
+  Data on host:      Clinical workflow caches (Outlook PST, browser
+                     history with EHR session URLs, transient
+                     screenshots from EHR exports).  Session-bound
+                     access to SRV-HEALTH-DB via the EHR app.
+  Data sensitivity:  MEDIUM-HIGH  (transient PHI in caches)
+  Authorized tools:  EHR client, Microsoft 365, browser
+  NOT authorized:    Administrative tools (PsExec, WMI remote, etc.)
+
+  HIGH-VALUE NOTE:   Diane Marsh's account (dmarsh) sits in VLAN-3
+                     (Records dept) but interacts heavily with VLAN-2
+                     workstations through shared documents.  See
+                     records dept entry below.
+
+--- VLAN-3:  Records department  (10.10.3.0/24) ---
+
+  Hosts:             WS-RECV-01 (10.10.3.19, records01)
+                     WS-RECV-02 (10.10.3.20, records02)
+                     WS-RECV-03 (10.10.3.21, records03 / dmarsh
+                       primary, dmarsh-records group)
+                     WS-RECV-04 (10.10.3.22, records04)
+                     WS-RECV-05 (10.10.3.23, records05)
+  Users:             records01..records05, dmarsh (primary on
+                     WS-RECV-03)
+  Data on host:      Front-desk patient intake forms (paper-scan
+                     PDFs cached locally before upload to SRV-FILE-01),
+                     Outlook PST, browser caches.
+  Data sensitivity:  MEDIUM-HIGH  (transient PHI)
+  Authorized tools:  Records app, Microsoft 365, browser, scanner
+                     drivers
+  NOT authorized:    Administrative tools, PowerShell remoting,
+                     PsExec
+
+  COMPROMISED HOST:  WS-RECV-03 (records03)
+    Reason:          See 4x04 hunting report.  WS-RECV-03 is the
+                     pivot host used by the HEALTHBANE attacker
+                     after the dmarsh credential theft at the
+                     phishing portal in 4x00.  This host is in
+                     IR isolation as of 2026-05-15 and its disk
+                     and memory are part of the 4x05 evidence
+                     package.
+
+--- VLAN-4:  Billing and Accounts Payable  (10.10.4.0/24) ---
+
+  Hosts:             WS-BILL-01..WS-BILL-04 (10.10.4.30-33)
+                     WS-AP-01..WS-AP-02     (10.10.4.40-41)
+  Users:             bill01..bill04, ap01, ap02
+  Data on host:      Insurance claim drafts, billing exports,
+                     Excel pivots over claims data.
+  Data sensitivity:  HIGH  (PII + diagnosis-coded financial data
+                     present in caches; treated as PHI in inventory)
+  NOT authorized:    Administrative tools.
+
+--- VLAN-9:  IT administration  (10.10.9.0/24) ---
+
+  Hosts:             WS-ADMIN-01 (10.10.9.10, robert.kim primary)
+                     WS-ADMIN-02 (10.10.9.11, failover)
+                     WS-NET-01   (10.10.9.20, mike.torres networking)
+  Users:             robert.kim (Domain Admin -- restricted),
+                     mike.torres (Network Admin),
+                     james.chen (SOC Lead, has read across SOC tools)
+  Data on host:      Administrative scripts (C:\Tools\, C:\Scripts\),
+                     PowerShell modules, deployment configs.
+                     Contains domain admin credentials in memory
+                     during active sessions.
+  Data sensitivity:  HIGH  (admin credential exposure)
+  Authorized tools:  PsExec, WMI, PSRemoting, sysinternals suite
+                     (per maintenance schedule)
+  Tier:              0  (Privileged Access Workstation)
+
+
+CRITICAL ACCESS PATHS (HIGH-RISK PATHWAYS)
+==========================================
+
+The following access paths are operationally normal but represent
+the highest-impact compromise routes.  Detection rules should
+prioritize anomalies on these paths.
+
+  PATH 1   svc_healthsync  =>  SRV-HEALTH-DB
+           Normal source:  SRV-HEALTH-DB itself (Type 5 service logon)
+                           or backup pulls from SRV-BACKUP-01
+           Anomalous:      Any other source.  This path is the
+                           direct route from a stolen credential to
+                           PHI exposure.  Watched in 4x04 hunt.
+
+  PATH 2   robert.kim  =>  any server in 10.10.20.0/24
+           Normal source:  WS-ADMIN-01 (per maintenance schedule)
+           Anomalous:      Any other source, any non-business hour
+                           timing.
+
+  PATH 3   svc_backup  =>  any production server
+           Normal:         SRV-BACKUP-01 -> production server during
+                           backup window
+           Anomalous:      Reverse direction, or off-window timing
+
+
+PHI EXPOSURE SUMMARY
+====================
+
+If the HEALTHBANE attacker is confirmed to have read patient or claims
+data, the affected datasets are:
+
+  PRIMARY EXPOSURE
+    Source:    SRV-HEALTH-DB / health_records.patients
+    Records:   ~ 47 000 patient identities
+    Field set: name, DOB, SSN (encrypted), address, phone, diagnoses,
+               medications, lab results, clinical notes
+    Trigger:   HIPAA breach notification within 60 calendar days
+               of discovery if access is confirmed and risk
+               assessment fails to demonstrate low probability of
+               compromise (45 CFR 164.402)
+
+  SECONDARY EXPOSURE  (overlapping cohort)
+    Source:    SRV-INS-DB / claims.members
+    Records:   ~ 51 000 member identities
+    Field set: name, DOB, address, policy number, claim diagnoses
+    Trigger:   Same HIPAA framework, plus state PII statutes if
+               members include MedDefense employees
+
+  TERTIARY EXPOSURE
+    Source:    SRV-FILE-01 / \shared\imaging
+    Records:   ~ 8 400 patients
+    Field set: imaging studies linked to patient ID
+
+The combined notification cohort if all three sources are confirmed
+exposed would be approximately 50 000 - 55 000 individuals (deduped
+across the three sources).
+
+
+SIGNED OFF
+----------
+
+  Sarah Park            IT Director              2026-04-01
+  Dr. P. Morales        CISO                     2026-04-01
+  Robert Kim            IT Administrator         2026-04-02
+  James Chen            SOC Lead                 2026-04-02
+
+
+================================================================================
+END OF ASSET INVENTORY
+================================================================================
