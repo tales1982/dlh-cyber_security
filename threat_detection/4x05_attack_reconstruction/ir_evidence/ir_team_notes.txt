@@ -1,0 +1,453 @@
+================================================================================
+  IR TEAM WORKING NOTES -- HEALTHBANE / WS-RECV-03
+  Project 4x05 Reconstruction Input
+================================================================================
+  Period covered:        2026-05-15 (isolation) through 2026-05-18 (handoff)
+  Note custodian:        James Chen (SOC Lead)
+  Contributors:          James Chen, Mike Torres (DFIR), Robert Kim
+                         (sysadmin), Sarah Park (IT Director),
+                         Dr. Patricia Morales (CISO), [student]
+  Format:                Chronological, one entry per shift change or
+                         major event.  Some entries are incomplete or
+                         speculative -- this is a working file, NOT a
+                         finished report.  Treat each claim with the
+                         confidence level its author provides.
+  Confidentiality:       MedDefense Internal -- IR Restricted
+  This file is provided to the 4x05 reconstruction analyst as ONE input
+  among many.  Cross-validate every claim here against memory_artifacts.txt,
+  disk_forensics_report.txt, firewall_sessions_ws_recv_03.json, and the
+  4x00-4x04 previous_findings before adopting it into the final
+  timeline.
+================================================================================
+
+
+HOW TO READ THESE NOTES
+=======================
+Lines tagged [HIGH] are observations the author considers high-confidence
+based on direct evidence in hand at the time of writing.
+
+Lines tagged [MED] are observations the author believes likely but has
+not personally verified or that depend on another team member's claim.
+
+Lines tagged [LOW] are speculation, hypothesis, or someone's verbal claim
+that has NOT been documented elsewhere and should be tested before
+inclusion in any external-facing artifact.
+
+Lines tagged [DISPUTED] are observations where two team members disagree;
+the disagreement is documented for the reconstruction analyst to resolve.
+
+Lines tagged [TODO] are things the author intended to follow up on but
+had not as of the last edit.
+
+
+================================================================================
+ENTRY #001  -- 2026-05-15  13:42 CDT (18:42 UTC)
+Author: James Chen
+Subject: ISOLATION DECISION
+================================================================================
+[HIGH] WS-RECV-03 (10.10.3.21) isolated at 13:42 CDT.  Network ACL applied
+       at the access-layer switch (port Gi1/0/14) -- shutdown command, host
+       reachable to console only.  No further outbound traffic possible.
+[HIGH] Trigger: 4x04 hunt findings R1 (3 PsExec to SRV-HEALTH-DB / SRV-INS-DB
+       / SRV-DC-01 from a non-admin host) escalated for executive review.
+       Dr. Morales authorized isolation at 13:38 CDT via verbal phone call,
+       confirmed by email at 13:46 CDT.
+[HIGH] Diane Marsh and Records-department staff who normally use this
+       workstation were notified at 13:50 CDT and re-assigned to WS-RECV-04
+       and a temporary loaner (SPARE-LAP-12) for the rest of the shift.
+       Diane is the same user whose credentials were phished on 2026-04-14
+       (4x00).  We have NOT made her aware of the chain-of-causation between
+       her phishing click and this incident yet -- coordinated with HR for
+       a structured conversation tomorrow.
+[MED]  records03 (the local Windows account) is shared by 4 records-clerks.
+       This is a legacy convenience account, not a personal account.  We
+       cannot attribute the ATTACKER's actions to any single individual --
+       the records03 account was simply the local-admin context the
+       attacker pivoted into via the LSASS dump.
+
+ACTION at end of shift:
+  - Acquire memory image (in progress at 14:18 CDT, see Entry #002).
+  - Notify Mike Torres for disk imaging post-memory.
+  - Notify Network Engineering for firewall log export.
+
+
+================================================================================
+ENTRY #002  -- 2026-05-15  14:18 CDT
+Author: James Chen
+Subject: MEMORY ACQUISITION COMPLETE
+================================================================================
+[HIGH] WinPmem 4.0.1 used.  Image: WS-RECV-03_2026-05-15_141842.raw
+       (8 GB).  SHA256 captured.  Chain of custody form signed.
+[MED]  Initial spot-check with Volatility imageinfo confirms Win10x64_19045
+       profile.  Pslist runs cleanly; pstree shows the suspicious
+       svchost_update.exe process I expected to see.
+
+Note for 4x05 analyst: I did NOT shut down WS-RECV-03 before imaging;
+this was a LIVE memory capture of a still-running host (network-isolated
+but powered).  This was a deliberate decision to preserve the live
+network-connection state in netscan -- which is what gave us
+the secondary-C2 IP (203.0.113.47:8443).  Had we shut down first,
+that connection state would have been lost.
+
+
+================================================================================
+ENTRY #003  -- 2026-05-15  19:45 CDT
+Author: Mike Torres
+Subject: DISK IMAGE COMPLETE
+================================================================================
+[HIGH] FTK Imager 4.7.1.4.  E01 verified.  250 GB / 8.6 GB compressed
+       to ~ 31 GB E01 segments.  Hash verified twice.  Image SHA256
+       captured (see disk_forensics_report.txt header).
+[HIGH] Imaging duration: 5h 23min.  This was a live-system image
+       (host still powered post-memory-capture); FTK noted minimal
+       skew because the host was idle (network-isolated) during
+       imaging.
+[MED]  Quick spot-checks before deeper Autopsy analysis:
+         - C:\Windows\Temp\debug_tool.exe IS PRESENT on disk.
+           Robert tried to delete it before James could stop him --
+           see Entry #004 for the avoided-disaster.
+         - C:\Windows\Temp\out.dat is GONE (deleted by attacker).
+           Will attempt cluster carving in Autopsy tomorrow.
+         - C:\Users\Public\Tmp\ exists and contains PsExec64.exe
+           and sync_healthdata.ps1.  No staged ZIPs visible
+           (all deleted).  Cluster carving needed.
+
+[TODO Mike] Run Autopsy with FullSearch + carving.  Volatility + Bulk
+       Extractor as secondary tools.  Plan to have a full report by
+       2026-05-17 EOD.
+
+
+================================================================================
+ENTRY #004  -- 2026-05-15  20:30 CDT
+Author: James Chen
+Subject: NEAR-MISS WITH ROBERT
+================================================================================
+[HIGH] At 20:11 CDT, Robert Kim attempted to remote into WS-RECV-03 from
+       his admin workstation to "clean up the obvious malware."  He logged
+       into the host via console (the only path remaining post-isolation)
+       and ran:
+         del C:\Windows\Temp\debug_tool.exe
+       The command FAILED (open handle from the live memory capture; the
+       file was still locked by debug_tool.exe's stale EPROCESS in memory --
+       see memory_artifacts.txt Section 7).  This was a stroke of luck.
+[HIGH] I caught Robert mid-action and confirmed with Dr. Morales that
+       NO FURTHER REMEDIATION is to be performed on WS-RECV-03 until
+       the IR analyst (the 4x05 student) completes the reconstruction.
+       The host is to be treated as forensically frozen.
+[MED]  Robert's intent was good -- he saw the malware and wanted to remove
+       it.  But "clean up obvious malware" before forensics is exactly how
+       organizations destroy their own evidence.  This is going into the
+       lessons-learned for 4x05.
+
+[DISPUTED -- to resolve in 4x05] Robert's claim during the conversation
+that "I'm pretty sure I saw debug_tool on a couple other machines too."
+He named WS-RECV-04 and WS-RECV-07 specifically.  But he could NOT show
+me the timeline or the specific paths, and the 4x04 hunt H4 query found
+NO LSASS-access events on those hosts.  My working hypothesis is that
+Robert is misremembering or conflating with a different incident.  If
+the 4x05 analyst finds any cross-host evidence, this needs immediate
+escalation -- it would change the IR scope.
+
+
+================================================================================
+ENTRY #005  -- 2026-05-16  09:00 CDT
+Author: Mike Torres
+Subject: FIREWALL EXPORT COMPLETE
+================================================================================
+[HIGH] Network Engineering exported 14 days of firewall sessions for
+       10.10.3.21 (both directions).  168-session abridged JSON shared
+       with the IR team; the full 1.8 GB JSON is in IR-FW-EXPORT-2026-05-16.
+[HIGH] My first pass through the export turned up an UNEXPECTED finding:
+       sessions to 203.0.113.47 on TCP/8443 from svchost_update.exe (PID
+       3712).  This IP is NOT in any of our prior IOC lists.  First
+       observation in the firewall log: 2026-05-07 at 06:48 UTC (= 01:48 CDT).
+[MED]  This is consistent with the "secondary C2" mentioned in
+       HC3-2026-HEALTHBANE-004 that we couldn't find during the 4x04
+       hunt because Wazuh agents don't see destination ports beyond what
+       the host's firewall rule reports.  The perimeter firewall does see
+       it, of course.
+[HIGH] I cross-checked netscan from memory_artifacts.txt -- the connection
+       was STILL ESTABLISHED at the moment of memory capture.  This is
+       not a one-shot connection; it's a long-lived secondary C2.
+
+[ANALYST cross-ref] memory_artifacts.txt Section 3 + Section 11 NEW-1.
+
+[TODO Mike] Try to characterize what was sent over the secondary C2.
+       Bytes_in:bytes_out ratio of 2:1 (downstream-heavy) suggests
+       command receipt, not exfil.  Total volume across the channel
+       is small (~ 28 KB in / 14 KB out over 9 days).  Either:
+        (a) it's a low-volume directive channel,
+        (b) the operator never used it actively, just kept it warm
+            as a fallback, OR
+        (c) the operator used it for short directive packets that
+            got executed via the main channel's response.
+       I lean (b) but cannot prove.
+
+
+================================================================================
+ENTRY #006  -- 2026-05-16  11:30 CDT
+Author: Mike Torres
+Subject: FIRST PASS AT EXFIL VOLUME
+================================================================================
+[HIGH] In the firewall log I see THREE distinct outbound bursts to
+       185.220.101.45:443 that are MUCH larger than the normal 5-min
+       beacon (~ 1 KB out).  Sizes:
+         2026-05-08T07:38Z  -- 14 219 484 bytes out
+         2026-05-11T08:17Z  -- 11 802 944 bytes out
+         2026-05-13T07:34Z  --  8 419 232 bytes out
+       Total: 34 441 660 bytes (~ 32.8 MB).
+[MED]  These bursts are too small to be a full clinical-records dump if
+       the attacker grabbed everything (estimated 47k patient records
+       with 6 columns ~ 14 MB compressed -- so the FIRST burst could
+       very well BE the full patient table after gzip).  Working
+       hypothesis: the attacker exfiltrated specific tables, compressed,
+       and uploaded.  Disk forensics will tell us what's in each
+       zip if Autopsy can carve them.
+[HIGH] In addition: between 2026-05-05 and 2026-05-15 there is ELEVATED
+       BYTES_OUT in the daily KNOWN_C2 sessions on two days specifically
+       (5/5 and 5/12) that DOES sum to ~ 23 MB each day.  Those are
+       the days of the LSASS dumps.  I think those days carried the
+       LSASS dump output up over many small beacons rather than a
+       single burst.  This makes the dump exfil HARDER to detect with
+       a "look for one big upload" rule.
+
+[ANALYST -- VERY IMPORTANT for HIPAA scoping]
+The cleanest exfil-volume number we have is 32.8 MB across 3 bursts.
+The disk-recovered ZIPs (14.2 + 11.8 + 8.4 MB) sum to 34.4 MB.  These
+are the SAME bytes -- the firewall sees compressed-on-wire size and
+the disk artifacts are uncompressed-on-disk-then-recompressed-into-zip
+size, but they should match within ~ 5% if my reading is right.
+14 219 484 bytes shows up in BOTH the firewall log and the disk MFT
+record for staging_export_001.zip -- exact match.  That's a smoking
+gun for "this archive was uploaded to this C2 at this time."
+
+
+================================================================================
+ENTRY #007  -- 2026-05-16  16:00 CDT
+Author: James Chen
+Subject: DR. MORALES BRIEFING
+================================================================================
+Briefed Dr. Morales on findings to date.  Her questions and my answers:
+
+Q (PM): Are we sure the attacker is gone?
+A (JC): The host is isolated; the C2 traffic is blocked.  But svchost_update.exe
+       is STILL on disk and Run-key persistence is intact.  If the host is ever
+       brought back online without re-imaging, the RAT will reach out again.
+       So, "out of THIS host's ability to do harm = yes; permanently removed
+       from MedDefense = no, until we re-image."  [HIGH]
+
+Q (PM): How many records were stolen?
+A (JC): Disk forensics estimates 47 138 patient records (SRV-HEALTH-DB) and
+       51 002 insurance member records (SRV-INS-DB), based on the cluster-carved
+       CSVs.  Plus 1184 AD user records (this is reconnaissance, not PHI, but
+       worth noting).  HIPAA scoping: 98 140 records.  Mike's firewall data
+       supports this -- the byte counts MATCH.  [HIGH]
+
+Q (PM): When did this start?
+A (JC): The phishing email reached Diane Marsh on 2026-04-14.  The Stage 2 RAT
+       was installed on 2026-04-22 at 06:14 UTC (this is the BORN time on
+       svchost_update.exe in the AppData folder).  The first lateral movement
+       was 2026-05-06 at 02:11 CDT.  So roughly 22 days of dwell time before
+       lateral movement, then 9 more days before we caught it.  Total dwell:
+       31 days.  [HIGH]
+
+Q (PM): Could we have caught this earlier?
+A (JC): YES.  The Run-key write at 2026-04-22 06:14 UTC SHOULD have triggered
+       Wazuh rule 100091 (which we deployed AFTER 4x03 -- so it was in place
+       on 2026-04-22 already).  Either the rule fired and was missed in
+       triage, or Wazuh wasn't ingesting that host's Sysmon at the time.  I
+       need to check the SOC ticket queue from 2026-04-22 to find out.
+       [TODO James]
+
+Q (PM): Notification timeline -- when do we have to disclose?
+A (JC): HIPAA Breach Notification Rule: notify HHS within 60 days of discovery
+       for breaches affecting 500+ individuals.  Discovery date: today
+       (2026-05-15) is the legally defensible discovery date.  Notification
+       deadline: 2026-07-14.  Affected-individual notification within 60
+       days as well.  Coordinating with Legal.  [HIGH]
+
+
+================================================================================
+ENTRY #008  -- 2026-05-17  08:30 CDT
+Author: Mike Torres
+Subject: AUTOPSY RESULTS
+================================================================================
+[HIGH] Cluster carving recovered FIVE deleted files of forensic interest
+       from C:\Users\Public\Tmp\ and C:\Windows\Temp\.  See
+       disk_forensics_report.txt Section 3.2.
+[HIGH] Schedule-task XML recovered FROM ON-DISK file (still allocated).
+       The task is hidden=true, scheduled daily 02:00, runs an encoded
+       PowerShell that downloads config and runs the exfiltrator.
+       Created 2026-05-07 01:47:33 CDT.
+[HIGH] CONFIRMED that the 4x03 dropper's "PersistViaTask" gated branch
+       DID execute at MedDefense after all -- contrary to the 4x03
+       capability matrix entry which said "capability EXISTS but did NOT
+       execute on WS-RECV-03 in 4x03."  The 4x03 sandbox didn't trigger
+       it, but the C2 evidently sent a "klog":1-equivalent flag for the
+       PersistViaTask branch at some point in the 14-day attack window
+       and the dropper's persistence routine ran.
+
+       UPDATE TO 4x03 CAPABILITY MATRIX:
+         S1 / scheduled-task branch    Available: YES.   Used: YES (CONFIRMED).
+
+[MED]  Autopsy also reports a Defender exclusion in
+       HKLM\SOFTWARE\Microsoft\Windows Defender\Exclusions\Paths for
+       C:\Windows\Temp.  Last-write 2026-05-04 18:11 CDT.  This is
+       a NEW IOC (HB-IOC-NEW-004) and a NEW ATT&CK technique
+       (T1562.001) that wasn't covered in any prior layer.
+
+       [DISPUTED -- to resolve in 4x05] Robert claims he added this
+       exclusion himself "for legitimate sysadmin reasons -- I was
+       running a script in Temp that Defender kept quarantining."
+       I do not believe him.  His maintenance schedule (admin_schedule.txt)
+       does not show any work scheduled for 2026-05-04 evening, and a
+       sysadmin would normally add the exclusion under svc-* or domain
+       admin context, NOT under records03 SID (which is what the
+       hive entry shows).  The 4x05 analyst should investigate this.
+
+[HIGH] Anti-forensics indicators:
+       - Security event log was cleared on 2026-05-09 03:01 CDT
+         (12-minute gap, confirmed by $MFT BORN time on the new
+         Security.evtx file).
+       - Multiple file deletions of staging artifacts (T1070.004).
+       - VSS, USN journal, and prefetch were NOT touched -- which is
+         what made recovery possible.
+
+[OPEN] Did the attacker exfiltrate the LSASS dump file (out.dat) or just
+       the credentials inside it?  Disk recovery is partial (~ 11 MB of
+       23 MB).  Memory shows debug_tool.exe wrote out.dat, then exited.
+       The next ~ 12 hours of C2 sessions show elevated outbound bytes
+       summing to ~ 23 MB.  Strong inference: the dump file WAS exfiltrated
+       in chunks over the C2 channel.  No direct proof.
+
+
+================================================================================
+ENTRY #009  -- 2026-05-17  14:00 CDT
+Author: Sarah Park
+Subject: BUSINESS IMPACT
+================================================================================
+[HIGH] Operational impact assessment:
+       - WS-RECV-03 isolation: 4 records-clerks affected; mitigated with
+         loaner laptops (no patient-care impact).
+       - SRV-HEALTH-DB and SRV-INS-DB are NOT being taken offline; the
+         attacker's database access was via SQL queries that are now
+         being treated as observed-but-unmodified.  No integrity issue.
+       - svc_healthsync credential is being rotated tomorrow morning
+         (2026-05-18) and the old hash will be invalidated by ksetpwd.
+[MED]  Compliance impact (working with Legal):
+       - HIPAA breach notification required.  Affected: 47 138 patients
+         (clinical records) + 51 002 members (insurance).  Some overlap
+         expected -- many patients are also our insurance members.
+         De-duplicated count pending Legal review of cross-database
+         join.  Working estimate: 78-82 thousand unique individuals.
+       - State breach notification: TX, OK, AR statutes apply (we operate
+         in those three states).  Each has a 30/45/60-day notification
+         clock.  TX is 60-day post-discovery; the 2026-07-14 deadline
+         covers all three.
+
+[HIGH] Reputational impact: this is severe.  We are the third HEALTHBANE
+       victim publicly disclosed (per HC3 advisories).  Healthcare-IT
+       press will pick this up.  Communications team needs to draft a
+       statement -- coordinating with Dr. Morales.
+
+[LOW] Personal observation: I think we got lucky with the 4x04 hunt
+      timing.  Without James's hunt initiation on 2026-05-18 morning
+      (yes, the date is correct, hunt was triggered the day before
+      isolation by the new HC3 advisory), we might have been
+      undetected for weeks more.  The exfil rate was steady but not
+      explosive, the C2 traffic blends with HTTPS noise, and the
+      cross-VLAN sessions look like normal sysadmin activity at a
+      glance.  This needs to be a lessons-learned input.
+
+
+================================================================================
+ENTRY #010  -- 2026-05-17  17:00 CDT
+Author: James Chen
+Subject: HANDOFF TO 4x05 ANALYST
+================================================================================
+[HIGH] Tomorrow (2026-05-18) the 4x05 reconstruction begins.  The student
+       analyst has access to:
+         - All five previous_findings (4x00-4x04)
+         - The four IR evidence files (this file is one of them)
+         - The reference set: network topology, asset inventory, IOC
+           master, baseline ATT&CK layer
+         - The 4x04 SIEM data still in the Wazuh archive
+
+       The analyst's job is to UNIFY this into a single attack
+       reconstruction, build the final ATT&CK layer, and propose
+       defensive improvements.  Their deliverables are listed in
+       4x05.md.  I'm available for consultation but not for help
+       with the analysis itself -- that's the point of the project.
+
+[HIGH] Things I want the analyst to specifically PROVE OR DISPROVE
+       during reconstruction:
+
+       A. Did 4x04 miss a workstation other than WS-RECV-03?
+          Robert's claim about WS-RECV-04 / WS-RECV-07 needs disposition.
+          (Re-run the 4x04 H1/H2/H3/H5 queries broader.)
+
+       B. The Defender exclusion -- attacker action or Robert?
+          Hive write under records03 SID strongly suggests attacker.
+          Confirm by checking event log around 2026-05-04 18:11 CDT
+          for the schtasks / reg add command-line that made the change.
+
+       C. The "SOC missed the Run-key alert on 2026-04-22" hypothesis.
+          Was Wazuh rule 100091 firing for HKCU\...\Run\HealthSync on
+          2026-04-22?  If it fired, was it triaged?  If not triaged,
+          why?  This is the most important detection-gap question of
+          the entire investigation.
+
+       D. The secondary C2 (203.0.113.47:8443) -- WHEN was it first
+          configured by the attacker?  The connection started 2026-05-07,
+          but the binary doesn't have the IP hardcoded (per disk
+          analysis).  So the IP must have been delivered via a C2
+          response.  Is there any sign of that delivery in the C2
+          beacon traffic?
+
+       E. The ~ 17-minute gap on 2026-04-14 between Diane's credential
+          submission and AD rotation:  was the dmarsh credential used
+          at all in those 17 minutes?  4x00 said "no logon-as-dmarsh
+          observed at MedDefense after the rotation" but did not say
+          "during the 17 minutes."  Authentication logs from that window
+          exist; cross-check.
+
+[MED]  My personal hypothesis for the FULL chain:
+         Apr 14:  Diane phished, credential captured.  17-min window
+                  not used (the attacker had a parallel plan via
+                  malware).
+         Apr 15:  Stage 2 dropper email lands; Diane opens; RAT
+                  installs on WS-RECV-03.
+         Apr 22:  RAT executes at boot for the first time after a
+                  weekend reboot; Run-key persistence kicks in.
+         May 04:  Attacker (via RAT "ps" command) adds Defender
+                  exclusion for C:\Windows\Temp.
+         May 05:  debug_tool.exe (Mimikatz fork) deployed via RAT
+                  "drop" command, dumps LSASS, exfils dump.
+         May 06:  Attacker passes svc_healthsync hash via PsExec to
+                  SRV-HEALTH-DB; recon performed.
+         May 07:  Scheduled task created for daily exfil.
+                  Secondary C2 to 203.0.113.47:8443 stood up same
+                  day (38 sec apart).
+         May 08:  First exfil burst (47k patient records).
+         May 09:  Lateral movement to SRV-INS-DB; 12-min log clear.
+         May 11:  Second exfil burst (51k insurance records).
+         May 12:  Second LSASS dump (probably for re-acquired creds
+                  in case rotation was suspected).
+         May 13:  Lateral movement to SRV-DC-01; AD enumeration
+                  exfiltrated.
+         May 14:  Quiet day (operator reviewing data?  preparing
+                  next phase?  no smoking gun).
+         May 15:  Final exfil attempt at 02:00 CDT; isolation at 13:42 CDT.
+
+       This is a HYPOTHESIS based on all evidence in hand.  The
+       analyst should test each step against the cited evidence and
+       MARK CONFIDENCE for each step in the final reconstruction.
+
+[HIGH -- DELIVERABLE GUIDANCE]
+The final reconstruction must answer "WHO did WHAT WHEN, with what
+EVIDENCE for each step, at what CONFIDENCE."  Speculation labeled as
+fact is not acceptable.  Evidence-grounded inference is.
+
+================================================================================
+END OF IR TEAM WORKING NOTES
+================================================================================

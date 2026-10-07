@@ -1,0 +1,490 @@
+{
+  "name": "HEALTHBANE - Master IOC database",
+  "version": "4x04-final",
+  "description": "Consolidated IOC database for the HEALTHBANE campaign against MedDefense Health Systems. Combines indicators from 4x00 phishing dissection, 4x01 network forensics, 4x02 intelligence analysis, 4x03 malware triage and 4x04 threat hunt. This file is the reference baseline used by 4x05 attack reconstruction to classify newly-discovered indicators as KNOWN / NEW / MODIFIED.",
+  "schema_version": "1.0",
+  "generated": "2026-05-18",
+  "owner": "James Chen (SOC Lead)",
+  "classification": "INTERNAL - SOC USE",
+  "campaign": {
+    "id": "HEALTHBANE",
+    "first_observed": "2026-04-14",
+    "first_internal_evidence": "2026-04-14 (phishing email batch)",
+    "last_internal_evidence": "2026-05-13 (lateral movement to SRV-DC-01)",
+    "attribution": "Unattributed financially-motivated cluster, healthcare-focused (HC3-2026-HEALTHBANE-001 through 004)"
+  },
+  "iocs": [
+    {
+      "id": "HB-IOC-0001",
+      "type": "domain",
+      "value": "meddefense-portal.com",
+      "category": "phishing_landing",
+      "first_seen": "2026-04-14",
+      "last_seen": "2026-04-21",
+      "sources": ["4x00", "4x02"],
+      "evidence_paths": [
+        "4x00 email batch (subject: Update your MedDefense portal password)",
+        "WHOIS: registered 2026-04-12 (2 days before campaign), Namecheap, privacy-protected"
+      ],
+      "confidence": "HIGH",
+      "notes": "Lookalike of meddefense-portal.meddefense.local (the legitimate internal portal). Hosted Office 365 credential harvesting page. 3 emails referencing this domain confirmed in 4x00."
+    },
+    {
+      "id": "HB-IOC-0002",
+      "type": "domain",
+      "value": "meddefense-benefits.com",
+      "category": "phishing_landing",
+      "first_seen": "2026-04-14",
+      "last_seen": "2026-04-19",
+      "sources": ["4x00", "4x02"],
+      "evidence_paths": [
+        "4x00 email batch (subject: HR benefits enrollment expires)"
+      ],
+      "confidence": "HIGH",
+      "notes": "Lookalike. WHOIS registered 2026-04-12. Same Namecheap reseller as HB-IOC-0001."
+    },
+    {
+      "id": "HB-IOC-0003",
+      "type": "domain",
+      "value": "outlook-protection.com",
+      "category": "phishing_landing",
+      "first_seen": "2026-04-15",
+      "last_seen": "2026-04-19",
+      "sources": ["4x00"],
+      "evidence_paths": [
+        "4x00 email batch (subject: Your mailbox is over quota)"
+      ],
+      "confidence": "HIGH",
+      "notes": "Generic Microsoft impersonation. Not unique to HEALTHBANE but same registrar pattern."
+    },
+    {
+      "id": "HB-IOC-0004",
+      "type": "domain",
+      "value": "healthbane-c2.net",
+      "category": "c2_root_domain",
+      "first_seen": "2026-04-14",
+      "last_seen": "2026-05-13",
+      "sources": ["4x01", "4x02", "4x03", "4x04"],
+      "evidence_paths": [
+        "4x01 PCAP DNS resolution",
+        "4x02 HC3 advisory listing as campaign infrastructure",
+        "4x03 RAT (svchost_update.exe) hardcoded C2 string",
+        "4x04 SIEM DNS query alerts (rule 61645)"
+      ],
+      "confidence": "HIGH",
+      "notes": "Root domain of HEALTHBANE infrastructure. Two subdomains observed (HB-IOC-0005, HB-IOC-0006). Domain registered 2026-03-09 (5 weeks before campaign launch)."
+    },
+    {
+      "id": "HB-IOC-0005",
+      "type": "domain",
+      "value": "sync.healthbane-c2.net",
+      "category": "c2_https_beacon",
+      "first_seen": "2026-04-14",
+      "last_seen": "2026-05-13",
+      "sources": ["4x01", "4x03", "4x04"],
+      "evidence_paths": [
+        "4x01 PCAP TLS SNI (server_name extension)",
+        "4x03 RAT C2 path: https://sync.healthbane-c2.net/api/v1/checkin",
+        "4x04 SIEM DNS queries"
+      ],
+      "confidence": "HIGH",
+      "notes": "Primary C2 beacon endpoint. 5-minute heartbeat. RC4-wrapped JSON over TLS 1.2. Resolves to HB-IOC-0008."
+    },
+    {
+      "id": "HB-IOC-0006",
+      "type": "domain",
+      "value": "data-sync.healthbane-c2.net",
+      "category": "c2_dns_exfil",
+      "first_seen": "2026-04-30",
+      "last_seen": "2026-05-13",
+      "sources": ["4x03", "4x04"],
+      "evidence_paths": [
+        "4x03 exfiltrator (sync_healthdata.ps1) DNS TXT query construction",
+        "4x04 SIEM DNS query alerts"
+      ],
+      "confidence": "HIGH",
+      "notes": "DNS-tunnel exfiltration channel. Used at HEALTHBANE partner victims for data egress (Stage 3). Observed but not exercised against MedDefense in 4x04 (no large-volume queries seen yet -- exfil interrupted by hunt). Resolves to HB-IOC-0009."
+    },
+    {
+      "id": "HB-IOC-0007",
+      "type": "domain",
+      "value": "update.healthbane-c2.net",
+      "category": "c2_payload_distribution",
+      "first_seen": "2026-04-14",
+      "last_seen": "2026-04-21",
+      "sources": ["4x02", "4x03"],
+      "evidence_paths": [
+        "4x03 dropper (HEALTHBANE_S2_invoice.docm) downloads svchost_update.exe from /update/",
+        "4x02 HC3-002 mentions /update/ path"
+      ],
+      "confidence": "HIGH",
+      "notes": "Payload-distribution path on the same C2 infrastructure. Used during Stage 2 dropper -> RAT delivery. Not observed beyond 2026-04-21 at MedDefense (RAT already deployed)."
+    },
+    {
+      "id": "HB-IOC-0008",
+      "type": "ipv4",
+      "value": "185.220.101.45",
+      "category": "c2_https_beacon",
+      "first_seen": "2026-04-14",
+      "last_seen": "2026-05-13",
+      "sources": ["4x01", "4x03", "4x04"],
+      "evidence_paths": [
+        "4x01 PCAP destination IP (port 443)",
+        "4x03 RAT decoded host string after TLS",
+        "4x04 firewall destination correlation"
+      ],
+      "confidence": "HIGH",
+      "notes": "Resolves from HB-IOC-0005 (sync.healthbane-c2.net). ASN 60781 (LeaseWeb DE), known bulletproof reseller. Consistent across whole campaign window."
+    },
+    {
+      "id": "HB-IOC-0009",
+      "type": "ipv4",
+      "value": "185.220.101.46",
+      "category": "c2_dns_exfil",
+      "first_seen": "2026-04-30",
+      "last_seen": "2026-05-13",
+      "sources": ["4x03", "4x04"],
+      "evidence_paths": [
+        "4x03 exfiltrator decoded NS hint",
+        "4x04 firewall logs showing UDP 53 to this destination"
+      ],
+      "confidence": "HIGH",
+      "notes": "Resolves from HB-IOC-0006 (data-sync.healthbane-c2.net). Same /24 as HB-IOC-0008, same ASN."
+    },
+    {
+      "id": "HB-IOC-0010",
+      "type": "url",
+      "value": "https://meddefense-portal.com/login.aspx",
+      "category": "credential_harvest_url",
+      "first_seen": "2026-04-14",
+      "last_seen": "2026-04-21",
+      "sources": ["4x00", "4x01"],
+      "evidence_paths": [
+        "4x00 email body URL after redirect chain",
+        "4x01 PCAP HTTP GET observed for this URL from WS-RECV-03 at 2026-04-14T13:18:05Z (Diane's click)"
+      ],
+      "confidence": "HIGH",
+      "notes": "Confirmed credential capture URL.  Diane Marsh submitted credentials at 13:18:42Z (POST request)."
+    },
+    {
+      "id": "HB-IOC-0011",
+      "type": "filename",
+      "value": "HEALTHBANE_S2_invoice.docm",
+      "category": "dropper",
+      "first_seen": "2026-04-14",
+      "last_seen": "2026-04-21",
+      "sources": ["4x03"],
+      "evidence_paths": [
+        "4x03 sample triage report",
+        "Original delivery filename varied by recipient (April-Invoice-MD2026.docm, BenefitsForm-MD.docm)"
+      ],
+      "confidence": "HIGH",
+      "notes": "VBA macro dropper, AutoOpen + Document_Open handlers, base64+XOR-obfuscated payload, downloads svchost_update.exe."
+    },
+    {
+      "id": "HB-IOC-0012",
+      "type": "sha256",
+      "value": "9a2f3e7b4c1d8a6e5f0b2c9d8e7a4f1b3c6e9a0d2f5b8e1c4a7d0f3b6e9c2a5d",
+      "category": "dropper_hash",
+      "first_seen": "2026-04-14",
+      "last_seen": "2026-04-21",
+      "sources": ["4x03"],
+      "evidence_paths": ["4x03 hash extracted from quarantined sample"],
+      "confidence": "HIGH",
+      "notes": "Dropper sample hash from 4x03 triage."
+    },
+    {
+      "id": "HB-IOC-0013",
+      "type": "filename",
+      "value": "svchost_update.exe",
+      "category": "rat",
+      "first_seen": "2026-04-14",
+      "last_seen": "2026-05-13",
+      "sources": ["4x03", "4x04"],
+      "evidence_paths": [
+        "4x03 sample triage (Stage 2 RAT)",
+        "4x04 hunt cross-reference for persistence checks"
+      ],
+      "confidence": "HIGH",
+      "notes": "Stage 2 RAT. Establishes Run-key persistence at HKCU\\...\\Run\\HealthSync. Beacons to HB-IOC-0005. Implements RC4-like wrapper over TLS."
+    },
+    {
+      "id": "HB-IOC-0014",
+      "type": "sha256",
+      "value": "c8e2a9b4d1f7c0a3e6b9d2c5f8a1e4b7d0c3f6a9e2b5d8c1f4a7e0b3d6c9f2a5",
+      "category": "rat_hash",
+      "first_seen": "2026-04-14",
+      "last_seen": "2026-05-13",
+      "sources": ["4x03"],
+      "evidence_paths": ["4x03 hash from RAT sample"],
+      "confidence": "HIGH"
+    },
+    {
+      "id": "HB-IOC-0015",
+      "type": "registry_key",
+      "value": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\HealthSync",
+      "category": "persistence_runkey",
+      "first_seen": "2026-04-14",
+      "last_seen": "2026-05-13",
+      "sources": ["4x03"],
+      "evidence_paths": ["4x03 sandbox dynamic analysis"],
+      "confidence": "HIGH",
+      "notes": "Run-key value points to %APPDATA%\\Microsoft\\HealthSync\\svchost_update.exe."
+    },
+    {
+      "id": "HB-IOC-0016",
+      "type": "filename",
+      "value": "sync_healthdata.ps1",
+      "category": "exfiltrator",
+      "first_seen": "2026-05-06",
+      "last_seen": "2026-05-13",
+      "sources": ["4x03", "4x04"],
+      "evidence_paths": [
+        "4x03 sample triage (Stage 3 exfiltrator)",
+        "4x04 hunt found stage1.ps1 (renamed copy) on SRV-HEALTH-DB"
+      ],
+      "confidence": "HIGH",
+      "notes": "PowerShell exfiltrator. Targets SQL Server query results. Builds DNS TXT queries to HB-IOC-0006 for chunked exfiltration. Capability includes archive (Compress-Archive) before exfil."
+    },
+    {
+      "id": "HB-IOC-0017",
+      "type": "sha256",
+      "value": "f1e8a4c7b0d3e6a9c2b5d8e1f4a7c0b3d6e9f2a5b8c1d4e7f0a3b6c9d2e5f8a1",
+      "category": "exfiltrator_hash",
+      "first_seen": "2026-05-06",
+      "last_seen": "2026-05-13",
+      "sources": ["4x03"],
+      "evidence_paths": ["4x03 hash from exfiltrator sample"],
+      "confidence": "HIGH"
+    },
+    {
+      "id": "HB-IOC-0018",
+      "type": "user_account",
+      "value": "dmarsh",
+      "category": "compromised_user_credential",
+      "first_seen": "2026-04-14",
+      "last_seen": "2026-04-21",
+      "sources": ["4x00", "4x01"],
+      "evidence_paths": [
+        "4x00 user-confirmed credential submission",
+        "4x01 outbound POST captured to HB-IOC-0010 with Authorization-style payload"
+      ],
+      "confidence": "HIGH",
+      "notes": "Diane Marsh, primary user of WS-RECV-03. AD password rotation completed 2026-04-15 13:20Z by Robert Kim."
+    },
+    {
+      "id": "HB-IOC-0019",
+      "type": "user_account",
+      "value": "svc_healthsync",
+      "category": "compromised_service_credential",
+      "first_seen": "2026-05-05",
+      "last_seen": "2026-05-13",
+      "sources": ["4x04"],
+      "evidence_paths": [
+        "4x04 hunt finding: 6 unauthorized auth events from WS-RECV-03 to SRV-HEALTH-DB and SRV-INS-DB using svc_healthsync",
+        "4x04 hunt finding: NTLM authentication on a Kerberos-only account (RULE 3 violation per service-account matrix)"
+      ],
+      "confidence": "HIGH",
+      "notes": "Service account credential stolen via LSASS dump on WS-RECV-03 on 2026-05-05 ~03:22 CDT. Used for Stage 4 lateral movement."
+    },
+    {
+      "id": "HB-IOC-0020",
+      "type": "filename",
+      "value": "debug_tool.exe",
+      "category": "credential_access",
+      "first_seen": "2026-05-05",
+      "last_seen": "2026-05-12",
+      "sources": ["4x04"],
+      "evidence_paths": [
+        "4x04 hunt finding: Sysmon EID 1 process create, Sysmon EID 10 LSASS access (grantedAccess 0x1010), Sysmon EID 11 file create (out.dat)"
+      ],
+      "confidence": "HIGH",
+      "notes": "Custom credential dumper. Two execution sessions observed: 2026-05-05 03:22 CDT and 2026-05-12 02:45 CDT. Path C:\\Windows\\Temp\\debug_tool.exe. Output written to C:\\Windows\\Temp\\out.dat. SHA256 unrecorded in 4x04 (file deleted by attacker before hunt; recovery is part of 4x05 disk forensics scope)."
+    },
+    {
+      "id": "HB-IOC-0021",
+      "type": "filename",
+      "value": "PsExec64.exe",
+      "category": "lateral_movement_tool",
+      "first_seen": "2026-05-06",
+      "last_seen": "2026-05-13",
+      "sources": ["4x04"],
+      "evidence_paths": [
+        "4x04 hunt finding: 6 PsExec64.exe executions from WS-RECV-03 (records03 user, off-hours, NTLM auth)"
+      ],
+      "confidence": "HIGH",
+      "notes": "Sysinternals PsExec, 64-bit variant. Used in hunt-confirmed lateral movement to SRV-HEALTH-DB, SRV-INS-DB, SRV-DC-01."
+    },
+    {
+      "id": "HB-IOC-0022",
+      "type": "filename",
+      "value": "stage1.ps1",
+      "category": "staged_payload",
+      "first_seen": "2026-05-06",
+      "last_seen": "2026-05-13",
+      "sources": ["4x04"],
+      "evidence_paths": [
+        "4x04 hunt finding: Copy-Item from C:\\Windows\\Temp\\sync_healthdata.ps1 -> C:\\Users\\Public\\stage1.ps1 on SRV-HEALTH-DB"
+      ],
+      "confidence": "HIGH",
+      "notes": "Renamed copy of HB-IOC-0016 (sync_healthdata.ps1). Used by attacker on SRV-HEALTH-DB. Same SHA256 as HB-IOC-0017."
+    },
+    {
+      "id": "HB-IOC-0023",
+      "type": "host",
+      "value": "WS-RECV-03",
+      "category": "compromised_host_pivot",
+      "first_seen": "2026-04-14",
+      "last_seen": "2026-05-13",
+      "sources": ["4x00", "4x01", "4x04"],
+      "evidence_paths": [
+        "4x00 phishing click origin",
+        "4x01 first C2 connection",
+        "4x04 hunt source of all anomalous lateral movement"
+      ],
+      "confidence": "HIGH",
+      "notes": "10.10.3.21. Front-desk records workstation. Pivot host for full HEALTHBANE Stage 2-4 activity. In IR isolation as of 2026-05-15."
+    },
+    {
+      "id": "HB-IOC-0024",
+      "type": "host",
+      "value": "SRV-HEALTH-DB",
+      "category": "compromised_host_target",
+      "first_seen": "2026-05-06",
+      "last_seen": "2026-05-13",
+      "sources": ["4x04"],
+      "evidence_paths": [
+        "4x04 hunt finding: PsExec lateral movement, WMI query, PSRemoting session, file drop"
+      ],
+      "confidence": "HIGH",
+      "notes": "10.10.20.15. Patient health records database. Confirmed compromised through svc_healthsync abuse."
+    },
+    {
+      "id": "HB-IOC-0025",
+      "type": "host",
+      "value": "SRV-INS-DB",
+      "category": "compromised_host_target",
+      "first_seen": "2026-05-09",
+      "last_seen": "2026-05-09",
+      "sources": ["4x04"],
+      "evidence_paths": [
+        "4x04 hunt finding: PsExec lateral movement and WMI from WS-RECV-03"
+      ],
+      "confidence": "MEDIUM",
+      "notes": "10.10.20.25. Insurance claims database. Lateral movement confirmed; data interaction unconfirmed in 4x04. 4x05 to clarify."
+    },
+    {
+      "id": "HB-IOC-0026",
+      "type": "host",
+      "value": "SRV-DC-01",
+      "category": "compromised_host_target",
+      "first_seen": "2026-05-13",
+      "last_seen": "2026-05-13",
+      "sources": ["4x04"],
+      "evidence_paths": [
+        "4x04 hunt finding: PsExec -> powershell.exe -> Get-ADUser enumeration"
+      ],
+      "confidence": "MEDIUM",
+      "notes": "10.10.20.10. Primary domain controller. Read access confirmed (AD enumeration). DCsync / NTDS extraction not observed but cannot be ruled out."
+    },
+    {
+      "id": "HB-IOC-0027",
+      "type": "ttp",
+      "value": "off_hours_ntlm_workstation_to_server",
+      "category": "behavioral_indicator",
+      "first_seen": "2026-05-06",
+      "last_seen": "2026-05-13",
+      "sources": ["4x04"],
+      "evidence_paths": [
+        "4x04 hunt: every Stage 4 auth event from WS-RECV-03 used NTLM (vs Kerberos baseline) at off-hours"
+      ],
+      "confidence": "HIGH",
+      "notes": "Behavioral IOC, not a hash or address. Reproducible across attack waves at MedDefense. Detection rule wlb_ntlm_offhours deployed in 4x04."
+    },
+    {
+      "id": "HB-IOC-0028",
+      "type": "registry_key",
+      "value": "HKLM\\SYSTEM\\CurrentControlSet\\Services\\PSEXESVC",
+      "category": "lateral_movement_artifact",
+      "first_seen": "2026-05-06",
+      "last_seen": "2026-05-13",
+      "sources": ["4x04"],
+      "evidence_paths": [
+        "4x04 hunt: Sysmon EID 13 (registry value set) on lateral targets coincident with PsExec sessions"
+      ],
+      "confidence": "HIGH",
+      "notes": "Standard PsExec service registration on target. Each lateral pivot to SRV-HEALTH-DB / SRV-INS-DB / SRV-DC-01 created and removed this service entry."
+    },
+    {
+      "id": "HB-IOC-0029",
+      "type": "yara_rule",
+      "value": "RULE_HEALTHBANE_DROPPER_VBA_v1",
+      "category": "detection_rule",
+      "first_seen": "2026-04-22",
+      "last_seen": "2026-05-13",
+      "sources": ["4x02"],
+      "evidence_paths": ["4x02 detection rule package"],
+      "confidence": "HIGH",
+      "notes": "YARA rule matching XOR-decoded VBA + AutoOpen + base64 chr() chain in HEALTHBANE_S2_invoice.docm. Deployed in mail gateway and on-host AV."
+    },
+    {
+      "id": "HB-IOC-0030",
+      "type": "wazuh_rule",
+      "value": "100080 - HEALTHBANE: Known phishing-related domain or sender contacted",
+      "category": "detection_rule",
+      "first_seen": "2026-04-22",
+      "last_seen": "2026-05-13",
+      "sources": ["4x02"],
+      "evidence_paths": ["4x02 SIEM rule deployment"],
+      "confidence": "HIGH",
+      "notes": "Wazuh custom rule alerting on contact with HB-IOC-0001/0002/0003 indicators."
+    },
+    {
+      "id": "HB-IOC-0031",
+      "type": "wazuh_rule",
+      "value": "wlb_ntlm_offhours - HEALTHBANE Stage 4 lateral movement detection",
+      "category": "detection_rule",
+      "first_seen": "2026-05-13",
+      "last_seen": "2026-05-13",
+      "sources": ["4x04"],
+      "evidence_paths": ["4x04 hunt deliverable"],
+      "confidence": "HIGH",
+      "notes": "Wazuh behavioral rule: NTLM Network logon to a server-segment host outside business hours where target user matches ^svc_."
+    }
+  ],
+  "summary": {
+    "total_iocs": 31,
+    "by_type": {
+      "domain": 7,
+      "ipv4": 2,
+      "url": 1,
+      "filename": 6,
+      "sha256": 3,
+      "registry_key": 2,
+      "user_account": 2,
+      "host": 4,
+      "ttp": 1,
+      "yara_rule": 1,
+      "wazuh_rule": 2
+    },
+    "by_source": {
+      "4x00_only": 1,
+      "4x01_only": 0,
+      "4x02_only": 0,
+      "4x03_only": 6,
+      "4x04_only": 8,
+      "multi_source": 16
+    },
+    "by_confidence": {
+      "HIGH": 30,
+      "MEDIUM": 1,
+      "LOW": 0
+    }
+  },
+  "ioc_gaps_known_to_4x04": [
+    "Secondary C2 IP suspected from 4x02 advisory but not yet observed at MedDefense (may surface in 4x05 firewall logs).",
+    "Scheduled-task persistence: not observed by any 4x00-4x04 evidence source (hunt did not include schtasks queries).",
+    "Data staging: implied by 4x03 exfiltrator capability but no concrete artifacts on disk yet (4x05 disk forensics scope).",
+    "Anti-forensics: 4x04 hunt did not query for log gaps or wevtutil cl events (4x05 to address)."
+  ]
+}
