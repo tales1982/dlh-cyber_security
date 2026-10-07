@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Resumo 4x02 - Intelligence-Driven Defense</title>
+<style>
+  @page { size: A4; margin: 16mm 16mm 18mm 16mm; }
+  body { font-family: "Segoe UI", "DejaVu Sans", Arial, sans-serif; font-size: 10.5pt; line-height: 1.5; color: #1f2933; margin: 0; }
+  header { border-bottom: 3px solid #1d4e89; padding-bottom: 8px; margin-bottom: 14px; }
+  .modulo { font-size: 9pt; letter-spacing: .08em; text-transform: uppercase; color: #1d4e89; font-weight: 700; }
+  h1 { font-size: 20pt; margin: 2px 0 4px; color: #102a43; }
+  .sub { color: #52606d; margin: 0; }
+  h2 { font-size: 13pt; color: #1d4e89; margin: 18px 0 6px; border-bottom: 1px solid #d9e2ec; padding-bottom: 3px; }
+  .box { background: #f0f4f8; border-left: 4px solid #1d4e89; padding: 8px 12px; margin: 8px 0; break-inside: avoid; }
+  .task { border: 1px solid #d9e2ec; border-left: 4px solid #2f80c3; border-radius: 4px; padding: 7px 11px; margin: 8px 0; break-inside: avoid; }
+  .task h3 { font-size: 11pt; margin: 0 0 3px; color: #102a43; }
+  .task p { margin: 2px 0; }
+  .rot { font-weight: 700; color: #334e68; }
+  ul { margin: 4px 0 4px 18px; padding: 0; }
+  li { margin: 2px 0; }
+  footer { margin-top: 16px; font-size: 8.5pt; color: #829ab1; border-top: 1px solid #d9e2ec; padding-top: 5px; }
+</style>
+</head>
+<body>
+<header>
+  <div class="modulo">Threat Detection · Módulo 4x02</div>
+  <h1>Intelligence-Driven Defense</h1>
+  <p class="sub">Resumo do módulo: o que estudamos, o que cada exercício pedia e o que era para aprender</p>
+</header>
+
+<h2>Contexto</h2>
+<p>Depois de investigar o incidente pelo e-mail (4x00) e pela rede (4x01), a pergunta muda de "o que aconteceu com a gente" para "de que campanha isso faz parte". Quatro fontes de inteligência falam do mesmo ataque, chamado HEALTHBANE: um alerta do HC3 (governo), um feed comercial de inteligência, o blog de um pesquisador independente e os próprios achados do MedDefense. Elas nem sempre concordam, e o trabalho é decidir em quem confiar e como transformar isso em defesa.</p>
+
+<div class="box"><span class="rot">Objetivo de aprendizado:</span> aprender a trabalhar com threat intelligence (CTI): juntar e limpar indicadores de várias fontes, separar o que é acionável do que é ruído, avaliar a confiabilidade das fontes, reconstruir a campanha, mapear para o MITRE ATT&amp;CK, encontrar lacunas de detecção e escrever regras YARA testadas de verdade.</div>
+
+<h2>O que cada exercício pedia</h2>
+
+<div class="task"><h3>0 · Entrada de inteligência</h3>
+<p><span class="rot">Pedido:</span> extrair e normalizar os indicadores das 4 fontes numa lista só, contando os brutos (89) e os únicos depois de remover duplicados (50).</p>
+<p><span class="rot">Para que servia:</span> aprender que fontes diferentes repetem e escrevem indicadores de formas diferentes, e que o método de deduplicar precisa ser explicado, principalmente quando o número final difere do esperado.</p></div>
+
+<div class="task"><h3>1 · Triagem de indicadores</h3>
+<p><span class="rot">Pedido:</span> classificar os 50 indicadores em ACTIONABLE (bloquear), CONTEXTUAL (caçar/correlacionar) ou NOISE (ignorar), com justificativa e confiança.</p>
+<p><span class="rot">Para que servia:</span> entender que bloquear tudo causa dano (IPs de CDN, nuvem da Microsoft) e que um indicador com defeito (um hash curto demais) não pode ir para uma lista de bloqueio, mesmo confirmado por várias fontes.</p></div>
+
+<div class="task"><h3>2 · Avaliação das fontes</h3>
+<p><span class="rot">Pedido:</span> aplicar o Código Admiralty (confiabilidade da fonte e credibilidade da informação) e resolver o conflito de nomes: HEALTHBANE, VITALSCORE ou APT-MEDAGENT.</p>
+<p><span class="rot">Para que servia:</span> aprender que uma fonte boa pode publicar uma afirmação fraca, e que atribuição de autoria é incerta e não deve ser exagerada.</p></div>
+
+<div class="task"><h3>6 · Kill chain da campanha</h3>
+<p><span class="rot">Pedido:</span> reconstruir os 3 estágios da campanha (phishing, entrega do malware, exfiltração por DNS), com tabela de qualidade da evidência e uma seção "o que não se sabe".</p>
+<p><span class="rot">Para que servia:</span> praticar a narrativa de campanha avaliando a solidez de cada parte, em vez de apresentar tudo como certo.</p></div>
+
+<div class="task"><h3>7 · Mapeamento ATT&amp;CK</h3>
+<p><span class="rot">Pedido:</span> mapear a campanha para 22 técnicas do MITRE ATT&amp;CK, separando observadas de inferidas, e gerar um arquivo para o ATT&amp;CK Navigator.</p>
+<p><span class="rot">Para que servia:</span> aprender a linguagem comum do setor para descrever ataques e a visualizar a cobertura.</p></div>
+
+<div class="task"><h3>8 · Lacunas de detecção</h3>
+<p><span class="rot">Pedido:</span> comparar cada técnica com as detecções que o MedDefense realmente tem e classificar como detectada, parcial ou não detectada, com prioridades.</p>
+<p><span class="rot">Para que servia:</span> transformar inteligência em plano de ação: saber onde a defesa está cega e o que construir primeiro.</p></div>
+
+<div class="task"><h3>9 e 10 · Regras YARA</h3>
+<p><span class="rot">Pedido:</span> escrever uma regra para os PDFs de isca e outra para os cabeçalhos dos e-mails de phishing, sem depender de domínios específicos.</p>
+<p><span class="rot">Para que servia:</span> aprender a detectar padrões do atacante (ferramenta usada, tipo de URL) que sobrevivem à troca de domínios, e a documentar um erro real encontrado (um hífen no lugar de um espaço) em vez de escondê-lo.</p></div>
+
+<div class="task"><h3>11 · Teste das regras YARA</h3>
+<p><span class="rot">Pedido:</span> rodar as regras contra todas as amostras, calcular acertos, falsos positivos e falsos negativos, e recomendar implantar ou ajustar.</p>
+<p><span class="rot">Para que servia:</span> aprender que uma regra só vale depois de testada com números reais, e que cada regra deve ser medida apenas dentro do seu próprio escopo.</p></div>
+
+<div class="task"><h3>13 · Relatório de inteligência</h3>
+<p><span class="rot">Pedido:</span> um relatório final para a liderança e parceiros: resumo executivo, perfil do adversário, campanha, ATT&amp;CK, lacunas, IOCs, YARA, recomendações e prioridades de coleta.</p>
+<p><span class="rot">Para que servia:</span> praticar a entrega de inteligência para quem decide, incluindo o que ainda falta saber.</p></div>
+
+<h2>O que ficou de lição</h2>
+<ul>
+  <li>Inteligência boa é inteligência avaliada: fonte, credibilidade e confiança importam.</li>
+  <li>Nem todo indicador é bloqueável; ruído mal tratado vira incidente operacional.</li>
+  <li>Atribuição é incerta; o nome da campanha é um rótulo de trabalho, não um fato.</li>
+  <li>Detectar o comportamento e a ferramenta do atacante dura mais do que bloquear domínios e IPs.</li>
+  <li>Regra sem teste é suposição.</li>
+</ul>
+
+<footer>dlh-cyber_security · threat_detection/4x02_intelligence_driven_defense</footer>
+</body>
+</html>

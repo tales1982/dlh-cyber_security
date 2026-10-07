@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Resumo 4x04 - Threat Hunting</title>
+<style>
+  @page { size: A4; margin: 16mm 16mm 18mm 16mm; }
+  body { font-family: "Segoe UI", "DejaVu Sans", Arial, sans-serif; font-size: 10.5pt; line-height: 1.5; color: #1f2933; margin: 0; }
+  header { border-bottom: 3px solid #1d4e89; padding-bottom: 8px; margin-bottom: 14px; }
+  .modulo { font-size: 9pt; letter-spacing: .08em; text-transform: uppercase; color: #1d4e89; font-weight: 700; }
+  h1 { font-size: 20pt; margin: 2px 0 4px; color: #102a43; }
+  .sub { color: #52606d; margin: 0; }
+  h2 { font-size: 13pt; color: #1d4e89; margin: 18px 0 6px; border-bottom: 1px solid #d9e2ec; padding-bottom: 3px; }
+  .box { background: #f0f4f8; border-left: 4px solid #1d4e89; padding: 8px 12px; margin: 8px 0; break-inside: avoid; }
+  .task { border: 1px solid #d9e2ec; border-left: 4px solid #2f80c3; border-radius: 4px; padding: 7px 11px; margin: 8px 0; break-inside: avoid; }
+  .task h3 { font-size: 11pt; margin: 0 0 3px; color: #102a43; }
+  .task p { margin: 2px 0; }
+  .rot { font-weight: 700; color: #334e68; }
+  ul { margin: 4px 0 4px 18px; padding: 0; }
+  li { margin: 2px 0; }
+  footer { margin-top: 16px; font-size: 8.5pt; color: #829ab1; border-top: 1px solid #d9e2ec; padding-top: 5px; }
+</style>
+</head>
+<body>
+<header>
+  <div class="modulo">Threat Detection · Módulo 4x04</div>
+  <h1>Threat Hunting</h1>
+  <p class="sub">Resumo do módulo: o que estudamos, o que cada exercício pedia e o que era para aprender</p>
+</header>
+
+<h2>Contexto</h2>
+<p>Um novo alerta do HC3 avisou que a campanha HEALTHBANE tem um quarto estágio: depois de entrar, o atacante se move pela rede usando ferramentas legítimas do próprio Windows (PsExec, WMI, PowerShell Remoting), rouba credenciais da memória (LSASS) e abusa de uma conta de serviço. Como essas ferramentas são usadas também pelos administradores, nenhuma regra disparou. Em vez de esperar um alerta, o módulo pede para ir caçar: formular hipóteses e procurar sinais nelas em 14 dias de dados do SIEM do MedDefense. O resultado da caçada foi positivo: o estágio 4 aconteceu.</p>
+
+<div class="box"><span class="rot">Objetivo de aprendizado:</span> aprender threat hunting guiado por hipótese — partir de uma inteligência, escrever hipóteses testáveis, entender o comportamento normal (baseline) para separar o administrador legítimo do atacante, caçar técnicas "living off the land" (que usam ferramentas do próprio sistema), correlacionar os achados numa linha do tempo e transformar o que foi encontrado em cobertura ATT&amp;CK e regras de detecção.</div>
+
+<h2>O que cada exercício pedia</h2>
+
+<div class="task"><h3>0 · Briefing da caçada</h3>
+<p><span class="rot">Pedido:</span> ler o alerta do HC3, extrair as técnicas do estágio 4, conferir quais não tinham cobertura de detecção depois do 4x03 e montar o escopo da caçada com prioridades de P1 a P5.</p>
+<p><span class="rot">Para que servia:</span> aprender que uma caçada começa com um objetivo definido, nascido de inteligência e de lacunas de detecção, e não com uma busca aleatória nos logs.</p></div>
+
+<div class="task"><h3>2 · Perfil de baseline do administrador</h3>
+<p><span class="rot">Pedido:</span> estudar a atividade normal do administrador Robert Kim: de qual máquina ele trabalha, em que horários e com qual conta.</p>
+<p><span class="rot">Para que servia:</span> criar o filtro de falso positivo da caçada inteira. Se o uso de PsExec ou WMI bate com o padrão dele, é trabalho legítimo; se foge disso, é suspeito.</p></div>
+
+<div class="task"><h3>3 · Reconhecimento dos dados</h3>
+<p><span class="rot">Pedido:</span> perfilar os 9.800 eventos de 14 dias e confirmar que existem dados para testar cada uma das 5 hipóteses.</p>
+<p><span class="rot">Para que servia:</span> aprender a checar antes se a caçada é possível. Uma hipótese sem dado para testar não pode ser confirmada nem descartada.</p></div>
+
+<div class="task"><h3>4 · Caçada ao PsExec (H1)</h3>
+<p><span class="rot">Pedido:</span> procurar uso de PsExec fora do padrão.</p>
+<p><span class="rot">Para que servia:</span> praticar a comparação com a baseline. 6 de 50 eventos vinham de uma estação de recepção, com a conta de serviço, de madrugada, contra servidores de produção. Resultado positivo, com alta confiança.</p></div>
+
+<div class="task"><h3>5 · Caçada ao WMI (H3)</h3>
+<p><span class="rot">Pedido:</span> procurar execução remota via WMI fora do padrão.</p>
+<p><span class="rot">Para que servia:</span> reconhecer outra forma de movimento lateral. O WMI abriu um shell em cada servidor-alvo cerca de 30 minutos depois de cada sessão de PsExec. Positivo.</p></div>
+
+<div class="task"><h3>6 · Caçada ao roubo de credenciais (H2)</h3>
+<p><span class="rot">Pedido:</span> procurar acessos suspeitos à memória do LSASS, onde o Windows guarda credenciais.</p>
+<p><span class="rot">Para que servia:</span> entender como o atacante consegue novas senhas. Uma ferramenta citada pelo HC3 extraiu credenciais duas vezes, e em menos de 24h a conta de serviço começou a ser usada. Positivo.</p></div>
+
+<div class="task"><h3>7 · Caçada ao PowerShell Remoting (H4)</h3>
+<p><span class="rot">Pedido:</span> procurar sessões remotas de PowerShell fora do padrão.</p>
+<p><span class="rot">Para que servia:</span> ligar o estágio 4 ao 4x03: essas sessões copiaram o script de roubo de dados (o mesmo analisado no 4x03) para dois bancos de dados de produção. Positivo.</p></div>
+
+<div class="task"><h3>8 · Análise temporal</h3>
+<p><span class="rot">Pedido:</span> juntar todos os eventos suspeitos e analisar quando aconteceram.</p>
+<p><span class="rot">Para que servia:</span> perceber que o horário é uma impressão digital do atacante: 100% dos eventos foram entre 01h e 05h, em 5 noites, com pausas, exatamente como o HC3 descreveu.</p></div>
+
+<div class="task"><h3>9 · Caçada ao abuso de conta de serviço (H5)</h3>
+<p><span class="rot">Pedido:</span> verificar se alguma conta de serviço foi usada de forma não autorizada.</p>
+<p><span class="rot">Para que servia:</span> aprender que contas de serviço têm um comportamento muito previsível, o que facilita achar o desvio. 6 logins da conta svc_healthsync vinham de estações de trabalho, enquanto as outras 5 contas de serviço não tinham nenhum desvio. Confiança crítica.</p></div>
+
+<div class="task"><h3>10 · Correlação de evidências</h3>
+<p><span class="rot">Pedido:</span> unir os achados das tasks 4 a 9 numa linha do tempo única, por fase do ataque.</p>
+<p><span class="rot">Para que servia:</span> contar a história completa: a máquina de entrada (WS-RECV-03), a conta roubada (svc_healthsync), os servidores atingidos e quase 8 dias de presença do atacante.</p></div>
+
+<div class="task"><h3>11 · Atualização do ATT&amp;CK</h3>
+<p><span class="rot">Pedido:</span> atualizar o mapa do MITRE ATT&amp;CK, mudando as 5 técnicas confirmadas de "não coberta" para "observada", e recalcular a cobertura.</p>
+<p><span class="rot">Para que servia:</span> registrar o que a caçada provou (cobertura observada de 48% para 65%) e aprender a recalcular números direto dos dados, já que o resumo guardado no próprio arquivo de referência estava errado.</p></div>
+
+<div class="task"><h3>12 · Análise de lacunas</h3>
+<p><span class="rot">Pedido:</span> para cada técnica descoberta, explicar por que a detecção não viu, qual dado seria necessário, qual lógica usar e a prioridade.</p>
+<p><span class="rot">Para que servia:</span> entender que uma caçada bem-sucedida também é um diagnóstico das falhas da defesa.</p></div>
+
+<div class="task"><h3>13 · Regras de detecção</h3>
+<p><span class="rot">Pedido:</span> escrever 6 regras (5 de host e 1 de rede) fechando as lacunas, com estimativa de falso positivo e lógica baseada na baseline.</p>
+<p><span class="rot">Para que servia:</span> fechar o ciclo da caçada: o que foi achado na mão uma vez passa a ser detectado automaticamente da próxima vez.</p></div>
+
+<div class="task"><h3>14 · Relatório da caçada</h3>
+<p><span class="rot">Pedido:</span> um relatório final para o SOC e para a diretoria: resumo executivo, metodologia, achados H1 a H5, linha do tempo, ATT&amp;CK, melhorias de detecção, lacunas restantes e lições aprendidas.</p>
+<p><span class="rot">Para que servia:</span> comunicar o resultado: o ataque não foi só uma tentativa, ele avançou dentro da rede.</p></div>
+
+<h2>O que ficou de lição</h2>
+<ul>
+  <li>Threat hunting parte de uma hipótese testável, não de "olhar os logs para ver se acha algo".</li>
+  <li>Ferramentas legítimas do Windows não são ruins em si; o suspeito é quem usa, de onde, quando e com qual conta.</li>
+  <li>A baseline do comportamento normal é o que separa o administrador do atacante.</li>
+  <li>Vários sinais fracos juntos (PsExec, WMI, LSASS, horário, conta) viram uma conclusão forte.</li>
+  <li>Toda caçada termina em melhoria: ATT&amp;CK atualizado e regras novas.</li>
+  <li>Números de resumo podem estar errados; recalcular a partir do dado bruto.</li>
+</ul>
+
+<footer>dlh-cyber_security · threat_detection/4x04_threat_hunting</footer>
+</body>
+</html>

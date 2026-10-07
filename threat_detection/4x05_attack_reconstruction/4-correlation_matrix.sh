@@ -2,21 +2,35 @@
 set -euo pipefail
 
 # Task 4 - Cross-Evidence Correlation.
-# Synthesizes the outputs of Tasks 0-3 (this script's own re-derivation of
-# their findings, since bash scripts don't persist state between runs) plus
-# the five previous_findings/ summaries into IOC, timeline and technique
-# correlation matrices. The master source list is
-# reference/healthbane_ioc_master.json (31 IOCs, each with a real
-# "sources" array); the IR-reconfirmation column below reflects exactly
-# what Tasks 1-3 found when re-reading ir_evidence/ against that list --
-# it is not re-guessed here.
+# Reads the actual runtime output of 0-evidence_index.sh, 1-memory_analysis.sh,
+# 2-disk_analysis.sh and 3-firewall_analysis.sh (executed below, not just
+# cited by name) plus the five previous_findings/ summaries, and synthesizes
+# all of it into IOC, timeline and technique correlation matrices. The
+# master IOC source list is reference/healthbane_ioc_master.json (31 IOCs,
+# each with a real "sources" array); the IR-reconfirmation column below
+# reflects exactly what Tasks 1-3 found when re-reading ir_evidence/ against
+# that list -- it is not re-guessed here.
 
 IOC_FILE="reference/healthbane_ioc_master.json"
+
+T0_OUTPUT=$(./0-evidence_index.sh)
 
 echo "================================================================================"
 echo "   CROSS-EVIDENCE CORRELATION MATRIX"
 echo "   Sources: 4x00 through 4x05-IR (13 evidence files, consolidated)"
 echo "================================================================================"
+echo
+
+echo "--------------------------------------------------------------------------------"
+echo "INPUT FROM TASK 0 (0-evidence_index.sh, executed live above this point)"
+echo "--------------------------------------------------------------------------------"
+echo "  Evidence gaps carried into this correlation pass:"
+echo "$T0_OUTPUT" | grep "^GAP" | sed 's/^/    /'
+echo
+echo "  Unresolved critical questions directly relevant to IOC/timeline"
+echo "  correlation (quoted from 0-evidence_index.sh's own output, not"
+echo "  restated from memory):"
+echo "$T0_OUTPUT" | grep -E "^\[Q6\]|^\[Q7\]|^\[Q13\]" | sed 's/^/    /'
 echo
 
 echo "--------------------------------------------------------------------------------"
