@@ -1,0 +1,115 @@
+playbook_id: PB-002
+title: Clinical Service Degradation on Radiology Imaging Server (PACS)
+owner_role: IR_Commander
+applies_to:
+  triggers:
+    - ER or radiology staff report that X-rays cannot be retrieved or load very slowly from PACS
+    - PACS server CPU, disk I/O, or response time monitoring alert above baseline
+    - EDR or SIEM alert on the PACS server or its service accounts
+  indicators:
+    - Incident indicator - unknown process or executable running on the PACS server
+    - Incident indicator - mass file rename, new file extensions, or ransom note on image storage
+    - Incident indicator - outbound connections from PACS to unknown external IPs or large outbound transfer
+    - Incident indicator - logins from unusual accounts, admin logins outside change windows, or new local accounts
+    - Incident indicator - security tools (EDR, antivirus, backup agent) stopped on the server
+    - Performance indicator - slowness matches a known cause (backup job, change ticket, patch, storage nearly full)
+    - Performance indicator - load comes only from known PACS processes and known modalities or workstations
+    - Performance indicator - no EDR or SIEM alert and no unusual authentication on the server
+    - Performance indicator - same pattern seen before and resolved by the vendor or infrastructure team
+severity_mapping:
+  initial: SEV3
+  escalate_if:
+    - Any incident indicator confirmed -> SEV2
+    - Encryption, data exfiltration, or attacker activity confirmed on PACS -> SEV1
+    - Imaging unavailable for active ER patients for more than 30 minutes -> SEV2
+    - Same indicators found on another clinical system or another site -> SEV1
+immediate_actions:
+  - step: Call the On-call Clinical Lead (ER charge nurse and radiology manager) to confirm patient impact and how many patients are waiting
+    owner: IR_Commander
+    timebox_minutes: 5
+  - step: Run triage - check the incident indicators against the performance indicators (EDR console, SIEM, process list, open change tickets, backup schedule)
+    owner: Technical_Lead
+    timebox_minutes: 10
+  - step: Declare SEV3, open the incident bridge, start the timeline, invite the On-call Clinical Lead to the bridge
+    owner: IR_Commander
+    timebox_minutes: 5
+  - step: Contact Infrastructure and the PACS vendor support line to rule out a known performance issue
+    owner: Technical_Lead
+    timebox_minutes: 15
+evidence_preservation:
+  - artifact: Memory capture of the PACS server
+    method: EDR live response memory dump, hash with SHA-256 and store in the evidence share
+    before_step: Network segmentation of the PACS server
+  - artifact: Running processes, services, network connections, and logged-in sessions
+    method: EDR live response collection (process tree, netstat, scheduled tasks, local accounts)
+    before_step: Service account restriction
+  - artifact: Windows event logs, PACS application logs, and firewall logs for the PACS VLAN
+    method: Export from the server and SIEM for the last 7 days, hash and store read-only
+    before_step: Service throttling or any restart of the PACS service
+  - artifact: Snapshot of the PACS virtual machine and image storage
+    method: Hypervisor snapshot with storage team, kept isolated from production
+    before_step: Full isolation of the PACS server
+containment_actions:
+  - step: Get explicit go-ahead from the On-call Clinical Lead before any isolation, segmentation, or restriction action
+    owner: IR_Commander
+    decision_point: No isolation action is executed without the On-call Clinical Lead confirming patients are safe or downtime procedures are active
+    trade_off: Protects patient care first; adds a few minutes before containment can start
+  - step: Choose between investigating under downtime or continuing service with elevated monitoring and constrained access
+    owner: IR_Commander
+    decision_point: Investigate under downtime if any incident indicator is confirmed (encryption, attacker process, exfiltration); continue service with elevated monitoring and constrained access if only suspicious signals exist and no incident indicator is confirmed
+    trade_off: Downtime gives full investigation and stops spread but forces paper workflow for the ER; continued service keeps imaging available but accepts risk that the attacker is still active
+  - step: Network segmentation - restrict PACS to the radiology modalities, ER and ward viewing workstations, and storage only; block internet and all other VLANs at the firewall
+    owner: Technical_Lead
+    decision_point: Apply when any incident indicator is suspected but clinicians still need images
+    trade_off: Keeps image viewing available inside the hospital; stops lateral movement and exfiltration; remote radiology reading and vendor remote access are lost
+  - step: Account restriction - disable non-essential and suspicious accounts, rotate the PACS service account password, remove admin rights not needed for clinical use
+    owner: Technical_Lead
+    decision_point: Apply when unusual logins or new accounts are found
+    trade_off: Cuts attacker access paths; some radiology staff or vendor engineers lose access until reviewed
+  - step: Service throttling - suspend non-urgent jobs (archive migration, prefetch, batch exports, backups) and limit retrieval to ER and urgent requests
+    owner: Technical_Lead
+    decision_point: Apply when load is the main patient impact and the cause is still unknown
+    trade_off: Restores speed for ER patients; routine imaging and archive tasks are delayed
+  - step: Full isolation of the PACS server from the network
+    owner: IR_Commander
+    decision_point: Only after the On-call Clinical Lead has activated downtime procedures, and only if encryption or active attacker control is confirmed
+    trade_off: Stops the incident completely; imaging is unavailable and the hospital runs on downtime procedures
+eradication_actions:
+  - Remove malicious files, processes, scheduled tasks, and persistence found on the PACS server
+  - Delete unauthorized local and domain accounts and reset all PACS service and admin credentials
+  - Patch the vulnerability or close the access path used by the attacker, with PACS vendor approval
+  - Rebuild the PACS server from a known-good image and restore image data from clean backup if integrity cannot be confirmed
+recovery_validation:
+  - check: EDR full scan and SIEM review of the PACS server for 48 hours after recovery
+    criterion: No malicious process, no unknown outbound connection, no unusual login
+  - check: Image retrieval test from an ER workstation with the On-call Clinical Lead
+    criterion: X-ray opens within the normal response time (under 5 seconds) for test and real patients
+  - check: Image integrity check on studies created during the incident window
+    criterion: Image count and checksums match the modality records, no corrupted or missing studies
+  - check: Downtime exit review with the On-call Clinical Lead
+    criterion: Clinical Lead confirms normal workflow is resumed and paper records are reconciled
+communication_plan:
+  - audience: On-call Clinical Lead (ER charge nurse and radiology manager)
+    trigger: Before any isolation action, and at the moment downtime procedures must be activated (when imaging is unavailable for more than 30 minutes or full isolation is decided)
+    template: comms_clinical_downtime.md
+  - audience: Executive_Sponsor (CISO)
+    trigger: On escalation to SEV2 or SEV1, and every 60 minutes during downtime
+    template: comms_executive_update.md
+  - audience: Legal_Liaison (General Counsel)
+    trigger: When access to, encryption of, or exfiltration of patient images (ePHI) is confirmed
+    template: comms_legal_hipaa_assessment.md
+  - audience: Clinical staff at the affected site
+    trigger: When downtime procedures start and when imaging service is restored
+    template: comms_staff_service_status.md
+escalation_triggers:
+  - Any incident indicator confirmed on the PACS server
+  - Imaging unavailable for active ER patients for more than 30 minutes
+  - Encryption or exfiltration of patient images confirmed
+  - Same indicators appear on another clinical system or another MedDefense site
+  - No triage conclusion within 60 minutes of SEV3 declaration
+post_incident_tasks:
+  - Hand the timeline, triage decisions, and evidence to the post-incident review
+  - Review how long the clinical downtime lasted and whether the fallback worked for the ER
+  - Add PACS performance baselines and incident indicators to SIEM detection rules
+  - Agree a pre-approved partial containment plan for PACS with radiology and the vendor
+  - Run a downtime procedure exercise with ER and radiology staff
