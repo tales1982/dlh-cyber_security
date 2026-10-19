@@ -1,0 +1,238 @@
+# Eradication Checklist: IR-2026-0414-01
+# Scope (after 03:34Z expansion): WST-WS-031, WST-WS-017, LIS-WSIDE-01, MEDDEFENSE\dmarsh,
+# Kerberos ticket material (Pass-the-Ticket), C2 185.220.101.47 and 91.234.99.107.
+# Rule: an item is "done" only when its verification returns the expected result.
+# Precondition: all three hosts contained and evidence preserved (evidence_preservation.md).
+
+incident_id: IR-2026-0414-01
+owner: Tales Lima, on-call SOC
+approver: Patricia Morales, CISO (SEV1 decision authority)
+
+items:
+  # ---------- WST-WS-031 (patient zero) ----------
+  - id: ERAD-001
+    category: process
+    target_host: WST-WS-031
+    description: Terminate attacker process chain update.exe (PID 7204) -> powershell.exe (PID 7812) -> MSBuild.exe (PID 8104), only after memory image is hashed
+    command_or_action: Stop-Process -Id 8104,7812,7204 -Force (EDR live response)
+    verification_command: Get-CimInstance Win32_Process | Where-Object { $_.Name -match 'MSBuild|update' -or $_.CommandLine -match '-enc' }
+    expected_verification_result: no process returned; EDR processtree shows 0 powershell->msbuild lineage
+    status: pending
+    executed_at: null
+    executed_by: null
+
+  - id: ERAD-002
+    category: malware_artifact
+    target_host: WST-WS-031
+    description: Remove dropped payloads update.zip, update.xml (sha256 a4f1e9b4...c2d3) and update.exe (sha256 5a4b3c2d...5a4b)
+    command_or_action: Remove-Item C:\Users\dmarsh\Downloads\update.zip, C:\Users\dmarsh\AppData\Local\Temp\update.xml, C:\Users\dmarsh\AppData\Local\Temp\update.exe -Force
+    verification_command: Test-Path on the three paths + EDR live-response file search by sha256 on the whole disk
+    expected_verification_result: Test-Path returns False for all three; no file matching either hash
+    status: pending
+    executed_at: null
+    executed_by: null
+
+  - id: ERAD-003
+    category: malware_artifact
+    target_host: WST-WS-031
+    description: Remove scheduled task persistence {7B4F2D81-19E2-4A8C-9E67-A1F0DE2C7B3A} (trigger user_logon, action update.exe)
+    command_or_action: schtasks /delete /tn "{7B4F2D81-19E2-4A8C-9E67-A1F0DE2C7B3A}" /f
+    verification_command: schtasks /query /fo csv | findstr /i "7B4F2D81"
+    expected_verification_result: no matches; persistence API scheduled_tasks_with_guid_names = []
+    status: pending
+    executed_at: null
+    executed_by: null
+
+  - id: ERAD-004
+    category: malware_artifact
+    target_host: WST-WS-031
+    description: Remove Run key persistence HKCU\Software\Microsoft\Windows\CurrentVersion\Run\WindowsUpdateSvc in dmarsh hive
+    command_or_action: reg delete "HKU\<dmarsh_SID>\Software\Microsoft\Windows\CurrentVersion\Run" /v WindowsUpdateSvc /f
+    verification_command: reg query "HKU\<dmarsh_SID>\Software\Microsoft\Windows\CurrentVersion\Run" /v WindowsUpdateSvc
+    expected_verification_result: 'reg query returns "unable to find the specified registry key or value"; HKCU and HKLM Run lists empty of IOC values'
+    status: pending
+    executed_at: null
+    executed_by: null
+
+  - id: ERAD-005
+    category: malware_artifact
+    target_host: WST-WS-031
+    description: Rebuild from clean baseline image (in-memory payload + stolen tickets mean cleanup alone cannot be trusted)
+    command_or_action: re-image via SCCM/MDT task sequence with baseline image, rejoin domain, keep in VLAN 999 until validation
+    verification_command: curl -s http://127.0.0.1:8080/endpoint/processtree/WST-WS-031 | jq '.data.process_trees_matching.powershell_parent_msbuild_child'
+    expected_verification_result: 0, and rebuild timestamp recorded in the processtree note
+    status: pending
+    executed_at: null
+    executed_by: null
+
+  # ---------- WST-WS-017 (lateral movement, C2 #2) ----------
+  - id: ERAD-006
+    category: process
+    target_host: WST-WS-017
+    description: Terminate powershell.exe (PID 4402, parent services.exe) and MSBuild.exe (PID 5108, C2 to 91.234.99.107)
+    command_or_action: Stop-Process -Id 5108,4402 -Force (EDR live response, after memory capture of WST-WS-017)
+    verification_command: Get-CimInstance Win32_Process | Where-Object { $_.Name -match 'MSBuild' -or $_.CommandLine -match '-enc' }
+    expected_verification_result: no process returned
+    status: pending
+    executed_at: null
+    executed_by: null
+
+  - id: ERAD-007
+    category: malware_artifact
+    target_host: WST-WS-017
+    description: Remove dropped C:\Users\dmarsh\AppData\Local\Temp\update.xml (sha256 a4f1e9b4...c2d3) and the remote-exec service created via ADMIN$ around 03:23:02Z (powershell parent services.exe)
+    command_or_action: Remove-Item C:\Users\dmarsh\AppData\Local\Temp\update.xml -Force; identify service from System event 7045 between 03:23:00Z and 03:23:44Z; sc.exe delete <service_name>
+    verification_command: Test-Path C:\Users\dmarsh\AppData\Local\Temp\update.xml; Get-WinEvent -FilterHashtable @{LogName='System';Id=7045;StartTime='2026-04-14T03:20:00Z'}; sc.exe query <service_name>
+    expected_verification_result: Test-Path False; sc query returns "The specified service does not exist"; persistence API temp_dropped_payloads update.xml = absent
+    status: pending
+    executed_at: null
+    executed_by: null
+
+  - id: ERAD-008
+    category: malware_artifact
+    target_host: WST-WS-017
+    description: Sweep remaining persistence surfaces (scheduled tasks with GUID names, HKCU/HKLM Run, services, WMI subscriptions) and rebuild from clean baseline image
+    command_or_action: schtasks /query /fo csv; reg query HKLM\Software\Microsoft\Windows\CurrentVersion\Run; Get-CimInstance -Namespace root\subscription -ClassName __EventFilter; then re-image from baseline
+    verification_command: curl -s http://127.0.0.1:8080/endpoint/persistence/WST-WS-017 | jq '.data'
+    expected_verification_result: scheduled_tasks_with_guid_names = [], both Run lists = [], amcache_entries_for_known_iocs = 0
+    status: pending
+    executed_at: null
+    executed_by: null
+
+  # ---------- LIS-WSIDE-01 (ePHI accessed) ----------
+  - id: ERAD-009
+    category: process
+    target_host: LIS-WSIDE-01
+    description: Terminate dmarsh network logon session 0x91f204 and SMB sessions on LIS_REPORTS$ opened from WST-WS-017
+    command_or_action: Get-SmbSession | Where-Object ClientUserName -eq 'MEDDEFENSE\dmarsh' | Close-SmbSession -Force; logoff session 0x91f204
+    verification_command: Get-SmbSession | Where-Object ClientUserName -eq 'MEDDEFENSE\dmarsh'; query session
+    expected_verification_result: no dmarsh SMB session and no dmarsh logon session
+    status: pending
+    executed_at: null
+    executed_by: null
+
+  - id: ERAD-010
+    category: malware_artifact
+    target_host: LIS-WSIDE-01
+    description: Hunt for dropped payloads and persistence (no implant observed yet; only file reads of 14 LIS PDFs at 03:43:30Z)
+    command_or_action: EDR sweep for sha256 a4f1e9b4...c2d3 / 5a4b3c2d...5a4b, update.xml/update.exe names, GUID scheduled tasks, Run keys, new services since 03:42:08Z
+    verification_command: curl -s http://127.0.0.1:8080/endpoint/persistence/LIS-WSIDE-01 | jq '.data'
+    expected_verification_result: no GUID tasks, empty Run lists, temp_dropped_payloads = {}, amcache_entries_for_known_iocs = 0 (no rebuild needed if all clean)
+    status: pending
+    executed_at: null
+    executed_by: null
+
+  # ---------- Account dmarsh ----------
+  - id: ERAD-011
+    category: credential
+    target_host: domain
+    description: Second reset of dmarsh AD password (after krbtgt reset 1 and ticket purge) and revoke Azure AD sessions and refresh tokens
+    command_or_action: Set-ADAccountPassword -Identity dmarsh -Reset; Set-ADUser dmarsh -ChangePasswordAtLogon $true; Revoke-MgUserSignInSession -UserId dmarsh@meddefense.local
+    verification_command: Get-ADUser dmarsh -Properties pwdLastSet; Azure AD sign-in logs for dmarsh after reset time
+    expected_verification_result: pwdLastSet after reset time; no successful sign-in using prior tokens or from 45.63.9.88 after reset
+    status: pending
+    executed_at: null
+    executed_by: null
+
+  - id: ERAD-012
+    category: credential
+    target_host: azure_ad
+    description: Remove attacker footholds from the cloud identity (PB-CRED-001) - MFA methods, inbox rules, forwarding, OAuth consents created after 2026-04-13T18:14:41Z from 45.63.9.88
+    command_or_action: Get-MgUserAuthenticationMethod dmarsh (remove all, re-enrol by phone-verified identity); Get-InboxRule -Mailbox dmarsh (remove unexplained); Get-MgUserOauth2PermissionGrant (revoke unknown)
+    verification_command: list MFA methods, inbox rules, forwarding and OAuth grants again
+    expected_verification_result: only the newly enrolled MFA device; no rule, forwarding or grant the user cannot explain
+    status: pending
+    executed_at: null
+    executed_by: null
+
+  - id: ERAD-013
+    category: credential
+    target_host: WST-WS-031, WST-WS-017, LIS-WSIDE-01
+    description: Purge cached Kerberos tickets for dmarsh on all three hosts (tickets reused in Pass-the-Ticket)
+    command_or_action: klist -li 0x3a71c2 purge (WST-WS-031), klist -li 0x7a2d18 purge (WST-WS-017), klist -li 0x91f204 purge (LIS-WSIDE-01), or log off the sessions
+    verification_command: klist -li <logon_id>; DC event 4769 for dmarsh with source host not equal to the user's assigned workstation
+    expected_verification_result: 'klist shows "Cached Tickets: (0)"; no TGS_REQ for dmarsh from WST-WS-031/WST-WS-017 after purge'
+    status: pending
+    executed_at: null
+    executed_by: null
+
+  # ---------- Machine accounts ----------
+  - id: ERAD-014
+    category: machine_account
+    target_host: WST-WS-031
+    description: Rotate machine account password (host ran attacker code for ~37 min and is being rebuilt; machine secret treated as exposed)
+    command_or_action: Reset-ComputerMachinePassword -Server ms-dc01 (or new secret on domain rejoin after re-image)
+    verification_command: Get-ADComputer WST-WS-031 -Properties PasswordLastSet; Test-ComputerSecureChannel
+    expected_verification_result: PasswordLastSet after eradication start; Test-ComputerSecureChannel returns True
+    status: pending
+    executed_at: null
+    executed_by: null
+
+  - id: ERAD-015
+    category: machine_account
+    target_host: WST-WS-017
+    description: Rotate machine account password (remote service execution via ADMIN$ ran as SYSTEM)
+    command_or_action: Reset-ComputerMachinePassword -Server ms-dc01 (or new secret on domain rejoin after re-image)
+    verification_command: Get-ADComputer WST-WS-017 -Properties PasswordLastSet; Test-ComputerSecureChannel
+    expected_verification_result: PasswordLastSet after eradication start; Test-ComputerSecureChannel returns True
+    status: pending
+    executed_at: null
+    executed_by: null
+
+  - id: ERAD-016
+    category: machine_account
+    target_host: LIS-WSIDE-01
+    description: Rotate machine account password (attacker authenticated to the host with stolen tickets)
+    command_or_action: Reset-ComputerMachinePassword -Server ms-dc01
+    verification_command: Get-ADComputer LIS-WSIDE-01 -Properties PasswordLastSet; Test-ComputerSecureChannel
+    expected_verification_result: PasswordLastSet after eradication start; Test-ComputerSecureChannel returns True
+    status: pending
+    executed_at: null
+    executed_by: null
+
+  # ---------- Kerberos trust material ----------
+  - id: ERAD-017
+    category: krbtgt
+    target_host: domain
+    description: Double reset of krbtgt following confirmed Pass-the-Ticket with dmarsh tickets
+    command_or_action: New-KrbtgtKeys.ps1 (Microsoft) - reset 1, confirm full AD replication (repadmin /syncall /AdeP, repadmin /showrepl), wait at least the max TGT lifetime (10 h), then reset 2
+    rationale: Pass-the-Ticket was observed (TGS_REQ for cifs/WST-WS-017 from WST-WS-031 at 03:22:47Z, ticket reuse toward cifs/LIS-WSIDE-01 at 03:41:52Z). A password reset does not invalidate tickets already issued (TGT 02:44:02Z, 10 h). There is no evidence of DC compromise or DCSync, so the krbtgt hash itself is not known to be stolen; the double reset is still chosen because it is the only domain-wide way to invalidate every outstanding TGT obtained during the window. Two resets are needed because AD keeps the previous krbtgt key (n-1); the wait between resets avoids mass authentication failures. CISO approval required (domain-wide impact).
+    verification_command: repadmin /showobjmeta <DC> "CN=krbtgt,CN=Users,DC=meddefense,DC=local" (pwdLastSet/version on every DC); DC 4769 events for dmarsh with tickets issued before reset 2
+    expected_verification_result: krbtgt key version incremented by 2 on all DCs; no valid TGTs issued before the reset timestamp; no dmarsh TGS_REQ from unauthorized hosts
+    status: pending
+    executed_at: null
+    executed_by: null
+
+  # ---------- Network ----------
+  - id: ERAD-018
+    category: network
+    target_host: perimeter
+    description: Egress deny for both C2 IPs 185.220.101.47 (WST-WS-031) and 91.234.99.107 (WST-WS-017), plus Tor exit node list
+    command_or_action: firewall policy update - keep IR-2026-0414-01-01 (185.220.101.47), add deny ip any host 91.234.99.107, subscribe to Tor exit node block list
+    verification_command: curl -s http://127.0.0.1:8080/siem/netflow | jq '.data'
+    expected_verification_result: both IPs in egress_deny_verified; packets = 0 and bytes = 0 toward both IPs over the last 24 hours
+    status: pending
+    executed_at: null
+    executed_by: null
+
+  - id: ERAD-019
+    category: network
+    target_host: internal (West Campus workstation VLANs)
+    description: Internal segmentation - block workstation-to-workstation SMB/RPC/WinRM (445, 135, 5985/5986) and restrict ADMIN$ and LIS_REPORTS$ access to authorized admin/LIS groups
+    command_or_action: internal firewall/VLAN ACL deny tcp 445,135,5985,5986 between workstation subnets; GPO Windows Firewall inbound deny 445 from workstation ranges; share ACL review on LIS_REPORTS$
+    verification_command: Test-NetConnection WST-WS-017 -Port 445 from a workstation VLAN host; Get-SmbShareAccess LIS_REPORTS$
+    expected_verification_result: TcpTestSucceeded False; LIS_REPORTS$ access limited to the LIS application group
+    status: pending
+    executed_at: null
+    executed_by: null
+
+  - id: ERAD-020
+    category: network
+    target_host: proxy, DNS, email gateway
+    description: Keep phishing infrastructure blocked and purge the phishing email from all mailboxes
+    command_or_action: keep block on ms0365-support[.]login-verification[.]click and 45.63.9.88; Purview search-and-purge for the message seen at 2026-04-13T18:13:44Z (Outlook item AAMkAG)
+    verification_command: proxy log search for the domain since block; Purview search for the message across tenant
+    expected_verification_result: only denied requests; 0 remaining copies of the phishing email
+    status: pending
+    executed_at: null
+    executed_by: null
