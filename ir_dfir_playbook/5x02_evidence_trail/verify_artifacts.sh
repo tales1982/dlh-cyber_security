@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 # verify_artifacts.sh - integrity gate for case LH-2026-0414-01 / IR-2026-0414-01
 #
 # Run before EVERY analysis session. If any artifact fails, the session does not start.
@@ -73,7 +73,7 @@ if [[ ! -f "$HASH_FILE" ]]; then
     chmod 0444 "$HASH_FILE" 2>/dev/null
 
     for i in "${!NAMES[@]}"; do
-        echo "[BASELINE_SET] ${IDS[$i]} ${NAMES[$i]} sha256=${HASHES[$i]}"
+        printf '[BASELINE_SET] %s %-14s sha256=%s\n' "${IDS[$i]}" "${NAMES[$i]}" "${HASHES[$i]}"
         log_event "${IDS[$i]}" "${NAMES[$i]}" "BASELINE_SET" "none" "${HASHES[$i]}"
     done
     echo "Baseline written to $HASH_FILE. Run again to verify."
@@ -95,14 +95,13 @@ for i in "${!NAMES[@]}"; do
     fi
 
     if [[ "$expected" == "$computed" && "$computed" != "MISSING" ]]; then
-        result="PASS"
+        printf '[PASS] %s %-14s expected=%s computed=%s\n' "$id" "$name" "$expected" "$computed"
+        log_event "$id" "$name" "PASS" "$expected" "$computed"
     else
-        result="FAIL"
+        printf '[FAIL] %s %-14s expected=%s computed=%s\n' "$id" "$name" "$expected" "$computed"
+        log_event "$id" "$name" "FAIL" "$expected" "$computed"
         fail=1
     fi
-
-    echo "[$result] $id $name expected=$expected computed=$computed"
-    log_event "$id" "$name" "$result" "$expected" "$computed"
 done
 
 if [[ $fail -ne 0 ]]; then
