@@ -1,0 +1,59 @@
+title: PowerShell Spawning Trusted Developer Utility (LOLBin Proxy Execution)
+id: e210f4bb-65cd-4aa0-b677-933f629227c5
+status: test
+description: |
+    Detects MSBuild.exe or another trusted developer utility (csc, vbc, jsc,
+    InstallUtil, RegAsm, RegSvcs) started by PowerShell or a Windows script host.
+    In IR-2026-0414-01 powershell.exe (PID 7812, -ep bypass -w hidden -enc) spawned
+    MSBuild.exe (PID 8104) to run inline C# from C:\Users\dmarsh\AppData\Local\Temp\update.xml
+    on WST-WS-031, and the same chain repeated on WST-WS-017. Legitimate builds start
+    MSBuild from devenv.exe or dotnet.exe, not from a script interpreter.
+references:
+    - https://attack.mitre.org/techniques/T1127/001/
+    - https://lolbas-project.github.io/lolbas/Binaries/Msbuild/
+    - https://lolbas-project.github.io/lolbas/Binaries/Csc/
+    - https://lolbas-project.github.io/lolbas/Binaries/Installutil/
+    - https://lolbas-project.github.io/lolbas/Binaries/Regasm/
+    - https://lolbas-project.github.io/lolbas/Binaries/Regsvcs/
+author: Tales Lima
+date: 2026-10-23
+tags:
+    - attack.execution
+    - attack.t1127.001
+    - attack.t1059.001
+    - attack.t1218.004
+    - attack.t1218.009
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_parent:
+        ParentImage|endswith:
+            - '\powershell.exe'
+            - '\pwsh.exe'
+            - '\powershell_ise.exe'
+            - '\wscript.exe'
+            - '\cscript.exe'
+            - '\mshta.exe'
+    selection_child:
+        Image|endswith:
+            - '\MSBuild.exe'
+            - '\csc.exe'
+            - '\vbc.exe'
+            - '\jsc.exe'
+            - '\InstallUtil.exe'
+            - '\RegAsm.exe'
+            - '\RegSvcs.exe'
+    condition: selection_parent and selection_child
+fields:
+    - ComputerName
+    - User
+    - ParentImage
+    - ParentCommandLine
+    - Image
+    - CommandLine
+falsepositives:
+    - Developer build scripts on engineering workstations (e.g. WST-WS-042 / WST-WS-051) that call MSBuild.exe directly from a PowerShell build.ps1 or a CI agent step instead of dotnet build
+    - PowerShell modules or Add-Type calls that compile inline C# and invoke csc.exe in the background (e.g. some vendor installers and SCCM / Intune remediation scripts)
+    - Software packaging or deployment scripts that run InstallUtil.exe or RegAsm.exe from PowerShell to register .NET components during legitimate installs
+level: high
