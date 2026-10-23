@@ -1,0 +1,230 @@
+---
+# Inject Schedule: TTX-2026-01 Nexus Supply Chain Compromise Tabletop
+# Exercise start (T+0) = 2026-04-28 08:15 scenario time. Capabilities from capability_map.yaml.
+# Each inject escalates pressure, introduces a conflict, or forces a decision that cannot wait.
+# Version 1.1 (changes from the designer simulation, see execution_record.md Design feedback):
+#   DF-01 INJ-01 carries the first appointment-anomaly hint
+#   DF-02 INJ-02 vendor discovery date revealed only if asked
+#   DF-03 INJ-04 patient count revealed only if asked
+#   DF-04 INJ-06 moved to T+115, hotwash to T+140
+
+exercise_id: TTX-2026-01
+version: "1.1"
+duration_minutes: 160
+hotwash_at_minutes: 140
+
+injects:
+  - id: INJ-00
+    time_minutes: 0
+    delivery: facilitator reads aloud
+    situation: >
+      The SOC has flagged unusual outbound HTTPS traffic from the Nexus scheduling server at
+      West Campus, SCHED-SVR-02 (10.42.30.12), to 193.42.100.77, a host associated with
+      bulletproof hosting infrastructure in Eastern Europe. The alert fired 45 minutes ago.
+      WazuhEDR shows the process is nexus-agent.exe and that it connects every four hours
+      (03:30, 07:30), each session about 90 seconds. SCHED-SVR-01 (Main) and SCHED-SVR-03
+      (North Site) have not alerted. The Nexus system is operational and patient scheduling is
+      running normally. No other anomalies have been detected.
+    capability_tested: CAP-01
+    decision_point: >
+      Declare an incident? What severity? Who is notified in the first 15 minutes? Is the
+      Nexus agent itself the suspect, and are the other two agent hosts in scope?
+    roles_challenged:
+      - James Chen (SOC Lead / IR Commander)
+      - Sarah Park (IT Director)
+      - Robert Kim (Infrastructure Lead)
+    expected_response: >
+      Incident declared at SEV2 minimum with stated reasoning; IR Commander, CISO and
+      Communications Lead notified; SOC starts evidence collection on SCHED-SVR-02 (memory,
+      agent version, update history) and extends the hunt to SCHED-SVR-01 and -03 before any
+      containment; someone asks whether the traffic comes from the vendor agent or a vendor
+      update.
+
+  - id: INJ-01
+    time_minutes: 20
+    delivery: facilitator hands printed vendor advisory to Sarah Park
+    situation: >
+      Nexus Health Technologies publishes security advisory NX-SA-2026-004: "A threat actor
+      gained access to our build pipeline and code-signing certificate. nexus-agent updates
+      distributed in the last 21 days may contain a malicious component. Version 4.12.3,
+      pushed automatically on 2026-04-25 at 02:10 UTC, is confirmed malicious. We advise all
+      customers to take immediate action. A fixed build is not yet available." MedDefense's
+      update log shows 4.12.3 installed on all three scheduling servers between 02:10 and
+      02:40 on 2026-04-25. At the same time the West Campus front desk reports that two
+      patients arrived for appointments that Epic shows as cancelled. It is 08:35; the first
+      dialysis and oncology infusion sessions start at 09:30 and about 700 appointments are
+      booked today.
+    capability_tested: CAP-02
+    secondary_capabilities: [CAP-01]
+    decision_point: >
+      Do you take the Nexus agents and the inbound FHIR channel offline now? Who authorizes
+      it? What replaces patient scheduling, eligibility checks and SMS reminders for today?
+    roles_challenged:
+      - Sarah Park (IT Director)
+      - Clinical Director representative
+      - Dr. Patricia Morales (CISO)
+    conflict_designed: >
+      Security (James Chen, Robert Kim) recommends immediate isolation of SCHED-SVR-01/02/03
+      and the FHIR inbound tunnel; the Clinical Director says 700 patients today, including
+      dialysis and infusion, depend on the schedule and the front desks cannot rebook by phone
+      at that volume.
+    expected_response: >
+      Explicit decision made by a named authority with the clinical impact acknowledged;
+      manual scheduling and Epic native scheduling for time-critical patients activated or
+      explicitly deferred with a named deadline; automatic updates from Nexus disabled;
+      authorization chain recorded in the incident timeline; severity raised to SEV1 because
+      a vendor with ePHI access is confirmed compromised.
+
+  - id: INJ-02
+    time_minutes: 35
+    delivery: facilitator plays the Nexus SecOps call (role-played by observer Lisa Tanaka)
+    situation: >
+      Nexus SecOps returns MedDefense's call. They confirm the us-east-1 pod and all three
+      MedDefense agents received 4.12.3. They "cannot yet say" whether data left their
+      environment. They ask MedDefense to keep the agents online so their responders can
+      collect telemetry, and ask that the advisory not be shared outside MedDefense because
+      it is under NDA. Meanwhile Priya Natarajan, the
+      Nexus Account Executive, emails Marcus Webb directly offering a joint press statement.
+    role_play_instruction: >
+      Reveal "our team first saw signs of the build compromise on Thursday 2026-04-24" ONLY if
+      a participant asks when Nexus first detected the compromise. Otherwise answer "we are
+      still building the timeline". If asked about Twilio / SendGrid, answer "under review".
+    capability_tested: CAP-03
+    secondary_capabilities: [CAP-04]
+    decision_point: >
+      Who owns the vendor relationship from now on? Do you accept the vendor's request to keep
+      the agents online? What do you ask Nexus for in writing, and do you record the vendor
+      discovery date?
+    roles_challenged:
+      - James Chen (SOC Lead / IR Commander)
+      - Helena Reyes (General Counsel)
+      - Marcus Webb (Communications Director)
+    expected_response: >
+      A single MedDefense vendor liaison is named; the request to keep agents online is
+      decided by MedDefense on its own risk (not by the vendor); a written request goes to
+      Nexus for IOCs, affected versions, discovery date, data accessed and subprocessor impact;
+      Legal records that Nexus discovered the compromise on 2026-04-24 and that the BAA
+      24-hour notice was missed; Communications does not agree to a joint statement before
+      Legal review.
+
+  - id: INJ-03
+    time_minutes: 50
+    delivery: facilitator reads aloud, hands Epic audit extract to Clinical Director
+    situation: >
+      The Epic integration team pulls the audit trail for writes by svc-nexus-prod since
+      2026-04-25 02:10. 212 appointments were moved or cancelled through the inbound FHIR
+      channel in a pattern that does not match normal Nexus behavior: 38 of them are oncology
+      infusion and dialysis sessions over the next five days. Twilio sent SMS confirmations
+      of the changes to the patients. One dialysis patient whose session was "cancelled" did
+      not come in on Saturday. Epic cannot tell which of the 212 changes were legitimate
+      patient requests.
+    capability_tested: CAP-06
+    secondary_capabilities: [CAP-02, CAP-04]
+    decision_point: >
+      How do you establish which appointments are correct? Who contacts the 38 time-critical
+      patients, and in what order? Do you freeze all inbound writes from Nexus to Epic?
+    roles_challenged:
+      - Clinical Director representative
+      - Robert Kim (Infrastructure Lead)
+      - Sarah Park (IT Director)
+    severity_change: >
+      Changes the event from a confidentiality incident to a patient safety event; any team
+      still at SEV2 must escalate.
+    expected_response: >
+      Inbound FHIR writes from svc-nexus-prod frozen; clinical owner named for outreach;
+      38 time-critical patients called first with a clinician on the line; the dialysis
+      patient who missed Saturday is escalated to the nephrology on-call today; Epic audit
+      extract preserved as evidence; the integrity check extended to all changes since the
+      21-day advisory window.
+
+  - id: INJ-04
+    time_minutes: 70
+    delivery: facilitator reads aloud
+    situation: >
+      Forensic triage of SCHED-SVR-01 (Main, the primary agent host) shows the backdoor read
+      the agent's FHIR session token. Proxy logs show 2.3 GB sent to 193.42.100.77 over the
+      last 72 hours from the three servers. The agent can query demographics and insurance
+      data for every patient scheduled in the last 18 months at the three sites (about 3,500
+      scheduling interactions per week). Nexus emails: "As the breached party we will handle all regulatory
+      notifications. No action is required from MedDefense." The BAA states Nexus must notify
+      MedDefense within 24 hours of discovery.
+    facilitator_reveal_on_request: >
+      If a participant asks the Epic team for a patient count, answer "about 41,000 unique
+      patients". Do not volunteer it (tests CAP-04 scoping).
+    capability_tested: CAP-05
+    secondary_capabilities: [CAP-04]
+    decision_point: >
+      Does MedDefense have its own notification obligation? When did MedDefense's discovery
+      clock start: today, or 2026-04-24 when Nexus knew? Who runs the four-factor risk
+      assessment, and is the scope every patient in the last 18 months or the subset in the
+      72-hour window?
+    roles_challenged:
+      - Helena Reyes (General Counsel)
+      - Dr. Patricia Morales (CISO)
+    expected_response: >
+      General Counsel states MedDefense remains responsible as Covered Entity, starts the
+      four-factor assessment today, records the discovery date question for outside counsel,
+      notes the 500-individual threshold (HHS and media notice), and replies to Nexus in
+      writing that notifications to MedDefense patients will be coordinated by MedDefense;
+      CISO assigns PHI scoping (confirmed / probable / unknown) to the SOC with a deadline.
+
+  - id: INJ-05
+    time_minutes: 90
+    delivery: facilitator hands Marcus Webb a printed email and social media screenshots
+    situation: >
+      A reporter from the regional health news outlet emails Marcus Webb: "We have a copy of
+      Nexus advisory NX-SA-2026-004 listing MedDefense as an affected customer, and patients
+      posting that their chemotherapy appointments were cancelled by text message. Can you
+      confirm patient data was stolen? We publish at 11:00." It is 09:45. The West Campus call
+      center has received 60 calls in 30 minutes and agents are telling patients "it is a
+      Nexus system problem".
+    capability_tested: CAP-07
+    decision_point: >
+      What does MedDefense say publicly, and who approves it in the next 75 minutes? What do
+      call center agents tell patients? Do you coordinate with Nexus's statement?
+    roles_challenged:
+      - Marcus Webb (Communications Director)
+      - Helena Reyes (General Counsel)
+      - Clinical Director representative
+    conflict_designed: >
+      Communications wants to respond before 11:00 to shape the story; Legal wants to say
+      nothing until the four-factor assessment is done; Nexus wants a joint statement that
+      places the issue "with a third-party component".
+    expected_response: >
+      Holding statement approved by Legal and CISO before 11:00 that confirms an incident
+      at a scheduling vendor, does not confirm theft of data, and tells patients how to
+      verify appointments; call center script issued with a phone line for time-critical
+      patients; no joint statement with Nexus until facts are aligned.
+
+  - id: INJ-06
+    time_minutes: 115
+    delivery: facilitator hands Dr. Morales a message from the Board Chair
+    situation: >
+      The Board Chair calls Dr. Morales: an emergency board call is scheduled in 90 minutes
+      and she needs a written status brief 30 minutes before. At the same time Nexus releases
+      signed version 4.12.4, "clean and verified", and asks all customers to re-enable
+      automatic updates so the fix can roll out. Nexus still cannot confirm whether updates
+      before 4.12.3 in the 21-day window were clean, and cannot say whether the 2.3 GB
+      contained PHI.
+    capability_tested: CAP-08
+    secondary_capabilities: [CAP-01, CAP-05]
+    decision_point: >
+      What goes in the board brief, and what is presented as unknown? Do you install a signed
+      update from a vendor whose signing key was compromised? What decisions do you need from
+      the board?
+    roles_challenged:
+      - Dr. Patricia Morales (CISO)
+      - James Chen (SOC Lead / IR Commander)
+      - Sarah Park (IT Director)
+    open_questions_by_design:
+      - Whether any update in the 21-day window before 4.12.3 was also malicious (cannot be resolved in the room)
+      - Whether the 2.3 GB outbound contained PHI and for how many patients
+      - Whether a new signed update can be trusted while Nexus's signing key status is unconfirmed
+      - When MedDefense's 60-day notification clock started
+    expected_response: >
+      One-page brief drafted with confirmed / probable / unknown sections, decisions taken
+      with owners, patient safety status of the 38 time-critical patients, regulatory
+      exposure (up to 41,000 patients, 500+ threshold) and decisions requested from the
+      board (vendor suspension, outside counsel, notification budget); 4.12.4 not installed
+      until it is verified out of band (hash from Nexus over a separate channel, new
+      certificate, independent analysis); open questions stated explicitly.
