@@ -1,0 +1,123 @@
+---
+# Control Effectiveness Audit: IR-2026-0414-01 / LH-2026-0414-01
+# Source evidence: forensic_findings_summary.md (evidence IDs in brackets)
+# All timestamps UTC.
+
+- phase: Credential phishing and submission
+  att_ck_technique: T1566.002 + T1078
+  controls_expected:
+    - Email gateway URL rewriting and link sandbox detonation
+    - Typosquat / lookalike domain detection for the Microsoft 365 brand
+    - Web proxy block for newly registered and uncategorized domains
+    - Phishing-resistant MFA (FIDO2 or number matching) on Azure AD
+    - Azure AD Identity Protection sign-in risk policy enforced
+    - Conditional access blocking sign-ins from non-approved countries
+  controls_fired:
+    - Azure AD raised a risk signal for the 45.63.9.88 (RU) sign-in at 18:14:41Z, but it was suppressed
+  controls_missed:
+    - Email gateway delivered the phishing email and did not rewrite or detonate the link
+    - Proxy allowed the visit to ms0365-support.login-verification.click at 18:14:02Z
+    - Proxy allowed the credential POST and the update.zip download from the same domain
+    - Conditional access "compliant device" rule suppressed the Azure AD risk signal
+    - No geo-based block for a sign-in from RU
+    - No alert to the SOC on the risky sign-in
+  gap_severity: critical
+  gap_reason: Credentials were phished and used from RU at 18:14:41Z; the only signal was suppressed by a conditional access rule and nothing alerted for about 8.5 hours.
+
+- phase: VPN access using stolen credentials from a foreign IP
+  att_ck_technique: T1133
+  controls_expected:
+    - VPN geo-restriction denying non-approved countries
+    - VPN requires a managed device certificate
+    - Phishing-resistant MFA on VPN logon
+    - SIEM correlation between risky Azure AD sign-ins and VPN logons from the same IP
+    - Alert on off-hours VPN logon for clinical users
+  controls_fired:
+    - None (VPN gateway logged the session only)
+  controls_missed:
+    - VPN accepted dmarsh credentials from the foreign IP 45.63.9.88
+    - MFA did not stop the attacker session
+    - No device certificate check on the connecting device
+    - No SIEM correlation with the RU sign-in already seen in Azure AD
+    - No off-hours logon alert
+  gap_severity: critical
+  gap_reason: Stolen credentials gave remote network access from the same foreign IP that Azure AD had already flagged, with no block or alert.
+
+- phase: PowerShell to MSBuild LOLBin execution
+  att_ck_technique: T1127.001
+  controls_expected:
+    - Application control (WDAC / AppLocker) blocking MSBuild.exe on non-developer workstations
+    - Application control blocking executables in %LOCALAPPDATA%\Temp
+    - Attack Surface Reduction rules (block obfuscated scripts, block executables from downloads)
+    - PowerShell Constrained Language Mode, AMSI and Script Block Logging (Event 4104)
+    - EDR / SIEM detection of powershell.exe spawning MSBuild.exe
+    - EDR alert on new Run key and scheduled task persistence
+  controls_fired:
+    - SIEM rule wz-edr-100041 alert A-20260414-9841 (PowerShell -> MSBuild) at 02:47:11Z
+  controls_missed:
+    - No application control, update.xml and update.exe dropped and ran from Temp [ART-001-F01, ART-001-F02]
+    - MSBuild ran for the first time ever on a clinical workstation [ART-001-E01, ART-002-M01]
+    - Encoded PowerShell (-ep bypass -w hidden -enc) not blocked by CLM or AMSI
+    - No alert on Run key WindowsUpdateSvc and scheduled task persistence [ART-001-R01, ART-001-R02]
+    - No alert on the in-memory MZ region in MSBuild.exe [ART-002-M03]
+    - Alert had no automatic containment action
+  gap_severity: high
+  gap_reason: Detection fired seconds after MSBuild ran, but no preventive control stopped the payload, the LOLBin or the persistence.
+
+- phase: C2 beaconing to external IPs
+  att_ck_technique: T1071.001
+  controls_expected:
+    - Egress firewall block of known Tor exit relays
+    - Proxy threat intelligence feed blocking known C2 infrastructure
+    - Proxy deny for raw-IP CONNECT without a hostname
+    - Network detection of periodic beaconing
+    - EDR alert on LOLBin processes making outbound connections
+  controls_fired:
+    - Alert A-20260414-9841 showed the outbound session to 185.220.101.47 as context only
+  controls_missed:
+    - Tor exit 185.220.101.47 not on any egress blocklist [ART-002-M02]
+    - Proxy allowed raw-IP CONNECT from MSBuild.exe
+    - Second C2 91.234.99.107 (Cobalt Strike cluster) from WST-WS-017 produced no alert [ART-003-M01]
+    - No beaconing detection on repeated sessions
+  gap_severity: high
+  gap_reason: Two C2 channels reached known-bad infrastructure; the first was seen only through the process alert and the second was not seen at all.
+
+- phase: LSASS credential access and Kerberos ticket extraction
+  att_ck_technique: T1003.001 + T1558.003
+  controls_expected:
+    - LSA Protection (RunAsPPL) enabled
+    - Credential Guard enabled
+    - ASR rule blocking credential stealing from lsass.exe
+    - Sysmon Event 10 / EDR alert on lsass.exe access by non-system processes
+    - Alert on Kerberos ticket requests or exports from a LOLBin process
+  controls_fired:
+    - None
+  controls_missed:
+    - LSA Protection not enabled, NTLM hash material for dmarsh readable in lsass [ART-002-M04]
+    - Credential Guard not enabled, Kerberos tickets cached in lsass
+    - ASR lsass rule not deployed
+    - No alert on lsass access or Kerberos ticket extraction
+  gap_severity: critical
+  gap_reason: Credential and ticket material was taken from memory with no prevention and no alert, enabling all later lateral movement.
+
+- phase: Lateral movement and PHI access
+  att_ck_technique: T1550.003 + T1078
+  controls_expected:
+    - Network segmentation blocking workstation-to-workstation SMB
+    - Host firewall denying inbound 445 on workstations
+    - Alert on Kerberos ticket reuse (Pass-the-Ticket) from a host where the user has no interactive session
+    - Alert on remote service creation (Event 7045) and ADMIN$ access
+    - LIS_REPORTS$ share restricted to LIS servers and authorized staff
+    - File access auditing with alert on bulk reads of patient reports
+  controls_fired:
+    - File server audit logged 14 PDF reads on LIS_REPORTS$ at 03:43:30Z, no alert [AD-LOG-01]
+    - Manual containment of WST-WS-031, after the lateral move had already started
+  controls_missed:
+    - Workstation-to-workstation SMB allowed from WST-WS-031 to WST-WS-017 [ART-003-M01]
+    - No alert on Kerberos ticket reuse by dmarsh from WST-WS-017
+    - Remote service execution on WST-WS-017 produced no alert
+    - LIS_REPORTS$ reachable from a non-LIS workstation
+    - Bulk PHI read did not alert
+    - dmarsh password reset did not invalidate existing Kerberos tickets
+  gap_severity: critical
+  gap_reason: The attacker reached LIS-WSIDE-01 and read 14 patient PDFs while the only evidence was logged and never alerted.
