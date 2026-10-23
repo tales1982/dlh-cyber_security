@@ -112,6 +112,15 @@ The match rates on the incident sample are high only because the sample is small
 
 The tuned file replaces the original `sigma_msbuild_network_connection.yml`. R1 was not modified.
 
+## Production readiness decision
+
+| Rule | Fires on incident | FP rate on clean baseline | Target (< 0.1 %) | Decision |
+|---|---|---|---|---|
+| R1 `sigma_powershell_msbuild_lolbin.yml` | Yes, 2/2 expected events (PID 8104, PID 5108) | 0.000 % | Met | **Ready for production** at level high, no tuning |
+| R2 `sigma_msbuild_network_connection.yml` (tuned) | Yes, 2/2 C2 connections (185.220.101.47, 91.234.99.107) | 0.000 % after tuning (66.667 % before) | Met after tuning | **Ready for production** at level high, with `filter_nuget` |
+
+Both rules are approved for deployment, with three conditions: (1) the tuned R2 file is the version deployed, (2) the full 30-day SIEM baseline rerun below confirms the false positive rate stays under 0.1 %, and (3) the first 7 days in production are monitored by the SOC lead. R1 or R2 alert volume above 1 alert per day on clinical workstations sends the rule back to tuning.
+
 ## Residual risk and follow-up
 
 - **Hostname spoofing:** an attacker could use C2 hosted under a hostname ending in `.nuget.org` only by controlling that domain, which is unlikely; but domain fronting through a CDN could pass the filter. Mitigation: keep the WDAC MSBuild block (HRD-002) as the preventive control; R2 is a detection backstop.

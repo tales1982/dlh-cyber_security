@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 # validate_rules.sh - test the 5x03 Sigma rules against the incident and clean Sysmon samples
 #
 # Usage: ./validate_rules.sh [DATA_DIR]
