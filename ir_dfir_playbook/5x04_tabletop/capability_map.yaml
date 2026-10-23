@@ -1,0 +1,141 @@
+---
+# Capability Map: TTX-2026-01 Nexus Supply Chain Compromise Tabletop
+# Every inject in inject_schedule.yaml tests at least one capability below.
+# Vendor facts from nexus_vendor_profile.md: signed automatic update channel with no
+# client-side hash pin, BAA with 24-hour breach notice, untested joint communication path
+# (last contact test 2024-09), FHIR inbound channel that can write to Epic.
+
+exercise_id: TTX-2026-01
+facilitator: Tales Lima
+
+evaluators:
+  - id: EVAL-LEAD
+    name: Tales Lima
+    role: Lead facilitator, scores incident command and technical capabilities
+  - id: EVAL-REG
+    name: Lisa Tanaka (Vendor Risk) - observer
+    role: Scores vendor, BAA and regulatory capabilities
+  - id: EVAL-CLIN
+    name: Nursing Quality Officer - observer
+    role: Scores patient safety and business continuity capabilities
+
+capabilities:
+  - capability_id: CAP-01
+    name: supply_chain_detection
+    expected_behavior: >
+      Within the first inject window the team asks whether the traffic comes from the
+      Nexus agent itself (vendor update or vendor code) and not only from an external
+      intruder; checks the agent version and last update time on SCHED-SVR-01/02/03,
+      extends the hunt to all three agent hosts, and treats the vendor as a possible
+      threat vector before the vendor confirms anything.
+    gap_hypothesis: >
+      Because Nexus updates are signed and automatic, participants treat the agent as
+      trusted and investigate only SCHED-SVR-02 as a classic external compromise; the
+      accepted 2025-11-14 finding "no independent hash pin at client side" is not
+      connected to the alert until Nexus publishes its advisory.
+    tested_by_inject: INJ-00, INJ-01
+    evaluation_owner: EVAL-LEAD (Tales Lima)
+
+  - capability_id: CAP-02
+    name: business_continuity_decision
+    expected_behavior: >
+      A named decision authority (IT Director with CISO approval, Clinical Director
+      consulted) decides whether to isolate the Nexus agents and the FHIR inbound channel,
+      states the patient safety trade-off out loud, activates a named manual fallback
+      (phone and paper scheduling, Epic native scheduling for infusion and dialysis) and
+      sets a time to revisit the decision.
+    gap_hypothesis: >
+      No one in the room owns the authority to take a vendor-operated, business-critical
+      system offline; security and clinical leadership argue without an escalation rule,
+      and the decision is deferred "until we know more" while the backdoor stays active.
+    tested_by_inject: INJ-01, INJ-03
+    evaluation_owner: EVAL-CLIN (Nursing Quality Officer)
+
+  - capability_id: CAP-03
+    name: vendor_communication
+    expected_behavior: >
+      The team contacts Nexus SecOps 24x7 (+1 512 555 0184, soc@nexushealth.io) within
+      the inject window, names a single MedDefense owner for the vendor relationship,
+      asks specific questions (affected versions, IOCs, discovery date, data accessed in
+      the us-east-1 pod, subprocessor impact) and records the vendor discovery date in
+      writing for the BAA 24-hour clock.
+    gap_hypothesis: >
+      The joint communication path has never been tested (last contact test 2024-09);
+      several MedDefense people call different Nexus contacts (Account Executive,
+      CISO, SecOps), no one records what Nexus said or when Nexus discovered the
+      compromise, and the team accepts the vendor's request to keep the agent online
+      without its own risk decision.
+    tested_by_inject: INJ-02
+    evaluation_owner: EVAL-REG (Lisa Tanaka)
+
+  - capability_id: CAP-04
+    name: phi_exposure_assessment
+    expected_behavior: >
+      The team scopes PHI exposure from evidence: which data elements the agent can read
+      (demographics, insurance, appointment data, staff rostering), how many patients are
+      in the compromise window, the outbound volume to 193.42.100.77, and whether Twilio /
+      SendGrid reminders carried PHI; it separates confirmed, probable and unknown.
+    gap_hypothesis: >
+      The team either assumes no exposure because the breach "is at the vendor" or assumes
+      the worst without a scoping method; nobody owns the ePHI inventory for the Nexus
+      integration, so the patient count cannot be produced inside the inject window.
+    tested_by_inject: INJ-02, INJ-04
+    evaluation_owner: EVAL-REG (Lisa Tanaka)
+
+  - capability_id: CAP-05
+    name: hipaa_notification_posture
+    expected_behavior: >
+      General Counsel states that MedDefense, as Covered Entity, keeps its own notification
+      obligations even though the Business Associate was breached; starts the four-factor
+      risk assessment, determines the discovery date (including whether Nexus knew earlier),
+      tracks the 60-day individual notice and the 500-individual threshold for HHS and
+      media, and decides who sends patient letters (MedDefense or Nexus on its behalf).
+    gap_hypothesis: >
+      Participants assume the vendor "owns" the breach and its notifications; the BAA
+      24-hour clause is read as transferring responsibility, and no one starts MedDefense's
+      own clock or assessment during the exercise.
+    tested_by_inject: INJ-04
+    evaluation_owner: EVAL-REG (Lisa Tanaka)
+
+  - capability_id: CAP-06
+    name: data_integrity_response
+    expected_behavior: >
+      When told appointments may have been modified, the team freezes inbound FHIR writes
+      from svc-nexus-prod, pulls the Epic audit trail for changes made by svc-nexus-prod
+      since 2026-04-25 02:10, prioritizes time-critical patients (infusion, dialysis,
+      oncology) for phone verification, and names a clinical owner for patient outreach.
+    gap_hypothesis: >
+      MedDefense has no procedure to verify data integrity in an Epic-connected system
+      after a partner compromise; clinical staff keep trusting the Epic schedule and the
+      team focuses on confidentiality only.
+    tested_by_inject: INJ-03
+    evaluation_owner: EVAL-CLIN (Nursing Quality Officer)
+
+  - capability_id: CAP-07
+    name: crisis_communications
+    expected_behavior: >
+      Communications Director gives a holding statement approved by Legal and the CISO
+      within the media deadline, does not confirm unverified facts, aligns the message
+      with Nexus, and prepares a patient-facing script for the call center about
+      appointment changes.
+    gap_hypothesis: >
+      There is no pre-approved holding statement for a vendor incident; Legal and
+      Communications disagree on what can be said, the reporter's deadline passes with
+      "no comment", and patients calling the sites get inconsistent answers.
+    tested_by_inject: INJ-05
+    evaluation_owner: EVAL-LEAD (Tales Lima)
+
+  - capability_id: CAP-08
+    name: executive_briefing_under_pressure
+    expected_behavior: >
+      The CISO produces a one-page board brief within the 90-minute window: what is known,
+      what is not known, decisions taken with owners, patient safety status, regulatory
+      exposure and decisions needed from the board; facts are labeled confirmed,
+      probable or unknown.
+    gap_hypothesis: >
+      The brief is either delayed until "we have the full picture" or overstates certainty;
+      open questions (other updates in the 21-day window, data exfiltrated or not,
+      notification scope) are hidden instead of being presented as risks needing a
+      board decision.
+    tested_by_inject: INJ-06
+    evaluation_owner: EVAL-LEAD (Tales Lima)

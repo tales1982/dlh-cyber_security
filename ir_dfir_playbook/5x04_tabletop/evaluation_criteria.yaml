@@ -1,0 +1,191 @@
+---
+# Evaluation Criteria: TTX-2026-01 Nexus Supply Chain Compromise Tabletop
+# Written before the exercise. Criteria are observable behaviors (said, written or decided
+# in the room), never assumptions about intent. Each criterion is scored PASS / FAIL by the
+# evaluation owner from capability_map.yaml. Every fail indicator maps to the finding text
+# below, which names an owner, a deadline and a validation method.
+# Vendor residual findings tested (nexus_vendor_profile.md, review 2025-11-14):
+#   R1 update channel relies only on code-signing, no client-side hash pin
+#   R2 no SBOM for npm dependencies in the on-prem agent
+#   R3 joint incident communication path never tested (last contact test 2024-09)
+
+exercise_id: TTX-2026-01
+scoring:
+  pass: all pass_criteria observed within the inject window (until the next inject is delivered)
+  fail: any fail_indicator observed, or a pass criterion not observed in the window
+  evidence_rule: evaluator writes the time and the exact words or action observed
+
+criteria:
+  - inject_id: INJ-00
+    capability_tested: CAP-01
+    evaluation_owner: EVAL-LEAD
+    pass_criteria:
+      - Incident is declared within the first five minutes of the inject; severity is stated with explicit reasoning
+      - At least two roles are notified by name within the inject window (e.g. CISO and Communications Lead)
+      - Evidence collection on SCHED-SVR-02 (memory, nexus-agent version, update history) is initiated before any containment action is discussed
+      - A participant asks whether the traffic originates from the Nexus agent or a Nexus update (vendor as possible vector)
+      - Scope is extended to SCHED-SVR-01 and SCHED-SVR-03 because they run the same agent
+    fail_indicators:
+      - Incident is not declared; team continues treating this as a monitoring alert
+      - Containment actions are proposed before any evidence collection step is named
+      - Vendor Nexus is not mentioned as a dimension of the alert within the inject window
+      - Only SCHED-SVR-02 is investigated
+    finding_if_fail: >
+      The team did not declare a formal incident within the first inject window and/or treated
+      the alert as an external intrusion on one host, without considering the Nexus agent or
+      its automatic signed updates as the vector or extending the hunt to the other agent
+      hosts. This shows the severity matrix has no trigger for anomalies originating from a
+      vendor-managed agent and that the accepted residual risk R1 (no client-side update hash
+      pin) is not known to responders. Recommended action: add a "vendor agent / supply chain
+      origin" trigger (SEV2 minimum, scope all hosts running the same agent) to the severity
+      matrix and an SOC runbook step "check vendor agent version and last update on every
+      host running it" (owner: SOC Lead; deadline: 14 days; validation: runbook review and
+      purple-team replay of the INJ-00 alert).
+
+  - inject_id: INJ-01
+    capability_tested: CAP-02
+    evaluation_owner: EVAL-CLIN
+    pass_criteria:
+      - A system isolation decision is made or explicitly escalated with a named decision authority
+      - A manual scheduling fallback is named or explicitly requested by a clinical role, with a specific plan for today's dialysis and infusion sessions
+      - Patient safety impact is acknowledged in the decision rationale
+      - The Clinical Director is consulted before the decision is made or escalated
+      - Automatic Nexus updates are disabled or explicitly kept with a stated reason
+      - Severity is reviewed and raised to SEV1 or the reason for keeping SEV2 is stated
+    fail_indicators:
+      - Decision is deferred indefinitely pending more information that is not available
+      - Clinical director is not consulted before the isolation decision is made or escalated
+      - No participant can name who has the authority to take a vendor-operated system offline
+      - The two patients arriving for cancelled appointments are not linked to the incident
+    finding_if_fail: >
+      The team could not take or escalate a decision to isolate the compromised Nexus agents
+      within the inject window because no role holds documented authority to take a
+      vendor-operated, business-critical system offline, and the clinical impact was not part
+      of the decision. Recommended action: add a "vendor system isolation" decision node to
+      the IR playbook naming the IT Director as decision owner, CISO as approver and Clinical
+      Director as mandatory consultee, with a 30-minute decision timebox and a pre-written
+      manual scheduling fallback for the three sites that prioritizes dialysis and infusion
+      (owner: IT Director; deadline: 21 days; validation: playbook review signed by the
+      Clinical Director and re-test of INJ-01 at the next tabletop).
+
+  - inject_id: INJ-02
+    capability_tested: CAP-03
+    evaluation_owner: EVAL-REG
+    pass_criteria:
+      - One MedDefense vendor liaison is named and all Nexus contact goes through that person
+      - The team decides on the vendor's request to keep agents online based on MedDefense's own risk, and says so
+      - A written request is sent to Nexus for IOCs, affected versions, discovery date, data accessed and subprocessor (Twilio, SendGrid) impact
+      - The Nexus discovery date (2026-04-24) is recorded and identified as relevant to the BAA 24-hour notice
+      - The NDA request is referred to General Counsel instead of being accepted on the call
+    fail_indicators:
+      - More than one MedDefense person contacts Nexus with no coordination
+      - Agents are kept online only because the vendor asked
+      - The vendor discovery date is not asked for or not recorded
+      - Communications accepts the joint press statement offer without Legal review
+    finding_if_fail: >
+      The joint incident communication path with Nexus, accepted as untested in the
+      2025-11-14 vendor review (R3), failed under pressure: MedDefense had no single vendor
+      liaison, did not obtain the vendor discovery date or IOCs in writing, and let the
+      vendor's preferences drive containment and public messaging. Recommended action: add a
+      "vendor incident liaison" role and a standard written vendor information request
+      (IOCs, versions, discovery date, data accessed, subprocessors) to the IR playbook, and
+      run a joint communication test with Nexus SecOps (owner: Vendor Risk Manager; deadline:
+      30 days; validation: completed joint test with Nexus with a response received inside
+      the 1-hour SLA and the request template on file).
+
+  - inject_id: INJ-03
+    capability_tested: CAP-06
+    evaluation_owner: EVAL-CLIN
+    pass_criteria:
+      - Inbound FHIR writes from svc-nexus-prod are frozen (or a named person is tasked to do it now)
+      - A clinical owner is named for patient outreach and the 38 time-critical patients are called first
+      - The dialysis patient who missed Saturday's session is escalated to a clinician today
+      - The Epic audit extract is preserved as evidence before records are corrected
+      - The integrity review is extended beyond the 72-hour window to the 21-day advisory window
+    fail_indicators:
+      - Team discusses only data confidentiality and does not act on modified records
+      - Records are corrected in Epic before the audit trail is preserved
+      - No clinical role is assigned to patient outreach
+      - The missed dialysis session is not raised as an immediate patient safety issue
+    finding_if_fail: >
+      MedDefense has no procedure to verify and restore data integrity in Epic after a
+      compromise of a connected partner: the team did not freeze inbound writes, did not
+      prioritize time-critical patients, and/or altered records before preserving the audit
+      trail. Recommended action: create a data integrity checklist for Epic-connected systems
+      triggered by a Business Associate or integration compromise (freeze service principal,
+      preserve audit trail, clinical triage list for infusion / dialysis / oncology, patient
+      call script) (owner: Infrastructure Lead with Clinical Director; deadline: 30 days;
+      validation: checklist reviewed by the Clinical Director and a dry run on the Epic test
+      environment that restores 20 altered appointments from audit data).
+
+  - inject_id: INJ-04
+    capability_tested: CAP-05
+    evaluation_owner: EVAL-REG
+    pass_criteria:
+      - General Counsel states that MedDefense, as Covered Entity, keeps its own notification obligations even though the Business Associate was breached
+      - The four-factor risk assessment is started with a named owner and a date
+      - The discovery date question (2026-04-24 vendor discovery vs today) is raised and assigned
+      - The 60-day individual notice and the 500-individual HHS / media threshold are named
+      - The vendor's "no action required" email is answered in writing
+      - PHI scoping is assigned with confirmed / probable / unknown categories and a deadline
+    fail_indicators:
+      - Team accepts that Nexus "handles all notifications" and takes no regulatory action
+      - No one asks when MedDefense's discovery clock started
+      - The patient count in scope is not discussed or is assumed to be zero
+    finding_if_fail: >
+      MedDefense treated the Business Associate's breach as the vendor's regulatory problem
+      and did not start its own Covered Entity assessment: the four-factor assessment, the
+      discovery date and the 60-day / 500-individual thresholds were not addressed. This shows
+      the BAA 24-hour notice clause is misread as a transfer of obligations. Recommended
+      action: add a "Business Associate breach" branch to the HIPAA decision node in the
+      credential and malware playbooks, and amend the Nexus BAA (and the BAA template) to
+      define who sends patient notices, cost allocation and evidence sharing (owner: General
+      Counsel; deadline: 45 days; validation: amended BAA signed and playbook branch reviewed
+      by outside counsel).
+
+  - inject_id: INJ-05
+    capability_tested: CAP-07
+    evaluation_owner: EVAL-LEAD
+    pass_criteria:
+      - A holding statement is drafted and approved by General Counsel and the CISO before the 11:00 deadline
+      - The statement confirms a vendor incident without confirming data theft and tells patients how to verify appointments
+      - A call center script is issued and includes a priority line for time-critical patients
+      - The statement is not coordinated with Nexus before facts are aligned
+    fail_indicators:
+      - The deadline passes with no statement or a bare "no comment"
+      - A statement confirms or denies data theft without evidence
+      - Call center agents keep giving inconsistent answers (no script issued)
+      - A joint statement with Nexus is agreed without Legal review
+    finding_if_fail: >
+      MedDefense had no pre-approved holding statement or patient call script for a vendor
+      incident, so Communications and Legal could not agree on public wording inside a media
+      deadline and patient-facing staff improvised. Recommended action: create a pre-approved
+      holding statement library (vendor incident, ransomware, data exposure) and a patient
+      call script template with a 30-minute Legal fast-track approval path (owner:
+      Communications Director; deadline: 30 days; validation: statements signed off by
+      General Counsel and a timed drill producing an approved statement in under 30 minutes).
+
+  - inject_id: INJ-06
+    capability_tested: CAP-08
+    evaluation_owner: EVAL-LEAD
+    pass_criteria:
+      - A one-page written brief is produced inside the window with confirmed / probable / unknown sections
+      - Decisions taken are listed with owners and times
+      - Patient safety status (38 time-critical patients) and regulatory exposure (up to 41,000 patients) are both in the brief
+      - Specific decisions are requested from the board
+      - The team decides not to install 4.12.4 until it is verified out of band, or states why it accepts the risk
+      - Open questions are stated explicitly (pre-4.12.3 updates, PHI in the 2.3 GB, notification clock)
+    fail_indicators:
+      - Brief is delayed "until we have the full picture" or is verbal only
+      - Brief presents probable facts as confirmed or omits unknowns
+      - The signed 4.12.4 update is re-enabled because it is signed, with no independent verification
+    finding_if_fail: >
+      The CISO could not produce a board-quality written brief under a 90-minute deadline
+      that separated confirmed facts from unknowns, and/or the team re-trusted the vendor's
+      signing certificate without independent verification, repeating the residual risk R1
+      that caused the compromise. Recommended action: adopt a one-page executive incident
+      brief template (known / unknown / decisions / asks) and a vendor update verification
+      procedure (out-of-band hash, new certificate check, staging host, SBOM request per R2)
+      before any update from a compromised vendor is allowed (owner: CISO for the template,
+      IT Director for the procedure; deadline: 21 days; validation: template used in the next
+      SEV1/SEV2 and procedure applied to Nexus 4.12.4 in staging with evidence on file).
