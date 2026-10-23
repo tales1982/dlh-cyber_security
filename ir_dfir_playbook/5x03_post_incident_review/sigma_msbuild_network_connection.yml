@@ -1,0 +1,58 @@
+title: Trusted Developer Utility Outbound Connection to Public IP (LOLBin C2)
+id: 3160f5aa-1a13-4a33-9578-8c67f3515775
+status: test
+description: |
+    Detects MSBuild.exe or another trusted developer utility opening an outbound
+    network connection to a public (non-RFC1918) address. In IR-2026-0414-01 the
+    in-memory implant inside MSBuild.exe beaconed to 185.220.101.47:443 (Tor exit)
+    from WST-WS-031 (PID 8104, 02:47:02Z) and to 91.234.99.107:443 (Cobalt Strike
+    cluster) from WST-WS-017 (PID 5108, 03:27:15Z). Both connections had no
+    destination hostname. Tuned after validation: legitimate NuGet package restore
+    traffic to *.nuget.org from developer workstations is excluded.
+references:
+    - https://attack.mitre.org/techniques/T1127/001/
+    - https://attack.mitre.org/techniques/T1071/001/
+    - https://lolbas-project.github.io/lolbas/Binaries/Msbuild/
+author: Tales Lima
+date: 2026-10-23
+modified: 2026-10-23
+tags:
+    - attack.command-and-control
+    - attack.t1071.001
+    - attack.t1127.001
+    - attack.t1090.003
+logsource:
+    category: network_connection
+    product: windows
+detection:
+    selection:
+        Image|endswith:
+            - '\MSBuild.exe'
+            - '\csc.exe'
+            - '\vbc.exe'
+            - '\jsc.exe'
+            - '\InstallUtil.exe'
+            - '\RegAsm.exe'
+            - '\RegSvcs.exe'
+        Initiated: 'true'
+    filter_private:
+        DestinationIp|cidr:
+            - '10.0.0.0/8'
+            - '172.16.0.0/12'
+            - '192.168.0.0/16'
+            - '127.0.0.0/8'
+    filter_nuget:
+        DestinationHostname|endswith: '.nuget.org'
+    condition: selection and not 1 of filter_*
+fields:
+    - ComputerName
+    - User
+    - Image
+    - ProcessId
+    - DestinationIp
+    - DestinationPort
+    - DestinationHostname
+falsepositives:
+    - MSBuild package restore to a private or vendor NuGet feed not hosted on nuget.org (e.g. an Azure Artifacts feed on pkgs.dev.azure.com) on developer workstations WST-WS-042 / WST-WS-051
+    - Build pipelines that download SDKs or tools during a build through MSBuild tasks (DownloadFile) on CI/CD agents
+level: high
