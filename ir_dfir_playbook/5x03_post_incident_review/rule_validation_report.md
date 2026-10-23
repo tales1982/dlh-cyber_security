@@ -14,7 +14,57 @@
 
 ## Method
 
-`validate_rules.sh` loads each Sigma rule, maps the Sigma fields to the JSONL fields (`Image` -> `image`, `ParentImage` -> `parent_image`, `DestinationIp` -> `dst_ip`, `DestinationHostname` -> `dst_hostname`, `Initiated` -> `initiated`) and the logsource category to the Sysmon event ID (`process_creation` = 1, `network_connection` = 3), then evaluates the detection and condition on every event. For the clean sample of a rule that has `filter_*` blocks, it runs the rule twice: once with the filters disabled (the original rule) and once as tuned, so the false positives removed by tuning stay visible.
+`validate_rules.sh` is a Sigma-compatible log matcher (bash + Python 3 standard library, no extra packages). It loads each Sigma rule (with PyYAML when installed, otherwise the same detection logic embedded in the script), maps the Sigma fields to the JSONL fields (`Image` -> `image`, `ParentImage` -> `parent_image`, `DestinationIp` -> `dst_ip`, `DestinationHostname` -> `dst_hostname`, `Initiated` -> `initiated`) and the logsource category to the Sysmon event ID (`process_creation` = 1, `network_connection` = 3), then evaluates the detection and condition on every event. For the clean sample of the tuned rule it runs the original rule first (`filter_nuget` disabled), prints the false positive pattern and the action, then re-runs the tuned rule. If `sigma` (sigma-cli) is installed it also runs `sigma check` on both rules.
+
+Run:
+
+```bash
+cd ir_dfir_playbook/5x03_post_incident_review
+./validate_rules.sh            # or ./validate_rules.sh /path/to/5x03
+```
+
+## Script output
+
+```text
+### Rule: sigma_powershell_msbuild_lolbin.yml (PowerShell Spawning Trusted Developer Utility (LOLBin Proxy Execution))
+
+[incident_sysmon.jsonl]
+Total events: 17
+Matches: 2
+Match rate: 11.765%
+Verdict: PASS (expected matches on PID 8104 at 02:46:58Z and PID 5108 at 03:27:13Z)
+
+[clean_sysmon.jsonl]
+Total events: 21
+Matches: 0
+False positive rate: 0.000%
+Verdict: PASS
+
+### Rule: sigma_msbuild_network_connection.yml (Trusted Developer Utility Outbound Connection to Public IP (LOLBin C2))
+
+[incident_sysmon.jsonl]
+Total events: 17
+Matches: 2
+Match rate: 11.765%
+Verdict: PASS (expected matches on PID 8104 at 02:47:02Z and PID 5108 at 03:27:15Z)
+
+[clean_sysmon.jsonl]
+Total events: 21
+Matches: 14
+False positive rate: 66.667%
+Verdict: REVIEW : 14 matches are MSBuild.exe connections to api.nuget.org
+Matched events:
+  - 2026-03-17T14:22:52Z WST-WS-042 MSBuild.exe PID 9204 -> 168.62.42.37:443 (api.nuget.org)
+  - ... (14 events, WST-WS-042 x10, WST-WS-051 x4, all api.nuget.org)
+Action: adding filter for DestinationHostname|endswith '.nuget.org'; re-running
+
+[clean_sysmon.jsonl after tuning]
+Matches: 0
+False positive rate: 0.000%
+Verdict: PASS
+
+Overall: PASS
+```
 
 ## Results
 
