@@ -1,0 +1,55 @@
+register_version: "2026.04"
+owner: "IT Security"
+classification: "Confidential"
+risks:
+  - id: R-001
+    title: Vendor risk management process missing
+    severity: High
+    status: Open
+    source: forensic_findings_summary.md
+    description: MedDefense lacks a formal vendor tiering and evidence review process for third parties with ePHI or clinical system access.
+    current_controls:
+      - ad hoc procurement review
+      - contract review by Legal
+    gaps:
+      - no vendor security questionnaire requirement
+      - no BAA gate before ePHI access
+      - no subprocessor review process
+    owner: IT Security and Procurement
+    target_date: 2026-06-20
+
+  - id: R-002
+    title: Workforce security training evidence incomplete
+    severity: Critical
+    status: Open
+    source: security_awareness_training_status.md
+    description: Completion evidence exists for only 73 percent of workforce members and phishing simulation metrics are missing.
+    owner: IT Security
+    target_date: 2026-06-15
+
+  - id: R-003
+    title: Endpoint inventory incomplete
+    severity: Medium
+    status: Open
+    source: endpoint_hardening_baseline.md
+    description: Biomedical and medical device assets are not represented in the endpoint hardening scope.
+    owner: Infrastructure
+    target_date: 2026-07-01
+
+  - id: R-004
+    title: Legacy policy inventory incomplete
+    severity: Critical
+    status: Open
+    source: prior_policy_inventory.md
+    description: Acceptable Use, Data Classification, and Vendor Management policies do not exist in enforceable written form.
+    owner: CISO
+    target_date: 2026-06-01
+
+  - id: R-005
+    title: Cloud audit logging incomplete in DR region
+    severity: High
+    status: Open
+    source: forensic_findings_summary.md
+    description: CloudTrail is not enabled in the DR region where clinical backup storage exists.
+    owner: Cloud Security
+    target_date: 2026-06-10
