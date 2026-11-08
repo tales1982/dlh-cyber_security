@@ -1,0 +1,5 @@
+{"ts":"2026-04-22T08:05:30Z","source":"sysmon","host":"CS-WS-101","event_id":3,"image":"C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE","dst_ip":"52.109.8.21","dst_port":443,"dst_hostname":"officeclient.microsoft.com","action":"allowed"}
+{"ts":"2026-04-22T09:12:50Z","source":"sysmon","host":"SCHED-SVR-01","event_id":3,"image":"C:\\Program Files\\MedSched\\schedsvc.exe","dst_ip":"10.30.10.40","dst_port":1433,"action":"allowed"}
+{"ts":"2026-04-22T10:41:07Z","source":"proxy","host":"CS-WS-104","url":"https://epic-api.meddefense.org/health","status":200,"action":"allowed"}
+{"ts":"2026-04-22T11:02:19Z","source":"dns_sinkhole","host":"CS-WS-212","query":"staging.office365-cdn.net","answer":"10.30.250.53","action":"sinkholed","note":"user clicked old link from a purged email copy; investigated, no process"}
+{"ts":"2026-04-22T11:02:19Z","source":"firewall","host":"CS-WS-212","dst_ip":"45.152.66.114","dst_port":443,"rule":"IR-2026-0420-01-01","action":"denied"}

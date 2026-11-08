@@ -1,0 +1,4 @@
+sigma_msbuild_network_connection.yml
+sigma_powershell_msbuild_lolbin.yml
+sigma_cobalt_strike_beacon.yml
+8d2f4b61-3c7e-4a90-b5d1-6e0f9a2c7b43

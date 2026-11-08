@@ -1,0 +1,1 @@
+{"EventID":3,"Computer":"IR-TEST-01","User":"MEDDEFENSE\\ir-test","Image":"C:\\ProgramData\\Microsoft\\svchost32.exe","ProcessId":4242,"Initiated":"true","DestinationIp":"203.0.113.10","DestinationPort":443,"DestinationHostname":"test.example.net","note":"synthetic event for recovery_validation.sh check 6; no IOC host so the masquerade branch is tested"}

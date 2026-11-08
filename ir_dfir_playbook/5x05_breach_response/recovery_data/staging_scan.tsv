@@ -1,0 +1,12 @@
+# host	path	sha256 (every .bat/.ps1 under C:\Windows\System32 and C:\ProgramData; NONE = scanned, nothing found)
+CS-WS-101	C:\Windows\System32\WindowsPowerShell\v1.0\Examples\profile.ps1	3f1c2e0a9b8d7c6e5f4a3b2c1d0e9f8a7b6c5d4e3f2a1b0c9d8e7f6a5b4c3d2e
+CS-WS-101	C:\ProgramData\Microsoft\Windows Defender\Scans\mpenginedb_cleanup.ps1	9e8d7c6b5a4f3e2d1c0b9a8f7e6d5c4b3a2f1e0d9c8b7a6f5e4d3c2b1a0f9e8d
+CS-WS-104	C:\Windows\System32\WindowsPowerShell\v1.0\Examples\profile.ps1	3f1c2e0a9b8d7c6e5f4a3b2c1d0e9f8a7b6c5d4e3f2a1b0c9d8e7f6a5b4c3d2e
+CS-WS-104	C:\ProgramData\Microsoft\Windows Defender\Scans\mpenginedb_cleanup.ps1	9e8d7c6b5a4f3e2d1c0b9a8f7e6d5c4b3a2f1e0d9c8b7a6f5e4d3c2b1a0f9e8d
+CS-WS-107	C:\Windows\System32\WindowsPowerShell\v1.0\Examples\profile.ps1	3f1c2e0a9b8d7c6e5f4a3b2c1d0e9f8a7b6c5d4e3f2a1b0c9d8e7f6a5b4c3d2e
+CS-WS-107	C:\ProgramData\Microsoft\Windows Defender\Scans\mpenginedb_cleanup.ps1	9e8d7c6b5a4f3e2d1c0b9a8f7e6d5c4b3a2f1e0d9c8b7a6f5e4d3c2b1a0f9e8d
+CS-WS-112	C:\Windows\System32\WindowsPowerShell\v1.0\Examples\profile.ps1	3f1c2e0a9b8d7c6e5f4a3b2c1d0e9f8a7b6c5d4e3f2a1b0c9d8e7f6a5b4c3d2e
+CS-WS-112	C:\ProgramData\Microsoft\Windows Defender\Scans\mpenginedb_cleanup.ps1	9e8d7c6b5a4f3e2d1c0b9a8f7e6d5c4b3a2f1e0d9c8b7a6f5e4d3c2b1a0f9e8d
+SCHED-SVR-01	C:\Windows\System32\WindowsPowerShell\v1.0\Examples\profile.ps1	3f1c2e0a9b8d7c6e5f4a3b2c1d0e9f8a7b6c5d4e3f2a1b0c9d8e7f6a5b4c3d2e
+SCHED-SVR-01	C:\ProgramData\Microsoft\Windows Defender\Scans\mpenginedb_cleanup.ps1	9e8d7c6b5a4f3e2d1c0b9a8f7e6d5c4b3a2f1e0d9c8b7a6f5e4d3c2b1a0f9e8d
+FILE-SVR-01	C:\ProgramData\Microsoft\Windows Defender\Scans\mpenginedb_cleanup.ps1	9e8d7c6b5a4f3e2d1c0b9a8f7e6d5c4b3a2f1e0d9c8b7a6f5e4d3c2b1a0f9e8d

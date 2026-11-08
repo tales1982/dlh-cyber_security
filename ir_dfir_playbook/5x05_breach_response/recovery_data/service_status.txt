@@ -1,0 +1,3 @@
+epic-api	https://epic-api.meddefense.org/health	200
+lis-api	https://lis-api.meddefense.org/health	200
+scheduling-api	https://scheduling-api.meddefense.org/health	200

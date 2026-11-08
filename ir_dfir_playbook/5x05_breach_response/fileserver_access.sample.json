@@ -1,0 +1,27 @@
+{
+  "source": "FILE-SVR-01 — Windows Security Event Log (evtx)",
+  "export_method": "evtx_dump -o json fileserver_access.evtx",
+  "export_note": "This is a condensed sample. Full evtx referenced in artifact spec contains all 1847 Event ID 4663 rows; sample below shows the access window boundaries and representative interior rows.",
+  "window": {"start": "2026-04-19T02:14:01Z", "end": "2026-04-19T02:41:12Z"},
+  "access_summary": {
+    "total_object_access_events": 1847,
+    "event_id": 4663,
+    "subject_user": "MEDDEFENSE\\jdoe",
+    "subject_logon_id": "0xAF12C4B8",
+    "access_mask": "0x1 (ReadData)",
+    "shares_touched": ["\\clinical\\labs\\", "\\clinical\\notes\\"],
+    "file_extensions": {".pdf": 1847, ".docx": 0, ".xlsx": 0}
+  },
+  "representative_events": [
+    {"record_id": 1482091, "ts": "2026-04-19T02:14:01.214Z", "event_id": 4663, "user": "MEDDEFENSE\\jdoe", "logon_id": "0xAF12C4B8", "object_name": "D:\\clinical\\labs\\2026-04-18_panel_001.pdf", "access_mask": "0x1", "process_name": "\\Device\\HarddiskVolume3\\ProgramData\\Microsoft\\svchost32.exe"},
+    {"record_id": 1482092, "ts": "2026-04-19T02:14:01.508Z", "event_id": 4663, "user": "MEDDEFENSE\\jdoe", "logon_id": "0xAF12C4B8", "object_name": "D:\\clinical\\labs\\2026-04-18_panel_002.pdf", "access_mask": "0x1", "process_name": "\\Device\\HarddiskVolume3\\ProgramData\\Microsoft\\svchost32.exe"},
+    {"record_id": 1482608, "ts": "2026-04-19T02:21:04.102Z", "event_id": 4663, "user": "MEDDEFENSE\\jdoe", "logon_id": "0xAF12C4B8", "object_name": "D:\\clinical\\notes\\progress_2026-04-17_ER_admit_00441.pdf", "access_mask": "0x1", "process_name": "\\Device\\HarddiskVolume3\\ProgramData\\Microsoft\\svchost32.exe"},
+    {"record_id": 1483412, "ts": "2026-04-19T02:34:18.004Z", "event_id": 4663, "user": "MEDDEFENSE\\jdoe", "logon_id": "0xAF12C4B8", "object_name": "D:\\clinical\\labs\\2026-04-15_panel_1102.pdf", "access_mask": "0x1", "process_name": "\\Device\\HarddiskVolume3\\ProgramData\\Microsoft\\svchost32.exe"},
+    {"record_id": 1483938, "ts": "2026-04-19T02:41:12.894Z", "event_id": 4663, "user": "MEDDEFENSE\\jdoe", "logon_id": "0xAF12C4B8", "object_name": "D:\\clinical\\notes\\progress_2026-04-18_floor_4_00221.pdf", "access_mask": "0x1", "process_name": "\\Device\\HarddiskVolume3\\ProgramData\\Microsoft\\svchost32.exe"}
+  ],
+  "supporting_events": [
+    {"ts": "2026-04-19T02:14:00.842Z", "event_id": 4624, "user": "MEDDEFENSE\\jdoe", "logon_type": 3, "src_ip": "10.30.12.101", "auth_package": "Kerberos", "logon_id": "0xAF12C4B8", "note": "Lateral Kerberos logon to FILE-SVR-01 from CS-WS-101"},
+    {"ts": "2026-04-19T02:41:18.004Z", "event_id": 4634, "user": "MEDDEFENSE\\jdoe", "logon_id": "0xAF12C4B8", "note": "Session terminated. No further object access from this logon_id."}
+  ],
+  "note_for_analyst": "The full 1847 events are distributed between 2026-04-19T02:14:01Z and 02:41:12Z (27-minute window). jdoe holds no clinical role with legitimate need to read PDFs in \\clinical\\labs or \\clinical\\notes; her role is scheduling coordinator. See user provisioning for role-to-share ACL mapping."
+}

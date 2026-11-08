@@ -1,0 +1,60 @@
+title: Masqueraded System Binary Outside System32 Opening Outbound HTTPS (Cobalt Strike Beacon)
+id: 8d2f4b61-3c7e-4a90-b5d1-6e0f9a2c7b43
+status: test
+description: |
+    Detects a process named like a Windows system binary (svchost, dllhost, rundll32,
+    or a look-alike such as svchost32.exe) running from outside System32/SysWOW64 and
+    opening an outbound TCP 443 connection, plus any connection to the IR-2026-0420-01
+    C2 infrastructure. In IR-2026-0420-01 the Cobalt Strike stager
+    C:\ProgramData\Microsoft\svchost32.exe beaconed every ~60 s to
+    staging.office365-cdn.net (45.152.66.114) from six hosts (CS-WS-101/104/107/112,
+    FILE-SVR-01, SCHED-SVR-01). The existing service-install rule wz-edr-200214 only
+    covered the Workstations host group and missed three of them; this rule applies to
+    all Windows hosts.
+references:
+    - https://attack.mitre.org/techniques/T1036/005/
+    - https://attack.mitre.org/techniques/T1071/001/
+    - https://attack.mitre.org/software/S0154/
+author: Tales Lima
+date: 2026-04-21
+tags:
+    - attack.command-and-control
+    - attack.defense-evasion
+    - attack.t1071.001
+    - attack.t1036.005
+    - attack.s0154
+logsource:
+    category: network_connection
+    product: windows
+detection:
+    selection_masquerade:
+        Image|endswith:
+            - '\svchost.exe'
+            - '\svchost32.exe'
+            - '\svchost64.exe'
+            - '\svhost.exe'
+            - '\dllhost.exe'
+            - '\rundll32.exe'
+            - '\lsass.exe'
+            - '\services.exe'
+        Initiated: 'true'
+        DestinationPort: 443
+    filter_system_path:
+        Image|startswith:
+            - 'C:\Windows\System32\'
+            - 'C:\Windows\SysWOW64\'
+            - 'C:\Windows\WinSxS\'
+    selection_ioc:
+        - DestinationHostname|endswith: '.office365-cdn.net'
+        - DestinationIp: '45.152.66.114'
+    condition: (selection_masquerade and not filter_system_path) or selection_ioc
+fields:
+    - ComputerName
+    - User
+    - Image
+    - ProcessId
+    - DestinationIp
+    - DestinationHostname
+falsepositives:
+    - Portable copies of rundll32.exe or dllhost.exe in application folders (rare; review and allowlist by hash)
+level: high

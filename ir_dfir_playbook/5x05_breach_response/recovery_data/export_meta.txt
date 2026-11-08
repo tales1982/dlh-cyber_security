@@ -1,0 +1,6 @@
+# Export written by the SIEM/EDR export job for recovery_validation.sh (IR-2026-0420-01)
+exported_at=2026-04-22T16:00:00Z
+window_hours=24
+window_start=2026-04-21T16:00:00Z
+window_end=2026-04-22T16:00:00Z
+hosts=CS-WS-101,CS-WS-104,CS-WS-107,CS-WS-112,FILE-SVR-01,SCHED-SVR-01

@@ -1,0 +1,381 @@
+# Eradication Checklist: IR-2026-0420-01
+# Scope: CS-WS-101, CS-WS-104, CS-WS-107, CS-WS-112, FILE-SVR-01 (named hosts) and
+#        SCHED-SVR-01 (scope expansion, forensic_findings.md SYS-004); domain and perimeter items.
+# Foothold being removed (forensic_findings.md): stager C:\ProgramData\Microsoft\svchost32.exe
+#   (sha256 ff4c8a2d...9b1d) loading Cobalt Strike beacon.x64.dll (sha256 b08daa01...01c5) in memory;
+#   service WinHealthSvc on all six hosts; Run value WinHealth on CS-WS-101; staged
+#   C:\Windows\System32\encryption_staging.ps1 on four workstations; keylog drop klog.tmp;
+#   credentials of jdoe, mdlocaladmin (shared local admin, no LAPS), svc_sched and 6 dwell-period users;
+#   C2 staging.office365-cdn.net / 45.152.66.114.
+# Rule: status "verified" only when verification_output shows the expected result.
+#       "executed" = done but not yet verified; "pending" = not done.
+# Precondition: disk images ART-012..ART-015 (CS-WS-104/107/112, SCHED-SVR-01) and FILE-SVR-01 C: image
+#       hashed in hashes.txt before any destructive step (evidence_preservation.md).
+
+incident_id: IR-2026-0420-01
+owner: Tales Lima, on-call IR
+approver: Patricia Morales, CISO (SEV1 decision authority)
+executed_from: ir-jump01 (10.30.200.10) via WazuhEDR live response; hosts stay in EDR containment until recovery_validation.sh passes
+
+items:
+  # ===================== beacon_process =====================
+  - id: ERAD-001
+    category: beacon_process
+    target_host: CS-WS-101
+    description: Terminate beacon stager svchost32.exe (PID 7318) after ART-001/ART-002 are hashed
+    command_or_action: Stop-Process -Id 7318 -Force; Remove-Item C:\ProgramData\Microsoft\svchost32.exe -Force
+    verification_command: Get-CimInstance Win32_Process | Where-Object { $_.ExecutablePath -match 'svchost32' -or ($_.Name -eq 'svchost.exe' -and $_.ExecutablePath -notmatch '^C:\\Windows\\System32') }; Test-Path C:\ProgramData\Microsoft\svchost32.exe; EDR file search sha256 ff4c8a2d9e7b1a3c5d8f2e6b4a1d9c7f3e0b8a6d2c9e1f5a7b3d8c4e6f2a9b1d
+    expected_verification_result: no process returned; Test-Path False; 0 files with the stager hash
+    status: verified
+    executed_at: 2026-04-21T08:12:00Z
+    executed_by: Tales Lima
+    verification_output: "process query empty; Test-Path=False; EDR hash search 0 hits (08:13:40Z)"
+
+  - id: ERAD-002
+    category: beacon_process
+    target_host: CS-WS-104
+    description: Terminate svchost32.exe (PID 4102) and delete the stager, after ART-003 and ART-012 hashed
+    command_or_action: Stop-Process -Id 4102 -Force; Remove-Item C:\ProgramData\Microsoft\svchost32.exe -Force
+    verification_command: same as ERAD-001 on CS-WS-104
+    expected_verification_result: no process returned; Test-Path False; 0 files with the stager hash
+    status: verified
+    executed_at: 2026-04-21T08:20:00Z
+    executed_by: Tales Lima
+    verification_output: "process query empty; Test-Path=False; EDR hash search 0 hits (08:21:05Z)"
+
+  - id: ERAD-003
+    category: beacon_process
+    target_host: CS-WS-107
+    description: Terminate svchost32.exe (PID 4502) and delete the stager, after ART-004 and ART-013 hashed
+    command_or_action: Stop-Process -Id 4502 -Force; Remove-Item C:\ProgramData\Microsoft\svchost32.exe -Force
+    verification_command: same as ERAD-001 on CS-WS-107
+    expected_verification_result: no process returned; Test-Path False; 0 files with the stager hash
+    status: verified
+    executed_at: 2026-04-21T08:24:00Z
+    executed_by: Tales Lima
+    verification_output: "process query empty; Test-Path=False; EDR hash search 0 hits (08:25:12Z)"
+
+  - id: ERAD-004
+    category: beacon_process
+    target_host: CS-WS-112
+    description: Terminate svchost32.exe (PID 4818) and delete the stager, after ART-005 and ART-014 hashed
+    command_or_action: Stop-Process -Id 4818 -Force; Remove-Item C:\ProgramData\Microsoft\svchost32.exe -Force
+    verification_command: same as ERAD-001 on CS-WS-112
+    expected_verification_result: no process returned; Test-Path False; 0 files with the stager hash
+    status: verified
+    executed_at: 2026-04-21T08:28:00Z
+    executed_by: Tales Lima
+    verification_output: "process query empty; Test-Path=False; EDR hash search 0 hits (08:29:01Z)"
+
+  - id: ERAD-005
+    category: beacon_process
+    target_host: SCHED-SVR-01
+    description: Terminate svchost32.exe (PID 5920) and delete the stager, after ART-006 and ART-015 hashed
+    command_or_action: Stop-Process -Id 5920 -Force; Remove-Item C:\ProgramData\Microsoft\svchost32.exe -Force
+    verification_command: same as ERAD-001 on SCHED-SVR-01, plus Get-Counter '\PhysicalDisk(_Total)\Current Disk Queue Length'
+    expected_verification_result: no process returned; Test-Path False; 0 hash hits; disk queue back to baseline (< 2)
+    status: verified
+    executed_at: 2026-04-21T08:35:00Z
+    executed_by: Robert Kim
+    verification_output: "process query empty; Test-Path=False; 0 hash hits; disk queue 0.4 (08:37:30Z)"
+
+  - id: ERAD-006
+    category: beacon_process
+    target_host: FILE-SVR-01
+    description: Remove the stager binary (no process running since 2026-04-19T02:41Z) after the C:\ system volume image is hashed
+    command_or_action: Remove-Item C:\ProgramData\Microsoft\svchost32.exe -Force
+    verification_command: Get-CimInstance Win32_Process | Where-Object ExecutablePath -match 'svchost32'; Test-Path C:\ProgramData\Microsoft\svchost32.exe; EDR hash search
+    expected_verification_result: no process; Test-Path False; 0 hash hits
+    status: verified
+    executed_at: 2026-04-21T09:05:00Z
+    executed_by: Robert Kim
+    verification_output: "process query empty; Test-Path=False; 0 hash hits (09:06:10Z)"
+
+  - id: ERAD-007
+    category: beacon_process
+    target_host: ALL (1,214 EDR agents)
+    description: Fleet-wide sweep for the stager and beacon DLL hashes and for any svchost*.exe outside System32/SysWOW64
+    command_or_action: WazuhEDR hunt query on file hashes ff4c8a2d...9b1d, b08daa01...01c5 and path regex '\\svchost[^\\]*\.exe$' not under C:\Windows\System32|SysWOW64|WinSxS
+    verification_command: same hunt re-run 24 h later
+    expected_verification_result: 0 hits outside the six known hosts, 0 hits on them after ERAD-001..006
+    status: verified
+    executed_at: 2026-04-21T09:30:00Z
+    executed_by: Tales Lima
+    verification_output: "1,214 agents queried, 1,180 responded, 0 hits; 34 offline agents queued (hunt re-runs on check-in)"
+
+  # ===================== persistence: service =====================
+  - id: ERAD-010
+    category: persistence
+    persistence_type: service
+    target_host: CS-WS-101, CS-WS-104, CS-WS-107, CS-WS-112, FILE-SVR-01, SCHED-SVR-01
+    description: Delete service WinHealthSvc (ImagePath C:\ProgramData\Microsoft\svchost32.exe, auto start, LocalSystem) on all six hosts
+    command_or_action: sc.exe stop WinHealthSvc & sc.exe delete WinHealthSvc (per host via EDR live response)
+    verification_command: sc.exe query WinHealthSvc; reg query HKLM\SYSTEM\CurrentControlSet\Services\WinHealthSvc; Get-CimInstance Win32_Service | Where-Object PathName -match 'ProgramData'
+    expected_verification_result: 'sc query returns "1060 The specified service does not exist"; registry key not found; no service with a ProgramData image path, on all six hosts'
+    status: verified
+    executed_at: 2026-04-21T08:40:00Z
+    executed_by: Tales Lima
+    verification_output: "6/6 hosts: FAILED 1060; reg key not found; ProgramData service query empty (08:44:20Z)"
+
+  # ===================== persistence: registry run key =====================
+  - id: ERAD-011
+    category: persistence
+    persistence_type: registry_run_key
+    target_host: CS-WS-101
+    description: Remove Run value WinHealth from jdoe's hive (HKCU\Software\Microsoft\Windows\CurrentVersion\Run), forensic_findings.md DISK-005
+    command_or_action: reg delete "HKU\<jdoe_SID>\Software\Microsoft\Windows\CurrentVersion\Run" /v WinHealth /f
+    verification_command: reg query "HKU\<jdoe_SID>\Software\Microsoft\Windows\CurrentVersion\Run" /v WinHealth
+    expected_verification_result: '"ERROR: The system was unable to find the specified registry key or value."'
+    status: verified
+    executed_at: 2026-04-21T08:46:00Z
+    executed_by: Tales Lima
+    verification_output: "ERROR: The system was unable to find the specified registry key or value. (08:46:30Z)"
+
+  - id: ERAD-012
+    category: persistence
+    persistence_type: registry_run_key
+    target_host: CS-WS-104, CS-WS-107, CS-WS-112, FILE-SVR-01, SCHED-SVR-01
+    description: Sweep HKLM and every loaded/offline user hive Run and RunOnce for values pointing to ProgramData\Microsoft or svchost32
+    command_or_action: autorunsc64.exe -a r -h -s -c -accepteula > autoruns_<host>.csv, then filter for IOC paths
+    verification_command: findstr /i "svchost32 ProgramData\\Microsoft WinHealth" autoruns_<host>.csv
+    expected_verification_result: no match on any of the five hosts
+    status: verified
+    executed_at: 2026-04-21T08:50:00Z
+    executed_by: Tales Lima
+    verification_output: "5/5 hosts: findstr no match (08:58:00Z)"
+
+  # ===================== persistence: scheduled task =====================
+  - id: ERAD-013
+    category: persistence
+    persistence_type: scheduled_task
+    target_host: CS-WS-101, CS-WS-104, CS-WS-107, CS-WS-112, FILE-SVR-01, SCHED-SVR-01
+    description: Confirm no scheduled task launches the stager or the staging script (none seen in DISK-002; checked on every host because a later operator could add one)
+    command_or_action: schtasks /query /fo csv /v > tasks_<host>.csv; delete any task whose action references svchost32, encryption_staging or ProgramData\Microsoft
+    verification_command: findstr /i "svchost32 encryption_staging ProgramData\\Microsoft" tasks_<host>.csv
+    expected_verification_result: no match on all six hosts
+    status: verified
+    executed_at: 2026-04-21T09:00:00Z
+    executed_by: Tales Lima
+    verification_output: "6/6 hosts: no match; no task deleted (09:03:15Z)"
+
+  # ===================== staged_payload =====================
+  - id: ERAD-020
+    category: staged_payload
+    target_host: CS-WS-101, CS-WS-104, CS-WS-107, CS-WS-112
+    description: Delete ransomware staging script C:\Windows\System32\encryption_staging.ps1 (sha256 7b117826...4dffe), SYS-003; copies preserved in the disk images
+    command_or_action: Remove-Item C:\Windows\System32\encryption_staging.ps1 -Force (per host)
+    verification_command: Get-ChildItem C:\Windows\System32, C:\ProgramData -Recurse -Include *.ps1,*.bat -ErrorAction SilentlyContinue | Get-FileHash -Algorithm SHA256 | compare with gold-image allowlist
+    expected_verification_result: file absent on all four hosts; no .ps1/.bat in System32 or ProgramData outside the gold-image allowlist
+    status: verified
+    executed_at: 2026-04-21T09:10:00Z
+    executed_by: Tales Lima
+    verification_output: "4/4 hosts: encryption_staging.ps1 absent; 0 files outside allowlist (09:14:40Z)"
+
+  - id: ERAD-021
+    category: staged_payload
+    target_host: FILE-SVR-01, SCHED-SVR-01
+    description: Same staging sweep on both servers (no staging write seen in Sysmon, checked because SCHED-SVR-01 had an active beacon when staging happened)
+    command_or_action: same scan as ERAD-020, delete any match after hashing it into the evidence store
+    verification_command: same as ERAD-020
+    expected_verification_result: 0 files outside the server gold-image allowlist
+    status: verified
+    executed_at: 2026-04-21T09:16:00Z
+    executed_by: Robert Kim
+    verification_output: "2/2 servers: 0 files outside allowlist (09:19:00Z)"
+
+  - id: ERAD-022
+    category: staged_payload
+    target_host: CS-WS-101
+    description: Delete keylogger output C:\Windows\Temp\klog.tmp (copy in ART-002); the keystrokes it holds are treated as stolen (credentials typed at the ED charge desk since 2026-04-18T09:41Z are in scope of ERAD-030..034)
+    command_or_action: Remove-Item C:\Windows\Temp\klog.tmp -Force
+    verification_command: Test-Path C:\Windows\Temp\klog.tmp
+    expected_verification_result: False
+    status: verified
+    executed_at: 2026-04-21T09:20:00Z
+    executed_by: Tales Lima
+    verification_output: "False (09:20:10Z)"
+
+  - id: ERAD-023
+    category: staged_payload
+    target_host: CS-WS-101, CS-WS-104, CS-WS-107, CS-WS-112, SCHED-SVR-01
+    description: Rebuild from the clean gold image. An in-memory beacon with SYSTEM rights for up to 72 h means cleaning alone cannot be trusted. FILE-SVR-01 is not rebuilt (beacon ran 27 min only, data volume must stay online); its C:\ volume gets a full EDR integrity scan instead
+    command_or_action: SCCM bare-metal reimage (Win11 23H2 clinical gold image 2026-04), rejoin domain under a new computer account (see ERAD-060), restore user data only from backup older than 2026-04-17T14:17Z
+    verification_command: EDR inventory baseline diff against the gold image + recovery_validation.sh
+    expected_verification_result: 0 unexpected binaries, services or autoruns versus gold image; recovery_validation.sh exit 0
+    status: verified
+    executed_at: 2026-04-21T15:30:00Z
+    executed_by: Robert Kim
+    verification_output: "5/5 rebuilt hosts: baseline diff 0 deviations (15:42Z); FILE-SVR-01 full scan clean (14:10Z)"
+
+  # ===================== credential =====================
+  - id: ERAD-030
+    category: credential
+    target_host: DOMAIN (MEDDEFENSE\jdoe)
+    description: jdoe was the attacker's working account (FS-003, SYS-002). Second password reset after rebuild, MFA re-enrolment by phone identity check, removal from Clinical-WS-Admins (local admin on clinical workstations, not needed for her role), re-enable
+    command_or_action: Set-ADAccountPassword jdoe -Reset; Remove-ADGroupMember Clinical-WS-Admins jdoe; Enable-ADAccount jdoe; Entra ID - remove all auth methods, re-register MFA with helpdesk
+    verification_command: Get-ADUser jdoe -Properties PasswordLastSet,MemberOf,Enabled; Get-MgUserAuthenticationMethod -UserId jdoe@meddefense.org
+    expected_verification_result: PasswordLastSet after 2026-04-21T08:00Z; not a member of Clinical-WS-Admins; Enabled True; one MFA method registered on 2026-04-21
+    status: verified
+    executed_at: 2026-04-21T10:15:00Z
+    executed_by: Tales Lima
+    verification_output: "PasswordLastSet 2026-04-21T10:15:22Z; MemberOf without Clinical-WS-Admins; Enabled True; 1 method (Authenticator, 10:31Z)"
+
+  - id: ERAD-031
+    category: credential
+    target_host: ALL clinical workstations and servers
+    description: Rotate the shared local admin mdlocaladmin (same NT hash on every clinical workstation, MEM-005) by deploying Windows LAPS; disable built-in Administrator
+    command_or_action: GPO "Windows LAPS - Clinical" (BackupDirectory=AD, PasswordLength=20, PasswordAgeDays=30); Invoke-LapsPolicyProcessing; Reset-LapsPassword on the six hosts first
+    verification_command: Get-LapsADPassword -Identity <host> for each host; EDR query of local SAM NT hash for mdlocaladmin compared with 43b8ac55b4ab6e015877e27d24ce2f59
+    expected_verification_result: unique LAPS password per host; no host still holds the old NT hash
+    status: verified
+    executed_at: 2026-04-21T11:00:00Z
+    executed_by: Robert Kim
+    verification_output: "1,180/1,214 hosts LAPS-managed with unique passwords; 0 hosts with old hash; 34 offline hosts keep IR-DENY-LOCAL-NETWORK GPO until rotated"
+
+  - id: ERAD-032
+    category: credential
+    target_host: DOMAIN (svc_sched)
+    description: svc_sched was reset during containment (C-12); convert to a group Managed Service Account so the password is no longer human-set or stored
+    command_or_action: New-ADServiceAccount gmsa_sched -DNSHostName sched-svr-01.meddefense.org -PrincipalsAllowedToRetrieveManagedPassword SCHED-SVR-01$; reconfigure the scheduling service; disable svc_sched
+    verification_command: Test-ADServiceAccount gmsa_sched (on SCHED-SVR-01); Get-ADUser svc_sched -Properties Enabled
+    expected_verification_result: Test-ADServiceAccount True; svc_sched Enabled False; scheduling service running as gmsa_sched$
+    status: verified
+    executed_at: 2026-04-21T16:05:00Z
+    executed_by: Robert Kim
+    verification_output: "True; svc_sched Enabled False; service account gmsa_sched$ (16:12Z)"
+
+  - id: ERAD-033
+    category: credential
+    target_host: DOMAIN (6 dwell-period users, dwell_accounts.csv)
+    description: Confirm the 6 users with logons on the six hosts during the dwell (ED on-call nurse account, 3 clinical staff, 2 scheduling clerks) changed their password after C-13 and revoke their sessions again after rebuild
+    command_or_action: Get-ADUser -Properties PasswordLastSet for each account; Revoke-MgUserSignInSession for each
+    verification_command: Get-ADUser <each> -Properties PasswordLastSet,pwdLastSet
+    expected_verification_result: PasswordLastSet after 2026-04-20T21:02Z for all 6
+    status: verified
+    executed_at: 2026-04-21T10:40:00Z
+    executed_by: Tales Lima
+    verification_output: "6/6 PasswordLastSet between 2026-04-21T06:58Z and 09:47Z (user change at logon); sessions revoked 10:40Z"
+
+  - id: ERAD-034
+    category: credential
+    target_host: DOMAIN
+    description: Hunt for use of any exposed credential after containment (jdoe, mdlocaladmin, svc_sched, the 6 users) - logons from unknown hosts, 4624 type 3 NTLM from workstation to workstation
+    command_or_action: SIEM query on DC and host Security logs 2026-04-20T20:31Z to now
+    verification_command: same query 72 h after the last reset
+    expected_verification_result: 0 logons not explained by the account owner or IR staff
+    status: executed
+    executed_at: 2026-04-21T11:30:00Z
+    executed_by: Tales Lima
+    verification_output: "first run 0 unexplained logons; 72 h re-run due 2026-04-24T11:30Z (not verified until then)"
+
+  # ===================== kerberos =====================
+  - id: ERAD-040
+    category: kerberos
+    target_host: DOMAIN (krbtgt)
+    description: First krbtgt password reset. The attacker had Kerberos tickets for jdoe (FS-003) and SYSTEM on six domain members; invalidates every TGT signed with the old key
+    command_or_action: New-KrbtgtKeys.ps1 -Mode reset (Microsoft script), on PDC emulator DC01, replication checked first
+    verification_command: Get-ADUser krbtgt -Properties PasswordLastSet,msDS-KeyVersionNumber; repadmin /showobjmeta DC02 "CN=krbtgt,CN=Users,DC=meddefense,DC=org"
+    expected_verification_result: PasswordLastSet 2026-04-21; key version incremented by 1; same version on every DC
+    status: verified
+    executed_at: 2026-04-21T09:40:00Z
+    executed_by: Robert Kim
+    verification_output: "PasswordLastSet 2026-04-21T09:40:11Z; msDS-KeyVersionNumber 4 -> 5 on DC01 and DC02 (09:52Z)"
+
+  - id: ERAD-041
+    category: kerberos
+    target_host: DOMAIN (krbtgt)
+    description: Second krbtgt reset after the maximum ticket lifetime (10 h) plus replication margin, so tickets signed with the previous key (still accepted after one reset) are also invalid
+    command_or_action: New-KrbtgtKeys.ps1 -Mode reset, not earlier than 2026-04-21T19:40Z
+    verification_command: same as ERAD-040; then DC event 4769 failure 0x1F / 4771 checks for stale tickets
+    expected_verification_result: key version incremented again (5 -> 6) on every DC; no service outage
+    status: verified
+    executed_at: 2026-04-21T20:05:00Z
+    executed_by: Robert Kim
+    verification_output: "PasswordLastSet 2026-04-21T20:05:04Z; msDS-KeyVersionNumber 6 on DC01 and DC02 (20:14Z); 3 stale-ticket failures from rebuilt hosts, cleared by klist purge"
+
+  - id: ERAD-042
+    category: kerberos
+    target_host: CS-WS-101, CS-WS-104, CS-WS-107, CS-WS-112, FILE-SVR-01, SCHED-SVR-01
+    description: Purge cached tickets on all six hosts (FILE-SVR-01 is not rebuilt)
+    command_or_action: klist purge -li 0x3e7 and klist purge for every logon session (EDR live response)
+    verification_command: klist sessions; klist -li 0x3e7
+    expected_verification_result: no ticket older than 2026-04-21T20:05Z
+    status: verified
+    executed_at: 2026-04-21T20:20:00Z
+    executed_by: Tales Lima
+    verification_output: "6/6 hosts: oldest ticket 20:21Z (20:25Z)"
+
+  # ===================== network =====================
+  - id: ERAD-050
+    category: network
+    target_host: PERIMETER
+    description: Make the C2 egress block permanent (rule IR-2026-0420-01-01 from containment, C-02) and add the whole office365-cdn.net domain to the proxy deny list
+    command_or_action: firewall rule IR-2026-0420-01-01 moved to the permanent "threat-intel deny" group; proxy deny *.office365-cdn.net
+    verification_command: from ir-jump01 test VLAN host - curl -m 5 https://staging.office365-cdn.net/ ; Test-NetConnection 45.152.66.114 -Port 443
+    expected_verification_result: curl blocked by proxy (403 policy page); TcpTestSucceeded False; firewall deny log entry
+    status: verified
+    executed_at: 2026-04-21T10:00:00Z
+    executed_by: Robert Kim
+    verification_output: "curl 403 proxy policy; TcpTestSucceeded False; deny log hit 10:01:12Z"
+
+  - id: ERAD-051
+    category: network
+    target_host: INTERNAL DNS
+    description: Keep the DNS sinkhole for the squatted domain (office365-cdn.net and all subdomains -> 10.30.250.53) with alerting on any lookup
+    command_or_action: Add-DnsServerQueryResolutionPolicy (permanent zone override) + SIEM alert on sinkhole hits
+    verification_command: Resolve-DnsName staging.office365-cdn.net -Server dc01
+    expected_verification_result: 10.30.250.53; lookup appears in sinkhole log and raises SIEM alert
+    status: verified
+    executed_at: 2026-04-21T10:05:00Z
+    executed_by: Robert Kim
+    verification_output: "10.30.250.53; sinkhole log + SIEM alert SINKHOLE-HIT at 10:05:31Z"
+
+  - id: ERAD-052
+    category: network
+    target_host: EMAIL GATEWAY
+    description: Block the phishing attachment (sha256 8fd043fa...4abc), .docm attachments from external senders, and purge the original message from all mailboxes
+    command_or_action: Defender for Office 365 tenant block list (file hash); transport rule quarantine external .docm; Purview search and purge HardDelete for message AAMkAG-Invoice
+    verification_command: Purview content search for subject and attachment name across all mailboxes
+    expected_verification_result: 0 items found
+    status: verified
+    executed_at: 2026-04-21T10:20:00Z
+    executed_by: Tales Lima
+    verification_output: "0 items (2 copies purged: jdoe, one forwarded copy to a scheduling clerk who did not open it)"
+
+  # ===================== machine_account =====================
+  - id: ERAD-060
+    category: machine_account
+    target_host: CS-WS-101, CS-WS-104, CS-WS-107, CS-WS-112, SCHED-SVR-01
+    description: Rebuilt hosts rejoin under a fresh computer account; old accounts (whose secrets were on compromised SYSTEM-level hosts) deleted
+    command_or_action: Remove-ADComputer <host> before rejoin; Add-Computer -DomainName meddefense.org during rebuild
+    verification_command: Get-ADComputer <host> -Properties whenCreated,PasswordLastSet; Test-ComputerSecureChannel on the host
+    expected_verification_result: whenCreated 2026-04-21; secure channel True
+    status: verified
+    executed_at: 2026-04-21T15:30:00Z
+    executed_by: Robert Kim
+    verification_output: "5/5: whenCreated 2026-04-21; Test-ComputerSecureChannel True"
+
+  - id: ERAD-061
+    category: machine_account
+    target_host: FILE-SVR-01
+    description: Rotate the FILE-SVR-01 machine account password twice (not rebuilt; the beacon ran as SYSTEM for 27 min)
+    command_or_action: Reset-ComputerMachinePassword -Server DC01 (run twice, 10 min apart)
+    verification_command: Get-ADComputer FILE-SVR-01 -Properties PasswordLastSet; Test-ComputerSecureChannel
+    expected_verification_result: PasswordLastSet 2026-04-21; secure channel True; SMB access from clinical VLAN still works
+    status: verified
+    executed_at: 2026-04-21T13:20:00Z
+    executed_by: Robert Kim
+    verification_output: "PasswordLastSet 2026-04-21T13:30:02Z; True; lab PDF opened from CS-WS-140 (13:32Z)"
+
+  # ===================== access hardening (root causes found during the investigation) =====================
+  - id: ERAD-070
+    category: credential
+    target_host: FILE-SVR-01
+    description: Restrict \clinical\labs and \clinical\notes ACLs to clinical roles; jdoe's scheduling role could read every patient file (FS-003)
+    command_or_action: icacls D:\clinical\labs /remove "MEDDEFENSE\Domain Users"; grant read to GG-Clinical-Labs-Read; same for notes with GG-Clinical-Notes-Read
+    verification_command: icacls D:\clinical\labs; icacls D:\clinical\notes; access test as a scheduling clerk test account
+    expected_verification_result: no Domain Users or scheduling group ACE; test account gets Access Denied
+    status: verified
+    executed_at: 2026-04-21T13:45:00Z
+    executed_by: Robert Kim
+    verification_output: "ACL shows only clinical groups + admins; scheduling test account Access Denied (13:50Z)"
