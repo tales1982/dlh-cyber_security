@@ -1,0 +1,7 @@
+# Old runbook v0.7 step 4: "Decompress the SQL dump to /recovery/lis_dump.sql"
+$ gzip -dc /tmp/meddefense-dr-test/backup/lis/2026-04-21/lis_backup.sql.gz > /recovery/lis_dump.sql
+discovered at 18:44:23
+bash: line 1: /recovery/lis_dump.sql: No such file or directory
+exit=1
+$ ls -ld /recovery
+ls: cannot access '/recovery': No such file or directory

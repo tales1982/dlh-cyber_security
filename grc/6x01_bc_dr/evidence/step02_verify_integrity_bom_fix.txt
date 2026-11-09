@@ -1,0 +1,11 @@
+$ head -c 16 backup_manifest.sha256 | od -An -c
+ 357 273 277   a   c   9   1   8   c   f   7   f   f   d   5   c
+$ file backup_manifest.sha256
+/tmp/meddefense-dr-test/backup/lis/2026-04-21/backup_manifest.sha256: Unicode text, UTF-8 (with BOM) text, with no line terminators
+# Fix: strip the UTF-8 BOM into a working copy (original manifest left untouched as evidence)
+$ sed '1s/^\xEF\xBB\xBF//' backup_manifest.sha256 > /tmp/meddefense-dr-test/validation/backup_manifest.nobom.sha256
+$ sha256sum -c /tmp/meddefense-dr-test/validation/backup_manifest.nobom.sha256
+/tmp/meddefense-dr-test/backup/lis/2026-04-21/lis_backup.sql.gz: OK
+exit=0
+$ sha256sum lis_backup.sql.gz   (independent cross-check)
+ac918cf7ffd5c5cad3fdec178207c684a00bcb02a19fdcf994b22314fdacf0e1  /tmp/meddefense-dr-test/backup/lis/2026-04-21/lis_backup.sql.gz

@@ -1,0 +1,21 @@
+# Why not "source app_config.env": the BOM breaks line 1
+$ bash -c "set -a; . app_config.env; echo APP_ENV=\$APP_ENV"
+  /tmp/meddefense-dr-test/config/app_config.env: line 1: ﻿APP_ENV=recovery-test: command not found
+  APP_ENV=
+# Override: build a clean recovery-only env (original config untouched), DB_HOST disabled
+$ sed -e '1s/^\xEF\xBB\xBF//' -e 's/^DB_HOST=.*/DB_HOST=  # disabled for recovery test: production host lis-db-prod.meddefense.internal must not be used/' app_config.env > /tmp/meddefense-dr-test/validation/app_config.recovery_override.env
+$ cat /tmp/meddefense-dr-test/validation/app_config.recovery_override.env
+APP_ENV=recovery-test
+DB_ENGINE=sqlite
+DB_NAME=lis_production
+DB_HOST=
+RECOVERY_DB_PATH=/tmp/meddefense-dr-test/recovery/lis_recovered.db
+LIS_RTO_MINUTES=30
+BACKUP_DATE=2026-04-21DB_PATH_OVERRIDE=/tmp/meddefense-dr-test/recovery/lis_recovered.db
+$ set -a; . app_config.recovery_override.env; sqlite3 "$RECOVERY_DB_PATH" "SELECT COUNT(*) FROM patient_orders;"
+DB_HOST='' RECOVERY_DB_PATH=/tmp/meddefense-dr-test/recovery/lis_recovered.db
+5
+$ ls -l /tmp/meddefense-dr-test/recovery/lis_recovered.db
+-rw-r--r-- 1 tales tales 12288 nov  8 18:44 /tmp/meddefense-dr-test/recovery/lis_recovered.db
+$ sha256sum lis_recovered.db
+bb6ee809ba9fdd959f5d604ede231c38d966effa6d8e1aabe20dc4474d3ef511  /tmp/meddefense-dr-test/recovery/lis_recovered.db

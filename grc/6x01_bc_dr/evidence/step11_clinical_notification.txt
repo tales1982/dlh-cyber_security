@@ -1,0 +1,15 @@
+$ cat /tmp/meddefense-dr-test/validation/clinical_notification.txt
+TO: Laboratory accessioning (ext 7500), Nursing Supervisor (ext 7100), Clinical Applications Lead (ext 7300)
+FROM: IT Incident Commander (ext 7200)
+SUBJECT: LIS recovery test - restored copy validated (TEST ONLY, no production change)
+
+The Laboratory Information System recovery test restored the 2026-04-21 23:30 backup into an isolated
+recovery copy. All 5 lab orders in that backup are present. The two critical results are present and
+flagged: MRN-10043 BMP K+ 6.1 mEq/L and MRN-10045 Troponin 0.08 ng/mL.
+
+In a real outage this backup would NOT contain results entered after 2026-04-21 23:30 (up to 24 hours of
+data). Critical values reported during downtime must be taken from the Critical Value Call Log on the
+chemistry bench clipboard, not from the restored system. Original order times were not preserved in the
+backup; order times shown after restore are the restore time.
+
+No action is required from clinical staff for this test.

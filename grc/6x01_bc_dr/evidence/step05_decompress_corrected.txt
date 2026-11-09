@@ -1,0 +1,7 @@
+$ gzip -dc /tmp/meddefense-dr-test/backup/lis/2026-04-21/lis_backup.sql.gz > /tmp/meddefense-dr-test/recovery/lis_dump.sql
+exit=0
+$ ls -l /tmp/meddefense-dr-test/recovery/lis_dump.sql
+-rw-rw-r-- 1 tales tales 668 nov  8 18:44 /tmp/meddefense-dr-test/recovery/lis_dump.sql
+$ head -c 3 lis_dump.sql | od -An -c ; grep -c "^  (.MRN-" lis_dump.sql
+   D   R   O
+5

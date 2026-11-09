@@ -1,0 +1,5 @@
+Expected row count: 5
+
+Required critical records:
+MRN-10043 | BMP | K+: 6.1 mEq/L | critical_flag=1
+MRN-10045 | TROPONIN | 0.08 ng/mL | critical_flag=1

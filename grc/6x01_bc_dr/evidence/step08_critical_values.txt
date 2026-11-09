@@ -1,0 +1,11 @@
+$ sqlite3 /tmp/meddefense-dr-test/recovery/lis_recovered.db "SELECT patient_mrn, test_code, result_value, critical_flag FROM patient_orders WHERE patient_mrn IN ('MRN-10043','MRN-10045');"
+MRN-10043|BMP|K+: 6.1 mEq/L|1
+MRN-10045|TROPONIN|0.08 ng/mL|1
+$ sqlite3 -header -column lis_recovered.db "SELECT * FROM patient_orders;"
+order_id  patient_mrn  test_code  ordered_at           status    result_value   critical_flag
+--------  -----------  ---------  -------------------  --------  -------------  -------------
+1         MRN-10042    CBC        2026-11-08 17:44:39  RESULTED  9.2/13.4/412   0            
+2         MRN-10043    BMP        2026-11-08 17:44:39  RESULTED  K+: 6.1 mEq/L  1            
+3         MRN-10044    PT-INR     2026-11-08 17:44:39  PENDING                  0            
+4         MRN-10045    TROPONIN   2026-11-08 17:44:39  RESULTED  0.08 ng/mL     1            
+5         MRN-10046    LACTATE    2026-11-08 17:44:39  PENDING                  0            

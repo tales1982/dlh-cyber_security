@@ -1,0 +1,6 @@
+$ sqlite3 /tmp/meddefense-dr-test/recovery/lis_recovered.db < /tmp/meddefense-dr-test/recovery/lis_dump.sql
+exit=0
+$ sqlite3 /tmp/meddefense-dr-test/recovery/lis_recovered.db "PRAGMA integrity_check;"
+ok
+$ sqlite3 /tmp/meddefense-dr-test/recovery/lis_recovered.db ".tables"
+patient_orders

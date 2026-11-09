@@ -1,0 +1,6 @@
+$ ls -1d /tmp/meddefense-dr-test/backup/lis/*/ | sort | tail -n 1
+/tmp/meddefense-dr-test/backup/lis/2026-04-21/
+$ ls -l /tmp/meddefense-dr-test/backup/lis/2026-04-21/
+total 8
+-rw-rw-r-- 1 tales tales 132 nov  8 18:43 backup_manifest.sha256
+-rw-rw-r-- 1 tales tales 362 nov  8 18:43 lis_backup.sql.gz

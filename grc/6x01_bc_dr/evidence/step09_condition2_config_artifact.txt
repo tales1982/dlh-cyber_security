@@ -1,0 +1,17 @@
+$ cat /tmp/meddefense-dr-test/config/app_config.env
+﻿APP_ENV=recovery-test
+DB_ENGINE=sqlite
+DB_NAME=lis_production
+DB_HOST=lis-db-prod.meddefense.internal
+RECOVERY_DB_PATH=/tmp/meddefense-dr-test/recovery/lis_recovered.db
+LIS_RTO_MINUTES=30
+BACKUP_DATE=2026-04-21
+discovered at 18:44:54
+$ grep -n "^\(\xEF\xBB\xBF\)\?DB_HOST\|RECOVERY_DB_PATH\|DB_ENGINE" app_config.env
+2:DB_ENGINE=sqlite
+4:DB_HOST=lis-db-prod.meddefense.internal
+5:RECOVERY_DB_PATH=/tmp/meddefense-dr-test/recovery/lis_recovered.db
+$ head -c 3 app_config.env | od -An -c
+ 357 273 277
+$ getent hosts lis-db-prod.meddefense.internal || echo "not resolvable"
+not resolvable from recovery host

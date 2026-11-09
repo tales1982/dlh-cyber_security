@@ -1,0 +1,5 @@
+$ mkdir -p /tmp/meddefense-dr-test/recovery
+$ ls -ld /tmp/meddefense-dr-test/recovery
+drwxrwxr-x 2 tales tales 4096 nov  8 18:43 /tmp/meddefense-dr-test/recovery
+$ df -h /tmp | tail -1
+/dev/sdc3       916G  543G  327G  63% /
