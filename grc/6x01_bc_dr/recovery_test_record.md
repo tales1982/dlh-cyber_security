@@ -64,8 +64,8 @@ $ ls -l /tmp/meddefense-dr-test/recovery/lis_dump.sql
 -rw-rw-r-- 1 tales tales 668 nov  8 18:44 /tmp/meddefense-dr-test/recovery/lis_dump.sql
 ```
 
-**Category:** Runbook Error / Environment Assumption
-**Runbook fix:** Runbook Step 4 now documents the failure mode and the corrected command.
+Category: Runbook Error / Environment Assumption. Runbook Step 4 now uses the corrected path.
+
 **Time added:** 0.1 minutes (7 seconds, from the failed attempt at 18:44:23 to the corrected start at 18:44:30)
 
 ### Condition 2: Configuration artifact
@@ -82,64 +82,21 @@ DB_HOST='' RECOVERY_DB_PATH=/tmp/meddefense-dr-test/recovery/lis_recovered.db
 5
 ```
 
-**Category:** Configuration Drift / Documentation Gap
-**Runbook fix:** Runbook Step 9 builds the recovery override and never sources the production file.
+Category: Configuration Drift / Documentation Gap. Runbook Step 9 now builds this override and never uses the production file.
+
 **Time added:** 0.2 minutes (13 seconds, from 18:44:54 to the end of the validated override at 18:45:07)
 
 ### Condition 3: Row count check
 
-**Discovered at:** 18:44:39 (timer step 07)
 **Query:** SELECT COUNT(*) FROM patient_orders;
-**Expected:** 5 (`expected_lis_records.txt`)
+**Expected:** 5
 **Actual:** 5
 **Outcome:** PASS
-**Category:** Recovery Validation
-**Time added:** 0 minutes
 
 ```text
 $ sqlite3 /tmp/meddefense-dr-test/recovery/lis_recovered.db "SELECT COUNT(*) FROM patient_orders;"
 5
 ```
-
-The row count was checked against the expected value, not just read. It was checked twice: once directly on the restored file (timer step 07) and once through the recovery override configuration (timer step 10). Both returned 5.
-
-| Validation check | Expected | Actual | Result |
-| --- | --- | --- | --- |
-| Row count in `patient_orders` | 5 | 5 | PASS |
-| MRN-10043 critical result | BMP, K+: 6.1 mEq/L, critical_flag=1 | BMP, K+: 6.1 mEq/L, critical_flag=1 | PASS |
-| MRN-10045 critical result | TROPONIN, 0.08 ng/mL, critical_flag=1 | TROPONIN, 0.08 ng/mL, critical_flag=1 | PASS |
-| `PRAGMA integrity_check` | ok | ok | PASS |
-| Original order times (`ordered_at`) | time of the original order | restore time on all 5 rows | **FAIL** (deviation D-2) |
-
-A matching row count proves that no rows were lost. It does not prove the data is correct: all 5 rows are present, but every order time is wrong (D-2). That is why the row count is not the only validation.
-
-### Additional deviations found during the test
-
-These were not on the condition cards. They are recorded because the purpose of the test is to find what the plan gets wrong.
-
-| # | Discovered at | Deviation | Impact | Resolution during test | Permanent fix |
-| --- | --- | --- | --- | --- | --- |
-| D-1 | 18:44:01 (step 02) | `sha256sum -c backup_manifest.sha256` failed with `no properly formatted checksum lines found`. The manifest starts with a UTF-8 BOM (`od` shows `357 273 277`) and has no line terminator. | Integrity cannot be verified with the documented command. An operator under pressure might skip verification. | Removed the BOM in a working copy (`validation/backup_manifest.nobom.sha256`): `lis_backup.sql.gz: OK`, confirmed by an independent `sha256sum`. Original manifest left untouched. 9 seconds added. | Generate manifests with `sha256sum` on Linux (no BOM); added to `backup_architecture.md` and runbook Step 2 |
-| D-2 | 18:44:45 (step 08) | The `ordered_at` column is not in the backup dump, so all restored rows show the restore time (`2026-11-08 17:44:39` UTC) instead of the original order time. | Order times in the restored LIS are wrong. A clinician could misjudge how old a pending order is. | Recorded; clinical notification states that restored order times must not be used. | Fix the dump job to export every column; noted in `backup_architecture.md` and runbook Step 7 |
-| D-3 | 18:45:07 (step 10) | Operator error. `app_config.env` has no final newline, so the line I appended to the override merged with the last line (`BACKUP_DATE=2026-04-21DB_PATH_OVERRIDE=...`). | The override copy has a corrupted `BACKUP_DATE`. Validation was not affected because it used `RECOVERY_DB_PATH`, which was intact. | Found while reviewing the evidence after the step. | Runbook Step 9 now adds `printf '\n'` before any append |
-| D-4 | 18:44:15 (step 03) | The backup is the 2026-04-21 23:30 nightly dump. | In a real outage everything entered after the last nightly dump is lost: up to 24 hours against a BIA RPO of 1 hour. | Not fixable during a test; stated in the clinical notification. | Hourly incremental backup (`backup_architecture.md`, RPO compliance table) |
-
-### Deviation summary
-
-Every deviation from the runbook or from the expected result, in the order found:
-
-| # | Timer step | Deviation | Category | Time added |
-| --- | --- | --- | --- | --- |
-| D-1 | 02 | Checksum manifest has a BOM; `sha256sum -c` fails | Backup Process Defect | 9 seconds |
-| D-4 | 03 | Latest backup is a nightly dump; up to 24 hours of data loss against a 1-hour RPO | Backup Design Gap (RPO not met) | 0 seconds (found while identifying the backup) |
-| Condition 1 | 04 | Old runbook path `/recovery/lis_dump.sql` does not exist; step 04 FAIL | Runbook Error / Environment Assumption | 7 seconds |
-| Condition 3 | 07 | Row count 5 of 5 | Recovery Validation (PASS) | 0 seconds |
-| D-2 | 08 | `ordered_at` not in the backup; order times replaced by restore time | Backup Process Defect (data integrity) | 0 seconds (found during validation) |
-| Condition 2 | 09 | `DB_HOST` points at production; config file has a BOM | Configuration Drift / Documentation Gap | 13 seconds |
-| D-3 | 10 | Operator error: append without newline corrupted `BACKUP_DATE` in the override copy | Operator Error | 0 seconds (found in evidence review after the step) |
-
-**Total time added by deviations:** 29 seconds of the 1 minute 24 seconds.
-**Steps logged as FAIL:** 1 (timer step 04). All other steps passed, some only after a workaround (D-1, Condition 2).
 
 ## Recovery Validation
 
@@ -174,6 +131,13 @@ order_id  patient_mrn  test_code  ordered_at           status    result_value   
 5         MRN-10046    LACTATE    2026-11-08 17:44:39  PENDING                  0
 ```
 
+| Validation check | Expected | Actual | Result |
+| --- | --- | --- | --- |
+| Row count in `patient_orders` | 5 | 5 | PASS |
+| MRN-10043 critical result | BMP, K+: 6.1 mEq/L, critical_flag=1 | BMP, K+: 6.1 mEq/L, critical_flag=1 | PASS |
+| MRN-10045 critical result | TROPONIN, 0.08 ng/mL, critical_flag=1 | TROPONIN, 0.08 ng/mL, critical_flag=1 | PASS |
+| `PRAGMA integrity_check` | ok | ok | PASS |
+
 ## Test Result
 
 | Measure | Value |
@@ -190,8 +154,8 @@ order_id  patient_mrn  test_code  ordered_at           status    result_value   
 
 Why CONDITIONAL PASS and not PASS:
 
-1. **The documented procedure did not work as written.** The old runbook path failed (Condition 1), the documented integrity command failed (D-1), and the documented configuration pointed at production (Condition 2). Recovery succeeded only because the operator diagnosed each problem on the spot. The corrected runbook (v1.1) must be retested end to end without deviations before the result can be called PASS.
-2. **The restored data is not fully correct.** Original order times are lost (D-2), and the nightly backup cannot meet the 1-hour RPO (D-4).
+1. **The documented procedure did not work as written.** The old runbook path failed (Condition 1), the documented integrity command failed (F-1), and the documented configuration pointed at production (Condition 2). Recovery succeeded only because the operator diagnosed each problem on the spot. The corrected runbook (v1.1) must be retested end to end without deviations before the result can be called PASS.
+2. **The restored data is not fully correct.** Original order times are lost (F-2), and the nightly backup cannot meet the 1-hour RPO (F-4).
 3. **The measured time is not a realistic RTO estimate.** It covers only the technical restore of a 5-row database by an operator who had already studied the runbook. It does not include outage detection, paging the on-call team, approvals, starting the LIS application, reconnecting the Epic interface and analyzers, or the chemistry lead's clinical check. A production-sized database also takes far longer to decompress and restore. The 30-minute RTO should be retested with a production-sized backup and the full call-out chain.
 
 Follow-up actions (owners as in the BIA):
@@ -203,3 +167,14 @@ Follow-up actions (owners as in the BIA):
 | Remove the production `DB_HOST` from the recovery configuration; keep a separate recovery config under change control | Clinical Applications Lead | 2026-11-20 |
 | Implement hourly incremental LIS backups (RPO 1 hour) | Infrastructure Manager | 2026-12-15 |
 | Retest with runbook v1.1, a production-sized backup, the full call-out chain and the chemistry lead validation | IT Incident Commander | 2026-12-31 |
+
+## Other Findings
+
+Findings recorded during the test that were not on the condition cards. They do not change the three conditions above; they feed the follow-up actions.
+
+| # | Discovered at | Finding | Impact | Handling during test | Permanent fix |
+| --- | --- | --- | --- | --- | --- |
+| F-1 | 18:44:01 (step 02) | `sha256sum -c backup_manifest.sha256` failed with `no properly formatted checksum lines found`. The manifest starts with a UTF-8 BOM (`od` shows `357 273 277`) and has no line terminator. | Integrity cannot be verified with the documented command. An operator under pressure might skip verification. | Removed the BOM in a working copy (`validation/backup_manifest.nobom.sha256`): `lis_backup.sql.gz: OK`, confirmed by an independent `sha256sum`. Original manifest left untouched. 9 seconds added. | Generate manifests with `sha256sum` on Linux (no BOM); added to `backup_architecture.md` and runbook Step 2 |
+| F-2 | 18:44:45 (step 08) | The `ordered_at` column is not in the backup dump, so all restored rows show the restore time (`2026-11-08 17:44:39` UTC) instead of the original order time. | Order times in the restored LIS are wrong. A clinician could misjudge how old a pending order is. | Recorded; clinical notification states that restored order times must not be used. | Fix the dump job to export every column; noted in `backup_architecture.md` and runbook Step 7 |
+| F-3 | 18:45:07 (step 10) | Operator error. `app_config.env` has no final newline, so the line I appended to the override merged with the last line (`BACKUP_DATE=2026-04-21DB_PATH_OVERRIDE=...`). | The override copy has a corrupted `BACKUP_DATE`. Validation was not affected because it used `RECOVERY_DB_PATH`, which was intact. | Found while reviewing the evidence after the step. | Runbook Step 9 now adds `printf '\n'` before any append |
+| F-4 | 18:44:15 (step 03) | The backup is the 2026-04-21 23:30 nightly dump. | In a real outage everything entered after the last nightly dump is lost: up to 24 hours against a BIA RPO of 1 hour. | Not fixable during a test; stated in the clinical notification. | Hourly incremental backup (`backup_architecture.md`, RPO compliance table) |
