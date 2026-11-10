@@ -80,8 +80,10 @@ For STAT problems: ordering clinician, then accessioning (7500), then chemistry 
 
 ### When the laboratory system comes back (Lab)
 
-1. **Keep all paper logs.** The chemistry lead confirms that critical results shown in the system match the Critical Value Call Log.
-2. Enter every result from the downtime period, oldest first, using the original collection time.
-3. A second technologist checks each entry against the paper requisition.
+1. **Do not throw away any paper.** Wait for the Clinical Applications Lead (7300) to announce that the laboratory system is back.
+2. **The accessioning lead collects all paper** from the lab: every requisition, the Manual Specimen Tracking Log, the Specimen Rejection Log and the Critical Value Call Log. Units send their paper requisition copies to accessioning with the next runner.
+3. Technologists enter every result from the downtime period, oldest first, using the original collection time.
 4. **Results produced during the outage may be missing from the restored system.** Re-enter them from the paper logs; never assume they are already there.
-5. The chemistry lead signs the reconciliation and keeps the logs with the lab records.
+5. A second technologist checks each entry against the paper requisition.
+6. **The chemistry lead checks that every critical result in the system matches the Critical Value Call Log**, then signs and dates each log as reconciled.
+7. **Paper handoff:** the chemistry lead hands the signed logs and requisitions to the laboratory medical director (7520) for review. The laboratory medical director signs off and sends the bundle to Health Information Management, which keeps it with the patient records. The chemistry lead tells the Nursing Supervisor (7100) when reconciliation is complete.

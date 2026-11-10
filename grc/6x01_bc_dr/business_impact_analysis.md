@@ -15,7 +15,28 @@ Key results:
 - **Six systems are Tier 1** (maximum tolerable downtime of 4 hours or less): Network Core, Active Directory, Epic EHR, Laboratory Information System (LIS), Pharmacy Dispensing System and the Medical Device Integration Gateway. Three are Tier 2 and one is Tier 3.
 - **Network Core and Active Directory are single points of failure.** Every clinical application depends on them, so they must be restored first, even though nurses never see them.
 - **Three recovery objectives cannot be met by the current backup schedule** (`backup_log_review_findings.md`). The worst is the LIS: the hospital needs a recovery point of 1 hour for critical lab values, but the LIS is backed up once a night, so up to 24 hours of results could be lost. The Medical Device Integration Gateway has no off-site copy, and the Active Directory snapshot interval (8 hours) is longer than the 4-hour objective set here. `backup_architecture.md` closes these gaps.
-- **The old declared Epic RTO of 4 hours equals its MTD**, which leaves no margin. This BIA sets it at 2 hours.
+- **The old declared Epic RTO of 4 hours equals its MTD**, which breaks the consistency rule (RTO must be below MTD). This BIA sets it at 2 hours.
+
+**Highest-risk systems:**
+
+1. **Laboratory Information System:** a lost or delayed critical value (for example potassium 6.1 mEq/L) can harm a patient within the first hour, and the current backup could lose up to 24 hours of results against a 1-hour RPO.
+2. **Network Core and Active Directory:** a single failure takes down every clinical application at once.
+3. **Epic EHR and Pharmacy Dispensing System:** without them, allergy and interaction checks become manual and medication errors become likely within 4 hours.
+4. **Medical Device Integration Gateway:** alarms stop reaching nurses, and the configuration has no off-site copy.
+
+**Immediate recovery priorities** (restore order after a site-wide failure, with RTO):
+
+| Order | System | RTO |
+| --- | --- | --- |
+| 1 | Network Core | 30 minutes |
+| 2 | Active Directory | 1 hour |
+| 3 | Backup and DR Infrastructure access (needed to restore everything below) | restored with Active Directory |
+| 4 | Laboratory Information System | 30 minutes after its dependencies are up |
+| 5 | Epic EHR, Pharmacy Dispensing System, Medical Device Integration Gateway | 2 hours |
+| 6 | PACS/RIS, then Email and Secure Messaging | 4 and 8 hours |
+| 7 | Security Operations Platform | 24 hours |
+
+Funding priorities: hourly LIS backups, a more frequent Active Directory snapshot, an off-site copy of the device gateway configuration, and a tested Active Directory recovery.
 
 ## Methodology
 
@@ -28,20 +49,24 @@ Each system was scored on four impact criteria using `meddefense_system_inventor
 | Revenue | Estimated exposure per hour, from lost or delayed charge capture, ED diversion and cancelled procedures (see Assumptions) |
 | Operational dependency | What the system needs to run, and what fails downstream when it stops |
 
+This document is the applications and data criticality analysis required by 45 CFR 164.308(a)(7)(ii)(E). Its objectives feed the data backup plan (164.308(a)(7)(ii)(A)), the disaster recovery plan (164.308(a)(7)(ii)(B)) and the testing and revision procedures (164.308(a)(7)(ii)(D)).
+
 Recovery objectives are business decisions, set in this order:
 
 1. **Maximum Tolerable Downtime (MTD):** the point after which patient harm or regulatory breach becomes likely even with downtime procedures in place.
-2. **Recovery Time Objective (RTO):** the target time to restore service. It is always set **below** the MTD, leaving time for validation and clinical reconciliation.
+2. **Recovery Time Objective (RTO):** the target time to restore service.
 3. **Recovery Point Objective (RPO):** the maximum acceptable data loss, measured in time. It drives backup frequency.
 
-Priority tiers:
+**Consistency rule (the only rule applied to the values in this BIA):** for every system, **RTO < MTD**. The gap between them is time for validation and clinical reconciliation. An RTO equal to or above the MTD is invalid. RPO measures data loss, not downtime, so it is set from how much data the clinical process can lose and is not compared with RTO or MTD.
 
-| Tier | Definition |
+Priority tiers are assigned from the MTD alone:
+
+| Tier | MTD |
 | --- | --- |
-| Tier 1 | MTD of 4 hours or less; direct patient safety impact or foundation for Tier 1 systems |
-| Tier 2 | MTD between 4 and 24 hours; patient care degrades but safe workarounds exist |
-| Tier 3 | MTD between 24 and 72 hours; indirect clinical impact |
-| Tier 4 | MTD over 72 hours; business support only |
+| Tier 1 | 4 hours or less |
+| Tier 2 | more than 4 hours, up to 24 hours |
+| Tier 3 | more than 24 hours, up to 72 hours |
+| Tier 4 | more than 72 hours |
 
 ## System Impact Assessment
 
@@ -74,7 +99,7 @@ Priority tiers:
 - **Regulatory:** 164.312(a)(1) access control (unique user identification, emergency access procedure); 164.308(a)(7)(ii)(B).
 - **Revenue exposure:** about $55,000 per hour (blocks every clinical and billing application).
 - **Dependencies:** Network Core. Downstream: Epic, LIS, PACS/RIS, Pharmacy, email and secure messaging, Security Operations Platform, and access control for the backup platform.
-- **MTD:** 2 hours. **RTO:** 1 hour. **RPO:** 4 hours (with DC02 replication the practical loss for a single DC failure is minutes).
+- **MTD:** 2 hours. **RTO:** 1 hour. **RPO:** 4 hours.
 - **Tier:** Tier 1.
 
 ### 3. Epic EHR
@@ -106,7 +131,7 @@ Priority tiers:
 - **Regulatory:** 164.308(a)(7)(ii)(A) data backup and (B) disaster recovery; 164.312(c)(1) integrity of results; CLIA and Joint Commission requirements for timely critical value reporting with read-back.
 - **Revenue exposure:** about $12,000 per hour (lab charges and delayed discharges).
 - **Dependencies:** Network Core, Active Directory, Epic interface engine, lab instrument feeds. Downstream: Epic result posting, critical value notification, clinical decisions in ED and ICU.
-- **MTD:** 4 hours. **RTO:** 30 minutes (declared, kept). **RPO:** 1 hour (critical values and STAT orders). The current nightly backup cannot meet this; see `backup_architecture.md`.
+- **MTD:** 4 hours. **RTO:** 30 minutes. **RPO:** 1 hour (critical values and STAT orders). The current nightly backup cannot meet this RPO; see `backup_architecture.md`.
 - **Tier:** Tier 1.
 
 ### 5. Pharmacy Dispensing System
@@ -186,7 +211,7 @@ Priority tiers:
 - **Regulatory:** 164.308(a)(7)(ii)(A) retrievable exact copies of ePHI; 164.310(d)(2)(iv) data backup and storage.
 - **Revenue exposure:** no direct hourly revenue loss; indirect exposure equals the cost of permanent data loss on any system.
 - **Dependencies:** Network Core, Active Directory (access control), storage. Downstream: recovery of every other system.
-- **MTD:** 24 hours (shorter during any other outage: it becomes a prerequisite for Tier 1 recovery). **RTO:** 8 hours. **RPO:** 4 hours (backup catalog).
+- **MTD:** 24 hours. **RTO:** 8 hours. **RPO:** 4 hours (backup catalog). Its tier comes from its own MTD. During a site-wide failure its access is restored third, right after Active Directory, because every other restore needs it (see Immediate recovery priorities).
 - **Tier:** Tier 2.
 
 ### 10. Security Operations Platform
@@ -231,18 +256,18 @@ Downstream failure sequence when a foundation fails:
 
 ## RTO / RPO / MTD Summary Table
 
-| System | Tier | MTD | RTO | RPO | RTO below MTD | Current backup can meet RPO |
+| System | Tier | MTD | RTO | RPO | Rule check: RTO < MTD | Current backup can meet RPO |
 | --- | --- | --- | --- | --- | --- | --- |
-| Network Core | Tier 1 | 1 hour | 30 minutes | 6 hours | Yes | Yes (config every 6 hours) |
-| Active Directory | Tier 1 | 2 hours | 1 hour | 4 hours | Yes | **No** (snapshot every 8 hours) |
-| Epic EHR | Tier 1 | 4 hours | 2 hours | 15 minutes | Yes | Yes (replication every 15 minutes) |
-| Laboratory Information System | Tier 1 | 4 hours | 30 minutes | 1 hour | Yes | **No** (nightly dump only) |
-| Pharmacy Dispensing System | Tier 1 | 4 hours | 2 hours | 1 hour | Yes | Yes (hourly database backup) |
-| Medical Device Integration Gateway | Tier 1 | 4 hours | 2 hours | 24 hours | Yes | Frequency yes; **no off-site copy** |
-| PACS/RIS | Tier 2 | 8 hours | 4 hours | 4 hours | Yes | Yes (snapshot every 4 hours) |
-| Email and Secure Messaging | Tier 2 | 24 hours | 8 hours | 1 hour | Yes | Yes (provider continuous) |
-| Backup and DR Infrastructure | Tier 2 | 24 hours | 8 hours | 4 hours | Yes | Yes (catalog every 4 hours) |
-| Security Operations Platform | Tier 3 | 72 hours | 24 hours | 4 hours | Yes | Yes (index snapshot every 4 hours) |
+| Network Core | Tier 1 | 1 hour | 30 minutes | 6 hours | Yes (30 minutes < 1 hour) | Yes (config every 6 hours) |
+| Active Directory | Tier 1 | 2 hours | 1 hour | 4 hours | Yes (1 hour < 2 hours) | **No** (snapshot every 8 hours) |
+| Epic EHR | Tier 1 | 4 hours | 2 hours | 15 minutes | Yes (2 hours < 4 hours) | Yes (replication every 15 minutes) |
+| Laboratory Information System | Tier 1 | 4 hours | 30 minutes | 1 hour | Yes (30 minutes < 4 hours) | **No** (nightly dump only) |
+| Pharmacy Dispensing System | Tier 1 | 4 hours | 2 hours | 1 hour | Yes (2 hours < 4 hours) | Yes (hourly database backup) |
+| Medical Device Integration Gateway | Tier 1 | 4 hours | 2 hours | 24 hours | Yes (2 hours < 4 hours) | Frequency yes; **no off-site copy** |
+| PACS/RIS | Tier 2 | 8 hours | 4 hours | 4 hours | Yes (4 hours < 8 hours) | Yes (snapshot every 4 hours) |
+| Email and Secure Messaging | Tier 2 | 24 hours | 8 hours | 1 hour | Yes (8 hours < 24 hours) | Yes (provider continuous) |
+| Backup and DR Infrastructure | Tier 2 | 24 hours | 8 hours | 4 hours | Yes (8 hours < 24 hours) | Yes (catalog every 4 hours) |
+| Security Operations Platform | Tier 3 | 72 hours | 24 hours | 4 hours | Yes (24 hours < 72 hours) | Yes (index snapshot every 4 hours) |
 
 ## Assumptions and Limitations
 
