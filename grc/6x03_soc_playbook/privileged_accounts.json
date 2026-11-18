@@ -1,0 +1,23 @@
+{
+  "domain_admins": [
+    "james.chen",
+    "sarah.park",
+    "robert.kim",
+    "svc_backup",
+    "svc_epic_int",
+    "svc_helpdesk",
+    "admin.legacy",
+    "t.morrison",
+    "j.yamamoto"
+  ],
+  "server_admins": [
+    "m.torres",
+    "h.reyes",
+    "svc_monitoring"
+  ],
+  "metadata": {
+    "source": "6x02 IAM audit",
+    "exported_at": "2026-04-28T08:00:00Z",
+    "owner": "IT Security"
+  }
+}

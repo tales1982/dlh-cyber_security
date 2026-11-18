@@ -1,0 +1,27 @@
+{
+  "alert_id": "ALT-20260428-008",
+  "timestamp": "2026-04-28T14:40:18Z",
+  "rule_name": "credential_access_lsass_dump",
+  "severity": "high",
+  "source": "endpoint_edr",
+  "raw_log": {
+    "host": "WST-WS-017",
+    "process": "C:\\Temp\\tool.exe",
+    "target_process": "lsass.exe",
+    "source_ip": "192.168.10.42",
+    "username": "admin.legacy",
+    "mitre_technique": "T1003.001",
+    "parent_process": "cmd.exe",
+    "command_line": "C:\\Temp\\tool.exe /target lsass.exe",
+    "device_group": "Administrative Workstations"
+  },
+  "analyst_assigned": null,
+  "status": "open",
+  "expected": {
+    "playbook": "credential_exposure",
+    "case_severity": "High",
+    "case_status": "escalated",
+    "isolation_queue": false,
+    "rationale": "Domain Admin anomaly from internal IP"
+  }
+}

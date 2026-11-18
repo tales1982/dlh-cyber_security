@@ -1,0 +1,30 @@
+{
+  "case_id": "CASE-20260428-001",
+  "alert_id": "ALT-20260428-001",
+  "severity": "Critical",
+  "title": "Phishing: Known C2 IP Escalated",
+  "status": "escalated",
+  "created_at": "2026-04-28T10:15:48Z",
+  "updated_at": "2026-04-28T10:15:49Z",
+  "resolution": null,
+  "notes": [
+    {
+      "note": "Playbook verdict: ESCALATE. IOCs: 198.51.100.42 (BLOCK/95), meddefense-secure.net (BLOCK/97)",
+      "created_at": "2026-04-28T10:15:48Z"
+    }
+  ],
+  "iocs": [
+    {
+      "ioc_value": "198.51.100.42",
+      "ioc_type": "ipv4",
+      "verdict": "BLOCK",
+      "score": 95
+    },
+    {
+      "ioc_value": "meddefense-secure.net",
+      "ioc_type": "domain",
+      "verdict": "BLOCK",
+      "score": 97
+    }
+  ]
+}

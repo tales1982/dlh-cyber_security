@@ -1,0 +1,33 @@
+{
+  "alert_id": "ALT-20260428-001",
+  "timestamp": "2026-04-28T09:14:32Z",
+  "rule_name": "phishing_email_suspicious_sender",
+  "severity": "medium",
+  "source": "email_gateway",
+  "raw_log": {
+    "from": "billing@meddefense-secure.net",
+    "from_ip": "198.51.100.42",
+    "to": "d.walsh@meddefense.internal",
+    "subject": "Urgent: Patient billing system maintenance required",
+    "body_urls": [
+      "http://meddefense-secure.net/reset",
+      "http://198.51.100.42/payload"
+    ],
+    "attachment_name": null,
+    "attachment_sha256": null,
+    "message_id": "<ALT-20260428-001@mx-gw.meddefense.internal>",
+    "spf": "pass",
+    "dkim": "pass",
+    "dmarc": "none",
+    "recipient_department": "Clinical"
+  },
+  "analyst_assigned": null,
+  "status": "open",
+  "expected": {
+    "playbook": "phishing_triage",
+    "verdict": "ESCALATE",
+    "case_severity": "Critical",
+    "case_status": "escalated",
+    "rationale": "sender IP and domain are BLOCK verdict IOCs"
+  }
+}

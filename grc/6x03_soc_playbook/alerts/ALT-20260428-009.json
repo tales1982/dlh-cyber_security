@@ -1,0 +1,27 @@
+{
+  "alert_id": "ALT-20260428-009",
+  "timestamp": "2026-04-28T15:07:44Z",
+  "rule_name": "lateral_movement_pass_the_hash",
+  "severity": "medium",
+  "source": "endpoint_edr",
+  "raw_log": {
+    "host": "WST-WS-041",
+    "process": "C:\\Windows\\System32\\cmd.exe",
+    "target_process": null,
+    "source_ip": "192.168.10.55",
+    "username": "k.nguyen",
+    "mitre_technique": "T1550.002",
+    "parent_process": "wmiprvse.exe",
+    "command_line": "cmd.exe /c net use \\\\WST-WS-044\\ADMIN$",
+    "device_group": "Radiology Workstations"
+  },
+  "analyst_assigned": null,
+  "status": "open",
+  "expected": {
+    "playbook": "credential_exposure",
+    "case_severity": "Medium",
+    "case_status": "open",
+    "isolation_queue": false,
+    "rationale": "internal IP and non-privileged user"
+  }
+}

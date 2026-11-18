@@ -1,0 +1,92 @@
+{
+  "version": "1.0",
+  "updated": "2026-04-28T00:00:00Z",
+  "description": "Deterministic MedDefense local IOC feed for the 6x03 SOC automation lab.",
+  "malicious_ips": {
+    "198.51.100.42": {
+      "confidence": 95,
+      "category": "c2",
+      "tags": [
+        "cobalt_strike",
+        "beacon"
+      ],
+      "first_seen": "2026-03-12",
+      "last_seen": "2026-04-27",
+      "source": "meddefense-internal",
+      "case_reference": "MD-IR-2026-03-CS-001",
+      "notes": "Observed during Cobalt Strike beacon triage and credential access investigation."
+    },
+    "198.51.100.156": {
+      "confidence": 88,
+      "category": "phishing",
+      "tags": [
+        "phishing_host",
+        "credential_harvest"
+      ],
+      "first_seen": "2026-04-01",
+      "last_seen": "2026-04-26",
+      "source": "meddefense-internal",
+      "case_reference": "MD-PHISH-2026-04-156",
+      "notes": "Resolved from healthcare-themed credential collection pages."
+    },
+    "203.0.113.99": {
+      "confidence": 72,
+      "category": "scanner",
+      "tags": [
+        "port_scan",
+        "reconnaissance"
+      ],
+      "first_seen": "2026-04-15",
+      "last_seen": "2026-04-28",
+      "source": "meddefense-internal",
+      "case_reference": "MD-RECON-2026-04-099",
+      "notes": "Seen probing VPN and exposed web services; confidence below block threshold."
+    }
+  },
+  "malicious_domains": {
+    "meddefense-secure.net": {
+      "confidence": 97,
+      "category": "typosquat",
+      "tags": [
+        "phishing",
+        "credential_harvest",
+        "impersonation"
+      ],
+      "first_seen": "2026-04-10",
+      "last_seen": "2026-04-27",
+      "source": "meddefense-internal",
+      "case_reference": "MD-PHISH-2026-04-MDS",
+      "notes": "Impersonates MedDefense login and billing workflows."
+    },
+    "cobalt-beacon.shop": {
+      "confidence": 99,
+      "category": "c2",
+      "tags": [
+        "cobalt_strike",
+        "c2",
+        "malware"
+      ],
+      "first_seen": "2026-03-01",
+      "last_seen": "2026-04-28",
+      "source": "meddefense-internal",
+      "case_reference": "MD-IR-2026-03-CS-001",
+      "notes": "Beacon staging and command infrastructure."
+    }
+  },
+  "benign_ips": [
+    "8.8.8.8",
+    "1.1.1.1",
+    "208.67.222.222"
+  ],
+  "benign_domains": [
+    "google.com",
+    "microsoft.com",
+    "cisco.com",
+    "meddefense.internal"
+  ],
+  "internal_ranges": [
+    "10.0.0.0/8",
+    "172.16.0.0/12",
+    "192.168.0.0/16"
+  ]
+}

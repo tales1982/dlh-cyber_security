@@ -1,0 +1,11 @@
+[
+  {
+    "queued_at": "2026-11-18T09:31:53Z",
+    "host": "WST-WS-031",
+    "alert_id": "ALT-20260428-007",
+    "case_id": "CASE-20261118-004",
+    "reason": "LSASS dump from known C2 IP 198.51.100.42 by Domain Admin svc_helpdesk",
+    "action_required": "Analyst must authorize isolation via EDR console before execution",
+    "status": "pending_authorization"
+  }
+]

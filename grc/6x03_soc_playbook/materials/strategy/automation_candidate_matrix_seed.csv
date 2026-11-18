@@ -1,0 +1,8 @@
+process,daily_volume,manual_effort_minutes,automation_complexity,fp_risk,recommended_tier,fp_threshold_required,notes
+IOC enrichment for phishing alerts,90,5,Low,Low,enrich-only,N/A,Safe lookup and scoring
+Case creation from playbook verdicts,60,2,Low,Low,enrich-and-triage,N/A,Structured case creation replaces Slack-only workflow
+Credential exposure enrichment,12,8,Medium,Medium,enrich-and-triage,N/A,Requires privilege context
+Phishing benign auto-close,35,3,Medium,Medium,enrich-and-triage,<2% false negative,Only after reliable allowlist and monitoring
+Endpoint isolation recommendation,4,10,High,High,enrich-and-human-authorize,<1% false positive,Queue only until FP measurement exists
+Mailbox quarantine,15,6,High,High,human-authorized-action,<1% false positive,Healthcare communications may be patient-safety relevant
+Privileged account disablement,1,15,High,Critical,human-only,<0.1% false positive,Disabling clinical or IT accounts can disrupt operations

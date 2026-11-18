@@ -1,0 +1,6 @@
+alert_id,playbook,expected_verdict,expected_case_severity,expected_case_status,isolation_queue_expected,expected_reason
+ALT-20260428-001,phishing_triage,ESCALATE,Critical,escalated,no,Known malicious sender IP and typosquat domain
+ALT-20260428-002,phishing_triage,REVIEW,High,open,no,Unknown external sender and domain require review
+ALT-20260428-003,phishing_triage,CLOSE,Low,closed,no,Internal sender and private IP with no suspicious external IOC
+ALT-20260428-007,credential_exposure,ESCALATE,Critical,escalated,yes,Known C2 source IP and Domain Admin service account
+ALT-20260428-009,credential_exposure,MANUAL_REVIEW,Medium,open,no,Internal IP and non-privileged user require manual review without isolation

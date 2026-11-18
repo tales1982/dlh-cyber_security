@@ -1,0 +1,32 @@
+{
+  "alert_id": "ALT-20260428-002",
+  "timestamp": "2026-04-28T09:31:05Z",
+  "rule_name": "phishing_email_suspicious_sender",
+  "severity": "low",
+  "source": "email_gateway",
+  "raw_log": {
+    "from": "newsletter@external-health-news.com",
+    "from_ip": "203.0.113.5",
+    "to": "r.osei@meddefense.internal",
+    "subject": "Healthcare IT newsletter April 2026",
+    "body_urls": [
+      "http://external-health-news.com/unsubscribe"
+    ],
+    "attachment_name": null,
+    "attachment_sha256": null,
+    "message_id": "<ALT-20260428-002@mx-gw.meddefense.internal>",
+    "spf": "pass",
+    "dkim": "none",
+    "dmarc": "none",
+    "recipient_department": "IT"
+  },
+  "analyst_assigned": null,
+  "status": "open",
+  "expected": {
+    "playbook": "phishing_triage",
+    "verdict": "REVIEW",
+    "case_severity": "High",
+    "case_status": "open",
+    "rationale": "unknown external sender requires investigation"
+  }
+}

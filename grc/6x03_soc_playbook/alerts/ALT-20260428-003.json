@@ -1,0 +1,30 @@
+{
+  "alert_id": "ALT-20260428-003",
+  "timestamp": "2026-04-28T10:02:19Z",
+  "rule_name": "phishing_email_suspicious_sender",
+  "severity": "low",
+  "source": "email_gateway",
+  "raw_log": {
+    "from": "it-notices@meddefense.internal",
+    "from_ip": "10.0.1.25",
+    "to": "p.delgado@meddefense.internal",
+    "subject": "Scheduled maintenance reminder",
+    "body_urls": [],
+    "attachment_name": null,
+    "attachment_sha256": null,
+    "message_id": "<ALT-20260428-003@mx-gw.meddefense.internal>",
+    "spf": "pass",
+    "dkim": "pass",
+    "dmarc": "pass",
+    "recipient_department": "Nursing"
+  },
+  "analyst_assigned": null,
+  "status": "open",
+  "expected": {
+    "playbook": "phishing_triage",
+    "verdict": "CLOSE",
+    "case_severity": "Low",
+    "case_status": "closed",
+    "rationale": "internal sender and private source IP"
+  }
+}

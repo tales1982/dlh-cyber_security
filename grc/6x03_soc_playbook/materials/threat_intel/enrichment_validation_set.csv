@@ -1,0 +1,11 @@
+ioc,expected_type,expected_ip_class,expected_score,expected_verdict,reason
+198.51.100.42,ipv4,documentation,95,BLOCK,Known Cobalt Strike C2 in internal feed
+cobalt-beacon.shop,domain,N/A,99,BLOCK,Known C2 domain in internal feed
+203.0.113.99,ipv4,documentation,72,INVESTIGATE,Scanner confidence below block threshold
+192.168.1.100,ipv4,private,0,ALLOW,Private internal address should not be blocked by enrichment
+8.8.8.8,ipv4,public,0,ALLOW,Known benign resolver in allowlist
+meddefense-secure.net,domain,N/A,97,BLOCK,Typosquat credential-harvest domain
+external-health-news.com,domain,N/A,30,INVESTIGATE,Unknown external sender domain
+meddefense.internal,domain,N/A,0,ALLOW,Known internal MedDefense domain
+http://198.51.100.42/payload,url,documentation,95,BLOCK,URL hostname resolves to known C2 IP
+http://meddefense-secure.net/reset,url,N/A,97,BLOCK,URL hostname resolves to known phishing domain
