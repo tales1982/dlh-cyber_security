@@ -1,0 +1,11 @@
+<samlp:Response xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" ID="_resp-dwalsh-20260428" Version="2.0" IssueInstant="2026-04-28T09:15:00Z" Destination="http://localhost:5000/saml/acs">
+  <saml:Issuer>http://localhost:8080/realms/meddefense</saml:Issuer>
+  <ds:Signature><ds:SignedInfo><ds:Reference URI="#_assert-dwalsh-001"/></ds:SignedInfo><ds:SignatureValue>SIMULATED_SIGNATURE_VALUE_FOR_LAB_ONLY</ds:SignatureValue></ds:Signature>
+  <saml:Assertion ID="_assert-dwalsh-001" Version="2.0" IssueInstant="2026-04-28T09:15:00Z">
+    <saml:Issuer>http://localhost:8080/realms/meddefense</saml:Issuer>
+    <saml:Subject><saml:NameID Format="urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress">d.walsh@meddefense.internal</saml:NameID><saml:SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer"><saml:SubjectConfirmationData NotOnOrAfter="2026-04-28T09:20:00Z" Recipient="http://localhost:5000/saml/acs"/></saml:SubjectConfirmation></saml:Subject>
+    <saml:Conditions NotBefore="2026-04-28T09:14:55Z" NotOnOrAfter="2026-04-28T09:20:00Z"><saml:AudienceRestriction><saml:Audience>meddefense-portal</saml:Audience></saml:AudienceRestriction></saml:Conditions>
+    <saml:AuthnStatement AuthnInstant="2026-04-28T09:14:58Z" SessionIndex="_session-dwalsh-001"><saml:AuthnContext><saml:AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport</saml:AuthnContextClassRef></saml:AuthnContext></saml:AuthnStatement>
+    <saml:AttributeStatement><saml:Attribute Name="MedDefenseRole"><saml:AttributeValue>clinical_staff</saml:AttributeValue></saml:Attribute><saml:Attribute Name="email"><saml:AttributeValue>d.walsh@meddefense.internal</saml:AttributeValue></saml:Attribute></saml:AttributeStatement>
+  </saml:Assertion>
+</samlp:Response>

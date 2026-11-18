@@ -1,0 +1,94 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "BreakGlassAdminWithMFAFromSOCNetwork",
+      "Effect": "Allow",
+      "Action": "*",
+      "Resource": "*",
+      "Condition": {
+        "Bool": {
+          "aws:MultiFactorAuthPresent": "true"
+        },
+        "NumericLessThanEquals": {
+          "aws:MultiFactorAuthAge": "3600"
+        },
+        "IpAddress": {
+          "aws:SourceIp": "198.51.100.0/24"
+        }
+      }
+    },
+    {
+      "Sid": "DenyAllWithoutMFA",
+      "Effect": "Deny",
+      "Action": "*",
+      "Resource": "*",
+      "Condition": {
+        "BoolIfExists": {
+          "aws:MultiFactorAuthPresent": "false"
+        }
+      }
+    },
+    {
+      "Sid": "DenyAllOutsideApprovedNetwork",
+      "Effect": "Deny",
+      "Action": "*",
+      "Resource": "*",
+      "Condition": {
+        "NotIpAddress": {
+          "aws:SourceIp": "198.51.100.0/24"
+        },
+        "Bool": {
+          "aws:ViaAWSService": "false"
+        }
+      }
+    },
+    {
+      "Sid": "DenyAuditTrailTampering",
+      "Effect": "Deny",
+      "Action": [
+        "cloudtrail:StopLogging",
+        "cloudtrail:DeleteTrail",
+        "cloudtrail:UpdateTrail",
+        "cloudtrail:PutEventSelectors",
+        "logs:DeleteLogGroup",
+        "logs:DeleteLogStream",
+        "config:StopConfigurationRecorder",
+        "config:DeleteConfigurationRecorder",
+        "config:DeleteDeliveryChannel",
+        "guardduty:DeleteDetector",
+        "guardduty:UpdateDetector"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "DenyPersistentCredentialCreation",
+      "Effect": "Deny",
+      "Action": [
+        "iam:CreateAccessKey",
+        "iam:CreateLoginProfile",
+        "iam:UpdateLoginProfile",
+        "iam:CreateUser"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "DenyBreakGlassSelfModification",
+      "Effect": "Deny",
+      "Action": [
+        "iam:AttachRolePolicy",
+        "iam:DetachRolePolicy",
+        "iam:PutRolePolicy",
+        "iam:DeleteRolePolicy",
+        "iam:UpdateAssumeRolePolicy",
+        "iam:DeleteRolePermissionsBoundary",
+        "iam:CreatePolicyVersion",
+        "iam:SetDefaultPolicyVersion"
+      ],
+      "Resource": [
+        "arn:aws:iam::123456789012:role/MedDefenseBreakGlassAdmin",
+        "arn:aws:iam::123456789012:policy/MedDefenseBreakGlassAdmin"
+      ]
+    }
+  ]
+}

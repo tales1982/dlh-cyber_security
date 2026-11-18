@@ -1,0 +1,21 @@
+username,display_name,department,account_type,enabled,last_login_days_ago,mfa_enrolled,privileged_groups,description
+james.chen,James Chen,IT Security,user,TRUE,1,TRUE,"Domain Admins;Security Operations",SOC Lead
+sarah.park,Sarah Park,IT,user,TRUE,6,TRUE,"Domain Admins;IT Directors",IT Director
+robert.kim,Robert Kim,IT Security,user,TRUE,3,TRUE,"Domain Admins;Security Operations",Security Analyst
+m.torres,Mike Torres,IT Security,user,TRUE,2,TRUE,"Server Admins;Security Operations",Security Engineer
+h.reyes,Helena Reyes,IT,user,TRUE,8,TRUE,"Server Admins",Systems Administrator
+admin.legacy,Legacy Admin Account,IT,user,TRUE,187,FALSE,"Domain Admins","Created for EHR migration 2021; migration complete"
+t.morrison,Tom Morrison,IT Contractors,user,TRUE,248,FALSE,"Domain Admins;Server Admins","Contract ended 2025-09-01"
+d.walsh,Diana Walsh,Clinical,user,TRUE,0,TRUE,"Epic Users;Clinical Staff",Charge Nurse ICU
+k.nguyen,Kevin Nguyen,Radiology,user,TRUE,1,FALSE,"Epic Users;PACS Users","Three phishing simulation failures in 90 days"
+l.okafor,Lena Okafor,Finance,user,TRUE,142,FALSE,"Finance Users","Left organization per HR 2025-11-28"
+b.carter,Brian Carter,IT,user,FALSE,224,TRUE,"Server Admins;Helpdesk","Account disabled; group memberships not removed at offboarding"
+svc_backup,Backup Service Account,IT,service,TRUE,1,N/A,"Domain Admins","Nightly backup automation; DA granted per legacy config"
+svc_epic_int,Epic Integration Service,Clinical Systems,service,TRUE,1156,N/A,"Domain Admins","Post-EHR-migration service account; no current function identified"
+svc_helpdesk,Helpdesk Automation,IT,service,TRUE,0,N/A,"Domain Admins","Ticket routing automation; DA granted by vendor during install; review later"
+svc_monitoring,Monitoring Agent,IT,service,TRUE,0,N/A,"Server Admins","Prometheus metrics collection"
+svc_av_mgmt,AV Management Agent,IT,service,TRUE,0,N/A,"Workstation Admins","EDR agent management"
+j.yamamoto,Jun Yamamoto,Finance,user,TRUE,312,FALSE,"Domain Admins;Server Admins","Transferred from IT to Finance 2024-02; elevated rights not removed"
+p.delgado,Patricia Delgado,Nursing,user,TRUE,0,TRUE,"Epic Users;Clinical Staff",Floor Nurse
+r.osei,Richard Osei,IT,user,TRUE,4,TRUE,"Helpdesk",IT Helpdesk Level 1
+a.petrov,Alex Petrov,IT Security,user,TRUE,2,TRUE,"Server Admins;Security Operations","Junior Security Analyst"

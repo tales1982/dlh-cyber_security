@@ -1,0 +1,6 @@
+account,account_type,current_privilege,last_login_days_ago,business_function,priority,reason
+svc_epic_int,service,Domain Admins,1156,No current function identified,Critical,Static dormant Domain Admin service account directly matches incident path
+svc_helpdesk,service,Domain Admins,0,Ticket routing automation,Critical,Vendor-granted Domain Admin access exceeds stated automation need
+svc_backup,service,Domain Admins,1,Nightly backup automation,High,Backup function may need broad data access but not standing Domain Admin
+svc_monitoring,service,Server Admins,0,Metrics collection,Medium,Monitoring should use read-only scoped credentials
+svc_av_mgmt,service,Workstation Admins,0,EDR management,Medium,Privileged endpoint function should be evaluated for JIT or scoped management role

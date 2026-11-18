@@ -1,0 +1,59 @@
+{
+  "realm": "meddefense",
+  "displayName": "MedDefense Health Systems",
+  "enabled": true,
+  "ssoSessionIdleTimeout": 1800,
+  "bruteForceProtected": true,
+  "failureFactor": 5,
+  "clients": [
+    {
+      "clientId": "meddefense-portal",
+      "protocol": "saml",
+      "enabled": true,
+      "redirectUris": [
+        "http://localhost:5000/*"
+      ],
+      "attributes": {
+        "saml_name_id_format": "email",
+        "saml_force_name_id_format": "true",
+        "saml.assertion.signature": "true",
+        "saml.server.signature": "true",
+        "saml_assertion_consumer_url_post": "http://localhost:5000/saml/acs"
+      },
+      "protocolMappers": [
+        {
+          "name": "MedDefenseRole",
+          "protocol": "saml",
+          "protocolMapper": "saml-user-attribute-mapper",
+          "config": {
+            "user.attribute": "MedDefenseRole",
+            "attribute.name": "MedDefenseRole",
+            "attribute.nameformat": "Basic"
+          }
+        }
+      ]
+    }
+  ],
+  "users": [
+    {
+      "username": "d.walsh",
+      "email": "d.walsh@meddefense.internal",
+      "enabled": true,
+      "attributes": {
+        "MedDefenseRole": [
+          "clinical_staff"
+        ]
+      }
+    },
+    {
+      "username": "r.kim",
+      "email": "r.kim@meddefense.internal",
+      "enabled": true,
+      "attributes": {
+        "MedDefenseRole": [
+          "it_security"
+        ]
+      }
+    }
+  ]
+}

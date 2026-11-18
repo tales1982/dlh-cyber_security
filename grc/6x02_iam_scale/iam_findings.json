@@ -1,0 +1,470 @@
+{
+  "audit_metadata": {
+    "organization": "MedDefense",
+    "audit_date": "2026-11-18",
+    "source_file": "accounts.csv",
+    "accounts_reviewed": 20,
+    "dormant_threshold_days": 90,
+    "severity_model": "materials/iam_audit/severity_model.md",
+    "generated_by": "audit_iam.py"
+  },
+  "summary": {
+    "total_findings": 14,
+    "by_severity": {
+      "Critical": 6,
+      "High": 1,
+      "Medium": 4,
+      "Low": 3
+    },
+    "incident_path_matches": [
+      "IAM-001",
+      "IAM-002",
+      "IAM-003",
+      "IAM-004",
+      "IAM-005",
+      "IAM-006"
+    ],
+    "mfa_coverage_privileged_users": {
+      "scope": "Enabled user accounts in Domain Admins, Server Admins or Workstation Admins (service accounts excluded: MFA is N/A)",
+      "privileged_user_accounts": 9,
+      "with_mfa": 6,
+      "without_mfa": 3,
+      "coverage_percent": 66.7,
+      "accounts_without_mfa": [
+        "admin.legacy",
+        "j.yamamoto",
+        "t.morrison"
+      ]
+    }
+  },
+  "findings": [
+    {
+      "finding_id": "IAM-001",
+      "username": "svc_epic_int",
+      "display_name": "Epic Integration Service",
+      "department": "Clinical Systems",
+      "account_type": "service",
+      "enabled": true,
+      "last_login_days_ago": 1156,
+      "mfa_enrolled": "N/A",
+      "privileged_groups": [
+        "Domain Admins"
+      ],
+      "description": "Post-EHR-migration service account; no current function identified",
+      "category": "Service account over-privilege",
+      "check": "Service account privilege review",
+      "severity": "Critical",
+      "conditions": [
+        "Member of Domain Admins",
+        "Dormant: last login 1156 days ago (threshold 90)",
+        "Description shows no current owner or function: Post-EHR-migration service account; no current function identified"
+      ],
+      "incident_path_match": true,
+      "evidence": "accounts.csv line 14",
+      "remediation": [
+        "Remove the account from Domain Admins.",
+        "Rotate the password and record the change ticket.",
+        "If the account has no current function, disable it, keep it disabled for 30 days, then delete it.",
+        "If the function is still needed, move it to a scoped group or a Vault dynamic credential with a short TTL.",
+        "Verify the dependent job still runs and record the result."
+      ],
+      "status": "Open"
+    },
+    {
+      "finding_id": "IAM-002",
+      "username": "svc_backup",
+      "display_name": "Backup Service Account",
+      "department": "IT",
+      "account_type": "service",
+      "enabled": true,
+      "last_login_days_ago": 1,
+      "mfa_enrolled": "N/A",
+      "privileged_groups": [
+        "Domain Admins"
+      ],
+      "description": "Nightly backup automation; DA granted per legacy config",
+      "category": "Service account over-privilege",
+      "check": "Service account privilege review",
+      "severity": "Critical",
+      "conditions": [
+        "Member of Domain Admins",
+        "Privilege granted without review: Nightly backup automation; DA granted per legacy config"
+      ],
+      "incident_path_match": true,
+      "evidence": "accounts.csv line 13",
+      "remediation": [
+        "Remove the account from Domain Admins.",
+        "Rotate the password and record the change ticket.",
+        "If the account has no current function, disable it, keep it disabled for 30 days, then delete it.",
+        "If the function is still needed, move it to a scoped group or a Vault dynamic credential with a short TTL.",
+        "Verify the dependent job still runs and record the result."
+      ],
+      "status": "Open"
+    },
+    {
+      "finding_id": "IAM-003",
+      "username": "svc_helpdesk",
+      "display_name": "Helpdesk Automation",
+      "department": "IT",
+      "account_type": "service",
+      "enabled": true,
+      "last_login_days_ago": 0,
+      "mfa_enrolled": "N/A",
+      "privileged_groups": [
+        "Domain Admins"
+      ],
+      "description": "Ticket routing automation; DA granted by vendor during install; review later",
+      "category": "Service account over-privilege",
+      "check": "Service account privilege review",
+      "severity": "Critical",
+      "conditions": [
+        "Member of Domain Admins",
+        "Privilege granted without review: Ticket routing automation; DA granted by vendor during install; review later"
+      ],
+      "incident_path_match": true,
+      "evidence": "accounts.csv line 15",
+      "remediation": [
+        "Remove the account from Domain Admins.",
+        "Rotate the password and record the change ticket.",
+        "If the account has no current function, disable it, keep it disabled for 30 days, then delete it.",
+        "If the function is still needed, move it to a scoped group or a Vault dynamic credential with a short TTL.",
+        "Verify the dependent job still runs and record the result."
+      ],
+      "status": "Open"
+    },
+    {
+      "finding_id": "IAM-004",
+      "username": "t.morrison",
+      "display_name": "Tom Morrison",
+      "department": "IT Contractors",
+      "account_type": "user",
+      "enabled": true,
+      "last_login_days_ago": 248,
+      "mfa_enrolled": "FALSE",
+      "privileged_groups": [
+        "Domain Admins",
+        "Server Admins"
+      ],
+      "description": "Contract ended 2025-09-01",
+      "category": "Departed user with privileged access",
+      "check": "Leaver de-provisioning review",
+      "severity": "Critical",
+      "conditions": [
+        "Member of Domain Admins",
+        "Dormant: last login 248 days ago (threshold 90)",
+        "MFA not enrolled",
+        "Description shows the user has left: Contract ended 2025-09-01"
+      ],
+      "incident_path_match": true,
+      "evidence": "accounts.csv line 8",
+      "remediation": [
+        "Disable the account immediately.",
+        "Remove all group memberships.",
+        "Reset the password and revoke any active sessions or tokens.",
+        "Review logons after the departure date in the SIEM.",
+        "Delete the account after 30 days if the review is clean."
+      ],
+      "status": "Open"
+    },
+    {
+      "finding_id": "IAM-005",
+      "username": "j.yamamoto",
+      "display_name": "Jun Yamamoto",
+      "department": "Finance",
+      "account_type": "user",
+      "enabled": true,
+      "last_login_days_ago": 312,
+      "mfa_enrolled": "FALSE",
+      "privileged_groups": [
+        "Domain Admins",
+        "Server Admins"
+      ],
+      "description": "Transferred from IT to Finance 2024-02; elevated rights not removed",
+      "category": "Orphaned privileged account",
+      "check": "Privileged account ownership review",
+      "severity": "Critical",
+      "conditions": [
+        "Member of Domain Admins",
+        "Dormant: last login 312 days ago (threshold 90)",
+        "MFA not enrolled",
+        "Description shows no current owner or function: Transferred from IT to Finance 2024-02; elevated rights not removed"
+      ],
+      "incident_path_match": true,
+      "evidence": "accounts.csv line 18",
+      "remediation": [
+        "Remove the account from privileged groups.",
+        "Confirm the owner and business need with the manager.",
+        "Disable the account if no owner confirms it within 7 days.",
+        "Enroll MFA before any privileged access is restored."
+      ],
+      "status": "Open"
+    },
+    {
+      "finding_id": "IAM-006",
+      "username": "admin.legacy",
+      "display_name": "Legacy Admin Account",
+      "department": "IT",
+      "account_type": "user",
+      "enabled": true,
+      "last_login_days_ago": 187,
+      "mfa_enrolled": "FALSE",
+      "privileged_groups": [
+        "Domain Admins"
+      ],
+      "description": "Created for EHR migration 2021; migration complete",
+      "category": "Orphaned privileged account",
+      "check": "Privileged account ownership review",
+      "severity": "Critical",
+      "conditions": [
+        "Member of Domain Admins",
+        "Dormant: last login 187 days ago (threshold 90)",
+        "MFA not enrolled",
+        "Description shows no current owner or function: Created for EHR migration 2021; migration complete"
+      ],
+      "incident_path_match": true,
+      "evidence": "accounts.csv line 7",
+      "remediation": [
+        "Remove the account from privileged groups.",
+        "Confirm the owner and business need with the manager.",
+        "Disable the account if no owner confirms it within 7 days.",
+        "Enroll MFA before any privileged access is restored."
+      ],
+      "status": "Open"
+    },
+    {
+      "finding_id": "IAM-007",
+      "username": "l.okafor",
+      "display_name": "Lena Okafor",
+      "department": "Finance",
+      "account_type": "user",
+      "enabled": true,
+      "last_login_days_ago": 142,
+      "mfa_enrolled": "FALSE",
+      "privileged_groups": [
+        "Finance Users"
+      ],
+      "description": "Left organization per HR 2025-11-28",
+      "category": "Departed user still enabled",
+      "check": "Leaver de-provisioning review",
+      "severity": "High",
+      "conditions": [
+        "Dormant: last login 142 days ago (threshold 90)",
+        "MFA not enrolled",
+        "Description shows the user has left: Left organization per HR 2025-11-28"
+      ],
+      "incident_path_match": false,
+      "evidence": "accounts.csv line 11",
+      "remediation": [
+        "Disable the account and remove group memberships.",
+        "Confirm the leave date with HR and review logons after it.",
+        "Delete the account after the retention period."
+      ],
+      "status": "Open"
+    },
+    {
+      "finding_id": "IAM-008",
+      "username": "svc_monitoring",
+      "display_name": "Monitoring Agent",
+      "department": "IT",
+      "account_type": "service",
+      "enabled": true,
+      "last_login_days_ago": 0,
+      "mfa_enrolled": "N/A",
+      "privileged_groups": [
+        "Server Admins"
+      ],
+      "description": "Prometheus metrics collection",
+      "category": "Service account over-privilege",
+      "check": "Service account privilege review",
+      "severity": "Medium",
+      "conditions": [
+        "Member of Server Admins"
+      ],
+      "incident_path_match": false,
+      "evidence": "accounts.csv line 16",
+      "remediation": [
+        "Replace the admin group with a least-privilege role scoped to the agent's function.",
+        "Store the credential in Vault and rotate it on a schedule.",
+        "Verify the agent still collects data after the change."
+      ],
+      "status": "Open"
+    },
+    {
+      "finding_id": "IAM-009",
+      "username": "svc_av_mgmt",
+      "display_name": "AV Management Agent",
+      "department": "IT",
+      "account_type": "service",
+      "enabled": true,
+      "last_login_days_ago": 0,
+      "mfa_enrolled": "N/A",
+      "privileged_groups": [
+        "Workstation Admins"
+      ],
+      "description": "EDR agent management",
+      "category": "Service account over-privilege",
+      "check": "Service account privilege review",
+      "severity": "Medium",
+      "conditions": [
+        "Member of Workstation Admins"
+      ],
+      "incident_path_match": false,
+      "evidence": "accounts.csv line 17",
+      "remediation": [
+        "Replace the admin group with a least-privilege role scoped to the agent's function.",
+        "Store the credential in Vault and rotate it on a schedule.",
+        "Verify the agent still collects data after the change."
+      ],
+      "status": "Open"
+    },
+    {
+      "finding_id": "IAM-010",
+      "username": "k.nguyen",
+      "display_name": "Kevin Nguyen",
+      "department": "Radiology",
+      "account_type": "user",
+      "enabled": true,
+      "last_login_days_ago": 1,
+      "mfa_enrolled": "FALSE",
+      "privileged_groups": [
+        "Epic Users",
+        "PACS Users"
+      ],
+      "description": "Three phishing simulation failures in 90 days",
+      "category": "MFA gap on high-risk user",
+      "check": "MFA enrollment review",
+      "severity": "Medium",
+      "conditions": [
+        "MFA not enrolled",
+        "High-risk user: Three phishing simulation failures in 90 days"
+      ],
+      "incident_path_match": false,
+      "evidence": "accounts.csv line 10",
+      "remediation": [
+        "Enroll MFA before the next login.",
+        "Assign targeted phishing training.",
+        "Add the account to a SIEM watchlist for 90 days."
+      ],
+      "status": "Open"
+    },
+    {
+      "finding_id": "IAM-011",
+      "username": "b.carter",
+      "display_name": "Brian Carter",
+      "department": "IT",
+      "account_type": "user",
+      "enabled": false,
+      "last_login_days_ago": 224,
+      "mfa_enrolled": "TRUE",
+      "privileged_groups": [
+        "Server Admins",
+        "Helpdesk"
+      ],
+      "description": "Account disabled; group memberships not removed at offboarding",
+      "category": "Disabled account retains privileged groups",
+      "check": "Leaver de-provisioning review",
+      "severity": "Medium",
+      "conditions": [
+        "Account disabled but still a member of Server Admins, Helpdesk",
+        "Description: Account disabled; group memberships not removed at offboarding"
+      ],
+      "incident_path_match": false,
+      "evidence": "accounts.csv line 12",
+      "remediation": [
+        "Remove all group memberships from the disabled account.",
+        "Fix the off-boarding checklist so groups are removed when the account is disabled."
+      ],
+      "status": "Open"
+    },
+    {
+      "finding_id": "IAM-012",
+      "username": "sarah.park",
+      "display_name": "Sarah Park",
+      "department": "IT",
+      "account_type": "user",
+      "enabled": true,
+      "last_login_days_ago": 6,
+      "mfa_enrolled": "TRUE",
+      "privileged_groups": [
+        "Domain Admins",
+        "IT Directors"
+      ],
+      "description": "IT Director",
+      "category": "Standing Domain Admin on named account",
+      "check": "Privileged access model review",
+      "severity": "Low",
+      "conditions": [
+        "Member of Domain Admins",
+        "Active, MFA enrolled; Domain Admin rights are held permanently on the same account used for daily work"
+      ],
+      "incident_path_match": false,
+      "evidence": "accounts.csv line 3",
+      "remediation": [
+        "Create a separate admin account for privileged tasks.",
+        "Remove Domain Admins from the daily account.",
+        "Move Domain Admin use to JIT elevation with approval and logging."
+      ],
+      "status": "Open"
+    },
+    {
+      "finding_id": "IAM-013",
+      "username": "robert.kim",
+      "display_name": "Robert Kim",
+      "department": "IT Security",
+      "account_type": "user",
+      "enabled": true,
+      "last_login_days_ago": 3,
+      "mfa_enrolled": "TRUE",
+      "privileged_groups": [
+        "Domain Admins",
+        "Security Operations"
+      ],
+      "description": "Security Analyst",
+      "category": "Standing Domain Admin on named account",
+      "check": "Privileged access model review",
+      "severity": "Low",
+      "conditions": [
+        "Member of Domain Admins",
+        "Active, MFA enrolled; Domain Admin rights are held permanently on the same account used for daily work"
+      ],
+      "incident_path_match": false,
+      "evidence": "accounts.csv line 4",
+      "remediation": [
+        "Create a separate admin account for privileged tasks.",
+        "Remove Domain Admins from the daily account.",
+        "Move Domain Admin use to JIT elevation with approval and logging."
+      ],
+      "status": "Open"
+    },
+    {
+      "finding_id": "IAM-014",
+      "username": "james.chen",
+      "display_name": "James Chen",
+      "department": "IT Security",
+      "account_type": "user",
+      "enabled": true,
+      "last_login_days_ago": 1,
+      "mfa_enrolled": "TRUE",
+      "privileged_groups": [
+        "Domain Admins",
+        "Security Operations"
+      ],
+      "description": "SOC Lead",
+      "category": "Standing Domain Admin on named account",
+      "check": "Privileged access model review",
+      "severity": "Low",
+      "conditions": [
+        "Member of Domain Admins",
+        "Active, MFA enrolled; Domain Admin rights are held permanently on the same account used for daily work"
+      ],
+      "incident_path_match": false,
+      "evidence": "accounts.csv line 2",
+      "remediation": [
+        "Create a separate admin account for privileged tasks.",
+        "Remove Domain Admins from the daily account.",
+        "Move Domain Admin use to JIT elevation with approval and logging."
+      ],
+      "status": "Open"
+    }
+  ]
+}

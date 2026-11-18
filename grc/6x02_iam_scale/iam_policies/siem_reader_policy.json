@@ -1,0 +1,32 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "ListSIEMLogBucket",
+      "Effect": "Allow",
+      "Action": "s3:ListBucket",
+      "Resource": "arn:aws:s3:::meddefense-siemlog-prod"
+    },
+    {
+      "Sid": "ReadSIEMLogObjects",
+      "Effect": "Allow",
+      "Action": "s3:GetObject",
+      "Resource": "arn:aws:s3:::meddefense-siemlog-prod/*"
+    },
+    {
+      "Sid": "CreateOwnLambdaLogGroup",
+      "Effect": "Allow",
+      "Action": "logs:CreateLogGroup",
+      "Resource": "arn:aws:logs:us-east-1:123456789012:log-group:/aws/lambda/siem-log-reader"
+    },
+    {
+      "Sid": "WriteOwnLambdaLogs",
+      "Effect": "Allow",
+      "Action": [
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+      ],
+      "Resource": "arn:aws:logs:us-east-1:123456789012:log-group:/aws/lambda/siem-log-reader:log-stream:*"
+    }
+  ]
+}
