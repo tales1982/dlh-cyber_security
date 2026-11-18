@@ -1,0 +1,7 @@
+segment_id,segment_name,estimated_population,primary_training_need,simulation_exclusions,manager_reporting
+SEG-A,Clinical leadership,115,phone verification and clinical escalation,"Exclude during active patient safety events, accreditation rounding days",Aggregate by unit
+SEG-B,General clinical staff,860,EHR lure recognition and fast reporting,"Exclude ICU/OR during critical coverage windows",Aggregate by department
+SEG-C,Administrative and billing staff,420,MFA/compliance and HR lure recognition,"Exclude during payroll close if finance-adjacent",Aggregate by business unit
+SEG-D,IT and security staff,105,privileged access and vendor support verification,"Exclude active incident responders during live incident",Aggregate by IT function
+SEG-E,Finance and procurement,75,BEC and payment verification,"Exclude month-end close day and audit submission day",Aggregate by finance leadership
+SEG-F,Executives and assistants,35,BEC, travel security, confidential document verification,"Coordinate with executive office calendar",Aggregate to CISO only

@@ -1,0 +1,11 @@
+metric,baseline_value,source,90_day_target,12_month_target,36_month_target
+overall_click_rate,56%,post_incident_click_rate_review.md,35%,25%,12%
+report_rate,15%,post_incident_click_rate_review.md,35%,50%,70%
+mean_time_to_report_minutes,74,post_incident_click_rate_review.md,25,15,10
+repeat_clicker_rate,unknown,no prior program,establish baseline,<8%,<4%
+post_simulation_training_completion,not measured,no prior program,90%,95%,98%
+false_positive_report_rate,not measured,no prior program,track baseline,manageable with SOC workflow,stable with triage automation
+clinical_click_rate,67%,post_incident_click_rate_review.md,40%,25%,12%
+finance_bec_verification_rate,unknown,no prior program,establish baseline,80%,95%
+vishing_verification_success,unknown,no prior program,establish baseline,75%,90%
+manager_escalation_confidence,unknown,no prior program,baseline survey,+25% improvement,+50% improvement

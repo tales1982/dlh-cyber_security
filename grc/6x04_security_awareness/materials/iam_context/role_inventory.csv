@@ -1,0 +1,7 @@
+segment_id,role_category,example_roles,primary_systems,primary_risk_vectors,estimated_population
+SEG-A,Clinical leadership,"Charge nurses, nursing supervisors, department clinical leads","Epic, LIS, secure messaging","EHR impersonation, vendor support escalation, secure message lures",115
+SEG-B,General clinical staff,"Nurses, patient care technicians, clinical assistants","Epic, medication administration, workstation kiosks","Epic account lures, patient message lures, USB drops, shoulder surfing",860
+SEG-C,Administrative and billing staff,"Billing specialists, schedulers, registration, HR coordinators","Billing portal, HRIS, email, document systems","MFA enrollment, benefits lures, payment/document requests",420
+SEG-D,IT and security staff,"Helpdesk, sysadmins, SOC analysts, endpoint engineers","IAM, EDR, SIEM, admin consoles","Vendor support lures, privileged access abuse, service account hygiene",105
+SEG-E,Finance and procurement,"Finance analysts, AP/AR, procurement staff","ERP, payment workflows, contracts","BEC, invoice fraud, vendor banking changes, sensitive documents",75
+SEG-F,Executives and assistants,"C-suite, executive assistants, board office","Email, board portals, travel systems","Spear phishing, BEC, travel security, confidential documents",35

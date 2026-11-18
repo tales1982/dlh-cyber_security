@@ -1,0 +1,18 @@
+department,role_group,segment_id,total_staff,shift_pattern,primary_workflow_systems,notes
+Emergency Department,Clinical staff,SEG-B,145,24x7 rotating,Epic;LIS;secure messaging,High urgency; avoid trauma surge windows
+ICU,Clinical staff,SEG-B,92,24x7 rotating,Epic;device gateway;LIS,Exclude during staffing shortage or critical event
+Medical-Surgical Units,Clinical staff,SEG-B,310,Day/evening/night,Epic;medication administration,Good baseline simulation population
+Nursing Supervisors,Clinical leadership,SEG-A,34,24x7 rotating,Epic;secure messaging;phone escalation,Use vishing and secure-message lures
+Radiology,Clinical/support,SEG-B,78,Extended hours,Epic;PACS/RIS,Imaging/result lures relevant
+Laboratory,Clinical/support,SEG-B,64,24x7,LIS;Epic interface,STAT result lures relevant
+Billing,Administrative,SEG-C,155,Business hours,Billing portal;email;document systems,MFA/compliance lures relevant
+Registration,Schedulers,SEG-C,110,Business + weekend,Epic;email,Patient information lures relevant
+HR,Administrative,SEG-C,42,Business hours,HRIS;email,Do not use benefits lure without HR approval
+IT Helpdesk,IT staff,SEG-D,38,Extended hours,Ticketing;IAM;remote support,Vendor support and privilege discipline
+Systems Engineering,IT staff,SEG-D,31,Business + on-call,IAM;servers;cloud,Privileged access guidance
+SOC,IT/security,SEG-D,18,Shifted,SIEM;EDR;case system,Exclude active incident responders during drills
+Finance,Finance/procurement,SEG-E,52,Business hours,ERP;email;banking portal,BEC/payment verification
+Procurement,Finance/procurement,SEG-E,23,Business hours,contracts;ERP;email,Vendor banking change lures
+Executives,Executives,SEG-F,12,Variable,email;board portal;travel,Coordinate carefully
+Executive Assistants,Executives,SEG-F,23,Business hours,email;calendar;documents,BEC and document request lures
+Remote administrative staff,Remote workers,SEG-C,84,Business hours,VPN;email;HRIS,Remote-work guidance
